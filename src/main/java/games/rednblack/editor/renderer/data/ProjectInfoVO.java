@@ -17,7 +17,7 @@ public class ProjectInfoVO {
     public ArrayList<SceneVO> scenes = new ArrayList<SceneVO>();
 
     public HashMap<String, CompositeItemVO> libraryItems = new HashMap<>();
-    public HashMap<String, String> libraryActions = new HashMap<>();
+    public HashMap<String, GraphVO> libraryActions = new HashMap<>();
 
     public String constructJsonString() {
         String str = "";

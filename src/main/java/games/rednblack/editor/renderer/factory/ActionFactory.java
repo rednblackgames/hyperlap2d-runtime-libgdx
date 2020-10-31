@@ -17,9 +17,9 @@ import games.rednblack.editor.renderer.utils.InterpolationMap;
 import java.util.*;
 
 public class ActionFactory {
-    private final Map<String, String> actionsLibrary;
+    private final Map<String, GraphVO> actionsLibrary;
 
-    public ActionFactory(Map<String, String> actions) {
+    public ActionFactory(Map<String, GraphVO> actions) {
         actionsLibrary = actions;
     }
 
@@ -50,8 +50,7 @@ public class ActionFactory {
         Json json = new Json();
         ActionData data = null;
         try {
-            GraphVO actionGraph = json.fromJson(GraphVO.class, actionsLibrary.get(actionName));
-            data = parseGraph(actionGraph, autoPoolable, params, listener);
+            data = parseGraph(actionsLibrary.get(actionName), autoPoolable, params, listener);
         } catch (Exception e) {
             throw new RuntimeException("The action '" + actionName + "' has not a valid format.");
         }
