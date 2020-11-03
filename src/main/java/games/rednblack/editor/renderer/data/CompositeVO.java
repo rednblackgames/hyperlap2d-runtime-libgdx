@@ -29,7 +29,7 @@ public class CompositeVO {
 
     public ArrayList<LayerItemVO> layers = new ArrayList<LayerItemVO>();
 
-    public ArrayList<StickyNoteVO> sStickyNodes = new ArrayList<>(1);
+    public ArrayList<StickyNoteVO> sStickyNotes = new ArrayList<>(1);
 
     public CompositeVO() {
 
