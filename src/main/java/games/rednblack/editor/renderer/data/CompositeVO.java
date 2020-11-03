@@ -10,6 +10,7 @@ import games.rednblack.editor.renderer.resources.FontSizePair;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class CompositeVO {
@@ -29,7 +30,7 @@ public class CompositeVO {
 
     public ArrayList<LayerItemVO> layers = new ArrayList<LayerItemVO>();
 
-    public ArrayList<StickyNoteVO> sStickyNotes = new ArrayList<>(1);
+    public HashMap<String, StickyNoteVO> sStickyNotes = new HashMap<>(1);
 
     public CompositeVO() {
 
