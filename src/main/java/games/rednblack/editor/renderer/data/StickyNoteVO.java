@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.data;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class StickyNoteVO {
@@ -8,6 +9,7 @@ public class StickyNoteVO {
     public float x, y;
     public float width, height;
     public String content;
+    public float[] tint = {0.72f, 0.98f, 0.62f, 1};
 
     public StickyNoteVO() {
         width = 250;
@@ -22,6 +24,7 @@ public class StickyNoteVO {
         this.x = noteVO.x;
         this.y = noteVO.y;
         this.id = noteVO.id;
+        if(noteVO.tint != null) tint = Arrays.copyOf(noteVO.tint, noteVO.tint.length);
     }
 
     @Override
@@ -34,7 +37,8 @@ public class StickyNoteVO {
                 Float.compare(noteVO.width, width) == 0 &&
                 Float.compare(noteVO.height, height) == 0 &&
                 Objects.equals(id, noteVO.id) &&
-                Objects.equals(content, noteVO.content);
+                Objects.equals(content, noteVO.content) &&
+                Arrays.equals(tint, noteVO.tint);
     }
 
     @Override
