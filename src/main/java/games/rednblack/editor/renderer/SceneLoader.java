@@ -29,6 +29,7 @@ import games.rednblack.editor.renderer.resources.ResourceManager;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.*;
 import games.rednblack.editor.renderer.systems.action.ActionSystem;
+import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -311,12 +312,46 @@ public class SceneLoader {
         return actionFactory;
     }
 
-    public void addComponentsByTagName(String tagName, Class<? extends Component> componentClass) {
+    public void addComponentByTagName(String tagName, Class<? extends Component> componentClass) {
         ImmutableArray<Entity> entities = engine.getEntities();
         for (Entity entity : entities) {
             MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
-            if (mainItemComponent.tags.contains(tagName)) {
-                entity.add(engine.createComponent(componentClass));
+            for (String tag : mainItemComponent.tags) {
+                if (tag.equals(tagName)) {
+                    entity.add(engine.createComponent(componentClass));
+                }
+            }
+        }
+    }
+
+    /*
+    * Add an actions from library actions for any entity with specified tag
+    *
+    */
+    public void addActionByTagName(String tagName, String action) {
+        ImmutableArray<Entity> entities = engine.getEntities();
+        for (Entity entity : entities) {
+            MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+            for (String tag : mainItemComponent.tags) {
+                if (tag.equals(tagName)) {
+                    Actions.addAction(engine, entity, loadActionFromLibrary(action));
+                }
+            }
+        }
+    }
+
+    /*
+     * Add an actions for any entity with specified tag
+     *
+     */
+    public void addActionByTagName(String tagName, ActionData action) {
+        ImmutableArray<Entity> entities = engine.getEntities();
+        for (Entity entity : entities) {
+            MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+            for (String tag : mainItemComponent.tags) {
+                if (tag.equals(tagName)) {
+                    Actions.addAction(engine, entity, action);
+                }
             }
         }
     }

@@ -52,6 +52,7 @@ public class ActionFactory {
         try {
             data = parseGraph(actionsLibrary.get(actionName), autoPoolable, params, listener);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("The action '" + actionName + "' has not a valid format.");
         }
         return data;
