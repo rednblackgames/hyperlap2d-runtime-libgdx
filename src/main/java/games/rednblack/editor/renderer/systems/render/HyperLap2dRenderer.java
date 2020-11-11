@@ -265,10 +265,18 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			if(shaderComponent.getShader() != null) {
 				batch.setShader(shaderComponent.getShader());
 
-				batch.getShader().setUniformf("deltaTime", Gdx.graphics.getDeltaTime());
-				batch.getShader().setUniformf("time", HyperLap2dRenderer.timeRunning);
-				batch.getShader().setUniformf("screen_size", dimensionsComponentComponentMapper.get(entity).width,
+				batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
+				batch.getShader().setUniformf("u_time", HyperLap2dRenderer.timeRunning);
+				batch.getShader().setUniformf("u_entity_size", dimensionsComponentComponentMapper.get(entity).width,
 						dimensionsComponentComponentMapper.get(entity).height);
+
+				TextureRegionComponent entityTextureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+				if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
+					batch.getShader().setUniformf("u_atlas_coords", entityTextureRegionComponent.region.getU(),
+							entityTextureRegionComponent.region.getV(),
+							entityTextureRegionComponent.region.getU2(),
+							entityTextureRegionComponent.region.getV2());
+				}
 
 				for (Map.Entry<String, String> entry : mainItemComponentMapper.get(entity).customVariables.getHashMap().entrySet()) {
 					String key = entry.getKey();
