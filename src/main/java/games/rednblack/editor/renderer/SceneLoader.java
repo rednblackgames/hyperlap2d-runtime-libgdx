@@ -404,6 +404,15 @@ public class SceneLoader {
         }
     }
 
+    public void resize(int width, int height) {
+        rayHandler.resizeFBO(width / 4, height / 4);
+        renderer.resize(width, height);
+    }
+
+    public void dispose() {
+        renderer.dispose();
+        rayHandler.dispose();
+    }
 
     public EntityFactory getEntityFactory() {
         return entityFactory;

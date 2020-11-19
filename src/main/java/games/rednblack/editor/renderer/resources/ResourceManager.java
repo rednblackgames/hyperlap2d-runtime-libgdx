@@ -378,9 +378,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
      * to retrieve any already loaded into memory asset for rendering
      */
 
-
-
-
     @Override
     public TextureRegion getTextureRegion(String name) {
         return mainPack.findRegion(name);

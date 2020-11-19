@@ -8,16 +8,11 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
@@ -42,13 +37,22 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	public static float timeRunning = 0;
 	
 	public Batch batch;
-	//ShaderManager shaderManager = new ShaderManager();
+
+	private final FrameBufferManager frameBufferManager;
+	private FrameBuffer screenFBO;
+	private Camera screenCamera;
 
 	public HyperLap2dRenderer(Batch batch) {
 		super(Family.all(ViewPortComponent.class).get());
 		this.batch = batch;
 		drawableLogicMapper = new DrawableLogicMapper();
-		//shaderManager.createFrameBuffer("main");
+
+		frameBufferManager = new FrameBufferManager();
+		screenFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+		screenCamera.translate(screenCamera.viewportWidth / 2f, screenCamera.viewportHeight / 2f, 0f);
+		screenCamera.update();
 	}
 
 	public void addDrawableType(IExternalItemType itemType) {
@@ -63,18 +67,34 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		Viewport viewport = ViewPortComponent.viewPort;
 		camera = viewport.getCamera();
 
+		frameBufferManager.begin(screenFBO);
+		Gdx.gl.glClearColor(0, 0, 0, 0);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 
-		//shaderManager.beginFrameBuffer("main");
 		batch.begin();
 		drawRecursively(entity, 1f);
 		batch.end();
+		frameBufferManager.end(screenFBO);
 
-		/*shaderManager.endFrameBuffer();
-		shaderManager.begin(SceneLoader.createDefaultShader());
-		shaderManager.renderFrameBuffer("main");
-		shaderManager.end();*/
+		Texture t = screenFBO.getColorBufferTexture();
+		int w = t.getWidth();
+		int h = t.getHeight();
+
+		batch.begin();
+		batch.setProjectionMatrix(screenCamera.combined);
+		batch.draw(t,
+				0, 0,
+				0, 0,
+				w, h,
+				1, 1,
+				0,
+				0, 0,
+				w, h,
+				false, true);
+		batch.end();
 
 		if (rayHandler != null) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
@@ -310,5 +330,21 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	public Batch getBatch() {
         return batch;
     }
+
+    public void dispose() {
+		screenFBO.dispose();
+	}
+
+    public void resize(int width, int height) {
+		frameBufferManager.end(screenFBO);
+		screenFBO.dispose();
+		screenFBO = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, false);
+		screenCamera.viewportWidth = width;
+		screenCamera.viewportHeight = height;
+		screenCamera.position.set(0, 0 , 0);
+
+		screenCamera.translate(screenCamera.viewportWidth / 2f, screenCamera.viewportHeight / 2f, 0f);
+		screenCamera.update();
+	}
 }
 

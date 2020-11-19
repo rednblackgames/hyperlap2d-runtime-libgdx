@@ -66,11 +66,10 @@ public class ShaderManager {
         currentTextureId = 0;
 
         currentShader = program;
-        currentShader.begin();
+        currentShader.bind();
     }
 
     public void end() {
-        currentShader.end();
         currentShader = null;
     }
 
@@ -132,8 +131,7 @@ public class ShaderManager {
         frameBuffer.begin();
         activeFrameBuffers.push(frameBuffer);
 
-        //Gdx.graphics.getGL20().glClearColor(clearColorRed, clearColorGreen, clearColorBlue, clearColorAlpha);
-        initInitialFrameBufferState(frameBuffer);
+        //initInitialFrameBufferState(frameBuffer);
     }
 
     /**
@@ -142,11 +140,11 @@ public class ShaderManager {
      * @param frameBuffer the FrameBuffer for which the state is initialized
      */
     protected void initInitialFrameBufferState(FrameBuffer frameBuffer) {
-        Gdx.graphics.getGL20().glViewport(0, 0, frameBuffer.getWidth(), frameBuffer.getHeight());
-        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.graphics.getGL20().glEnable(GL20.GL_TEXTURE_2D);
-        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
-        Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        Gdx.gl.glViewport(0, 0, frameBuffer.getWidth(), frameBuffer.getHeight());
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     /**
