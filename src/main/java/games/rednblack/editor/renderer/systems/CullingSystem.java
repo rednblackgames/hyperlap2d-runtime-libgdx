@@ -56,9 +56,9 @@ public class CullingSystem extends IteratingSystem {
 
         MainItemComponent m = mainItemMapper.get(entity);
 
-        m.visible = view.overlaps(b.rectangle);
+        m.culled = !view.overlaps(b.rectangle);
 
-        if (m.visible) {
+        if (!m.culled) {
             NodeComponent node = nodeMapper.get(entity);
 
             if (node != null) {

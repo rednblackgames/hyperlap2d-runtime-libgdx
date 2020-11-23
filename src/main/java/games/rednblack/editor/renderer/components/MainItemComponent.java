@@ -14,6 +14,7 @@ public class MainItemComponent implements BaseComponent {
     public CustomVariables customVariables = new CustomVariables();
 	public int entityType;
 	public boolean visible = true;
+	public boolean culled = false;
 
 	public void setCustomVars(String key, String value) {
 		customVariables.setVariable(key, value);
@@ -46,5 +47,6 @@ public class MainItemComponent implements BaseComponent {
 		customVariables.clear();
 		entityType = 0;
 		visible = true;
+		culled = false;
 	}
 }

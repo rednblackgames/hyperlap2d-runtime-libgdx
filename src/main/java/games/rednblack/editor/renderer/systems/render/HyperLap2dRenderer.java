@@ -159,7 +159,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				}
 
 				MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
-				if(!childMainItemComponent.visible){
+				if(!childMainItemComponent.visible || childMainItemComponent.culled){
 					continue;
 				}
 				
@@ -196,7 +196,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				}
 
 				MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
-				if(!childMainItemComponent.visible){
+				if(!childMainItemComponent.visible || childMainItemComponent.culled){
 					continue;
 				}
 

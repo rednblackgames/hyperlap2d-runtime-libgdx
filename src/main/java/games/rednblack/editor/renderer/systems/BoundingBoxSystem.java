@@ -42,7 +42,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         DimensionsComponent d = dimensionsMapper.get(entity);
         TransformComponent t = transformMapper.get(entity);
 
-        if (m != null && !m.visible)
+        if (m != null && (!m.visible || m.culled))
                 return;
 
         if (calcCheckSum(entity) != b.checksum) {
@@ -143,7 +143,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         }
 
         for(int i = 0; i < 4; i++)
-            box.points[i].rotate(transform.rotation);
+            box.points[i].rotateDeg(transform.rotation);
 
         for(int i = 0; i < 4; i++) {
             box.points[i].x = box.points[i].x + transform.x - scaleOffsetX + pivotX;
