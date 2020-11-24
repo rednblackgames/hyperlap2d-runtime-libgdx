@@ -81,7 +81,7 @@ public class SpriterComponentFactory extends ComponentFactory {
         FileHandle handle 	=	rm.getSCMLFile(vo.animationName);
         component.data = new SCMLReader(handle.read()).getData();
         AtlasLoader loader = 	new AtlasLoader(component.data, rm.getSCMLAtlas(vo.animationName));
-        loader.load(handle.file());
+        loader.load(handle.path());
 
         component.currentAnimationIndex	=	vo.animation;
         component.currentEntityIndex		=	vo.entity;

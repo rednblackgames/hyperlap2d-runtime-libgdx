@@ -18,7 +18,8 @@ public class LightBodyDataVO {
     }
 
     public LightBodyDataVO(LightBodyDataVO vo){
-        color = vo.color.clone();
+        color = new float[4];
+        System.arraycopy(vo.color, 0, this.color, 0, color.length);
         rays = vo.rays;
         distance = vo.distance;
         rayDirection = vo.rayDirection;
@@ -30,7 +31,8 @@ public class LightBodyDataVO {
     }
 
     public void loadFromComponent(LightBodyComponent lightComponent) {
-        color = lightComponent.color.clone();
+        color = new float[4];
+        System.arraycopy(lightComponent.color, 0, this.color, 0, color.length);
         rays = lightComponent.rays;
         distance = lightComponent.distance;
         rayDirection = lightComponent.rayDirection;

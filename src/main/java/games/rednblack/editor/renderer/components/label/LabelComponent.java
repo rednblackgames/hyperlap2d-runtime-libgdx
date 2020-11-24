@@ -21,7 +21,7 @@ public class LabelComponent implements BaseComponent {
 	public float fontScaleX = 1f;
 	public float fontScaleY = 1f;
 
-	private LabelComponent() {
+	public LabelComponent() {
 
 	}
 

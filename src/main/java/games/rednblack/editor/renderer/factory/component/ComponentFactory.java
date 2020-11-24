@@ -23,6 +23,7 @@ import box2dLight.RayHandler;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -85,22 +86,22 @@ public abstract class ComponentFactory {
     }
 
     protected ShaderComponent createShaderComponent(Entity entity, MainItemVO vo) {
-    	if(vo.shaderName == null || vo.shaderName.isEmpty()){
-    		return null;
-    	}
-		ShaderComponent component = engine.createComponent(ShaderComponent.class);
-		component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
-		entity.add(component);
-		return component;
-	}
+        if (vo.shaderName == null || vo.shaderName.isEmpty()) {
+            return null;
+        }
+        ShaderComponent component = engine.createComponent(ShaderComponent.class);
+        component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
+        entity.add(component);
+        return component;
+    }
 
-	protected MainItemComponent createMainItemComponent(Entity entity, MainItemVO vo, int entityType) {
+    protected MainItemComponent createMainItemComponent(Entity entity, MainItemVO vo, int entityType) {
         MainItemComponent component = engine.createComponent(MainItemComponent.class);
         component.setCustomVarString(vo.customVars);
         component.uniqueId = vo.uniqueId;
         component.itemIdentifier = vo.itemIdentifier;
         component.libraryLink = vo.itemName;
-        if(vo.tags != null) {
+        if (vo.tags != null) {
             component.tags = new HashSet<>(Arrays.asList(vo.tags));
         }
         component.entityType = entityType;
@@ -118,10 +119,10 @@ public abstract class ComponentFactory {
         component.x = vo.x;
         component.y = vo.y;
 
-        if(Float.isNaN(vo.originX)) component.originX = dimensionsComponent.width/2f;
+        if (Float.isNaN(vo.originX)) component.originX = dimensionsComponent.width / 2f;
         else component.originX = vo.originX;
 
-        if(Float.isNaN(vo.originY)) component.originY = dimensionsComponent.height/2f;
+        if (Float.isNaN(vo.originY)) component.originY = dimensionsComponent.height / 2f;
         else component.originY = vo.originY;
 
         entity.add(component);
@@ -143,7 +144,7 @@ public abstract class ComponentFactory {
     protected ZIndexComponent createZIndexComponent(Entity entity, MainItemVO vo) {
         ZIndexComponent component = engine.createComponent(ZIndexComponent.class);
 
-        if(vo.layerName == "" || vo.layerName == null) vo.layerName = "Default";
+        if (vo.layerName == "" || vo.layerName == null) vo.layerName = "Default";
 
         component.layerName = vo.layerName;
         component.setZIndex(vo.zIndex);
@@ -180,7 +181,7 @@ public abstract class ComponentFactory {
     }
 
     protected void createPhysicsComponents(Entity entity, MainItemVO vo) {
-        if(vo.physics == null){
+        if (vo.physics == null) {
             return;
         }
 
@@ -211,7 +212,7 @@ public abstract class ComponentFactory {
     }
 
     protected LightBodyComponent createLightComponents(Entity entity, MainItemVO vo) {
-        if(vo.light == null){
+        if (vo.light == null) {
             return null;
         }
 
@@ -232,8 +233,12 @@ public abstract class ComponentFactory {
 
     protected PolygonComponent createMeshComponent(Entity entity, MainItemVO vo) {
         PolygonComponent component = engine.createComponent(PolygonComponent.class);
-        if(vo.shape != null) {
-            component.vertices = vo.shape.polygons.clone();
+        if (vo.shape != null) {
+            component.vertices = new Vector2[vo.shape.polygons.length][];
+            for (int i = 0; i < vo.shape.polygons.length; i++) {
+                component.vertices[i] = new Vector2[vo.shape.polygons[i].length];
+                System.arraycopy(vo.shape.polygons[i], 0, component.vertices[i], 0, vo.shape.polygons[i].length);
+            }
             entity.add(component);
 
             return component;

@@ -1,21 +1,23 @@
 package games.rednblack.editor.renderer.systems.action.data;
 
+import com.badlogic.gdx.utils.Array;
+
 /**
  * Created by ZeppLondon on 10/23/15.
  */
 public class ParallelData extends ActionData {
-    public ActionData[] actionsData;
+    public Array<ActionData> actionsData = new Array<>();
     public boolean complete;
 
     public void setActionsData(ActionData[] actionsData) {
-        this.actionsData = actionsData;
+        this.actionsData.addAll(actionsData);
     }
 
     @Override
     public void restart() {
         super.restart();
 
-        for (ActionData data : actionsData) {
+        for (ActionData data : new Array.ArrayIterator<>(actionsData)) {
             data.restart();
         }
         complete = false;
@@ -25,12 +27,12 @@ public class ParallelData extends ActionData {
     public void reset() {
         super.reset();
 
-        for (ActionData data : actionsData) {
+        for (ActionData data : new Array.ArrayIterator<>(actionsData)) {
             if (data.getPool() != null)
                 data.getPool().free(data);
         }
 
-        actionsData = null;
+        actionsData.clear();
         complete = false;
     }
 }

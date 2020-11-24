@@ -26,7 +26,9 @@ public class LightsPropertiesVO {
         this.lightType = lightsPropertiesVO.lightType;
         this.directionalRays = lightsPropertiesVO.directionalRays;
         this.directionalDegree = lightsPropertiesVO.directionalDegree;
-        this.ambientColor = lightsPropertiesVO.ambientColor.clone();
-        this.directionalColor = lightsPropertiesVO.directionalColor.clone();
+        this.ambientColor = new float[4];
+        System.arraycopy(lightsPropertiesVO.ambientColor, 0, this.ambientColor, 0, ambientColor.length);
+        this.directionalColor = new float[4];
+        System.arraycopy(lightsPropertiesVO.directionalColor, 0, this.directionalColor, 0, directionalColor.length);
     }
 }

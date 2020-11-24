@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.IActorScript;
@@ -76,14 +77,13 @@ public class CompositeActor extends Group {
     }
 
     protected void buildComposites(ArrayList<CompositeItemVO> composites, BuiltItemHandler itemHandler) {
-
         for(int i = 0; i < composites.size(); i++) {
             String className   =   getClassName(composites.get(i).customVars);
             CompositeActor actor;
             if(className!=null){
                 try {
-                    Class<?> c = Class.forName(className);
-                    actor   =   (CompositeActor) c.getConstructors()[0].newInstance(composites.get(i), ir, itemHandler);
+                    Class<?> c = ClassReflection.forName(className);
+                    actor   =   (CompositeActor) ClassReflection.getConstructors(c)[0].newInstance(composites.get(i), ir, itemHandler);
                 }catch (Exception ex){
                     actor  = new CompositeActor(composites.get(i), ir, itemHandler, false);
                 }

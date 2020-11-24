@@ -12,9 +12,9 @@ public class ParallelAction<T extends ParallelData> extends ActionLogic<T> {
     @Override
     public boolean act(float delta, Entity entity, T actionData) {
         actionData.complete = true;
-        for (int i = 0; i < actionData.actionsData.length; i++) {
-            ActionData data = actionData.actionsData[i];
-            ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData[i].logicClassName);
+        for (int i = 0; i < actionData.actionsData.size; i++) {
+            ActionData data = actionData.actionsData.get(i);
+            ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData.get(i).logicClassName);
             if (!data.detached) {
                 actionData.complete = false;
                 if (logic.act(delta, entity, data)) {

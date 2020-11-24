@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.ActionComponent;
 import games.rednblack.editor.renderer.systems.action.data.*;
 import games.rednblack.editor.renderer.systems.action.logic.*;
@@ -22,7 +24,7 @@ public class Actions {
     public static HashMap<String, String> actionDataLogicMap = new HashMap<>();
     private static boolean initialized;
 
-    private static void initialize() throws InstantiationException, IllegalAccessException {
+    private static void initialize() throws ReflectionException {
         registerActionClass(MoveToData.class, MoveToAction.class);
         registerActionClass(MoveByData.class, MoveByAction.class);
         registerActionClass(SizeToData.class, SizeToAction.class);
@@ -44,9 +46,9 @@ public class Actions {
         initialized = true;
     }
 
-    public static <T extends ActionLogic, U extends ActionData> void registerActionClass(Class<U> typeData, Class<T> type) throws IllegalAccessException, InstantiationException {
+    public static <T extends ActionLogic, U extends ActionData> void registerActionClass(Class<U> typeData, Class<T> type) throws ReflectionException {
         if (!actionLogicMap.containsKey(type.getName())) {
-            actionLogicMap.put(type.getName(), type.newInstance());
+            actionLogicMap.put(type.getName(), ClassReflection.newInstance(type));
             actionDataLogicMap.put(typeData.getName(), type.getName());
         }
     }
@@ -68,7 +70,7 @@ public class Actions {
     private static void checkInit() {
         if (!initialized) try {
             initialize();
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (ReflectionException e) {
             e.printStackTrace();
         }
     }

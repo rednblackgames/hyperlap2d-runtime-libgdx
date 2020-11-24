@@ -11,7 +11,6 @@ import games.rednblack.editor.renderer.data.GraphVO;
 import games.rednblack.editor.renderer.systems.action.ActionEventListener;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.*;
-import games.rednblack.editor.renderer.utils.ArrayUtils;
 import games.rednblack.editor.renderer.utils.InterpolationMap;
 
 import java.util.*;
@@ -115,10 +114,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof ParallelData) {
-            if (((ParallelData) actionData).actionsData == null) {
-                ((ParallelData) actionData).actionsData = new ActionData[0];
-            }
-            ((ParallelData) actionData).actionsData = ArrayUtils.add(((ParallelData) actionData).actionsData, subAction);
+            ((ParallelData) actionData).actionsData.add(subAction);
         }
     }
 

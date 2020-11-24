@@ -10,11 +10,11 @@ import games.rednblack.editor.renderer.systems.action.data.SequenceData;
 public class SequenceAction<T extends SequenceData> extends ParallelAction<T> {
     @Override
     public boolean act(float delta, Entity entity, T actionData) {
-        if (actionData.index >= actionData.actionsData.length) return true;
-        ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData[actionData.index].logicClassName);
-        if (logic.act(delta, entity, actionData.actionsData[actionData.index])) {
+        if (actionData.index >= actionData.actionsData.size) return true;
+        ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData.get(actionData.index).logicClassName);
+        if (logic.act(delta, entity, actionData.actionsData.get(actionData.index))) {
             actionData.index++;
-            if (actionData.index >= actionData.actionsData.length) return true;
+            if (actionData.index >= actionData.actionsData.size) return true;
         }
         return false;
     }

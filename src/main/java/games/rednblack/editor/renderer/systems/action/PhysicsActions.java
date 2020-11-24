@@ -3,6 +3,7 @@ package games.rednblack.editor.renderer.systems.action;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.ForceData;
 import games.rednblack.editor.renderer.systems.action.logic.ActionLogic;
@@ -17,7 +18,7 @@ public class PhysicsActions {
     private static void initialize(Class<? extends ActionData> data, Class<? extends ActionLogic> type) {
         try {
             Actions.registerActionClass(data, type);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (ReflectionException e) {
             e.printStackTrace();
         }
     }
