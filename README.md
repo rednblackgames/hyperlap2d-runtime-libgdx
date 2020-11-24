@@ -37,6 +37,13 @@ dependencies {
 
 ### Support
 
+**libGDX compatibility**
+
+| HyperLap2D         | libGDX             |
+| ------------------ | ------------------ |
+| 0.0.4-dev          | 1.9.13-SNAPSHOT    |
+| 0.0.3              | 1.9.11             |
+
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
 
 ### License
