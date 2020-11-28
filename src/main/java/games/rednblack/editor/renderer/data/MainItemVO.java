@@ -6,7 +6,7 @@ import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
 import java.util.Arrays;
-
+import java.util.HashMap;
 
 public class MainItemVO {
 	public int uniqueId = -1;
@@ -26,6 +26,7 @@ public class MainItemVO {
 	public float[] tint = {1, 1, 1, 1};
 
 	public String shaderName = "";
+	public HashMap<String, ShaderUniformVO> shaderUniforms = new HashMap<>();
 
 	public ShapeVO shape = null;
 	public PhysicsBodyDataVO physics = null;
@@ -37,15 +38,15 @@ public class MainItemVO {
 	
 	public MainItemVO(MainItemVO vo) {
 		uniqueId = vo.uniqueId;
-		itemIdentifier = new String(vo.itemIdentifier);
-		itemName = new String(vo.itemName);
+		itemIdentifier = vo.itemIdentifier;
+		itemName = vo.itemName;
         if(vo.tags != null) tags = Arrays.copyOf(vo.tags, vo.tags.length);
-        customVars = new String(vo.customVars);
+        customVars = vo.customVars;
 		x = vo.x; 
 		y = vo.y;
 		rotation = vo.rotation;
 		zIndex = vo.zIndex;
-		layerName = new String(vo.layerName);
+		layerName = vo.layerName;
 		if(vo.tint != null) tint = Arrays.copyOf(vo.tint, vo.tint.length);
 		scaleX 		= vo.scaleX;
 		scaleY 		= vo.scaleY;
@@ -63,6 +64,10 @@ public class MainItemVO {
 		if(vo.light != null){
 			light = new LightBodyDataVO(vo.light);
 		}
+
+		shaderName = vo.shaderName;
+		shaderUniforms.clear();
+		shaderUniforms.putAll(vo.shaderUniforms);
     }
 
 	public void loadFromEntity(Entity entity) {
@@ -119,6 +124,8 @@ public class MainItemVO {
 		ShaderComponent shaderComponent = entity.getComponent(ShaderComponent.class);
 		if(shaderComponent != null && shaderComponent.shaderName != null) {
 			shaderName = shaderComponent.shaderName;
+			shaderUniforms.clear();
+			shaderUniforms.putAll(shaderComponent.customUniforms);
 		}
 	}
 }

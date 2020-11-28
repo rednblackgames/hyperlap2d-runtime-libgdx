@@ -91,6 +91,7 @@ public abstract class ComponentFactory {
         }
         ShaderComponent component = engine.createComponent(ShaderComponent.class);
         component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
+        component.customUniforms.putAll(vo.shaderUniforms);
         entity.add(component);
         return component;
     }
