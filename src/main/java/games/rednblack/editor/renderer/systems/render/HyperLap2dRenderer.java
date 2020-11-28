@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
@@ -298,11 +299,26 @@ public class HyperLap2dRenderer extends IteratingSystem {
 							entityTextureRegionComponent.region.getV2());
 				}
 
-				for (Map.Entry<String, String> entry : mainItemComponentMapper.get(entity).customVariables.getHashMap().entrySet()) {
-					String key = entry.getKey();
-					String value = entry.getValue();
-					if (key.startsWith("_shader_")) {
-						batch.getShader().setUniformf(key.replace("_shader_", ""), Float.parseFloat(value));
+				for (Map.Entry<String, ShaderUniformVO> me : shaderComponent.customUniforms.entrySet()) {
+					String key = me.getKey();
+					ShaderUniformVO vo = me.getValue();
+
+					switch (vo.getType()) {
+						case "int":
+							batch.getShader().setUniformi(key, vo.intValue);
+							break;
+						case "float":
+							batch.getShader().setUniformf(key, vo.floatValue);
+							break;
+						case "vec2":
+							batch.getShader().setUniformf(key, vo.floatValue, vo.floatValue2);
+							break;
+						case "vec3":
+							batch.getShader().setUniformf(key, vo.floatValue, vo.floatValue2, vo.floatValue3);
+							break;
+						case "vec4":
+							batch.getShader().setUniformf(key, vo.floatValue, vo.floatValue2, vo.floatValue3, vo.floatValue4);
+							break;
 					}
 				}
 
