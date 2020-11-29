@@ -288,8 +288,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 				batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
 				batch.getShader().setUniformf("u_time", HyperLap2dRenderer.timeRunning);
-				batch.getShader().setUniformf("u_entity_size", dimensionsComponentComponentMapper.get(entity).width,
-						dimensionsComponentComponentMapper.get(entity).height);
 
 				TextureRegionComponent entityTextureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
 				if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
