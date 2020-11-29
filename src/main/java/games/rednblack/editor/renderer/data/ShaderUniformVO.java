@@ -43,7 +43,7 @@ public class ShaderUniformVO {
         floatValue = floatVal;
         floatValue2 = floatVal2;
         floatValue3 = floatVal3;
-        floatValue3 = floatVal4;
+        floatValue4 = floatVal4;
     }
 
     public String getType() {
