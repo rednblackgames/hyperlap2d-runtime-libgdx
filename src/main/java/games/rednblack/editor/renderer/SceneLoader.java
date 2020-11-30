@@ -412,6 +412,7 @@ public class SceneLoader {
     public void dispose() {
         renderer.dispose();
         rayHandler.dispose();
+        world.dispose();
     }
 
     public EntityFactory getEntityFactory() {
