@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class LightVO extends MainItemVO {
 	//public int itemId = -1;
-	public static enum LightType {POINT, CONE}
+	public enum LightType {POINT, CONE}
 	public LightType type;
 	public int rays = 12;
 	public float distance = 300;

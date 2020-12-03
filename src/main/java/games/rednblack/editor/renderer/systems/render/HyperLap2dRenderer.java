@@ -12,9 +12,11 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -30,18 +32,20 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
 	private ComponentMapper<ShaderComponent> shaderComponentMapper = ComponentMapper.getFor(ShaderComponent.class);
 	private ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-	
+
 	private DrawableLogicMapper drawableLogicMapper;
 	private RayHandler rayHandler;
 	private Camera camera;
 
 	public static float timeRunning = 0;
-	
+
 	public Batch batch;
 
 	private final FrameBufferManager frameBufferManager;
 	private FrameBuffer screenFBO;
 	private Camera screenCamera;
+
+	private final Array<Entity> screenReadingEntities = new Array<>();
 
 	public HyperLap2dRenderer(Batch batch) {
 		super(Family.all(ViewPortComponent.class).get());
@@ -85,6 +89,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		int h = t.getHeight();
 
 		batch.begin();
+		//1. Screen Layer
 		batch.setProjectionMatrix(screenCamera.combined);
 		batch.draw(t,
 				0, 0,
@@ -95,15 +100,26 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				0, 0,
 				w, h,
 				false, true);
+
+		//2. Screen Effects
+		batch.setProjectionMatrix(camera.combined);
+		if (screenReadingEntities.size > 0) {
+			t.bind(1);
+			Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+			for (int i = 0; i < screenReadingEntities.size; i++) {
+				Entity child = screenReadingEntities.get(i);
+				drawEntity(batch, child, 1);
+			}
+		}
 		batch.end();
 
+		//3. Over Screen
 		if (rayHandler != null) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
 
 			rayHandler.setCombinedMatrix(orthoCamera);
 			rayHandler.updateAndRender();
 		}
-		//debugRenderer.render(world, camera.combined);
 	}
 
 	private void drawRecursively(Entity rootEntity, float parentAlpha) {
@@ -163,13 +179,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				if(!childMainItemComponent.visible || childMainItemComponent.culled){
 					continue;
 				}
-				
-				int entityType = childMainItemComponent.entityType;
 
 				NodeComponent childNodeComponent = nodeMapper.get(child);
-				
-				if(childNodeComponent ==null){
-					drawEntity(entityType, batch, child, parentAlpha);
+
+				if(childNodeComponent ==null) {
+                    if (checkRenderingLayer(child))
+					    drawEntity(batch, child, parentAlpha);
 				}else{
 					//Step into Composite
 					drawRecursively(child, parentAlpha);
@@ -178,14 +193,14 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		} else {
 			// No transform for this group, offset each child.
 			TransformComponent compositeTransform = transformMapper.get(rootEntity);
-			
+
 			float offsetX = compositeTransform.x, offsetY = compositeTransform.y;
-			
+
 			if(viewPortMapper.has(rootEntity)){
 				offsetX = 0;
 				offsetY = 0;
 			}
-			
+
 			for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
 				Entity child = children[i];
 
@@ -205,12 +220,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				float cx = childTransformComponent.x, cy = childTransformComponent.y;
 				childTransformComponent.x = cx + offsetX;
 				childTransformComponent.y = cy + offsetY;
-				
+
 				NodeComponent childNodeComponent = nodeMapper.get(child);
-				int entityType = mainItemComponentMapper.get(child).entityType;
-				
-				if(childNodeComponent ==null){
-					drawEntity(entityType, batch, child, parentAlpha);
+
+				if(childNodeComponent ==null) {
+                    if (checkRenderingLayer(child))
+					    drawEntity(batch, child, parentAlpha);
 				}else{
 					//Step into Composite
 					drawRecursively(child, parentAlpha);
@@ -222,7 +237,9 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		nodeComponent.children.end();
 	}
 
-	private void drawEntity(int entityType, Batch batch, Entity child, float parentAlpha) {
+	private void drawEntity(Batch batch, Entity child, float parentAlpha) {
+		int entityType = mainItemComponentMapper.get(child).entityType;
+
 		applyShader(child, batch);
 		//Find the logic from mapper and draw it
 		drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha);
@@ -230,8 +247,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		resetShader(child, batch);
 	}
 
-	/** Returns the transform for this group's coordinate system. 
-	 * @param rootEntity */
+	/** Returns the transform for this group's coordinate system.
+	 * @param rootEntity
+	 *
+	 */
 	protected Matrix4 computeTransform(Entity rootEntity) {
 		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		ParentNodeComponent parentNodeComponent = parentNodeMapper.get(rootEntity);
@@ -250,14 +269,14 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);
 
 		// Find the parent that transforms.
-		
+
 		CompositeTransformComponent parentTransformComponent = null;
-		
+
 		Entity parentEntity = null;
 		if(parentNodeComponent != null){
 			parentEntity = parentNodeComponent.parentEntity;
 		}
-		
+
 		if (parentEntity != null){
 			parentTransformComponent = compositeTransformMapper.get(parentEntity);
 			TransformComponent transform = transformMapper.get(parentEntity);
@@ -295,6 +314,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 							entityTextureRegionComponent.region.getV(),
 							entityTextureRegionComponent.region.getU2(),
 							entityTextureRegionComponent.region.getV2());
+				}
+
+				if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
+					batch.getShader().setUniformi("u_screen_texture", 1);
 				}
 
 				for (Map.Entry<String, ShaderUniformVO> me : shaderComponent.customUniforms.entrySet()) {
@@ -336,7 +359,31 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			batch.setShader(null);
 		}
 	}
-	
+
+	/**
+	 * Check if the entity should be rendered in the first screen layer
+	 * @param entity
+	 * @return false if the entity belongs to a different rendering layer
+	 */
+	protected boolean checkRenderingLayer(Entity entity) {
+		if (shaderComponentMapper.has(entity)) {
+			ShaderComponent shaderComponent = shaderComponentMapper.get(entity);
+
+			boolean contains = screenReadingEntities.contains(entity, true);
+			if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN) {
+				if (contains)
+					screenReadingEntities.removeValue(entity, true);
+				return true;
+			} else if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
+				if (!contains)
+					screenReadingEntities.add(entity);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public void setRayHandler(RayHandler rayHandler){
 		this.rayHandler = rayHandler;
 	}

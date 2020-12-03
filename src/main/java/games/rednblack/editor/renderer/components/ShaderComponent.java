@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.components;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ShaderComponent implements BaseComponent {
+	public MainItemVO.RenderingLayer renderingLayer;
 	public String shaderName = "";
 	private ShaderProgram shaderProgram = null;
 

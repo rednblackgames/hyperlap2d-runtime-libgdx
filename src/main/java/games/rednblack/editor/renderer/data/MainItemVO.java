@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class MainItemVO {
+	public enum RenderingLayer {SCREEN, SCREEN_READING}
+
 	public int uniqueId = -1;
 	public String itemIdentifier = "";
 	public String itemName = "";
@@ -27,6 +29,7 @@ public class MainItemVO {
 
 	public String shaderName = "";
 	public HashMap<String, ShaderUniformVO> shaderUniforms = new HashMap<>();
+	public RenderingLayer renderingLayer = RenderingLayer.SCREEN;
 
 	public ShapeVO shape = null;
 	public PhysicsBodyDataVO physics = null;
@@ -68,6 +71,8 @@ public class MainItemVO {
 		shaderName = vo.shaderName;
 		shaderUniforms.clear();
 		shaderUniforms.putAll(vo.shaderUniforms);
+
+		renderingLayer = vo.renderingLayer;
     }
 
 	public void loadFromEntity(Entity entity) {
@@ -126,6 +131,7 @@ public class MainItemVO {
 			shaderName = shaderComponent.shaderName;
 			shaderUniforms.clear();
 			shaderUniforms.putAll(shaderComponent.customUniforms);
+			renderingLayer = shaderComponent.renderingLayer;
 		}
 	}
 }
