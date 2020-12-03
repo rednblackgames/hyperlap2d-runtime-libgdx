@@ -91,6 +91,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		batch.begin();
 		//1. Screen Layer
 		batch.setProjectionMatrix(screenCamera.combined);
+        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		batch.draw(t,
 				0, 0,
 				0, 0,
@@ -112,6 +113,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			}
 		}
 		batch.end();
+
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
 		//3. Over Screen
 		if (rayHandler != null) {
