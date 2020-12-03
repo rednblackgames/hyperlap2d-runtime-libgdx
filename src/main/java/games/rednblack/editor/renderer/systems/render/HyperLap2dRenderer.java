@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
@@ -45,7 +46,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private FrameBuffer screenFBO;
 	private Camera screenCamera;
 
-	private final Array<Entity> screenReadingEntities = new Array<>();
+	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
 
 	public HyperLap2dRenderer(Batch batch) {
 		super(Family.all(ViewPortComponent.class).get());
@@ -107,10 +108,15 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (screenReadingEntities.size > 0) {
 			t.bind(1);
 			Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+			Entity[] children = screenReadingEntities.begin();
 			for (int i = 0; i < screenReadingEntities.size; i++) {
-				Entity child = screenReadingEntities.get(i);
-				drawEntity(batch, child, 1);
+				Entity child = children[i];
+				if (mainItemComponentMapper.has(child))
+					drawEntity(batch, child, 1);
+				else
+					screenReadingEntities.removeIndex(i);
 			}
+			screenReadingEntities.end();
 		}
 		batch.end();
 
