@@ -327,6 +327,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 				if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
 					batch.getShader().setUniformi("u_screen_texture", 1);
+					//batch.getShader().setUniformf("u_screen_coords");
 				}
 
 				for (Map.Entry<String, ShaderUniformVO> me : shaderComponent.customUniforms.entrySet()) {
