@@ -8,6 +8,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
@@ -25,16 +26,16 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import java.util.Map;
 
 public class HyperLap2dRenderer extends IteratingSystem {
-	private ComponentMapper<ViewPortComponent> viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
-	private ComponentMapper<CompositeTransformComponent> compositeTransformMapper = ComponentMapper.getFor(CompositeTransformComponent.class);
-	private ComponentMapper<NodeComponent> nodeMapper = ComponentMapper.getFor(NodeComponent.class);
-	private ComponentMapper<ParentNodeComponent> parentNodeMapper = ComponentMapper.getFor(ParentNodeComponent.class);
-	private ComponentMapper<TransformComponent> transformMapper = ComponentMapper.getFor(TransformComponent.class);
-	private ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
-	private ComponentMapper<ShaderComponent> shaderComponentMapper = ComponentMapper.getFor(ShaderComponent.class);
-	private ComponentMapper<DimensionsComponent> dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
+	private final ComponentMapper<ViewPortComponent> viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
+	private final ComponentMapper<CompositeTransformComponent> compositeTransformMapper = ComponentMapper.getFor(CompositeTransformComponent.class);
+	private final ComponentMapper<NodeComponent> nodeMapper = ComponentMapper.getFor(NodeComponent.class);
+	private final ComponentMapper<ParentNodeComponent> parentNodeMapper = ComponentMapper.getFor(ParentNodeComponent.class);
+	private final ComponentMapper<TransformComponent> transformMapper = ComponentMapper.getFor(TransformComponent.class);
+	private final ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
+	private final ComponentMapper<ShaderComponent> shaderComponentMapper = ComponentMapper.getFor(ShaderComponent.class);
+	private final ComponentMapper<DimensionsComponent> dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
 
-	private DrawableLogicMapper drawableLogicMapper;
+	private final DrawableLogicMapper drawableLogicMapper;
 	private RayHandler rayHandler;
 	private Camera camera;
 	private Viewport viewport;
@@ -45,7 +46,9 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 	private final FrameBufferManager frameBufferManager;
 	private FrameBuffer screenFBO;
-	private Camera screenCamera;
+	private final Camera screenCamera;
+	private Texture screenTexture;
+	private final TextureRegion screenTextureRegion = new TextureRegion();
 
 	private final Vector3 tmpVec3 = new Vector3();
 
@@ -88,15 +91,15 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		batch.end();
 		frameBufferManager.end(screenFBO);
 
-		Texture t = screenFBO.getColorBufferTexture();
-		int w = t.getWidth();
-		int h = t.getHeight();
+		screenTexture = screenFBO.getColorBufferTexture();
+		int w = screenTexture.getWidth();
+		int h = screenTexture.getHeight();
 
 		batch.begin();
 		//1. Screen Layer
 		batch.setProjectionMatrix(screenCamera.combined);
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		batch.draw(t,
+		batch.draw(screenTexture,
 				0, 0,
 				0, 0,
 				w, h,
@@ -109,8 +112,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		//2. Screen Effects
 		batch.setProjectionMatrix(camera.combined);
 		if (screenReadingEntities.size > 0) {
-			t.bind(1);
-			Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
 			Entity[] children = screenReadingEntities.begin();
 			for (int i = 0; i < screenReadingEntities.size; i++) {
 				Entity child = children[i];
@@ -329,7 +330,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				}
 
 				if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
-					batch.getShader().setUniformi("u_screen_texture", 1);
+					screenTextureRegion.setRegion(screenTexture);
+					if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
+						entityTextureRegionComponent.region = screenTextureRegion;
+					}
 
 					TransformComponent transformComponent = transformMapper.get(entity);
 					DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
@@ -342,7 +346,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 					tmpVec3.set(transformComponent.x, transformComponent.y, 0);
 					viewport.project(tmpVec3);
 					float u = tmpVec3.x;
-					float v = viewport.getScreenHeight() - h;
+					float v = tmpVec3.y;
 
 					float v2 = v + (h - tmpVec3.y);
 
@@ -350,8 +354,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 					v = Math.max(0f, Math.min(1f, v / viewport.getScreenHeight()));
 					u2 = Math.max(0f, Math.min(1f, u2 / viewport.getScreenWidth()));
 					v2 = Math.max(0f, Math.min(1f, v2 / viewport.getScreenHeight()));
-
-					System.out.println("u: " + u + ", v: " + v + ", u2: " +  u2 + ", v2: " + v2);
 
 					batch.getShader().setUniformf("u_screen_coords", u, v, u2, v2);
 				}

@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.data.MainItemVO;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class TextureRegionDrawLogic implements Drawable {
 
@@ -27,10 +29,11 @@ public class TextureRegionDrawLogic implements Drawable {
 	@Override
 	public void draw(Batch batch, Entity entity, float parentAlpha) {
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
+        ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
 
         entityTextureRegionComponent.executeRefresh(entity);
 
-        if(entityTextureRegionComponent.polygonSprite != null) {
+        if(entityTextureRegionComponent.polygonSprite != null && (shaderComponent == null || shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN)) {
             drawTiledPolygonSprite(batch, entity);
         } else {
             drawSprite(batch, entity, parentAlpha);
