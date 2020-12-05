@@ -11,8 +11,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -32,11 +32,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private ComponentMapper<TransformComponent> transformMapper = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
 	private ComponentMapper<ShaderComponent> shaderComponentMapper = ComponentMapper.getFor(ShaderComponent.class);
-	private ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
+	private ComponentMapper<DimensionsComponent> dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
 
 	private DrawableLogicMapper drawableLogicMapper;
 	private RayHandler rayHandler;
 	private Camera camera;
+	private Viewport viewport;
 
 	public static float timeRunning = 0;
 
@@ -45,6 +46,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private final FrameBufferManager frameBufferManager;
 	private FrameBuffer screenFBO;
 	private Camera screenCamera;
+
+	private final Vector3 tmpVec3 = new Vector3();
 
 	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
 
@@ -70,7 +73,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		timeRunning+=deltaTime;
 
 		ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
-		Viewport viewport = ViewPortComponent.viewPort;
+		viewport = ViewPortComponent.viewPort;
 		camera = viewport.getCamera();
 
 		frameBufferManager.begin(screenFBO);
@@ -327,7 +330,30 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 				if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
 					batch.getShader().setUniformi("u_screen_texture", 1);
-					//batch.getShader().setUniformf("u_screen_coords");
+
+					TransformComponent transformComponent = transformMapper.get(entity);
+					DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
+
+					tmpVec3.set(transformComponent.x + dimensionsComponent.width, transformComponent.y + dimensionsComponent.height, 0);
+					viewport.project(tmpVec3);
+					float u2 = tmpVec3.x;
+					float h = tmpVec3.y;
+
+					tmpVec3.set(transformComponent.x, transformComponent.y, 0);
+					viewport.project(tmpVec3);
+					float u = tmpVec3.x;
+					float v = viewport.getScreenHeight() - h;
+
+					float v2 = v + (h - tmpVec3.y);
+
+					u = Math.max(0f, Math.min(1f, u / viewport.getScreenWidth()));
+					v = Math.max(0f, Math.min(1f, v / viewport.getScreenHeight()));
+					u2 = Math.max(0f, Math.min(1f, u2 / viewport.getScreenWidth()));
+					v2 = Math.max(0f, Math.min(1f, v2 / viewport.getScreenHeight()));
+
+					System.out.println("u: " + u + ", v: " + v + ", u2: " +  u2 + ", v2: " + v2);
+
+					batch.getShader().setUniformf("u_screen_coords", u, v, u2, v2);
 				}
 
 				for (Map.Entry<String, ShaderUniformVO> me : shaderComponent.customUniforms.entrySet()) {
