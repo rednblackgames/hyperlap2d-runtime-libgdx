@@ -8,19 +8,10 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class FrameBufferManager {
-
-    private static FrameBufferManager sInstance = null;
-
-    public static FrameBufferManager getInstance() {
-        if (sInstance == null)
-            sInstance = new FrameBufferManager();
-        return sInstance;
-    }
-
     private final HashMap<String, FrameBuffer> frameBuffers;
     private final Stack<FrameBuffer> stack;
 
-    private FrameBufferManager() {
+    public FrameBufferManager() {
         frameBuffers = new HashMap<>();
         stack = new Stack<>();
     }

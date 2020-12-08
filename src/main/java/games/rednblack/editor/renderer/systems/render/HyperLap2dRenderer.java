@@ -59,7 +59,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		this.batch = batch;
 		drawableLogicMapper = new DrawableLogicMapper();
 
-		frameBufferManager = FrameBufferManager.getInstance();
+		frameBufferManager = new FrameBufferManager();
 		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
