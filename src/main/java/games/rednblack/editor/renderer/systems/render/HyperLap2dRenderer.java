@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -45,10 +44,11 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	public Batch batch;
 
 	private final FrameBufferManager frameBufferManager;
-	private FrameBuffer screenFBO;
 	private final Camera screenCamera;
 	private Texture screenTexture;
 	private final TextureRegion screenTextureRegion = new TextureRegion();
+
+	private float invScreenWidth, invScreenHeight;
 
 	private final Vector3 tmpVec3 = new Vector3();
 
@@ -59,12 +59,15 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		this.batch = batch;
 		drawableLogicMapper = new DrawableLogicMapper();
 
-		frameBufferManager = new FrameBufferManager();
-		screenFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		frameBufferManager = FrameBufferManager.getInstance();
+		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-		screenCamera.translate(screenCamera.viewportWidth / 2f, screenCamera.viewportHeight / 2f, 0f);
+		screenCamera.translate(screenCamera.viewportWidth * 0.5f, screenCamera.viewportHeight * 0.5f, 0f);
 		screenCamera.update();
+
+		invScreenWidth = 1f / screenCamera.viewportWidth;
+		invScreenHeight = 1f / screenCamera.viewportHeight;
 	}
 
 	public void addDrawableType(IExternalItemType itemType) {
@@ -79,7 +82,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		viewport = ViewPortComponent.viewPort;
 		camera = viewport.getCamera();
 
-		frameBufferManager.begin(screenFBO);
+		frameBufferManager.begin("main");
 		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -89,9 +92,9 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		batch.begin();
 		drawRecursively(entity, 1f);
 		batch.end();
-		frameBufferManager.end(screenFBO);
+		frameBufferManager.endCurrent();
 
-		screenTexture = screenFBO.getColorBufferTexture();
+		screenTexture = frameBufferManager.getColorBufferTexture("main");
 		int w = screenTexture.getWidth();
 		int h = screenTexture.getHeight();
 
@@ -338,22 +341,20 @@ public class HyperLap2dRenderer extends IteratingSystem {
 					TransformComponent transformComponent = transformMapper.get(entity);
 					DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
 
-					tmpVec3.set(transformComponent.x + dimensionsComponent.width, transformComponent.y + dimensionsComponent.height, 0);
-					viewport.project(tmpVec3);
-					float u2 = tmpVec3.x;
-					float h = tmpVec3.y;
-
 					tmpVec3.set(transformComponent.x, transformComponent.y, 0);
 					viewport.project(tmpVec3);
 					float u = tmpVec3.x;
 					float v = tmpVec3.y;
 
-					float v2 = v + (h - tmpVec3.y);
+					tmpVec3.set(transformComponent.x + dimensionsComponent.width, transformComponent.y + dimensionsComponent.height, 0);
+					viewport.project(tmpVec3);
+					float u2 = tmpVec3.x;
+					float v2 = tmpVec3.y;
 
-					u = Math.max(0f, Math.min(1f, u / viewport.getScreenWidth()));
-					v = Math.max(0f, Math.min(1f, v / viewport.getScreenHeight()));
-					u2 = Math.max(0f, Math.min(1f, u2 / viewport.getScreenWidth()));
-					v2 = Math.max(0f, Math.min(1f, v2 / viewport.getScreenHeight()));
+					u  = Math.max(0f, Math.min(1f, u  * invScreenWidth));
+					v  = Math.max(0f, Math.min(1f, v  * invScreenHeight));
+					u2 = Math.max(0f, Math.min(1f, u2 * invScreenWidth));
+					v2 = Math.max(0f, Math.min(1f, v2 * invScreenHeight));
 
 					batch.getShader().setUniformf("u_screen_coords", u, v, u2, v2);
 				}
@@ -431,19 +432,22 @@ public class HyperLap2dRenderer extends IteratingSystem {
     }
 
     public void dispose() {
-		screenFBO.dispose();
+		frameBufferManager.dispose("main");
 	}
 
     public void resize(int width, int height) {
-		frameBufferManager.end(screenFBO);
-		screenFBO.dispose();
-		screenFBO = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, false);
+		frameBufferManager.endCurrent();
+		frameBufferManager.dispose("main");
+		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		screenCamera.viewportWidth = width;
 		screenCamera.viewportHeight = height;
 		screenCamera.position.set(0, 0 , 0);
 
-		screenCamera.translate(screenCamera.viewportWidth / 2f, screenCamera.viewportHeight / 2f, 0f);
+		screenCamera.translate(screenCamera.viewportWidth * 0.5f, screenCamera.viewportHeight * 0.5f, 0f);
 		screenCamera.update();
+
+		invScreenWidth = 1f / screenCamera.viewportWidth;
+		invScreenHeight = 1f / screenCamera.viewportHeight;
 	}
 }
 
