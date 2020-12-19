@@ -16,7 +16,6 @@ public class BoundingBoxSystem extends IteratingSystem {
     final private ComponentMapper<MainItemComponent> mainItemMapper;
     final private ComponentMapper<SpriterComponent> spriterMapper;
     final private ComponentMapper<TransformComponent> transformMapper;
-    final private ComponentMapper<NodeComponent> nodeMapper;
 
     private final Vector2 tmpVec = new Vector2();
 
@@ -28,7 +27,6 @@ public class BoundingBoxSystem extends IteratingSystem {
         mainItemMapper = ComponentMapper.getFor(MainItemComponent.class);
         spriterMapper = ComponentMapper.getFor(SpriterComponent.class);
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
-        nodeMapper = ComponentMapper.getFor(NodeComponent.class);
     }
 
     @Override
@@ -49,8 +47,6 @@ public class BoundingBoxSystem extends IteratingSystem {
                 return;
 
         if (calcCheckSum(entity) != b.checksum) {
-
-            NodeComponent n = nodeMapper.get(entity);
             if (s != null) {
                 com.brashmonkey.spriter.Rectangle r = s.player.getBoudingRectangle(null);
                 b.points[0].set(r.left, r.bottom);
@@ -65,11 +61,10 @@ public class BoundingBoxSystem extends IteratingSystem {
                 b.points[1].set(t.x -scaleOffsetX + d.width*t.scaleX,t.y -scaleOffsetY);
                 b.points[2].set(t.x -scaleOffsetX + d.width*t.scaleX,t.y -scaleOffsetY + d.height*t.scaleY);
                 b.points[3].set(t.x -scaleOffsetX ,t.y -scaleOffsetY + d.height*t.scaleY);
-
             } else {
                 float pivotX = t.originX * t.scaleX;
                 float pivotY = t.originY * t.scaleY;
-                calcFor (b, t, d, pivotX, pivotY);
+                calcFor(b, t, d, pivotX, pivotY);
             }
 
             while (parentNode != null) {
@@ -93,8 +88,8 @@ public class BoundingBoxSystem extends IteratingSystem {
                 for(int i = 0; i < 4; i++) {
                     b.points[i].add(originX - tmpVec.x, originY - tmpVec.y);
 
-                    b.points[i].x = b.points[i].x  * parentTransform.scaleX + parentTransform.x - scaleOffsetX;
-                    b.points[i].y = b.points[i].y  * parentTransform.scaleY + parentTransform.y - scaleOffsetY;
+                    b.points[i].x = b.points[i].x * parentTransform.scaleX + parentTransform.x - scaleOffsetX;
+                    b.points[i].y = b.points[i].y * parentTransform.scaleY + parentTransform.y - scaleOffsetY;
                 }
                 parentNode =  parentNodeMapper.get(parentNode.parentEntity);
             }
@@ -137,8 +132,8 @@ public class BoundingBoxSystem extends IteratingSystem {
             scaleOffsetX = 0;
             scaleOffsetY = 0;
         } else {
-            scaleOffsetX =  (width - dimension.width) /2 ;
-            scaleOffsetY =  (height - dimension.height) /2 ;
+            scaleOffsetX = (width - dimension.width) / 2;
+            scaleOffsetY = (height - dimension.height) / 2;
         }
 
         for(int i = 0; i < 4; i++)
