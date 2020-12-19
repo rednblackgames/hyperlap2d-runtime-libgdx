@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.spriter.SpriterComponent;
 
@@ -16,6 +17,8 @@ public class BoundingBoxSystem extends IteratingSystem {
     final private ComponentMapper<SpriterComponent> spriterMapper;
     final private ComponentMapper<TransformComponent> transformMapper;
     final private ComponentMapper<NodeComponent> nodeMapper;
+
+    private final Vector2 tmpVec = new Vector2();
 
     public BoundingBoxSystem() {
         super(Family.all(BoundingBoxComponent.class).get());
@@ -55,17 +58,8 @@ public class BoundingBoxSystem extends IteratingSystem {
                 b.points[2].set(r.right, r.top);
                 b.points[3].set(r.left, r.top);
             } else if (t.rotation == 0) {
-
-                float scaleOffsetX;
-                float scaleOffsetY;
-
-                if (n==null) {
-                    scaleOffsetX =  (d.width*t.scaleX - d.width) /2 ;
-                    scaleOffsetY =  (d.height*t.scaleY - d.height) /2 ;
-                } else {
-                    scaleOffsetX = 0;
-                    scaleOffsetY = 0;
-                }
+                float scaleOffsetX = t.originX * t.scaleX - t.originX;
+                float scaleOffsetY = t.originY * t.scaleY - t.originY;
 
                 b.points[0].set(t.x -scaleOffsetX,t.y -scaleOffsetY);
                 b.points[1].set(t.x -scaleOffsetX + d.width*t.scaleX,t.y -scaleOffsetY);
@@ -73,14 +67,8 @@ public class BoundingBoxSystem extends IteratingSystem {
                 b.points[3].set(t.x -scaleOffsetX ,t.y -scaleOffsetY + d.height*t.scaleY);
 
             } else {
-                float pivotX, pivotY;
-                if (n != null) {
-                    pivotX = 0;
-                    pivotY = 0;
-                } else {
-                    pivotX =  (d.width *t.scaleX) / 2;
-                    pivotY =  (d.height*t.scaleY) / 2;
-                }
+                float pivotX = t.originX * t.scaleX;
+                float pivotY = t.originY * t.scaleY;
                 calcFor (b, t, d, pivotX, pivotY);
             }
 
@@ -90,39 +78,50 @@ public class BoundingBoxSystem extends IteratingSystem {
                     break;
                 if (parentTransform.rotation != 0) {
                     for(int i = 0; i < 4; i++)
-                        b.points[i].rotate(parentTransform.rotation);
+                        b.points[i].rotateDeg(parentTransform.rotation);
                 }
 
+                float originX = parentTransform.originX * parentTransform.scaleX;
+                float originY = parentTransform.originY * parentTransform.scaleY;
+
+                float scaleOffsetX = originX - parentTransform.originX;
+                float scaleOffsetY = originY - parentTransform.originY;
+
+                tmpVec.set(originX, originY);
+                tmpVec.rotateDeg(parentTransform.rotation);
+
                 for(int i = 0; i < 4; i++) {
-                    b.points[i].x = b.points[i].x  * parentTransform.scaleX + parentTransform.x;
-                    b.points[i].y = b.points[i].y  * parentTransform.scaleY + parentTransform.y;
+                    b.points[i].add(originX - tmpVec.x, originY - tmpVec.y);
+
+                    b.points[i].x = b.points[i].x  * parentTransform.scaleX + parentTransform.x - scaleOffsetX;
+                    b.points[i].y = b.points[i].y  * parentTransform.scaleY + parentTransform.y - scaleOffsetY;
                 }
                 parentNode =  parentNodeMapper.get(parentNode.parentEntity);
             }
             b.checksum = calcCheckSum(entity);
-            b.getBoundingRect();
+            b.createBoundingRect();
         }
     }
 
     private float calcCheckSum(Entity entity) {
-
         ParentNodeComponent parentNode = parentNodeMapper.get(entity);
         TransformComponent t = transformMapper.get(entity);
+        DimensionsComponent d = dimensionsMapper.get(entity);
 
         float checksum = 0;
-        checksum = t.rotation + t.scaleX + t.scaleY + t.x + t.y;
+        checksum = t.rotation + t.scaleX + t.scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
         while (parentNode != null) {
             TransformComponent pt = transformMapper.get(parentNode.parentEntity);
-            if (pt == null)
+            DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);
+            if (pt == null || dt == null)
                 break;
-            checksum += pt.rotation + pt.scaleX + pt.scaleY + pt.x + pt.y;
+            checksum += pt.rotation + pt.scaleX + pt.scaleY + pt.x + pt.y + pt.originX + pt.originY + dt.width + dt.height;
             parentNode = parentNodeMapper.get(parentNode.parentEntity);
         }
         return checksum;
     }
 
     private void calcFor(BoundingBoxComponent box, TransformComponent transform, DimensionsComponent dimension, float pivotX, float pivotY) {
-
         float width = dimension.width*transform.scaleX;
         float height = dimension.height*transform.scaleY;
 

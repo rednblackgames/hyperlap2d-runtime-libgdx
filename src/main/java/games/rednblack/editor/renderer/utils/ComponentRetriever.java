@@ -55,7 +55,7 @@ public class ComponentRetriever {
     /**
      * Unique map of mappers that can be accessed by component class
      */
-    private Map<Class, ComponentMapper<? extends Component>> mappers = new HashMap<Class, ComponentMapper<? extends Component>>();
+    private final Map<Class<? extends Component>, ComponentMapper<? extends Component>> mappers = new HashMap<>();
 
     /**
      * Private constructor
@@ -85,7 +85,8 @@ public class ComponentRetriever {
         
         mappers.put(SpriterDrawerComponent.class, ComponentMapper.getFor(SpriterDrawerComponent.class));
         mappers.put(SpriterComponent.class, ComponentMapper.getFor(SpriterComponent.class));
-        
+
+        mappers.put(BoundingBoxComponent.class, ComponentMapper.getFor(BoundingBoxComponent.class));
         mappers.put(CompositeTransformComponent.class, ComponentMapper.getFor(CompositeTransformComponent.class));
         mappers.put(DimensionsComponent.class, ComponentMapper.getFor(DimensionsComponent.class));
         mappers.put(LayerMapComponent.class, ComponentMapper.getFor(LayerMapComponent.class));
@@ -125,7 +126,7 @@ public class ComponentRetriever {
     /**
      * @return returns Map of mappers, for internal use only
      */
-    private Map<Class, ComponentMapper<? extends Component>> getMappers() {
+    private Map<Class<? extends Component>, ComponentMapper<? extends Component>> getMappers() {
         return mappers;
     }
 
@@ -143,9 +144,8 @@ public class ComponentRetriever {
     }
 
 
-    @SuppressWarnings("unchecked")
     public static  Collection<Component> getComponents(Entity entity) {
-        Collection<Component> components = new ArrayList<Component>();
+        Collection<Component> components = new ArrayList<>();
         for (ComponentMapper<? extends Component> mapper : self().getMappers().values()) {
             if(mapper.get(entity) != null) components.add(mapper.get(entity));
         }
@@ -159,8 +159,7 @@ public class ComponentRetriever {
      *
      * @param type
      */
-    @SuppressWarnings("unchecked")
-    public static void addMapper(Class type) {
+    public static void addMapper(Class<? extends Component> type) {
         self().getMappers().put(type, ComponentMapper.getFor(type));
     }
 }

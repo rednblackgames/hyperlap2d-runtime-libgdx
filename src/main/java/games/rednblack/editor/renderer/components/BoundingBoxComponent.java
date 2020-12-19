@@ -18,11 +18,11 @@ public class BoundingBoxComponent implements BaseComponent {
     }
 
     /**
-     * Returns a bounding box for this box.
+     * Create a bounding box for this box.
      *
      * @return the bounding box
      */
-    public Rectangle getBoundingRect() {
+    public Rectangle createBoundingRect() {
         rectangle.x = Math.min(Math.min(Math.min(points[0].x, points[1].x), points[2].x), points[3].x);
         rectangle.width = Math.max(Math.max(Math.max(points[0].x, points[1].x), points[2].x), points[3].x) - rectangle.x;
         rectangle.y = Math.min(Math.min(Math.min(points[0].y, points[1].y), points[2].y), points[3].y);

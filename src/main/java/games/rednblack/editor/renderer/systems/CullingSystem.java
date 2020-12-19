@@ -33,10 +33,10 @@ public class CullingSystem extends IteratingSystem {
     protected void processEntity(Entity entity, float deltaTime) {
         ViewPortComponent viewPort = viewPortMapper.get(entity);
         this.camera = (OrthographicCamera) viewPort.viewPort.getCamera();
-        view.width = ( camera.viewportWidth * camera.zoom )  ;
-        view.height = ( camera.viewportHeight * camera.zoom )  ;
-        view.x = camera.position.x - ( view.width / 2 );
-        view.y = camera.position.y - ( view.height / 2 );
+        view.width = (camera.viewportWidth * camera.zoom);
+        view.height = (camera.viewportHeight * camera.zoom);
+        view.x = camera.position.x - (view.width * 0.5f);
+        view.y = camera.position.y - (view.height * 0.5f);
 
         NodeComponent node = nodeMapper.get(entity);
         Entity[] children = node.children.begin();
