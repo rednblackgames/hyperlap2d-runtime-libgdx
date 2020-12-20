@@ -81,6 +81,7 @@ public class CompositeComponentFactory extends ComponentFactory {
 
         compositeTransform.automaticResize = vo.automaticResize;
         compositeTransform.scissorsEnabled = vo.scissorsEnabled;
+        compositeTransform.renderToFBO = vo.renderToFBO;
 
         LayerMapComponent layerMap = new LayerMapComponent();
         if(vo.composite.layers.size() == 0) {

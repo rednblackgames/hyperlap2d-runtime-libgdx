@@ -17,6 +17,7 @@ public class CompositeItemVO extends MainItemVO {
 	public float height;
 	public boolean automaticResize = true;
 	public boolean scissorsEnabled = false;
+	public boolean renderToFBO = false;
 	
 	public CompositeItemVO() {
 		composite = new CompositeVO();
@@ -67,6 +68,7 @@ public class CompositeItemVO extends MainItemVO {
 		height = dimensionsComponent.height;
 		automaticResize = compositeTransformComponent.automaticResize;
 		scissorsEnabled = compositeTransformComponent.scissorsEnabled;
+		renderToFBO = compositeTransformComponent.renderToFBO;
 	}
 
 	public void cleanIds() {

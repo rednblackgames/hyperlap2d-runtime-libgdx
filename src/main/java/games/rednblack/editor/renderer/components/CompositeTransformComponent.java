@@ -8,6 +8,7 @@ public class CompositeTransformComponent implements BaseComponent {
 	public boolean automaticResize = true;
 	public boolean scissorsEnabled = false;
 	public boolean transform = false;
+	public boolean renderToFBO = false;
 	public final Affine2 worldTransform = new Affine2();
 	public final Matrix4 computedTransform = new Matrix4();
 	public final Matrix4 oldTransform = new Matrix4();
@@ -19,6 +20,7 @@ public class CompositeTransformComponent implements BaseComponent {
 		automaticResize = true;
 		scissorsEnabled = false;
 		transform = false;
+		renderToFBO = false;
 
 		worldTransform.idt();
 		computedTransform.idt();
