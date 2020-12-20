@@ -125,7 +125,8 @@ public class CompositeActor extends Group {
     protected void build9PatchImages(ArrayList<Image9patchVO> patches, BuiltItemHandler itemHandler) {
         for(int i = 0; i < patches.size(); i++) {
             TextureAtlas.AtlasRegion region = (TextureAtlas.AtlasRegion) ir.getTextureRegion(patches.get(i).imageName);
-            NinePatch ninePatch = new NinePatch(region, region.splits[0], region.splits[1], region.splits[2], region.splits[3]);
+            int[] splits = region.findValue("split");
+            NinePatch ninePatch = new NinePatch(region, splits[0], splits[1], splits[2], splits[3]);
             Image image = new Image(ninePatch);
             image.setWidth(patches.get(i).width*pixelsPerWU/resMultiplier);
             image.setHeight(patches.get(i).height * pixelsPerWU/resMultiplier);
