@@ -95,21 +95,19 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		frameBufferManager.endCurrent();
 
 		screenTexture = frameBufferManager.getColorBufferTexture("main");
-		int w = screenTexture.getWidth();
-		int h = screenTexture.getHeight();
 
 		batch.begin();
 		//1. Screen Layer
 		batch.setProjectionMatrix(screenCamera.combined);
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		batch.draw(screenTexture,
+				viewport.getScreenX(), viewport.getScreenY(),
 				0, 0,
-				0, 0,
-				w, h,
+				viewport.getScreenWidth(), viewport.getScreenHeight(),
 				1, 1,
 				0,
 				0, 0,
-				w, h,
+				screenTexture.getWidth(), screenTexture.getHeight(),
 				false, true);
 
 		//2. Screen Effects
