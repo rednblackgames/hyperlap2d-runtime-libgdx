@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -188,7 +189,7 @@ public class SceneLoader {
                 // call init for a system
                 ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
                 if (scriptComponent != null) {
-                    for (IScript script : scriptComponent.scripts) {
+                    for (IScript script : new Array.ArrayIterator<>(scriptComponent.scripts)) {
                         script.init(entity);
                     }
                 }
@@ -231,6 +232,13 @@ public class SceneLoader {
                 LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class);
                 if (lightBodyComponent != null && lightBodyComponent.lightObject != null) {
                     lightBodyComponent.lightObject.remove(true);
+                }
+
+                ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
+                if (scriptComponent != null) {
+                    for (IScript script : new Array.ArrayIterator<>(scriptComponent.scripts)) {
+                        script.dispose();
+                    }
                 }
             }
         });
