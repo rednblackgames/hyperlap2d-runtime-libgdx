@@ -30,9 +30,7 @@ public class TransformMathUtils {
             if(viewPortComponent == null) {
                 parentEntity = parentNodeComponent.parentEntity;
             } else {
-                Vector3 worldCoordinates = viewPortComponent.viewPort.getCamera().unproject(new Vector3(sceneCoords.x, sceneCoords.y,0));
-                sceneCoords.x = worldCoordinates.x;
-                sceneCoords.y = worldCoordinates.y;
+				viewPortComponent.viewPort.unproject(sceneCoords);
             }
         }
         if (parentEntity != null) {
