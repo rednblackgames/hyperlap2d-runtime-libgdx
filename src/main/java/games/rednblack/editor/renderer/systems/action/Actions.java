@@ -350,4 +350,9 @@ public class Actions {
             }
         }
     }
+
+    public static boolean hasActions(Entity entity) {
+        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
+        return actionComponent != null && actionComponent.dataArray.size > 0;
+    }
 }
