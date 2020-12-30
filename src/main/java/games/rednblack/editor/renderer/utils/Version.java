@@ -45,4 +45,11 @@ public class Version implements Comparable<Version> {
             return false;
         return this.compareTo((Version) that) == 0;
     }
+
+    @Override
+    public String toString() {
+        return "Version{" +
+                "version='" + version + '\'' +
+                '}';
+    }
 }
