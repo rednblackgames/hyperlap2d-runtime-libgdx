@@ -6,7 +6,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.spriter.SpriterComponent;
 
 public class BoundingBoxSystem extends IteratingSystem {
 
@@ -14,7 +13,6 @@ public class BoundingBoxSystem extends IteratingSystem {
     final private ComponentMapper<ParentNodeComponent> parentNodeMapper;
     final private ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     final private ComponentMapper<MainItemComponent> mainItemMapper;
-    final private ComponentMapper<SpriterComponent> spriterMapper;
     final private ComponentMapper<TransformComponent> transformMapper;
 
     private final Vector2 tmpVec = new Vector2();
@@ -25,7 +23,6 @@ public class BoundingBoxSystem extends IteratingSystem {
         parentNodeMapper = ComponentMapper.getFor(ParentNodeComponent.class);
         boundingBoxMapper = ComponentMapper.getFor(BoundingBoxComponent.class);
         mainItemMapper = ComponentMapper.getFor(MainItemComponent.class);
-        spriterMapper = ComponentMapper.getFor(SpriterComponent.class);
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
     }
 
@@ -39,7 +36,6 @@ public class BoundingBoxSystem extends IteratingSystem {
             m = mainItemMapper.get(parentNode.parentEntity);
         }
 
-        SpriterComponent s = spriterMapper.get(entity);
         DimensionsComponent d = dimensionsMapper.get(entity);
         TransformComponent t = transformMapper.get(entity);
 
@@ -47,13 +43,7 @@ public class BoundingBoxSystem extends IteratingSystem {
                 return;
 
         if (calcCheckSum(entity) != b.checksum) {
-            if (s != null) {
-                com.brashmonkey.spriter.Rectangle r = s.player.getBoudingRectangle(null);
-                b.points[0].set(r.left, r.bottom);
-                b.points[1].set(r.right, r.bottom );
-                b.points[2].set(r.right, r.top);
-                b.points[3].set(r.left, r.top);
-            } else if (t.rotation == 0) {
+            if (t.rotation == 0) {
                 float scaleOffsetX = t.originX * t.scaleX - t.originX;
                 float scaleOffsetY = t.originY * t.scaleY - t.originY;
 

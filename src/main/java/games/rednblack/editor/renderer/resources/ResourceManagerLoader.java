@@ -47,7 +47,6 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<ResourceManag
         this.asyncResourceManager.loadParticleEffects();
         this.asyncResourceManager.loadSpineAnimations(manager);
         this.asyncResourceManager.loadSpriteAnimations(manager);
-        this.asyncResourceManager.loadSpriterAnimations();
         this.asyncResourceManager.loadFonts();
 
         return this.asyncResourceManager;

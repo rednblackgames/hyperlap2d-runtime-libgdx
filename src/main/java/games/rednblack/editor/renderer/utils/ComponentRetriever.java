@@ -35,8 +35,6 @@ import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
-import games.rednblack.editor.renderer.components.spriter.SpriterComponent;
-import games.rednblack.editor.renderer.components.spriter.SpriterDrawerComponent;
 
 /**
  * Component Retriever is a singleton single instance class that initialises list of
@@ -82,9 +80,6 @@ public class ComponentRetriever {
 
         mappers.put(SpriteAnimationComponent.class, ComponentMapper.getFor(SpriteAnimationComponent.class));
         mappers.put(SpriteAnimationStateComponent.class, ComponentMapper.getFor(SpriteAnimationStateComponent.class));
-        
-        mappers.put(SpriterDrawerComponent.class, ComponentMapper.getFor(SpriterDrawerComponent.class));
-        mappers.put(SpriterComponent.class, ComponentMapper.getFor(SpriterComponent.class));
 
         mappers.put(BoundingBoxComponent.class, ComponentMapper.getFor(BoundingBoxComponent.class));
         mappers.put(CompositeTransformComponent.class, ComponentMapper.getFor(CompositeTransformComponent.class));

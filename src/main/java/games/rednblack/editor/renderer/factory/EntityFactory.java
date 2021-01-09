@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class EntityFactory {
 
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
-            simpleImageComponentFactory, spriteComponentFactory, spriterComponentFactory, labelComponentFactory,
+            simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
             ninePatchComponentFactory, colorPrimitiveFactory;
 
     private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
@@ -31,7 +31,6 @@ public class EntityFactory {
     public static final int LABEL_TYPE = 2;
     public static final int SPRITE_TYPE = 3;
     public static final int SPINE_TYPE = 4;
-    public static final int SPRITER_TYPE = 5;
     public static final int COMPOSITE_TYPE = 6;
     public static final int PARTICLE_TYPE = 7;
     public static final int LIGHT_TYPE = 8;
@@ -54,7 +53,6 @@ public class EntityFactory {
         particleEffectComponentFactory = new ParticleEffectComponentFactory(engine, rayHandler, world, rm);
         simpleImageComponentFactory = new SimpleImageComponentFactory(engine, rayHandler, world, rm);
         spriteComponentFactory = new SpriteComponentFactory(engine, rayHandler, world, rm);
-        spriterComponentFactory = new SpriterComponentFactory(engine, rayHandler, world, rm);
         labelComponentFactory = new LabelComponentFactory(engine, rayHandler, world, rm);
         ninePatchComponentFactory = new NinePatchComponentFactory(engine, rayHandler, world, rm);
         colorPrimitiveFactory = new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm);
@@ -145,17 +143,6 @@ public class EntityFactory {
         Entity entity = engine.createEntity();
 
         spriteComponentFactory.createComponents(root, entity, vo);
-
-        postProcessEntity(entity);
-
-        return entity;
-    }
-
-    public Entity createEntity(Entity root, SpriterVO vo) {
-
-        Entity entity = engine.createEntity();
-
-        spriterComponentFactory.createComponents(root, entity, vo);
 
         postProcessEntity(entity);
 
@@ -270,11 +257,6 @@ public class EntityFactory {
 
         for (int i = 0; i < vo.sSpriteAnimations.size(); i++) {
             Entity child = createEntity(entity, vo.sSpriteAnimations.get(i));
-            engine.addEntity(child);
-        }
-
-        for (int i = 0; i < vo.sSpriterAnimations.size(); i++) {
-            Entity child = createEntity(entity, vo.sSpriterAnimations.get(i));
             engine.addEntity(child);
         }
 

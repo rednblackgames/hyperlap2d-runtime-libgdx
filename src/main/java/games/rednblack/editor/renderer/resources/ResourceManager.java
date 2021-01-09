@@ -36,7 +36,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     public String scenesPath = "scenes";
     public String particleEffectsPath = "particles";
     public String spriteAnimationsPath = "sprite_animations";
-    public String spriterAnimationsPath = "spriter_animations";
     public String spineAnimationsPath = "spine_animations";
     public String fontsPath = "freetypefonts";
     public String shadersPath = "shaders";
@@ -51,7 +50,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     protected HashSet<String> particleEffectNamesToLoad = new HashSet<String>();
     protected HashSet<String> spineAnimNamesToLoad = new HashSet<String>();
     protected HashSet<String> spriteAnimNamesToLoad = new HashSet<String>();
-    protected HashSet<String> spriterAnimNamesToLoad = new HashSet<String>();
     protected HashSet<FontSizePair> fontsToLoad = new HashSet<FontSizePair>();
     protected HashSet<String> shaderNamesToLoad = new HashSet<String>();
 
@@ -62,9 +60,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
 
     protected HashMap<String, TextureAtlas> spriteAnimations = new HashMap<String, TextureAtlas>();
-
-    protected HashMap<String, FileHandle> spriterAtlases = new HashMap<String, FileHandle>();
-    protected HashMap<String, FileHandle> spriterAnimations = new HashMap<String, FileHandle>();
 
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<FontSizePair, BitmapFont>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<String, ShaderProgram>();
@@ -161,7 +156,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
         particleEffectNamesToLoad.clear();
         spineAnimNamesToLoad.clear();
         spriteAnimNamesToLoad.clear();
-        spriterAnimNamesToLoad.clear();
         fontsToLoad.clear();
         shaderPrograms.clear();
 
@@ -174,7 +168,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
             String[] particleEffects = composite.getRecursiveParticleEffectsList();
             String[] spineAnimations = composite.getRecursiveSpineAnimationList();
             String[] spriteAnimations = composite.getRecursiveSpriteAnimationList();
-            String[] spriterAnimations = composite.getRecursiveSpriterAnimationList();
             String[] shaderNames = composite.getRecursiveShaderList();
             FontSizePair[] fonts = composite.getRecursiveFontList();
             for(CompositeItemVO library : projectVO.libraryItems.values()) {
@@ -190,7 +183,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
             Collections.addAll(particleEffectNamesToLoad, particleEffects);
             Collections.addAll(spineAnimNamesToLoad, spineAnimations);
             Collections.addAll(spriteAnimNamesToLoad, spriteAnimations);
-            Collections.addAll(spriterAnimNamesToLoad, spriterAnimations);
             Collections.addAll(fontsToLoad, fonts);
             Collections.addAll(shaderNamesToLoad, shaderNames);
         }
@@ -205,7 +197,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
         loadParticleEffects();
         loadSpineAnimations();
         loadSpriteAnimations();
-        loadSpriterAnimations();
         loadFonts();
         loadShaders();
     }
@@ -249,23 +240,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
             TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal(packResolutionName + File.separator + spriteAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
             spriteAnimations.put(name, animAtlas);
         }
-    }
-    @Override
-    public void loadSpriterAnimations() {
-    	// empty existing ones that are not scheduled to load
-    	for (String key : spriterAnimations.keySet()) {
-    		if (!spriterAnimNamesToLoad.contains(key)) {
-    			spriterAnimations.remove(key);
-    		}
-    	}
-    	for (String name : spriterAnimNamesToLoad) {
-            loadSpriterAnimation(name);
-    	}
-    }
-
-    public void loadSpriterAnimation(String name) {
-        spriterAtlases.put(name, Gdx.files.internal(packResolutionName + File.separator + spriterAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
-        spriterAnimations.put(name, Gdx.files.internal("orig"+ File.separator + spriterAnimationsPath + File.separator + name + File.separator + name + ".scml"));
     }
 
     public void loadSpineAnimation(String name) {
@@ -394,11 +368,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     }
 
     @Override
-    public FileHandle getSCMLAtlas(String name) {
-        return spriterAtlases.get(name);
-    }
-
-    @Override
     public FileHandle getSkeletonJSON(String name) {
         return skeletonJSON.get(name);
     }
@@ -439,11 +408,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     public void dispose() {
         mainPack.dispose();
     }
-
-	@Override
-	public FileHandle getSCMLFile(String name) {
-		return spriterAnimations.get(name);
-	}
 
 	@Override
 	public ShaderProgram getShaderProgram(String shaderName) {

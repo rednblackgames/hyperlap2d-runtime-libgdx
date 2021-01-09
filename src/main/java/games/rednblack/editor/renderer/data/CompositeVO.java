@@ -25,7 +25,6 @@ public class CompositeVO {
     public ArrayList<LightVO> sLights = new ArrayList<LightVO>(1);
     public ArrayList<SpineVO> sSpineAnimations = new ArrayList<SpineVO>(1);
     public ArrayList<SpriteAnimationVO> sSpriteAnimations = new ArrayList<SpriteAnimationVO>(1);
-    public ArrayList<SpriterVO> sSpriterAnimations = new ArrayList<SpriterVO>(1);
     public ArrayList<ColorPrimitiveVO> sColorPrimitives = new ArrayList<ColorPrimitiveVO>(1);
 
     public ArrayList<LayerItemVO> layers = new ArrayList<LayerItemVO>();
@@ -80,10 +79,6 @@ public class CompositeVO {
             sSpriteAnimations.add(new SpriteAnimationVO(vo.sSpriteAnimations.get(i)));
         }
 
-        for (int i = 0; i < vo.sSpriterAnimations.size(); i++) {
-        	sSpriterAnimations.add(new SpriterVO(vo.sSpriterAnimations.get(i)));
-        }
-
         for (int i = 0; i < vo.sColorPrimitives.size(); i++) {
             sColorPrimitives.add(new ColorPrimitiveVO(vo.sColorPrimitives.get(i)));
         }
@@ -125,9 +120,6 @@ public class CompositeVO {
         if (className.equals("SpineVO")) {
             sSpineAnimations.add((SpineVO) vo);
         }
-        if (className.equals("SpriterVO")) {
-            sSpriterAnimations.add((SpriterVO) vo);
-        }
         if (className.equals("SpriteAnimationVO")) {
             sSpriteAnimations.add((SpriteAnimationVO) vo);
         }
@@ -168,9 +160,6 @@ public class CompositeVO {
         if (className.equals("SpriteAnimationVO")) {
             sSpriteAnimations.remove((SpriteAnimationVO) vo);
         }
-        if (className.equals("SpriterVO")) {
-        	sSpriterAnimations.remove((SpriterVO) vo);
-        }
         if(className.equals("ColorPrimitiveVO")) {
             sColorPrimitives.remove((ColorPrimitiveVO) vo);
         }
@@ -186,7 +175,6 @@ public class CompositeVO {
         sLights.clear();
         sSpineAnimations.clear();
         sSpriteAnimations.clear();
-        sSpriterAnimations.clear();
         sColorPrimitives.clear();
     }
 
@@ -198,8 +186,6 @@ public class CompositeVO {
                 sLabels.isEmpty() &&
                 sLights.isEmpty() &&
                 sParticleEffects.isEmpty() &&
-                sSpriteAnimations.isEmpty() &&
-                sSpriterAnimations.isEmpty() &&
                 sSpineAnimations.isEmpty() &&
                 sSelectBoxes.isEmpty() &&
                 sTextBox.isEmpty() &&
@@ -249,21 +235,6 @@ public class CompositeVO {
         list.toArray(finalList);
 
         return finalList;
-    }
-    
-    public String[] getRecursiveSpriterAnimationList() {
-    	HashSet<String> list = new HashSet<String>();
-    	for (SpriterVO sSpriterAnimation : sSpriterAnimations) {
-    		list.add(sSpriterAnimation.animationName);
-    	}
-    	for (CompositeItemVO sComposite : sComposites) {
-    		String[] additionalList = sComposite.composite.getRecursiveSpriterAnimationList();
-    		Collections.addAll(list, additionalList);
-    	}
-    	String[] finalList = new String[list.size()];
-    	list.toArray(finalList);
-    	
-    	return finalList;
     }
 
     public FontSizePair[] getRecursiveFontList() {
@@ -325,9 +296,6 @@ public class CompositeVO {
         for(MainItemVO vo: compositeVo.sSpriteAnimations) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sSpriterAnimations) {
-        	itemsList.add(vo);
-        }
         for(MainItemVO vo: compositeVo.sTextBox) {
             itemsList.add(vo);
         }
@@ -379,11 +347,6 @@ public class CompositeVO {
                 SpriteAnimationVO vo = new SpriteAnimationVO();
                 vo.loadFromEntity(entity);
                 sSpriteAnimations.add(vo);
-            }
-            if(entityType == EntityFactory.SPRITER_TYPE) {
-                SpriterVO vo = new SpriterVO();
-                vo.loadFromEntity(entity);
-                sSpriterAnimations.add(vo);
             }
             if(entityType == EntityFactory.SPINE_TYPE) {
                 SpineVO vo = new SpineVO();
