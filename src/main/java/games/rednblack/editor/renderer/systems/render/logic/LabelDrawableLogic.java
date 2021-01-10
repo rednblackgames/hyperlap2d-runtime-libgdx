@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
+import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class LabelDrawableLogic implements Drawable {
 
@@ -46,16 +47,18 @@ public class LabelDrawableLogic implements Drawable {
 		if(labelComponent.style.fontColor != null) tmpColor.mul(labelComponent.style.fontColor);
 		tmpColor.a *= tintComponentMapper.get(parentNodeComponentComponentMapper.get(entity).parentEntity).color.a;
 
+		TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
+		TransformMathUtils.applyTransform(entity, batch);
+
 		if (typingLabelComponent == null) {
 			labelComponent.cache.tint(tmpColor);
-			labelComponent.cache.setPosition(entityTransformComponent.x, entityTransformComponent.y);
 			labelComponent.cache.draw(batch);
 		} else {
 			typingLabelComponent.typingLabel.setColor(tmpColor);
-			typingLabelComponent.typingLabel.setPosition(entityTransformComponent.x, entityTransformComponent.y);
-			typingLabelComponent.typingLabel.setOrigin(entityTransformComponent.originX, entityTransformComponent.originY);
 			typingLabelComponent.typingLabel.draw(batch, 1);
 		}
+
+		TransformMathUtils.resetTransform(entity, batch);
 	}
 
 }

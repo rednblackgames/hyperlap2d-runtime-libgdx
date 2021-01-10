@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.utils;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.*;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
@@ -141,4 +142,35 @@ public class TransformMathUtils {
 
     }
 
+	public static Matrix4 computeTransform(Entity entity) {
+		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+
+		Affine2 worldTransform = curTransform.worldTransform;
+
+		float originX = curTransform.originX;
+		float originY = curTransform.originY;
+		float x = curTransform.x;
+		float y = curTransform.y;
+		float rotation = curTransform.rotation;
+		float scaleX = curTransform.scaleX;
+		float scaleY = curTransform.scaleY;
+
+		worldTransform.setToTrnRotScl(x + originX , y + originY, rotation, scaleX, scaleY);
+		if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);
+
+		curTransform.computedTransform.set(worldTransform);
+
+		return curTransform.computedTransform;
+	}
+
+	public static void applyTransform(Entity entity, Batch batch) {
+		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+		curTransform.oldTransform.set(batch.getTransformMatrix());
+		batch.setTransformMatrix(curTransform.computedTransform);
+	}
+
+	public static void resetTransform(Entity entity, Batch batch) {
+		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+		batch.setTransformMatrix(curTransform.oldTransform);
+	}
 }
