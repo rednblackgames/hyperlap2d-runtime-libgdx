@@ -131,6 +131,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (rayHandler != null) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
 
+			rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(),
+					viewport.getScreenWidth(), viewport.getScreenHeight());
 			rayHandler.setCombinedMatrix(orthoCamera);
 			rayHandler.updateAndRender();
 		}
