@@ -9,10 +9,7 @@ import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
 public class ParticleSystem extends IteratingSystem {
 
-	private ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
-    //private ComponentMapper<TransformComponent> transformComponentMapper = ComponentMapper.getFor(TransformComponent.class);
-    //private ComponentMapper<ParentNodeComponent> parentNodeComponentMapper = ComponentMapper.getFor(ParentNodeComponent.class);
-    //private ComponentMapper<NodeComponent> nodeComponentMapper = ComponentMapper.getFor(NodeComponent.class);
+	private final ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
 	
 	public ParticleSystem() {
 		super(Family.all(ParticleComponent.class).get());
@@ -20,20 +17,10 @@ public class ParticleSystem extends IteratingSystem {
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		//System.out.println("DELTAING  " + entity.getId() +"  " +deltaTime);
 		ParticleComponent particleComponent = particleComponentMapper.get(entity);
 
-		//DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
 		ParticleEffect particleEffect = particleComponent.particleEffect;
 		particleEffect.update(deltaTime);
-		//ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entity);
-		
-//		Entity parentEntity = parentNodeComponent.parentEntity;
-//		while (parentEntity != null) {
-//			parentNodeComponent = nodeComponentMapper.get(parentEntity);
-//			parentEntity = parentNodeComponent.parentEntity;
-//		}
-		
 	}
 
 }
