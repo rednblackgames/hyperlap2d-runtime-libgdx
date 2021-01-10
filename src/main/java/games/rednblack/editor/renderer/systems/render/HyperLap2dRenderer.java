@@ -137,6 +137,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	}
 
 	private void drawRecursively(Entity rootEntity, float parentAlpha) {
+		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
 		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		TransformComponent transform = transformMapper.get(rootEntity);
 
@@ -150,7 +151,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (curCompositeTransformComponent.scissorsEnabled) {
 			batch.flush();
 			//TODO Scissors rectangle does not rotate.. why? Uhm
-			ScissorStack.calculateScissors(camera, curCompositeTransformComponent.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
+			ScissorStack.calculateScissors(camera, mainItemComponent.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
 			if (ScissorStack.pushScissors(curCompositeTransformComponent.scissors)) {
 				scissors = true;
 			}
@@ -266,10 +267,11 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	 *
 	 */
 	protected Matrix4 computeTransform(Entity rootEntity) {
+		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
 		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		ParentNodeComponent parentNodeComponent = parentNodeMapper.get(rootEntity);
 		TransformComponent curTransform = transformMapper.get(rootEntity);
-		Affine2 worldTransform = curCompositeTransformComponent.worldTransform;
+		Affine2 worldTransform = mainItemComponent.worldTransform;
 
 		float originX = curTransform.originX;
 		float originY = curTransform.originY;
@@ -284,7 +286,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		// Find the parent that transforms.
 
-		CompositeTransformComponent parentTransformComponent = null;
+		MainItemComponent parentMainItemComponent = null;
 
 		Entity parentEntity = null;
 		if(parentNodeComponent != null){
@@ -292,25 +294,25 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		}
 
 		if (parentEntity != null){
-			parentTransformComponent = compositeTransformMapper.get(parentEntity);
+			parentMainItemComponent = mainItemComponentMapper.get(parentEntity);
 			TransformComponent transform = transformMapper.get(parentEntity);
 			if(curCompositeTransformComponent.transform || transform.rotation != 0 || transform.scaleX !=1 || transform.scaleY !=1)
-				worldTransform.preMul(parentTransformComponent.worldTransform);
+				worldTransform.preMul(parentMainItemComponent.worldTransform);
 		}
 
-		curCompositeTransformComponent.computedTransform.set(worldTransform);
-		return curCompositeTransformComponent.computedTransform;
+		mainItemComponent.computedTransform.set(worldTransform);
+		return mainItemComponent.computedTransform;
 	}
 
 	protected void applyTransform (Entity rootEntity, Batch batch) {
-		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
-		curCompositeTransformComponent.oldTransform.set(batch.getTransformMatrix());
-		batch.setTransformMatrix(curCompositeTransformComponent.computedTransform);
+		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
+		mainItemComponent.oldTransform.set(batch.getTransformMatrix());
+		batch.setTransformMatrix(mainItemComponent.computedTransform);
 	}
 
 	protected void resetTransform (Entity rootEntity, Batch batch) {
-		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
-		batch.setTransformMatrix(curCompositeTransformComponent.oldTransform);
+		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
+		batch.setTransformMatrix(mainItemComponent.oldTransform);
 	}
 
 	protected void applyShader(Entity entity, Batch batch) {
