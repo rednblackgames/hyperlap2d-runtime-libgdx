@@ -55,16 +55,16 @@ public class TransformMathUtils {
 				parentCoords.x -= childX;
 				parentCoords.y -= childY;
 			} else {
-				//TODO origin
 				final float originX = transform.originX;
 				final float originY = transform.originY;
+
 				parentCoords.x = (parentCoords.x - childX - originX) / scaleX + originX;
 				parentCoords.y = (parentCoords.y - childY - originY) / scaleY + originY;
 			}
 		} else {
 			final float cos = (float)Math.cos(rotation * MathUtils.degreesToRadians);
 			final float sin = (float)Math.sin(rotation * MathUtils.degreesToRadians);
-			//TODO origin
+
 			final float originX = transform.originX;
 			final float originY = transform.originY;
 			final float tox = parentCoords.x - childX - originX;

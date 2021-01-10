@@ -1,17 +1,11 @@
 package games.rednblack.editor.renderer.components;
 
-import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.Matrix4;
 import games.rednblack.editor.renderer.utils.CustomVariables;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class MainItemComponent implements BaseComponent {
-	public Affine2 worldTransform = new Affine2();
-	public Matrix4 computedTransform = new Matrix4();
-	public Matrix4 oldTransform = new Matrix4();
-
     public int uniqueId = 0;
 	public String itemIdentifier = "";
 	public String libraryLink = "";
@@ -54,9 +48,5 @@ public class MainItemComponent implements BaseComponent {
 		entityType = 0;
 		visible = true;
 		culled = false;
-
-		worldTransform.idt();
-		computedTransform.idt();
-		oldTransform.idt();
 	}
 }
