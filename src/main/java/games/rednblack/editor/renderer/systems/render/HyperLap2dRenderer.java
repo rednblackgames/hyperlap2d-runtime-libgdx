@@ -151,7 +151,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		if (curCompositeTransformComponent.scissorsEnabled) {
 			batch.flush();
-			//TODO Scissors rectangle does not rotate.. why? Uhm
+			//TODO Scissors rectangle can't rotate.. another solution should be used if we want rotation
 			ScissorStack.calculateScissors(camera, transform.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
 			if (ScissorStack.pushScissors(curCompositeTransformComponent.scissors)) {
 				scissors = true;
