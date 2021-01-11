@@ -9,7 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.g2d.CpuPolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -142,7 +142,7 @@ public class SceneLoader {
         ActionSystem actionSystem = new ActionSystem();
         BoundingBoxSystem boundingBoxSystem = new BoundingBoxSystem();
         CullingSystem cullingSystem = new CullingSystem();
-        renderer = new HyperLap2dRenderer(new PolygonSpriteBatch(2000, createDefaultShader()));
+        renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(2000, createDefaultShader()));
         renderer.setRayHandler(rayHandler);
         //renderer.setBox2dWorld(world);
 
