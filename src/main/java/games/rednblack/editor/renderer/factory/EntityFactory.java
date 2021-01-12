@@ -19,14 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class EntityFactory {
-
-    protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
-            simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
-            ninePatchComponentFactory, colorPrimitiveFactory;
-
-    private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
-    private final HashMap<Integer, Entity> entities = new HashMap<>();
-
     public static final int IMAGE_TYPE = 1;
     public static final int LABEL_TYPE = 2;
     public static final int SPRITE_TYPE = 3;
@@ -36,6 +28,63 @@ public class EntityFactory {
     public static final int LIGHT_TYPE = 8;
     public static final int NINE_PATCH = 9;
     public static final int COLOR_PRIMITIVE = 10;
+
+    public enum ItemType {
+        unknown,
+        composite,
+        texture,
+        spriteAnimation,
+        spineAnimation,
+        particle,
+        text,
+        light,
+        patchImage,
+        primitive
+    }
+
+    public static final HashMap<ItemType, String> itemTypeIconMap = new HashMap<>();
+    public static final HashMap<ItemType, String> itemTypeNameMap = new HashMap<>();
+    public static final HashMap<Integer, ItemType> itemTypeMap = new HashMap<>();
+    static {
+        itemTypeNameMap.put(ItemType.unknown, "Unknown");
+        itemTypeNameMap.put(ItemType.composite, "Composite Item");
+        itemTypeNameMap.put(ItemType.particle, "Particle Effect");
+        itemTypeNameMap.put(ItemType.text, "Label");
+        itemTypeNameMap.put(ItemType.texture, "Image");
+        itemTypeNameMap.put(ItemType.patchImage, "9-Patch Image");
+        itemTypeNameMap.put(ItemType.light, "Light");
+        itemTypeNameMap.put(ItemType.spineAnimation, "Spine Animation");
+        itemTypeNameMap.put(ItemType.spriteAnimation, "Sprite Animation");
+        itemTypeNameMap.put(ItemType.primitive, "Primitive");
+
+        itemTypeIconMap.put(ItemType.unknown, "icon-unknown");
+        itemTypeIconMap.put(ItemType.composite, "icon-root");
+        itemTypeIconMap.put(ItemType.particle, "icon-particle-white");
+        itemTypeIconMap.put(ItemType.text, "icon-label");
+        itemTypeIconMap.put(ItemType.texture, "icon-image");
+        itemTypeIconMap.put(ItemType.patchImage, "icon-image");
+        itemTypeIconMap.put(ItemType.light, "icon-particle-white");
+        itemTypeIconMap.put(ItemType.spineAnimation, "icon-spine");
+        itemTypeIconMap.put(ItemType.spriteAnimation, "icon-animation");
+        itemTypeIconMap.put(ItemType.primitive, "icon-image");
+
+        itemTypeMap.put(EntityFactory.COMPOSITE_TYPE, EntityFactory.ItemType.composite);
+        itemTypeMap.put(EntityFactory.IMAGE_TYPE, EntityFactory.ItemType.texture);
+        itemTypeMap.put(EntityFactory.PARTICLE_TYPE, EntityFactory.ItemType.particle);
+        itemTypeMap.put(EntityFactory.LABEL_TYPE, EntityFactory.ItemType.text);
+        itemTypeMap.put(EntityFactory.SPRITE_TYPE, EntityFactory.ItemType.spriteAnimation);
+        itemTypeMap.put(EntityFactory.SPINE_TYPE, EntityFactory.ItemType.spineAnimation);
+        itemTypeMap.put(EntityFactory.LIGHT_TYPE, EntityFactory.ItemType.light);
+        itemTypeMap.put(EntityFactory.NINE_PATCH, EntityFactory.ItemType.patchImage);
+        itemTypeMap.put(EntityFactory.COLOR_PRIMITIVE, EntityFactory.ItemType.primitive);
+    }
+
+    protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
+            simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
+            ninePatchComponentFactory, colorPrimitiveFactory;
+
+    private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
+    private final HashMap<Integer, Entity> entities = new HashMap<>();
 
     public RayHandler rayHandler;
     public World world;
