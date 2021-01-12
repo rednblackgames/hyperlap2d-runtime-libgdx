@@ -96,10 +96,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		screenTexture = frameBufferManager.getColorBufferTexture("main");
 
-		batch.begin();
 		//1. Screen Layer
 		batch.setProjectionMatrix(screenCamera.combined);
-        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		batch.begin();
 		batch.draw(screenTexture,
 				viewport.getScreenX(), viewport.getScreenY(),
 				0, 0,
@@ -111,8 +111,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				false, true);
 
 		//2. Screen Effects
-		batch.setProjectionMatrix(camera.combined);
 		if (screenReadingEntities.size > 0) {
+			batch.setProjectionMatrix(camera.combined);
 			Entity[] children = screenReadingEntities.begin();
 			for (int i = 0; i < screenReadingEntities.size; i++) {
 				Entity child = children[i];
