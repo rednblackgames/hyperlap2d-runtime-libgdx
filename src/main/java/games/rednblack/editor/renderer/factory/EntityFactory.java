@@ -20,15 +20,15 @@ import java.util.HashMap;
 
 public class EntityFactory {
     public static final int UNKNOWN_TYPE = -1;
-    public static final int IMAGE_TYPE = 1;
-    public static final int LABEL_TYPE = 2;
-    public static final int SPRITE_TYPE = 3;
-    public static final int SPINE_TYPE = 4;
-    public static final int COMPOSITE_TYPE = 6;
-    public static final int PARTICLE_TYPE = 7;
-    public static final int LIGHT_TYPE = 8;
-    public static final int NINE_PATCH = 9;
-    public static final int COLOR_PRIMITIVE = 10;
+    public static final int COMPOSITE_TYPE = 1;
+    public static final int COLOR_PRIMITIVE = 2;
+    public static final int IMAGE_TYPE = 3;
+    public static final int LABEL_TYPE = 4;
+    public static final int SPRITE_TYPE = 5;
+    public static final int PARTICLE_TYPE = 6;
+    public static final int LIGHT_TYPE = 7;
+    public static final int NINE_PATCH = 8;
+    public static final int SPINE_TYPE = 9;
 
     public static final HashMap<Integer, String> itemTypeIconMap = new HashMap<>();
     public static final HashMap<Integer, String> itemTypeNameMap = new HashMap<>();
