@@ -38,6 +38,7 @@ public class TextureRegionComponent extends RefreshableObject implements BaseCom
     public void reset() {
         regionName = "";
         region = null;
+        polygonSprite = null;
         isRepeat = false;
         isPolygon = false;
         needsRefresh = false;

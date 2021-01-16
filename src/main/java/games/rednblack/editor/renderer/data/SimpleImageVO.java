@@ -14,7 +14,9 @@ public class SimpleImageVO extends MainItemVO {
 	
 	public SimpleImageVO(SimpleImageVO vo) {
 		super(vo);
-		imageName = new String(vo.imageName);
+		imageName = vo.imageName;
+		isRepeat = vo.isRepeat;
+		isPolygon = vo.isPolygon;
 	}
 
 	@Override
