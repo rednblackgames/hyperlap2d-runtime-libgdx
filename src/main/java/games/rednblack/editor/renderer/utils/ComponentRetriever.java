@@ -27,6 +27,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.additional.TalosComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -70,6 +71,7 @@ public class ComponentRetriever {
     	mappers.put(LightObjectComponent.class, ComponentMapper.getFor(LightObjectComponent.class));
     	
     	mappers.put(ParticleComponent.class, ComponentMapper.getFor(ParticleComponent.class));
+        mappers.put(TalosComponent.class, ComponentMapper.getFor(TalosComponent.class));
 
         mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class));
         mappers.put(TypingLabelComponent.class, ComponentMapper.getFor(TypingLabelComponent.class));

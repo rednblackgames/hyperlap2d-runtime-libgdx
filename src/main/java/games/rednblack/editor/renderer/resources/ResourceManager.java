@@ -13,6 +13,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.talosvfx.talos.runtime.ParticleEffectDescriptor;
+import com.talosvfx.talos.runtime.ParticleEffectInstance;
+import com.talosvfx.talos.runtime.assets.AtlasAssetProvider;
+import com.talosvfx.talos.runtime.assets.BaseAssetProvider;
+import com.talosvfx.talos.runtime.utils.ShaderDescriptor;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.MySkin;
 
@@ -35,6 +41,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
 
     public String scenesPath = "scenes";
     public String particleEffectsPath = "particles";
+    public String talosPath = "talos-vfx";
     public String spriteAnimationsPath = "sprite_animations";
     public String spineAnimationsPath = "spine_animations";
     public String fontsPath = "freetypefonts";
@@ -48,6 +55,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     protected HashMap<String, SceneVO> loadedSceneVOs = new HashMap<String, SceneVO>();
 
     protected HashSet<String> particleEffectNamesToLoad = new HashSet<String>();
+    protected HashSet<String> talosNamesToLoad = new HashSet<String>();
     protected HashSet<String> spineAnimNamesToLoad = new HashSet<String>();
     protected HashSet<String> spriteAnimNamesToLoad = new HashSet<String>();
     protected HashSet<FontSizePair> fontsToLoad = new HashSet<FontSizePair>();
@@ -55,6 +63,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
 
     protected TextureAtlas mainPack;
     protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
+    protected HashMap<String, ParticleEffectDescriptor> talosVFXs = new HashMap<String, ParticleEffectDescriptor>();
 
     protected HashMap<String, TextureAtlas> skeletonAtlases = new HashMap<String, TextureAtlas>();
     protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
@@ -154,6 +163,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
      */
     public void prepareAssetsToLoad() {
         particleEffectNamesToLoad.clear();
+        talosNamesToLoad.clear();
         spineAnimNamesToLoad.clear();
         spriteAnimNamesToLoad.clear();
         fontsToLoad.clear();
@@ -166,6 +176,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
             }
             //
             String[] particleEffects = composite.getRecursiveParticleEffectsList();
+            String[] talosVFXs = composite.getRecursiveTalosList();
             String[] spineAnimations = composite.getRecursiveSpineAnimationList();
             String[] spriteAnimations = composite.getRecursiveSpriteAnimationList();
             String[] shaderNames = composite.getRecursiveShaderList();
@@ -176,11 +187,14 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
 
                 // loading particle effects used in library items
                 String[] libEffects = library.composite.getRecursiveParticleEffectsList();
+                String[] libTalosVFXs = library.composite.getRecursiveTalosList();
                 Collections.addAll(particleEffectNamesToLoad, libEffects);
+                Collections.addAll(talosNamesToLoad, libTalosVFXs);
             }
 
             //
             Collections.addAll(particleEffectNamesToLoad, particleEffects);
+            Collections.addAll(talosNamesToLoad, talosVFXs);
             Collections.addAll(spineAnimNamesToLoad, spineAnimations);
             Collections.addAll(spriteAnimNamesToLoad, spriteAnimations);
             Collections.addAll(fontsToLoad, fonts);
@@ -225,6 +239,45 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
             effect.load(Gdx.files.internal(particleEffectsPath + File.separator + name), mainPack, "");
             particleEffects.put(name, effect);
         }
+
+        //Talos
+        // empty existing ones that are not scheduled to load
+        for (String key : talosVFXs.keySet()) {
+            if (!talosNamesToLoad.contains(key)) {
+                talosVFXs.remove(key);
+            }
+        }
+
+        // load scheduled
+        AtlasAssetProvider assetProvider = new AtlasAssetProvider(mainPack);
+        assetProvider.setAssetHandler(ShaderDescriptor.class, new BaseAssetProvider.AssetHandler<ShaderDescriptor>() {
+            @Override
+            public ShaderDescriptor findAsset(String assetName) {
+                return findShaderDescriptorOnLoad(assetName);
+            }
+        });
+
+        for (String name : talosNamesToLoad) {
+            ParticleEffectDescriptor effectDescriptor = new ParticleEffectDescriptor();
+            effectDescriptor.setAssetProvider(assetProvider);
+            effectDescriptor.load(Gdx.files.internal(talosPath + File.separator + name));
+            talosVFXs.put(name, effectDescriptor);
+        }
+    }
+
+    private ObjectMap<String, ShaderDescriptor> shaderDescriptorObjectMap = new ObjectMap<>();
+    private ShaderDescriptor findShaderDescriptorOnLoad (String assetName) {
+        ShaderDescriptor asset = shaderDescriptorObjectMap.get(assetName);
+        if (asset == null) {
+            //Look in all paths, and hopefully load the requested asset, or fail (crash)
+            final FileHandle file = Gdx.files.internal(talosPath + File.separator + assetName);
+
+            asset = new ShaderDescriptor();
+            if (file.exists()) {
+                asset.setData(file.readString());
+            }
+        }
+        return asset;
     }
 
     @Override
@@ -370,6 +423,11 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     @Override
     public FileHandle getSkeletonJSON(String name) {
         return skeletonJSON.get(name);
+    }
+
+    @Override
+    public ParticleEffectDescriptor getTalosVFX(String name) {
+        return talosVFXs.get(name);
     }
 
     @Override

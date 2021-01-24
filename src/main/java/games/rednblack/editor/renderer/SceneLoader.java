@@ -130,6 +130,7 @@ public class SceneLoader {
 
     private void addSystems(boolean cullingEnabled) {
         ParticleSystem particleSystem = new ParticleSystem();
+        TalosSystem talosSystem = new TalosSystem();
         LightSystem lightSystem = new LightSystem();
         lightSystem.setRayHandler(rayHandler);
         SpriteAnimationSystem animationSystem = new SpriteAnimationSystem();
@@ -148,6 +149,7 @@ public class SceneLoader {
 
         engine.addSystem(animationSystem);
         engine.addSystem(particleSystem);
+        engine.addSystem(talosSystem);
         engine.addSystem(layerSystem);
         engine.addSystem(physicsSystem);
         engine.addSystem(lightSystem);

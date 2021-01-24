@@ -29,6 +29,7 @@ public class EntityFactory {
     public static final int LIGHT_TYPE = 7;
     public static final int NINE_PATCH = 8;
     public static final int SPINE_TYPE = 9;
+    public static final int TALOS_TYPE = 10;
 
     public static final HashMap<Integer, String> itemTypeIconMap = new HashMap<>();
     public static final HashMap<Integer, String> itemTypeNameMap = new HashMap<>();
@@ -43,6 +44,7 @@ public class EntityFactory {
         itemTypeNameMap.put(SPINE_TYPE, "Spine Animation");
         itemTypeNameMap.put(SPRITE_TYPE, "Sprite Animation");
         itemTypeNameMap.put(COLOR_PRIMITIVE, "Primitive");
+        itemTypeNameMap.put(TALOS_TYPE, "Talos VFX");
 
         itemTypeIconMap.put(UNKNOWN_TYPE, "icon-unknown");
         itemTypeIconMap.put(COMPOSITE_TYPE, "icon-root");
@@ -54,11 +56,12 @@ public class EntityFactory {
         itemTypeIconMap.put(SPINE_TYPE, "icon-spine");
         itemTypeIconMap.put(SPRITE_TYPE, "icon-animation");
         itemTypeIconMap.put(COLOR_PRIMITIVE, "icon-image");
+        itemTypeIconMap.put(TALOS_TYPE, "icon-particle-white");
     }
 
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
             simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
-            ninePatchComponentFactory, colorPrimitiveFactory;
+            ninePatchComponentFactory, colorPrimitiveFactory, talosComponentFactory;
 
     private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
     private final HashMap<Integer, Entity> entities = new HashMap<>();
@@ -82,6 +85,7 @@ public class EntityFactory {
         labelComponentFactory = new LabelComponentFactory(engine, rayHandler, world, rm);
         ninePatchComponentFactory = new NinePatchComponentFactory(engine, rayHandler, world, rm);
         colorPrimitiveFactory = new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm);
+        talosComponentFactory = new TalosComponentFactory(engine, rayHandler, world, rm);
     }
 
     public ComponentFactory getCompositeComponentFactory() {
@@ -134,6 +138,17 @@ public class EntityFactory {
         Entity entity = engine.createEntity();
 
         particleEffectComponentFactory.createComponents(root, entity, vo);
+
+        postProcessEntity(entity);
+
+        return entity;
+    }
+
+    public Entity createEntity(Entity root, TalosVO vo) {
+
+        Entity entity = engine.createEntity();
+
+        talosComponentFactory.createComponents(root, entity, vo);
 
         postProcessEntity(entity);
 
@@ -268,6 +283,11 @@ public class EntityFactory {
 
         for (int i = 0; i < vo.sParticleEffects.size(); i++) {
             Entity child = createEntity(entity, vo.sParticleEffects.get(i));
+            engine.addEntity(child);
+        }
+
+        for (int i = 0; i < vo.sTalosVFX.size(); i++) {
+            Entity child = createEntity(entity, vo.sTalosVFX.get(i));
             engine.addEntity(child);
         }
 

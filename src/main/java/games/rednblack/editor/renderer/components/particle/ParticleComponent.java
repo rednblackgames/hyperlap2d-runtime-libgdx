@@ -19,12 +19,6 @@ public class ParticleComponent implements BaseComponent {
         return scaleFactor;
     }
 
-    //please use this method to start effects for the scale to be applied
-    public void startEffect() {
-        scaleEffect(scaleFactor);
-        particleEffect.start();
-    }
-
     @Override
     public void reset() {
         particleName = "";

@@ -15,17 +15,18 @@ import java.util.HashSet;
 
 public class CompositeVO {
 
-    public ArrayList<SimpleImageVO> sImages = new ArrayList<SimpleImageVO>(1);
-    public ArrayList<Image9patchVO> sImage9patchs = new ArrayList<Image9patchVO>(1);
-    public ArrayList<TextBoxVO> sTextBox = new ArrayList<TextBoxVO>(1);
-    public ArrayList<LabelVO> sLabels = new ArrayList<LabelVO>(1);
-    public ArrayList<CompositeItemVO> sComposites = new ArrayList<CompositeItemVO>(1);
-    public ArrayList<SelectBoxVO> sSelectBoxes = new ArrayList<SelectBoxVO>(1);
-    public ArrayList<ParticleEffectVO> sParticleEffects = new ArrayList<ParticleEffectVO>(1);
-    public ArrayList<LightVO> sLights = new ArrayList<LightVO>(1);
-    public ArrayList<SpineVO> sSpineAnimations = new ArrayList<SpineVO>(1);
-    public ArrayList<SpriteAnimationVO> sSpriteAnimations = new ArrayList<SpriteAnimationVO>(1);
-    public ArrayList<ColorPrimitiveVO> sColorPrimitives = new ArrayList<ColorPrimitiveVO>(1);
+    public ArrayList<SimpleImageVO> sImages = new ArrayList<>(1);
+    public ArrayList<Image9patchVO> sImage9patchs = new ArrayList<>(1);
+    public ArrayList<TextBoxVO> sTextBox = new ArrayList<>(1);
+    public ArrayList<LabelVO> sLabels = new ArrayList<>(1);
+    public ArrayList<CompositeItemVO> sComposites = new ArrayList<>(1);
+    public ArrayList<SelectBoxVO> sSelectBoxes = new ArrayList<>(1);
+    public ArrayList<ParticleEffectVO> sParticleEffects = new ArrayList<>(1);
+    public ArrayList<TalosVO> sTalosVFX = new ArrayList<>(1);
+    public ArrayList<LightVO> sLights = new ArrayList<>(1);
+    public ArrayList<SpineVO> sSpineAnimations = new ArrayList<>(1);
+    public ArrayList<SpriteAnimationVO> sSpriteAnimations = new ArrayList<>(1);
+    public ArrayList<ColorPrimitiveVO> sColorPrimitives = new ArrayList<>(1);
 
     public ArrayList<LayerItemVO> layers = new ArrayList<LayerItemVO>();
 
@@ -65,6 +66,10 @@ public class CompositeVO {
 
         for (int i = 0; i < vo.sParticleEffects.size(); i++) {
             sParticleEffects.add(new ParticleEffectVO(vo.sParticleEffects.get(i)));
+        }
+
+        for (int i = 0; i < vo.sTalosVFX.size(); i++) {
+            sTalosVFX.add(new TalosVO(vo.sTalosVFX.get(i)));
         }
 
         for (int i = 0; i < vo.sLights.size(); i++) {
@@ -114,6 +119,9 @@ public class CompositeVO {
         if (className.equals("ParticleEffectVO")) {
             sParticleEffects.add((ParticleEffectVO) vo);
         }
+        if (className.equals("TalosVO")) {
+            sTalosVFX.add((TalosVO) vo);
+        }
         if (className.equals("LightVO")) {
             sLights.add((LightVO) vo);
         }
@@ -151,6 +159,9 @@ public class CompositeVO {
         if (className.equals("ParticleEffectVO")) {
             sParticleEffects.remove((ParticleEffectVO) vo);
         }
+        if (className.equals("TalosVO")) {
+            sTalosVFX.remove((TalosVO) vo);
+        }
         if (className.equals("LightVO")) {
             sLights.remove((LightVO) vo);
         }
@@ -172,6 +183,7 @@ public class CompositeVO {
         sComposites.clear();
         sSelectBoxes.clear();
         sParticleEffects.clear();
+        sTalosVFX.clear();
         sLights.clear();
         sSpineAnimations.clear();
         sSpriteAnimations.clear();
@@ -186,6 +198,7 @@ public class CompositeVO {
                 sLabels.isEmpty() &&
                 sLights.isEmpty() &&
                 sParticleEffects.isEmpty() &&
+                sTalosVFX.isEmpty() &&
                 sSpineAnimations.isEmpty() &&
                 sSelectBoxes.isEmpty() &&
                 sTextBox.isEmpty() &&
@@ -193,12 +206,27 @@ public class CompositeVO {
     }
 
     public String[] getRecursiveParticleEffectsList() {
-        HashSet<String> list = new HashSet<String>();
+        HashSet<String> list = new HashSet<>();
         for (ParticleEffectVO sParticleEffect : sParticleEffects) {
             list.add(sParticleEffect.particleName);
         }
         for (CompositeItemVO sComposite : sComposites) {
             String[] additionalList = sComposite.composite.getRecursiveParticleEffectsList();
+            Collections.addAll(list, additionalList);
+        }
+        String[] finalList = new String[list.size()];
+        list.toArray(finalList);
+
+        return finalList;
+    }
+
+    public String[] getRecursiveTalosList() {
+        HashSet<String> list = new HashSet<>();
+        for (TalosVO sTalos : sTalosVFX) {
+            list.add(sTalos.particleName);
+        }
+        for (CompositeItemVO sComposite : sComposites) {
+            String[] additionalList = sComposite.composite.getRecursiveTalosList();
             Collections.addAll(list, additionalList);
         }
         String[] finalList = new String[list.size()];
@@ -287,6 +315,9 @@ public class CompositeVO {
         for(MainItemVO vo: compositeVo.sParticleEffects) {
             itemsList.add(vo);
         }
+        for(MainItemVO vo: compositeVo.sTalosVFX) {
+            itemsList.add(vo);
+        }
         for(MainItemVO vo: compositeVo.sSelectBoxes) {
             itemsList.add(vo);
         }
@@ -342,6 +373,11 @@ public class CompositeVO {
                 ParticleEffectVO vo = new ParticleEffectVO();
                 vo.loadFromEntity(entity);
                 sParticleEffects.add(vo);
+            }
+            if(entityType == EntityFactory.TALOS_TYPE) {
+                TalosVO vo = new TalosVO();
+                vo.loadFromEntity(entity);
+                sTalosVFX.add(vo);
             }
             if(entityType == EntityFactory.SPRITE_TYPE) {
                 SpriteAnimationVO vo = new SpriteAnimationVO();

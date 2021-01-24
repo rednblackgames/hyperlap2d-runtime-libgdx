@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.data;
 
-
 import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
@@ -16,7 +15,7 @@ public class ParticleEffectVO extends MainItemVO {
 	
 	public ParticleEffectVO(ParticleEffectVO vo) {
 		super(vo);
-		particleName = new String(vo.particleName);
+		particleName = vo.particleName;
 	}
 
 	@Override
