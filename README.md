@@ -24,7 +24,7 @@ dependencies {
     api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
 
     //Optional - Talos VFX
-    api "com.rafaskoberg.gdx:typing-label:$talosVersion"
+    api "com.talosvfx:talos-libgdx:$talosVersion"
 }
 ```
 
