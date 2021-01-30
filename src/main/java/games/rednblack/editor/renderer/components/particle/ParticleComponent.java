@@ -5,6 +5,8 @@ import games.rednblack.editor.renderer.components.BaseComponent;
 
 public class ParticleComponent implements BaseComponent {
     public String particleName = "";
+    public boolean transform = true;
+
     public float worldMultiplier = 1f;
     private float scaleFactor = 1f;
 
@@ -22,6 +24,7 @@ public class ParticleComponent implements BaseComponent {
     @Override
     public void reset() {
         particleName = "";
+        transform = true;
         worldMultiplier = 1f;
         scaleFactor = 1f;
 

@@ -47,6 +47,7 @@ public class TalosComponentFactory extends ComponentFactory {
     protected TalosComponent createParticleComponent(Entity entity, TalosVO vo) {
         TalosComponent component = engine.createComponent(TalosComponent.class);
         component.particleName = vo.particleName;
+        component.transform = vo.transform;
         ParticleEffectDescriptor effectDescriptor = rm.getTalosVFX(vo.particleName);
         component.effect = effectDescriptor.createEffectInstance();
 

@@ -69,6 +69,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
     protected ParticleComponent createParticleComponent(Entity entity, ParticleEffectVO vo) {
         ParticleComponent component = engine.createComponent(ParticleComponent.class);
         component.particleName = vo.particleName;
+        component.transform = vo.transform;
 		ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));
         component.particleEffect = particleEffect;
         ProjectInfoVO projectInfoVO = rm.getProjectVO();

@@ -33,12 +33,18 @@ public class TalosDrawableMapper implements Drawable {
         TalosComponent talosComponent = particleComponentMapper.get(entity);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
 
-        TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
-        TransformMathUtils.applyTransform(entity, batch);
+        if (talosComponent.transform) {
+            TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
+            TransformMathUtils.applyTransform(entity, batch);
+        } else {
+            talosComponent.effect.setPosition(transformComponent.x, transformComponent.y);
+        }
 
         talosComponent.effect.render(defaultRenderer);
 
-        TransformMathUtils.resetTransform(entity, batch);
+        if (talosComponent.transform) {
+            TransformMathUtils.resetTransform(entity, batch);
+        }
 
         batch.setColor(tmpColor);
     }

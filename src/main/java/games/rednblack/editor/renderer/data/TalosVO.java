@@ -5,6 +5,7 @@ import games.rednblack.editor.renderer.components.additional.TalosComponent;
 
 public class TalosVO extends MainItemVO {
     public String particleName = "";
+    public boolean transform = true;
 
     public TalosVO() {
         super();
@@ -13,13 +14,15 @@ public class TalosVO extends MainItemVO {
     public TalosVO(TalosVO vo) {
         super(vo);
         particleName = vo.particleName;
+        transform = vo.transform;
     }
 
     @Override
     public void loadFromEntity(Entity entity) {
         super.loadFromEntity(entity);
 
-        TalosComponent particleComponent = entity.getComponent(TalosComponent.class);
-        particleName = particleComponent.particleName;
+        TalosComponent talosComponent = entity.getComponent(TalosComponent.class);
+        particleName = talosComponent.particleName;
+        transform = talosComponent.transform;
     }
 }

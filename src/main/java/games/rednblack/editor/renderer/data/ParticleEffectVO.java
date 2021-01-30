@@ -5,10 +5,8 @@ import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
 public class ParticleEffectVO extends MainItemVO {
 	public String particleName = "";
-	public float particleWidth = 100;
-	public float particleHeight = 100;
-	//TODO add other ParticleEffect properties 
-	
+	public boolean transform = true;
+
 	public ParticleEffectVO() {
 		super();
 	}
@@ -16,6 +14,7 @@ public class ParticleEffectVO extends MainItemVO {
 	public ParticleEffectVO(ParticleEffectVO vo) {
 		super(vo);
 		particleName = vo.particleName;
+		transform = vo.transform;
 	}
 
 	@Override
@@ -24,5 +23,6 @@ public class ParticleEffectVO extends MainItemVO {
 
 		ParticleComponent particleComponent = entity.getComponent(ParticleComponent.class);
 		particleName = particleComponent.particleName;
+		transform = particleComponent.transform;
 	}
 }
