@@ -144,7 +144,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		boolean scissors = false;
 
-		if (curCompositeTransformComponent.transform || transform.rotation != 0 || transform.scaleX !=1 || transform.scaleY !=1){
+		if (transform.shouldTransform()){
 			computeTransform(rootEntity);
 			applyTransform(rootEntity, batch);
 		}
@@ -165,7 +165,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha);
 
-		if (curCompositeTransformComponent.transform || transform.rotation != 0 || transform.scaleX !=1 || transform.scaleY !=1)
+		if (transform.shouldTransform())
 			resetTransform(rootEntity, batch);
 
 		resetShader(rootEntity, batch);
@@ -180,7 +180,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		NodeComponent nodeComponent = nodeMapper.get(rootEntity);
 		Entity[] children = nodeComponent.children.begin();
 		TransformComponent transform = transformMapper.get(rootEntity);
-		if (curCompositeTransformComponent.transform || transform.rotation != 0 || transform.scaleX !=1 || transform.scaleY !=1) {
+		if (transform.shouldTransform()) {
 			for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
 				Entity child = children[i];
 
@@ -268,7 +268,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	 *
 	 */
 	protected Matrix4 computeTransform(Entity rootEntity) {
-		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		ParentNodeComponent parentNodeComponent = parentNodeMapper.get(rootEntity);
 		TransformComponent curTransform = transformMapper.get(rootEntity);
 		Affine2 worldTransform = curTransform.worldTransform;
@@ -292,7 +291,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		if (parentEntity != null){
 			TransformComponent transform = transformMapper.get(parentEntity);
-			if(curCompositeTransformComponent.transform || transform.rotation != 0 || transform.scaleX !=1 || transform.scaleY !=1)
+			if(transform.shouldTransform())
 				worldTransform.preMul(transform.worldTransform);
 		}
 

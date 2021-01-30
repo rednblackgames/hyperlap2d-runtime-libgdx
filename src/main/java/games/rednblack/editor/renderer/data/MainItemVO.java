@@ -78,6 +78,7 @@ public class MainItemVO {
 	public void loadFromEntity(Entity entity) {
 		MainItemComponent mainItemComponent = entity.getComponent(MainItemComponent.class);
 		TransformComponent transformComponent = entity.getComponent(TransformComponent.class);
+		transformComponent = transformComponent.getRealComponent();
 		TintComponent tintComponent = entity.getComponent(TintComponent.class);
 		ZIndexComponent zindexComponent = entity.getComponent(ZIndexComponent.class);
 
