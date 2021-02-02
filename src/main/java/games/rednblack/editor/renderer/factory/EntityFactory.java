@@ -61,7 +61,7 @@ public class EntityFactory {
 
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
             simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
-            ninePatchComponentFactory, colorPrimitiveFactory, talosComponentFactory;
+            ninePatchComponentFactory, colorPrimitiveFactory;
 
     private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
     private final HashMap<Integer, Entity> entities = new HashMap<>();
@@ -85,7 +85,6 @@ public class EntityFactory {
         labelComponentFactory = new LabelComponentFactory(engine, rayHandler, world, rm);
         ninePatchComponentFactory = new NinePatchComponentFactory(engine, rayHandler, world, rm);
         colorPrimitiveFactory = new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm);
-        talosComponentFactory = new TalosComponentFactory(engine, rayHandler, world, rm);
     }
 
     public ComponentFactory getCompositeComponentFactory() {
@@ -148,9 +147,11 @@ public class EntityFactory {
 
         Entity entity = engine.createEntity();
 
-        talosComponentFactory.createComponents(root, entity, vo);
-
-        postProcessEntity(entity);
+        ComponentFactory factory = externalFactories.get(TALOS_TYPE);
+        if (factory != null) {
+            factory.createComponents(root, entity, vo);
+            postProcessEntity(entity);
+        }
 
         return entity;
     }

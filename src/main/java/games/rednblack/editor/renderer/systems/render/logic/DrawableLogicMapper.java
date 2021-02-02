@@ -16,7 +16,6 @@ public class DrawableLogicMapper {
 		logicClassMap.put(EntityFactory.LABEL_TYPE, 	 new LabelDrawableLogic());
 		logicClassMap.put(EntityFactory.NINE_PATCH, 	 new NinePatchDrawableLogic());
 		logicClassMap.put(EntityFactory.PARTICLE_TYPE, 	 new ParticleDrawableLogic());
-		logicClassMap.put(EntityFactory.TALOS_TYPE, 	 new TalosDrawableMapper());
 		logicClassMap.put(EntityFactory.SPRITE_TYPE, 	 new SpriteDrawableLogic());
 		logicClassMap.put(EntityFactory.COLOR_PRIMITIVE, new TextureRegionDrawLogic());
 		logicClassMap.put(EntityFactory.LIGHT_TYPE,      new LightDrawableLogic());

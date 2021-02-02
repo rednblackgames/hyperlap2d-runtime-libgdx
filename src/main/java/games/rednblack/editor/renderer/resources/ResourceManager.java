@@ -14,11 +14,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.talosvfx.talos.runtime.ParticleEffectDescriptor;
-import com.talosvfx.talos.runtime.ParticleEffectInstance;
-import com.talosvfx.talos.runtime.assets.AtlasAssetProvider;
-import com.talosvfx.talos.runtime.assets.BaseAssetProvider;
-import com.talosvfx.talos.runtime.utils.ShaderDescriptor;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.MySkin;
 
@@ -63,7 +58,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
 
     protected TextureAtlas mainPack;
     protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
-    protected HashMap<String, ParticleEffectDescriptor> talosVFXs = new HashMap<String, ParticleEffectDescriptor>();
+    protected HashMap<String, FileHandle> talosVFXs = new HashMap<String, FileHandle>();
 
     protected HashMap<String, TextureAtlas> skeletonAtlases = new HashMap<String, TextureAtlas>();
     protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
@@ -249,35 +244,9 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
         }
 
         // load scheduled
-        AtlasAssetProvider assetProvider = new AtlasAssetProvider(mainPack);
-        assetProvider.setAssetHandler(ShaderDescriptor.class, new BaseAssetProvider.AssetHandler<ShaderDescriptor>() {
-            @Override
-            public ShaderDescriptor findAsset(String assetName) {
-                return findShaderDescriptorOnLoad(assetName);
-            }
-        });
-
         for (String name : talosNamesToLoad) {
-            ParticleEffectDescriptor effectDescriptor = new ParticleEffectDescriptor();
-            effectDescriptor.setAssetProvider(assetProvider);
-            effectDescriptor.load(Gdx.files.internal(talosPath + File.separator + name));
-            talosVFXs.put(name, effectDescriptor);
+            talosVFXs.put(name, Gdx.files.internal(talosPath + File.separator + name));
         }
-    }
-
-    private ObjectMap<String, ShaderDescriptor> shaderDescriptorObjectMap = new ObjectMap<>();
-    private ShaderDescriptor findShaderDescriptorOnLoad (String assetName) {
-        ShaderDescriptor asset = shaderDescriptorObjectMap.get(assetName);
-        if (asset == null) {
-            //Look in all paths, and hopefully load the requested asset, or fail (crash)
-            final FileHandle file = Gdx.files.internal(talosPath + File.separator + assetName);
-
-            asset = new ShaderDescriptor();
-            if (file.exists()) {
-                asset.setData(file.readString());
-            }
-        }
-        return asset;
     }
 
     @Override
@@ -406,6 +375,11 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
      */
 
     @Override
+    public TextureAtlas getMainPack() {
+        return mainPack;
+    }
+
+    @Override
     public TextureRegion getTextureRegion(String name) {
         return mainPack.findRegion(name);
     }
@@ -426,7 +400,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
     }
 
     @Override
-    public ParticleEffectDescriptor getTalosVFX(String name) {
+    public FileHandle getTalosVFX(String name) {
         return talosVFXs.get(name);
     }
 
