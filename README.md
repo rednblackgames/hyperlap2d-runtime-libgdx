@@ -30,7 +30,7 @@ dependencies {
 <dependency>
   <groupId>games.rednblack.editor</groupId>
   <artifactId>hyperlap2d-runtime-libgdx</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
   <type>pom</type>
 </dependency>
 ```
@@ -39,10 +39,11 @@ dependencies {
 
 **Compatibility Table**
 
-| HyperLap2D         | libGDX | Ashley | Box2DLights  | TypingLabel |
-| ------------------ | ------ | ------ | ------------ | ----------- |
-| 0.0.4              | 1.9.13 | 1.7.3  | 1.6-SNAPSHOT |    1.2.0    |
-| 0.0.3              | 1.9.11 | 1.7.3  | 1.6-SNAPSHOT |    1.2.0    |
+| HyperLap2D         | libGDX | Ashley           | Box2DLights  | TypingLabel |
+| ------------------ | ------ | ---------------- | ------------ | ----------- |
+| 0.0.5-dev          | 1.9.14 | 1.7.4-SNAPSHOT   | 1.6-SNAPSHOT |    1.2.0    |
+| 0.0.4              | 1.9.13 | 1.7.3            | 1.6-SNAPSHOT |    1.2.0    |
+| 0.0.3              | 1.9.11 | 1.7.3            | 1.6-SNAPSHOT |    1.2.0    |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
 
