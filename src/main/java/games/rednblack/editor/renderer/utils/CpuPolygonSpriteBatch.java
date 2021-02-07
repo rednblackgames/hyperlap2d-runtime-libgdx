@@ -26,17 +26,18 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-/** CpuSpriteBatch behaves like SpriteBatch, except it doesn't flush automatically whenever the transformation matrix changes.
+/**
+ * CpuSpriteBatch behaves like SpriteBatch, except it doesn't flush automatically whenever the transformation matrix changes.
  * Instead, the vertices get adjusted on subsequent draws to match the running batch. This can improve performance through longer
  * batches, for example when drawing Groups with transform enabled.
  *
- * @see SpriteBatch#renderCalls
- * @see com.badlogic.gdx.scenes.scene2d.Group#setTransform(boolean) Group.setTransform()
  * @author Valentin Milea
  * @author https://github.com/wangwangla
- * */
+ * @see SpriteBatch#renderCalls
+ * @see com.badlogic.gdx.scenes.scene2d.Group#setTransform(boolean) Group.setTransform()
+ */
 public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
-    
+
     private final Matrix4 virtualMatrix = new Matrix4();
     private final Affine2 adjustAffine = new Affine2();
     private boolean adjustNeeded;
@@ -44,25 +45,35 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
     private final Affine2 tmpAffine = new Affine2();
 
-    /** Constructs a CpuSpriteBatch with a size of 1000 and the default shader.
-     * @see SpriteBatch#SpriteBatch() */
-    public CpuPolygonSpriteBatch () {
+    /**
+     * Constructs a CpuSpriteBatch with a size of 2000 and the default shader.
+     *
+     * @see SpriteBatch#SpriteBatch()
+     */
+    public CpuPolygonSpriteBatch() {
         this(2000);
     }
 
-    /** Constructs a CpuSpriteBatch with the default shader.
-     * @see SpriteBatch#SpriteBatch(int) */
-    public CpuPolygonSpriteBatch (int size) {
+    /**
+     * Constructs a CpuSpriteBatch with the default shader.
+     *
+     * @see SpriteBatch#SpriteBatch(int)
+     */
+    public CpuPolygonSpriteBatch(int size) {
         this(size, null);
     }
 
-    /** Constructs a CpuSpriteBatch with a custom shader.
-     * @see SpriteBatch#SpriteBatch(int, ShaderProgram) */
-    public CpuPolygonSpriteBatch (int size, ShaderProgram defaultShader) {
+    /**
+     * Constructs a CpuSpriteBatch with a custom shader.
+     *
+     * @see SpriteBatch#SpriteBatch(int, ShaderProgram)
+     */
+    public CpuPolygonSpriteBatch(int size, ShaderProgram defaultShader) {
         super(size, defaultShader);
     }
 
-    /** <p>
+    /**
+     * <p>
      * Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly
      * faster as long as the transform matrix is not {@link #setTransformMatrix(Matrix4) changed}.
      * </p>
@@ -70,8 +81,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
      * Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be
      * thrown.
      * </p>
-     * @see SpriteBatch#flush() */
-    public void flushAndSyncTransformMatrix () {
+     *
+     * @see SpriteBatch#flush()
+     */
+    public void flushAndSyncTransformMatrix() {
         flush();
 
         if (adjustNeeded) {
@@ -87,16 +100,18 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
     }
 
     @Override
-    public Matrix4 getTransformMatrix () {
+    public Matrix4 getTransformMatrix() {
         return (adjustNeeded ? virtualMatrix : super.getTransformMatrix());
     }
 
-    /** Sets the transform matrix to be used by this Batch. Even if this is called inside a {@link #begin()}/{@link #end()} block,
+    /**
+     * Sets the transform matrix to be used by this Batch. Even if this is called inside a {@link #begin()}/{@link #end()} block,
      * the current batch is <em>not</em> flushed to the GPU. Instead, for every subsequent draw() the vertices will be transformed
      * on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by
-     * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()}. */
+     * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()}.
+     */
     @Override
-    public void setTransformMatrix (Matrix4 transform) {
+    public void setTransformMatrix(Matrix4 transform) {
         Matrix4 realMatrix = super.getTransformMatrix();
 
         if (checkEqual(realMatrix, transform)) {
@@ -122,11 +137,13 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
         }
     }
 
-    /** Sets the transform matrix to be used by this Batch. Even if this is called inside a {@link #begin()}/{@link #end()} block,
+    /**
+     * Sets the transform matrix to be used by this Batch. Even if this is called inside a {@link #begin()}/{@link #end()} block,
      * the current batch is <em>not</em> flushed to the GPU. Instead, for every subsequent draw() the vertices will be transformed
      * on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by
-     * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()} or {@link #end()}. */
-    public void setTransformMatrix (Affine2 transform) {
+     * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()} or {@link #end()}.
+     */
+    public void setTransformMatrix(Affine2 transform) {
         Matrix4 realMatrix = super.getTransformMatrix();
 
         if (checkEqual(realMatrix, transform)) {
@@ -177,7 +194,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             final int startVertex = vertexIndex / VERTEX_SIZE;
 
             for (int i = 0; i < regionTrianglesLength; i++)
-                triangles[triangleIndex++] = (short)(regionTriangles[i] + startVertex);
+                triangles[triangleIndex++] = (short) (regionTriangles[i] + startVertex);
             this.triangleIndex = triangleIndex;
 
             final float[] vertices = this.vertices;
@@ -186,8 +203,8 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             Affine2 t = adjustAffine;
             for (int i = 0; i < regionVerticesLength; i += 2) {
-                float x1=regionVertices[i] + x;
-                float y1=regionVertices[i + 1] + y;
+                float x1 = regionVertices[i] + x;
+                float y1 = regionVertices[i + 1] + y;
                 vertices[vertexIndex++] = t.m00 * x1 + t.m01 * y1 + t.m02;
                 vertices[vertexIndex++] = t.m10 * x1 + t.m11 * y1 + t.m12;
                 vertices[vertexIndex++] = color;
@@ -217,7 +234,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + regionTrianglesLength > triangles.length
-                    || vertexIndex + regionVerticesLength > vertices.length)
+                    || vertexIndex + regionVerticesLength + regionVerticesLength * VERTEX_SIZE / 2 > vertices.length)
                 flush();
 
             int triangleIndex = this.triangleIndex;
@@ -225,7 +242,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             final int startVertex = vertexIndex / VERTEX_SIZE;
 
             for (int i = 0; i < regionTrianglesLength; i++)
-                triangles[triangleIndex++] = (short)(regionTriangles[i] + startVertex);
+                triangles[triangleIndex++] = (short) (regionTriangles[i] + startVertex);
             this.triangleIndex = triangleIndex;
 
             final float[] vertices = this.vertices;
@@ -244,8 +261,8 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             for (int i = 0; i < regionVerticesLength; i += 2) {
                 fx = (regionVertices[i] * sX - originX) * scaleX;
                 fy = (regionVertices[i + 1] * sY - originY) * scaleY;
-                float x1= cos * fx - sin * fy + worldOriginX;
-                float y1= sin * fx + cos * fy + worldOriginY;
+                float x1 = cos * fx - sin * fy + worldOriginX;
+                float y1 = sin * fx + cos * fy + worldOriginY;
                 vertices[vertexIndex++] = t.m00 * x1 + t.m01 * y1 + t.m02;
                 vertices[vertexIndex++] = t.m10 * x1 + t.m11 * y1 + t.m12;
                 vertices[vertexIndex++] = color;
@@ -274,7 +291,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + regionTrianglesLength > triangles.length
-                    || vertexIndex + regionVerticesLength > vertices.length)
+                    || vertexIndex + regionVerticesLength * VERTEX_SIZE / 2 > vertices.length)
                 flush();
 
             int triangleIndex = this.triangleIndex;
@@ -282,7 +299,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             final int startVertex = vertexIndex / VERTEX_SIZE;
 
             for (int i = 0, n = regionTriangles.length; i < n; i++)
-                triangles[triangleIndex++] = (short)(regionTriangles[i] + startVertex);
+                triangles[triangleIndex++] = (short) (regionTriangles[i] + startVertex);
             this.triangleIndex = triangleIndex;
 
             final float[] vertices = this.vertices;
@@ -293,8 +310,8 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             Affine2 t = adjustAffine;
             for (int i = 0; i < regionVerticesLength; i += 2) {
-                float x1= regionVertices[i] * sX + x;
-                float y1= regionVertices[i + 1] * sY + y;
+                float x1 = regionVertices[i] * sX + x;
+                float y1 = regionVertices[i + 1] * sY + y;
                 vertices[vertexIndex++] = t.m00 * x1 + t.m01 * y1 + t.m02;
                 vertices[vertexIndex++] = t.m10 * x1 + t.m11 * y1 + t.m12;
                 vertices[vertexIndex++] = color;
@@ -324,12 +341,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float fx2 = x + width;
@@ -389,12 +406,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             // bottom left and top right corner points relative to origin
@@ -535,12 +552,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float fx2 = x + width;
@@ -598,12 +615,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float fx2 = x + width;
@@ -657,12 +674,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             float u = srcX * invTexWidth;
@@ -731,12 +748,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float u = srcX * invTexWidth;
@@ -776,8 +793,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
         }
     }
 
-    /** Draws the polygon using the given vertices and triangles. Each vertices must be made up of 5 elements in this order: x, y,
-     * color, u, v. */
+    /**
+     * Draws the polygon using the given vertices and triangles. Each vertices must be made up of 5 elements in this order: x, y,
+     * color, u, v.
+     */
     @Override
     public void draw(Texture texture, float[] polygonVertices, int verticesOffset, int verticesCount,
                      short[] polygonTriangles, int trianglesOffset, int trianglesCount) {
@@ -795,21 +814,17 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             else if (triangleIndex + trianglesCount > triangles.length || vertexIndex + verticesCount > vertices.length) //
                 flush();
 
-            if(triangleIndex + trianglesCount > triangles.length || vertexIndex + verticesCount > vertices.length)
-                throw new GdxRuntimeException("Polygon too big");
-
             int triangleIndex = this.triangleIndex;
             final int vertexIndex = this.vertexIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
 
             for (int i = trianglesOffset, n = i + trianglesCount; i < n; i++)
-                triangles[triangleIndex++] = (short)(polygonTriangles[i] + startVertex);
+                triangles[triangleIndex++] = (short) (polygonTriangles[i] + startVertex);
             this.triangleIndex = triangleIndex;
 
             Affine2 t = adjustAffine;
-            int vdin=vertexIndex;
-            for(int offsetin=0;offsetin<verticesCount;offsetin+=5,vdin+=5)
-            {
+            int vdin = vertexIndex;
+            for (int offsetin = verticesOffset; offsetin < verticesCount + verticesOffset; offsetin += 5, vdin += 5) {
                 float x = polygonVertices[offsetin];
                 float y = polygonVertices[offsetin + 1];
 
@@ -826,8 +841,6 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
     @Override
     public void draw(Texture texture, float[] spriteVertices, int offset, int count) {
-        //传入进来为一串坐标点，从offset起数一共count个
-        //正常情况下count是20的倍数 VERTEX_SIZE*4
         if (!adjustNeeded) {
             super.draw(texture, spriteVertices, offset, count);
         } else {
@@ -836,84 +849,57 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-//			final int triangleCount = count / SPRITE_SIZE * 6;
-            if (texture != lastTexture)
+            int triangleCount = count / SPRITE_SIZE * 6;
+            int batch;
+            if (texture != lastTexture) {
                 switchTexture(texture);
-//			else if (triangleIndex + triangleCount > triangles.length || vertexIndex + count > vertices.length) //
-//				flush();
-//
-//			final int vertexIndex = this.vertexIndex;
-//			int triangleIndex = this.triangleIndex;
-//			short vertex = (short)(vertexIndex / VERTEX_SIZE);
-//			for (int n = triangleIndex + triangleCount; triangleIndex < n; triangleIndex += 6, vertex += 4) {
-//				triangles[triangleIndex] = vertex;
-//				triangles[triangleIndex + 1] = (short)(vertex + 1);
-//				triangles[triangleIndex + 2] = (short)(vertex + 2);
-//				triangles[triangleIndex + 3] = (short)(vertex + 2);
-//				triangles[triangleIndex + 4] = (short)(vertex + 3);
-//				triangles[triangleIndex + 5] = vertex;
-//			}
-//			this.triangleIndex = triangleIndex;
-//
-//			System.arraycopy(spriteVertices, offset, vertices, vertexIndex, count);
-//			this.vertexIndex += count;
+                batch = Math.min(Math.min(count, vertices.length - (vertices.length % SPRITE_SIZE)), triangles.length / 6 * SPRITE_SIZE);
+                triangleCount = batch / SPRITE_SIZE * 6;
+            } else if (triangleIndex + triangleCount > triangles.length || vertexIndex + count > vertices.length) {
+                flush();
+                batch = Math.min(Math.min(count, vertices.length - (vertices.length % SPRITE_SIZE)), triangles.length / 6 * SPRITE_SIZE);
+                triangleCount = batch / SPRITE_SIZE * 6;
+            } else
+                batch = count;
 
-            //20倍数
-            int texturenum = count/20;
-            int offsetin=offset;
-            while(texturenum>0)
-            {
-                if(triangleIndex + 6 > triangles.length||vertexIndex + 20 > vertices.length)
-                    flush();
-
-
-                int triangleIndex = this.triangleIndex;
-                final int vertexIndex = this.vertexIndex;
-                short vertex = (short)(vertexIndex / 5);
-
+            int vertexIndex = this.vertexIndex;
+            short vertex = (short) (vertexIndex / VERTEX_SIZE);
+            int triangleIndex = this.triangleIndex;
+            for (int n = triangleIndex + triangleCount; triangleIndex < n; triangleIndex += 6, vertex += 4) {
                 triangles[triangleIndex] = vertex;
-                triangles[triangleIndex + 1] = (short)(vertex + 1);
-                triangles[triangleIndex + 2] = (short)(vertex + 2);
-                triangles[triangleIndex + 3] = (short)(vertex + 2);
-                triangles[triangleIndex + 4] = (short)(vertex + 3);
+                triangles[triangleIndex + 1] = (short) (vertex + 1);
+                triangles[triangleIndex + 2] = (short) (vertex + 2);
+                triangles[triangleIndex + 3] = (short) (vertex + 2);
+                triangles[triangleIndex + 4] = (short) (vertex + 3);
                 triangles[triangleIndex + 5] = vertex;
-                this.triangleIndex = triangleIndex+6;
+            }
 
+            while (true) {
                 Affine2 t = adjustAffine;
-                float x=spriteVertices[offsetin];
-                float y=spriteVertices[offsetin+1];
-                vertices[vertexIndex] = t.m00 * x + t.m01 * y + t.m02;
-                vertices[vertexIndex+1] = t.m10 * x + t.m11 * y + t.m12;
-                vertices[vertexIndex+2] = spriteVertices[offsetin+2];
-                vertices[vertexIndex+3] = spriteVertices[offsetin+3];
-                vertices[vertexIndex+4] = spriteVertices[offsetin+4];
+                int vdin = vertexIndex;
+                for (int offsetin = offset; offsetin < batch + offset; offsetin += 5, vdin += 5) {
+                    float x = spriteVertices[offsetin];
+                    float y = spriteVertices[offsetin + 1];
 
-                x=spriteVertices[offsetin+5];
-                y=spriteVertices[offsetin+6];
-                vertices[vertexIndex+5] = t.m00 * x + t.m01 * y + t.m02;
-                vertices[vertexIndex+6] = t.m10 * x + t.m11 * y + t.m12;
-                vertices[vertexIndex+7] = spriteVertices[offsetin+7];
-                vertices[vertexIndex+8] = spriteVertices[offsetin+8];
-                vertices[vertexIndex+9] = spriteVertices[offsetin+9];
+                    vertices[vdin] = t.m00 * x + t.m01 * y + t.m02; // x
+                    vertices[vdin + 1] = t.m10 * x + t.m11 * y + t.m12; // y
+                    vertices[vdin + 2] = spriteVertices[offsetin + 2]; // color
+                    vertices[vdin + 3] = spriteVertices[offsetin + 3]; // u
+                    vertices[vdin + 4] = spriteVertices[offsetin + 4]; // v
+                }
+                //System.arraycopy(spriteVertices, offset, vertices, vertexIndex, batch);
 
-                x=spriteVertices[offsetin+10];
-                y=spriteVertices[offsetin+11];
-                vertices[vertexIndex+10] = t.m00 * x + t.m01 * y + t.m02;
-                vertices[vertexIndex+11] = t.m10 * x + t.m11 * y + t.m12;
-                vertices[vertexIndex+12] = spriteVertices[offsetin+12];
-                vertices[vertexIndex+13] = spriteVertices[offsetin+13];
-                vertices[vertexIndex+14] = spriteVertices[offsetin+14];
-
-                x=spriteVertices[offsetin+15];
-                y=spriteVertices[offsetin+16];
-                vertices[vertexIndex+15] = t.m00 * x + t.m01 * y + t.m02;
-                vertices[vertexIndex+16] = t.m10 * x + t.m11 * y + t.m12;
-                vertices[vertexIndex+17] = spriteVertices[offsetin+17];
-                vertices[vertexIndex+18] = spriteVertices[offsetin+18];
-                vertices[vertexIndex+19] = spriteVertices[offsetin+19];
-                this.vertexIndex = vertexIndex+20;
-                offsetin+=20;
-                texturenum--;
+                this.vertexIndex = vertexIndex + batch;
+                this.triangleIndex = triangleIndex;
+                count -= batch;
+                if (count == 0) break;
+                offset += batch;
+                flush();
+                vertexIndex = 0;
+                if (batch > count) {
+                    batch = Math.min(count, triangles.length / 6 * SPRITE_SIZE);
+                    triangleIndex = batch / SPRITE_SIZE * 6;
+                }
             }
         }
     }
@@ -936,12 +922,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             // construct corner points
@@ -1009,12 +995,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float fx2 = x + width;
@@ -1073,12 +1059,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             // bottom left and top right corner points relative to origin
@@ -1209,12 +1195,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             // bottom left and top right corner points relative to origin
@@ -1360,12 +1346,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
 
             int triangleIndex = this.triangleIndex;
             final int startVertex = vertexIndex / VERTEX_SIZE;
-            triangles[triangleIndex++] = (short)startVertex;
-            triangles[triangleIndex++] = (short)(startVertex + 1);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 2);
-            triangles[triangleIndex++] = (short)(startVertex + 3);
-            triangles[triangleIndex++] = (short)startVertex;
+            triangles[triangleIndex++] = (short) startVertex;
+            triangles[triangleIndex++] = (short) (startVertex + 1);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 2);
+            triangles[triangleIndex++] = (short) (startVertex + 3);
+            triangles[triangleIndex++] = (short) startVertex;
             this.triangleIndex = triangleIndex;
 
             final float fx2 = x + width;
@@ -1405,7 +1391,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
         }
     }
 
-    private static boolean checkEqual (Matrix4 a, Matrix4 b) {
+    private static boolean checkEqual(Matrix4 a, Matrix4 b) {
         if (a == b) return true;
 
         // matrices are assumed to be 2D transformations
@@ -1414,7 +1400,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
                 && a.val[Matrix4.M03] == b.val[Matrix4.M03] && a.val[Matrix4.M13] == b.val[Matrix4.M13]);
     }
 
-    private static boolean checkEqual (Matrix4 matrix, Affine2 affine) {
+    private static boolean checkEqual(Matrix4 matrix, Affine2 affine) {
         final float[] val = matrix.getValues();
 
         // matrix is assumed to be 2D transformation
@@ -1422,7 +1408,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
                 && val[Matrix4.M11] == affine.m11 && val[Matrix4.M03] == affine.m02 && val[Matrix4.M13] == affine.m12);
     }
 
-    private static boolean checkIdt (Matrix4 matrix) {
+    private static boolean checkIdt(Matrix4 matrix) {
         final float[] val = matrix.getValues();
 
         // matrix is assumed to be 2D transformation
