@@ -14,9 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package com.badlogic.gdx.graphics.g2d;
-
-import static com.badlogic.gdx.graphics.g2d.Sprite.*;
+package games.rednblack.editor.renderer.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -26,6 +24,9 @@ import com.badlogic.gdx.graphics.Mesh.VertexDataType;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.PolygonRegion;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
@@ -34,8 +35,8 @@ import com.badlogic.gdx.math.Matrix4;
 /** A PolygonSpriteBatch is used to draw 2D polygons that reference a texture (region). The class will batch the drawing commands
  * and optimize them for processing by the GPU.
  * <p>
- * To draw something with a PolygonSpriteBatch one has to first call the {@link PolygonSpriteBatch#begin()} method which will
- * setup appropriate render states. When you are done with drawing you have to call {@link PolygonSpriteBatch#end()} which will
+ * To draw something with a PolygonSpriteBatch one has to first call the {@link com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch#begin()} method which will
+ * setup appropriate render states. When you are done with drawing you have to call {@link com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch#end()} which will
  * actually draw the things you specified.
  * <p>
  * All drawing commands of the PolygonSpriteBatch operate in screen coordinates. The screen coordinate system has an x-axis
@@ -55,7 +56,11 @@ import com.badlogic.gdx.math.Matrix4;
  * @author mzechner
  * @author Stefan Bachmann
  * @author Nathan Sweet */
-public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
+public class PolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch {
+
+    static final int VERTEX_SIZE = 2 + 1 + 2;
+    static final int SPRITE_SIZE = 4 * VERTEX_SIZE;
+
     private Mesh mesh;
 
     protected final float[] vertices;
@@ -92,22 +97,22 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
     public int maxTrianglesInBatch = 0;
 
     /** Constructs a PolygonSpriteBatch with the default shader, 2000 vertices, and 4000 triangles.
-     * @see #PolygonSpriteBatch2(int, int, ShaderProgram) */
-    public PolygonSpriteBatch2 () {
+     * @see #PolygonSpriteBatch(int, int, ShaderProgram) */
+    public PolygonSpriteBatch() {
         this(2000, null);
     }
 
     /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
      * @param size The max number of vertices and number of triangles in a single batch. Max of 32767.
-     * @see #PolygonSpriteBatch2(int, int, ShaderProgram) */
-    public PolygonSpriteBatch2 (int size) {
+     * @see #PolygonSpriteBatch(int, int, ShaderProgram) */
+    public PolygonSpriteBatch(int size) {
         this(size, size * 2, null);
     }
 
     /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
      * @param size The max number of vertices and number of triangles in a single batch. Max of 32767.
-     * @see #PolygonSpriteBatch2(int, int, ShaderProgram) */
-    public PolygonSpriteBatch2 (int size, ShaderProgram defaultShader) {
+     * @see #PolygonSpriteBatch(int, int, ShaderProgram) */
+    public PolygonSpriteBatch(int size, ShaderProgram defaultShader) {
         this(size, size * 2, defaultShader);
     }
 
@@ -121,7 +126,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
      * @param maxTriangles The max number of triangles in a single batch.
      * @param defaultShader The default shader to use. This is not owned by the PolygonSpriteBatch and must be disposed separately.
      *           May be null to use the default shader. */
-    public PolygonSpriteBatch2 (int maxVertices, int maxTriangles, ShaderProgram defaultShader) {
+    public PolygonSpriteBatch(int maxVertices, int maxTriangles, ShaderProgram defaultShader) {
         // 32767 is max vertex index.
         if (maxVertices > 32767)
             throw new IllegalArgumentException("Can't have more than 32767 vertices per batch: " + maxVertices);
@@ -207,12 +212,12 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.");
 
         final short[] triangles = this.triangles;
-        final short[] regionTriangles = region.triangles;
+        final short[] regionTriangles = region.getTriangles();
         final int regionTrianglesLength = regionTriangles.length;
-        final float[] regionVertices = region.vertices;
+        final float[] regionVertices = region.getVertices();
         final int regionVerticesLength = regionVertices.length;
 
-        final Texture texture = region.region.texture;
+        final Texture texture = region.getRegion().getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -228,7 +233,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
 
         final float[] vertices = this.vertices;
         final float color = this.colorPacked;
-        final float[] textureCoords = region.textureCoords;
+        final float[] textureCoords = region.getTextureCoords();
 
         for (int i = 0; i < regionVerticesLength; i += 2) {
             vertices[vertexIndex++] = regionVertices[i] + x;
@@ -245,13 +250,13 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.");
 
         final short[] triangles = this.triangles;
-        final short[] regionTriangles = region.triangles;
+        final short[] regionTriangles = region.getTriangles();
         final int regionTrianglesLength = regionTriangles.length;
-        final float[] regionVertices = region.vertices;
+        final float[] regionVertices = region.getVertices();
         final int regionVerticesLength = regionVertices.length;
-        final TextureRegion textureRegion = region.region;
+        final TextureRegion textureRegion = region.getRegion();
 
-        final Texture texture = textureRegion.texture;
+        final Texture texture = textureRegion.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -267,9 +272,9 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
 
         final float[] vertices = this.vertices;
         final float color = this.colorPacked;
-        final float[] textureCoords = region.textureCoords;
-        final float sX = width / textureRegion.regionWidth;
-        final float sY = height / textureRegion.regionHeight;
+        final float[] textureCoords = region.getTextureCoords();
+        final float sX = width / textureRegion.getRegionWidth();
+        final float sY = height / textureRegion.getRegionHeight();
 
         for (int i = 0; i < regionVerticesLength; i += 2) {
             vertices[vertexIndex++] = regionVertices[i] * sX + x;
@@ -287,13 +292,13 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.");
 
         final short[] triangles = this.triangles;
-        final short[] regionTriangles = region.triangles;
+        final short[] regionTriangles = region.getTriangles();
         final int regionTrianglesLength = regionTriangles.length;
-        final float[] regionVertices = region.vertices;
+        final float[] regionVertices = region.getVertices();
         final int regionVerticesLength = regionVertices.length;
-        final TextureRegion textureRegion = region.region;
+        final TextureRegion textureRegion = region.getRegion();
 
-        Texture texture = textureRegion.texture;
+        Texture texture = textureRegion.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -309,12 +314,12 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
 
         final float[] vertices = this.vertices;
         final float color = this.colorPacked;
-        final float[] textureCoords = region.textureCoords;
+        final float[] textureCoords = region.getTextureCoords();
 
         final float worldOriginX = x + originX;
         final float worldOriginY = y + originY;
-        final float sX = width / textureRegion.regionWidth;
-        final float sY = height / textureRegion.regionHeight;
+        final float sX = width / textureRegion.getRegionWidth();
+        final float sY = height / textureRegion.getRegionHeight();
         final float cos = MathUtils.cosDeg(rotation);
         final float sin = MathUtils.sinDeg(rotation);
 
@@ -800,7 +805,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        Texture texture = region.texture;
+        Texture texture = region.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -818,10 +823,10 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
 
         final float fx2 = x + width;
         final float fy2 = y + height;
-        final float u = region.u;
-        final float v = region.v2;
-        final float u2 = region.u2;
-        final float v2 = region.v;
+        final float u = region.getU();
+        final float v = region.getV2();
+        final float u2 = region.getU2();
+        final float v2 = region.getV();
 
         float color = this.colorPacked;
         int idx = this.vertexIndex;
@@ -859,7 +864,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        Texture texture = region.texture;
+        Texture texture = region.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -949,10 +954,10 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         x4 += worldOriginX;
         y4 += worldOriginY;
 
-        final float u = region.u;
-        final float v = region.v2;
-        final float u2 = region.u2;
-        final float v2 = region.v;
+        final float u = region.getU();
+        final float v = region.getV2();
+        final float u2 = region.getU2();
+        final float v2 = region.getV();
 
         float color = this.colorPacked;
         int idx = this.vertexIndex;
@@ -990,7 +995,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        Texture texture = region.texture;
+        Texture texture = region.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1082,23 +1087,23 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
 
         float u1, v1, u2, v2, u3, v3, u4, v4;
         if (clockwise) {
-            u1 = region.u2;
-            v1 = region.v2;
-            u2 = region.u;
-            v2 = region.v2;
-            u3 = region.u;
-            v3 = region.v;
-            u4 = region.u2;
-            v4 = region.v;
+            u1 = region.getU2();
+            v1 = region.getV2();
+            u2 = region.getU();
+            v2 = region.getV2();
+            u3 = region.getU();
+            v3 = region.getV();
+            u4 = region.getU2();
+            v4 = region.getV();
         } else {
-            u1 = region.u;
-            v1 = region.v;
-            u2 = region.u2;
-            v2 = region.v;
-            u3 = region.u2;
-            v3 = region.v2;
-            u4 = region.u;
-            v4 = region.v2;
+            u1 = region.getU();
+            v1 = region.getV();
+            u2 = region.getU2();
+            v2 = region.getV();
+            u3 = region.getU2();
+            v3 = region.getV2();
+            u4 = region.getU();
+            v4 = region.getV2();
         }
 
         float color = this.colorPacked;
@@ -1136,7 +1141,7 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        Texture texture = region.texture;
+        Texture texture = region.getTexture();
         if (texture != lastTexture)
             switchTexture(texture);
         else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1162,10 +1167,10 @@ public class PolygonSpriteBatch2 extends PolygonSpriteBatch {
         float x4 = transform.m00 * width + transform.m02;
         float y4 = transform.m10 * width + transform.m12;
 
-        float u = region.u;
-        float v = region.v2;
-        float u2 = region.u2;
-        float v2 = region.v;
+        float u = region.getU();
+        float v = region.getV2();
+        float u2 = region.getU2();
+        float v2 = region.getV();
 
         float color = this.colorPacked;
         int idx = vertexIndex;

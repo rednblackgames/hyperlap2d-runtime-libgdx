@@ -14,12 +14,12 @@
  * limitations under the License.
  ******************************************************************************/
 
-package com.badlogic.gdx.graphics.g2d;
-
-import static com.badlogic.gdx.graphics.g2d.Sprite.SPRITE_SIZE;
-import static com.badlogic.gdx.graphics.g2d.Sprite.VERTEX_SIZE;
+package games.rednblack.editor.renderer.utils;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.PolygonRegion;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
@@ -35,8 +35,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  * @author Valentin Milea
  * @author https://github.com/wangwangla
  * */
-public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
-
+public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
+    
     private final Matrix4 virtualMatrix = new Matrix4();
     private final Affine2 adjustAffine = new Affine2();
     private boolean adjustNeeded;
@@ -160,12 +160,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             if (!drawing) throw new IllegalStateException("CpuPolygonSpriteBatch.begin must be called before draw.");
 
             final short[] triangles = this.triangles;
-            final short[] regionTriangles = region.triangles;
+            final short[] regionTriangles = region.getTriangles();
             final int regionTrianglesLength = regionTriangles.length;
-            final float[] regionVertices = region.vertices;
+            final float[] regionVertices = region.getVertices();
             final int regionVerticesLength = regionVertices.length;
 
-            final Texture texture = region.region.texture;
+            final Texture texture = region.getRegion().getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -182,7 +182,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             final float[] vertices = this.vertices;
             final float color = this.colorPacked;
-            final float[] textureCoords = region.textureCoords;
+            final float[] textureCoords = region.getTextureCoords();
 
             Affine2 t = adjustAffine;
             for (int i = 0; i < regionVerticesLength; i += 2) {
@@ -207,13 +207,13 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             if (!drawing) throw new IllegalStateException("CpuPolygonSpriteBatch.begin must be called before draw.");
 
             final short[] triangles = this.triangles;
-            final short[] regionTriangles = region.triangles;
+            final short[] regionTriangles = region.getTriangles();
             final int regionTrianglesLength = regionTriangles.length;
-            final float[] regionVertices = region.vertices;
+            final float[] regionVertices = region.getVertices();
             final int regionVerticesLength = regionVertices.length;
-            final TextureRegion textureRegion = region.region;
+            final TextureRegion textureRegion = region.getRegion();
 
-            Texture texture = textureRegion.texture;
+            Texture texture = textureRegion.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -230,12 +230,12 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             final float[] vertices = this.vertices;
             final float color = this.colorPacked;
-            final float[] textureCoords = region.textureCoords;
+            final float[] textureCoords = region.getTextureCoords();
 
             final float worldOriginX = x + originX;
             final float worldOriginY = y + originY;
-            final float sX = width / textureRegion.regionWidth;
-            final float sY = height / textureRegion.regionHeight;
+            final float sX = width / textureRegion.getRegionWidth();
+            final float sY = height / textureRegion.getRegionHeight();
             final float cos = MathUtils.cosDeg(rotation);
             final float sin = MathUtils.sinDeg(rotation);
 
@@ -264,13 +264,13 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             if (!drawing) throw new IllegalStateException("CpuPolygonSpriteBatch.begin must be called before draw.");
 
             final short[] triangles = this.triangles;
-            final short[] regionTriangles = region.triangles;
+            final short[] regionTriangles = region.getTriangles();
             final int regionTrianglesLength = regionTriangles.length;
-            final float[] regionVertices = region.vertices;
+            final float[] regionVertices = region.getVertices();
             final int regionVerticesLength = regionVertices.length;
-            final TextureRegion textureRegion = region.region;
+            final TextureRegion textureRegion = region.getRegion();
 
-            final Texture texture = textureRegion.texture;
+            final Texture texture = textureRegion.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + regionTrianglesLength > triangles.length
@@ -287,9 +287,9 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             final float[] vertices = this.vertices;
             final float color = this.colorPacked;
-            final float[] textureCoords = region.textureCoords;
-            final float sX = width / textureRegion.regionWidth;
-            final float sY = height / textureRegion.regionHeight;
+            final float[] textureCoords = region.getTextureCoords();
+            final float sX = width / textureRegion.getRegionWidth();
+            final float sY = height / textureRegion.getRegionHeight();
 
             Affine2 t = adjustAffine;
             for (int i = 0; i < regionVerticesLength; i += 2) {
@@ -841,7 +841,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
                 switchTexture(texture);
 //			else if (triangleIndex + triangleCount > triangles.length || vertexIndex + count > vertices.length) //
 //				flush();
-//			
+//
 //			final int vertexIndex = this.vertexIndex;
 //			int triangleIndex = this.triangleIndex;
 //			short vertex = (short)(vertexIndex / VERTEX_SIZE);
@@ -854,7 +854,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 //				triangles[triangleIndex + 5] = vertex;
 //			}
 //			this.triangleIndex = triangleIndex;
-//			
+//
 //			System.arraycopy(spriteVertices, offset, vertices, vertexIndex, count);
 //			this.vertexIndex += count;
 
@@ -928,7 +928,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            Texture texture = region.texture;
+            Texture texture = region.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -954,10 +954,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             float x4 = transform.m00 * width + transform.m02;
             float y4 = transform.m10 * width + transform.m12;
 
-            float u = region.u;
-            float v = region.v2;
-            float u2 = region.u2;
-            float v2 = region.v;
+            float u = region.getU();
+            float v = region.getV2();
+            float u2 = region.getU2();
+            float v2 = region.getV();
 
             float color = this.colorPacked;
             int idx = vertexIndex;
@@ -1001,7 +1001,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            Texture texture = region.texture;
+            Texture texture = region.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1019,10 +1019,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             final float fx2 = x + width;
             final float fy2 = y + height;
-            final float u = region.u;
-            final float v = region.v2;
-            final float u2 = region.u2;
-            final float v2 = region.v;
+            final float u = region.getU();
+            final float v = region.getV2();
+            final float u2 = region.getU2();
+            final float v2 = region.getV();
 
             float color = this.colorPacked;
             int idx = this.vertexIndex;
@@ -1065,7 +1065,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            Texture texture = region.texture;
+            Texture texture = region.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1155,10 +1155,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             x4 += worldOriginX;
             y4 += worldOriginY;
 
-            final float u = region.u;
-            final float v = region.v2;
-            final float u2 = region.u2;
-            final float v2 = region.v;
+            final float u = region.getU();
+            final float v = region.getV2();
+            final float u2 = region.getU2();
+            final float v2 = region.getV();
 
             float color = this.colorPacked;
             int idx = this.vertexIndex;
@@ -1201,7 +1201,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            Texture texture = region.texture;
+            Texture texture = region.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1293,23 +1293,23 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             float u1, v1, u2, v2, u3, v3, u4, v4;
             if (clockwise) {
-                u1 = region.u2;
-                v1 = region.v2;
-                u2 = region.u;
-                v2 = region.v2;
-                u3 = region.u;
-                v3 = region.v;
-                u4 = region.u2;
-                v4 = region.v;
+                u1 = region.getU2();
+                v1 = region.getV2();
+                u2 = region.getU();
+                v2 = region.getV2();
+                u3 = region.getU();
+                v3 = region.getV();
+                u4 = region.getU2();
+                v4 = region.getV();
             } else {
-                u1 = region.u;
-                v1 = region.v;
-                u2 = region.u2;
-                v2 = region.v;
-                u3 = region.u2;
-                v3 = region.v2;
-                u4 = region.u;
-                v4 = region.v2;
+                u1 = region.getU();
+                v1 = region.getV();
+                u2 = region.getU2();
+                v2 = region.getV();
+                u3 = region.getU2();
+                v3 = region.getV2();
+                u4 = region.getU();
+                v4 = region.getV2();
             }
 
             float color = this.colorPacked;
@@ -1352,7 +1352,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            Texture texture = region.texture;
+            Texture texture = region.getTexture();
             if (texture != lastTexture)
                 switchTexture(texture);
             else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length) //
@@ -1370,10 +1370,10 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch2 {
 
             final float fx2 = x + width;
             final float fy2 = y + height;
-            final float u = region.u;
-            final float v = region.v2;
-            final float u2 = region.u2;
-            final float v2 = region.v;
+            final float u = region.getU();
+            final float v = region.getV2();
+            final float u2 = region.getU2();
+            final float v2 = region.getV();
 
             float color = this.colorPacked;
             int idx = this.vertexIndex;
