@@ -71,6 +71,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         component.particleName = vo.particleName;
         component.transform = vo.transform;
 		ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));
+		particleEffect.start();
         component.particleEffect = particleEffect;
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         component.worldMultiplier = 1f/projectInfoVO.pixelToWorld;
