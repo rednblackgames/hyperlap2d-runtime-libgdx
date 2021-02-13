@@ -9,7 +9,7 @@ import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
 public class ParticleSystem extends IteratingSystem {
 
-	private final ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
+	protected final ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
 	
 	public ParticleSystem() {
 		super(Family.all(ParticleComponent.class).get());
