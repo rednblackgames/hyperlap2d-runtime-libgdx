@@ -63,12 +63,12 @@ public class PolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpr
 
     private Mesh mesh;
 
-    protected final float[] vertices;
-    protected final short[] triangles;
-    protected int vertexIndex, triangleIndex;
-    protected Texture lastTexture;
-    protected float invTexWidth = 0, invTexHeight = 0;
-    protected boolean drawing;
+    final float[] vertices;
+    final short[] triangles;
+    int vertexIndex, triangleIndex;
+    Texture lastTexture;
+    float invTexWidth = 0, invTexHeight = 0;
+    boolean drawing;
 
     private final Matrix4 transformMatrix = new Matrix4();
     private final Matrix4 projectionMatrix = new Matrix4();

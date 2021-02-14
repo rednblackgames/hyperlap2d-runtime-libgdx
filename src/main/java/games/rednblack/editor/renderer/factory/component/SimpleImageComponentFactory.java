@@ -57,12 +57,10 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     private void updatePolygons(Entity entity) {
     	TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
     	DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-    	
-        ProjectInfoVO projectInfoVO = rm.getProjectVO();
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+
     	PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
     	if(textureRegionComponent.isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
-    		textureRegionComponent.setPolygonSprite(polygonComponent, projectInfoVO.pixelToWorld, transformComponent.scaleX, transformComponent.scaleY);
+    		textureRegionComponent.setPolygonSprite(polygonComponent);
     		dimensionsComponent.setPolygon(polygonComponent);
     	}
 	}

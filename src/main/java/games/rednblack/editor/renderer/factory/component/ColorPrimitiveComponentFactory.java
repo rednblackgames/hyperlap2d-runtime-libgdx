@@ -54,13 +54,11 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
         createTextureRegionComponent(entity, vo);
 
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
         TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
         dimensionsComponent.setPolygon(polygonComponent);
-        float ppwu = dimensionsComponent.width/textureRegionComponent.region.getRegionWidth();
-        textureRegionComponent.setPolygonSprite(polygonComponent, 1f/ppwu, transformComponent.scaleX, transformComponent.scaleY);
+        textureRegionComponent.setPolygonSprite(polygonComponent);
     }
 
     @Override
@@ -81,12 +79,12 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
         pixmap.fill();
         Texture texture = new Texture(pixmap);
         texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        TextureRegion textureRegion = new TextureRegion(texture);
-        component.region = textureRegion;
+        component.region = new TextureRegion(texture);
         component.isRepeat = false;
         component.isPolygon = true;
         entity.add(component);
 
+        pixmap.dispose();
         return component;
     }
 }

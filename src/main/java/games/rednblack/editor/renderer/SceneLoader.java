@@ -468,7 +468,7 @@ public class SceneLoader {
                 + "   v_color.a = v_color.a * (255.0/254.0);\n" //
                 + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
                 + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                + "}\n";
+                + "}";
         String fragmentShader = "#ifdef GL_ES\n" //
                 + "#define LOWP lowp\n" //
                 + "precision mediump float;\n" //
@@ -478,21 +478,9 @@ public class SceneLoader {
                 + "varying LOWP vec4 v_color;\n" //
                 + "varying vec2 v_texCoords;\n" //
                 + "uniform sampler2D u_texture;\n" //
-                + "uniform vec2 atlasCoord;\n" //
-                + "uniform vec2 atlasSize;\n" //
-                + "uniform int isRepeat;\n" //
                 + "void main()\n"//
                 + "{\n" //
-                + "vec4 textureSample = vec4(0.0,0.0,0.0,0.0);\n"//
-                + "if(isRepeat == 1)\n"//
-                + "{\n"//
-                + "textureSample = v_color * texture2D(u_texture, atlasCoord+mod(v_texCoords, atlasSize));\n"//
-                + "}\n"//
-                + "else\n"//
-                + "{\n"//
-                + "textureSample = v_color * texture2D(u_texture, v_texCoords);\n"//
-                + "}\n"//
-                + "  gl_FragColor = textureSample;\n" //
+                + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" //
                 + "}";
 
         ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
