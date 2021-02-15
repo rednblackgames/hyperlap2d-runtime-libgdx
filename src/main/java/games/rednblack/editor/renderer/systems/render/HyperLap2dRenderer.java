@@ -55,7 +55,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
 
 	public HyperLap2dRenderer(Batch batch) {
-		super(Family.all(ViewPortComponent.class).get());
+		super(Family.all(ViewPortComponent.class).get(), 1);
 		this.batch = batch;
 		drawableLogicMapper = new DrawableLogicMapper();
 

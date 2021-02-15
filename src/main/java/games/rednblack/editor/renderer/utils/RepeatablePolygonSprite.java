@@ -588,6 +588,16 @@ public class RepeatablePolygonSprite implements Disposable {
     }
 
     /**
+     * Sets the type how the texture region is drawn along the YX-Axis
+     *
+     * @param wrapType - a type of WrapType
+     */
+    public void setWrapType(WrapType wrapType) {
+        setWrapTypeX(wrapType);
+        setWrapTypeY(wrapType);
+    }
+
+    /**
      * @param color - Tint color to be applied to entire polygon
      */
     public void setColor(Color color) {
