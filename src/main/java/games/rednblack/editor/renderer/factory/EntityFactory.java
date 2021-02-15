@@ -31,34 +31,6 @@ public class EntityFactory {
     public static final int SPINE_TYPE = 9;
     public static final int TALOS_TYPE = 10;
 
-    public static final HashMap<Integer, String> itemTypeIconMap = new HashMap<>();
-    public static final HashMap<Integer, String> itemTypeNameMap = new HashMap<>();
-    static {
-        itemTypeNameMap.put(UNKNOWN_TYPE, "Unknown");
-        itemTypeNameMap.put(COMPOSITE_TYPE, "Composite Item");
-        itemTypeNameMap.put(PARTICLE_TYPE, "Particle Effect");
-        itemTypeNameMap.put(LABEL_TYPE, "Label");
-        itemTypeNameMap.put(IMAGE_TYPE, "Image");
-        itemTypeNameMap.put(NINE_PATCH, "9-Patch Image");
-        itemTypeNameMap.put(LIGHT_TYPE, "Light");
-        itemTypeNameMap.put(SPINE_TYPE, "Spine Animation");
-        itemTypeNameMap.put(SPRITE_TYPE, "Sprite Animation");
-        itemTypeNameMap.put(COLOR_PRIMITIVE, "Primitive");
-        itemTypeNameMap.put(TALOS_TYPE, "Talos VFX");
-
-        itemTypeIconMap.put(UNKNOWN_TYPE, "icon-unknown");
-        itemTypeIconMap.put(COMPOSITE_TYPE, "icon-root");
-        itemTypeIconMap.put(PARTICLE_TYPE, "icon-particle-white");
-        itemTypeIconMap.put(LABEL_TYPE, "icon-label");
-        itemTypeIconMap.put(IMAGE_TYPE, "icon-image");
-        itemTypeIconMap.put(NINE_PATCH, "icon-image");
-        itemTypeIconMap.put(LIGHT_TYPE, "icon-particle-white");
-        itemTypeIconMap.put(SPINE_TYPE, "icon-spine");
-        itemTypeIconMap.put(SPRITE_TYPE, "icon-animation");
-        itemTypeIconMap.put(COLOR_PRIMITIVE, "icon-image");
-        itemTypeIconMap.put(TALOS_TYPE, "icon-particle-white");
-    }
-
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
             simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
             ninePatchComponentFactory, colorPrimitiveFactory;
