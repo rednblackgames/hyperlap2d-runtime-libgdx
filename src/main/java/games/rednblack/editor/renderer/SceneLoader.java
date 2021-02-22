@@ -144,7 +144,6 @@ public class SceneLoader {
         CullingSystem cullingSystem = new CullingSystem();
         renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(2000, createDefaultShader()));
         renderer.setRayHandler(rayHandler);
-        //renderer.setBox2dWorld(world);
 
         engine.addSystem(animationSystem);
         engine.addSystem(particleSystem);
