@@ -188,7 +188,7 @@ public class SceneLoader {
                 // call init for a system
                 ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
                 if (scriptComponent != null) {
-                    for (IScript script : new Array.ArrayIterator<>(scriptComponent.scripts)) {
+                    for (IScript script : scriptComponent.scripts) {
                         script.init(entity);
                     }
                 }
@@ -235,7 +235,7 @@ public class SceneLoader {
 
                 ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
                 if (scriptComponent != null) {
-                    for (IScript script : new Array.ArrayIterator<>(scriptComponent.scripts)) {
+                    for (IScript script : scriptComponent.scripts) {
                         script.dispose();
                     }
                 }

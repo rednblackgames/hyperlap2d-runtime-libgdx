@@ -20,7 +20,7 @@ public class ScriptSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        for(IScript script: scriptComponentComponentMapper.get(entity).scripts) {
+        for (IScript script : scriptComponentComponentMapper.get(entity).scripts) {
             script.act(deltaTime);
         }
     }

@@ -18,20 +18,30 @@ public class ScriptComponent implements BaseComponent {
         scripts.add(script);
     }
 
-    public void addScript(String className) {
+    public void addScript(Class<? extends IScript> clazz) {
         try {
-            IScript script = (IScript) ClassReflection.newInstance(ClassReflection.forName(className));
+            IScript script = ClassReflection.newInstance(clazz);
             addScript(script);
-        } catch (ReflectionException ignored) {
-
+        } catch (ReflectionException e) {
+            e.printStackTrace();
         }
     }
 
-    public void removeScript(Class className) {
+    public void removeScript(IScript script) {
         Iterator<IScript> i = scripts.iterator();
         while (i.hasNext()) {
             IScript s = i.next();
-            if(s.getClass().getName().equals(className)) {
+            if(s == script) {
+                i.remove();
+            }
+        }
+    }
+
+    public void removeScript(Class<? extends IScript> clazz) {
+        Iterator<IScript> i = scripts.iterator();
+        while (i.hasNext()) {
+            IScript s = i.next();
+            if(s.getClass() == clazz) {
                 i.remove();
             }
         }
