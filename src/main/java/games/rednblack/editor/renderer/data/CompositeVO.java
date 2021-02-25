@@ -17,7 +17,6 @@ public class CompositeVO {
 
     public ArrayList<SimpleImageVO> sImages = new ArrayList<>(1);
     public ArrayList<Image9patchVO> sImage9patchs = new ArrayList<>(1);
-    public ArrayList<TextBoxVO> sTextBox = new ArrayList<>(1);
     public ArrayList<LabelVO> sLabels = new ArrayList<>(1);
     public ArrayList<CompositeItemVO> sComposites = new ArrayList<>(1);
     public ArrayList<ParticleEffectVO> sParticleEffects = new ArrayList<>(1);
@@ -49,9 +48,6 @@ public class CompositeVO {
         }
         for (int i = 0; i < vo.sImage9patchs.size(); i++) {
             sImage9patchs.add(new Image9patchVO(vo.sImage9patchs.get(i)));
-        }
-        for (int i = 0; i < vo.sTextBox.size(); i++) {
-            sTextBox.add(new TextBoxVO(vo.sTextBox.get(i)));
         }
         for (int i = 0; i < vo.sLabels.size(); i++) {
             sLabels.add(new LabelVO(vo.sLabels.get(i)));
@@ -100,9 +96,6 @@ public class CompositeVO {
         if (className.equals("Image9patchVO")) {
             sImage9patchs.add((Image9patchVO) vo);
         }
-        if (className.equals("TextBoxVO")) {
-            sTextBox.add((TextBoxVO) vo);
-        }
         if (className.equals("LabelVO")) {
             sLabels.add((LabelVO) vo);
         }
@@ -137,9 +130,6 @@ public class CompositeVO {
         if (className.equals("Image9patchVO")) {
             sImage9patchs.remove((Image9patchVO) vo);
         }
-        if (className.equals("TextBoxVO")) {
-            sTextBox.remove((TextBoxVO) vo);
-        }
         if (className.equals("LabelVO")) {
             sLabels.remove((LabelVO) vo);
         }
@@ -168,7 +158,6 @@ public class CompositeVO {
 
     public void clear() {
         sImages.clear();
-        sTextBox.clear();
         sLabels.clear();
         sComposites.clear();
         sParticleEffects.clear();
@@ -189,7 +178,6 @@ public class CompositeVO {
                 sParticleEffects.isEmpty() &&
                 sTalosVFX.isEmpty() &&
                 sSpineAnimations.isEmpty() &&
-                sTextBox.isEmpty() &&
                 sColorPrimitives.isEmpty();
     }
 
@@ -310,9 +298,6 @@ public class CompositeVO {
             itemsList.add(vo);
         }
         for(MainItemVO vo: compositeVo.sSpriteAnimations) {
-            itemsList.add(vo);
-        }
-        for(MainItemVO vo: compositeVo.sTextBox) {
             itemsList.add(vo);
         }
         for(MainItemVO vo: compositeVo.sColorPrimitives) {
