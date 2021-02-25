@@ -20,7 +20,6 @@ public class CompositeVO {
     public ArrayList<TextBoxVO> sTextBox = new ArrayList<>(1);
     public ArrayList<LabelVO> sLabels = new ArrayList<>(1);
     public ArrayList<CompositeItemVO> sComposites = new ArrayList<>(1);
-    public ArrayList<SelectBoxVO> sSelectBoxes = new ArrayList<>(1);
     public ArrayList<ParticleEffectVO> sParticleEffects = new ArrayList<>(1);
     public ArrayList<TalosVO> sTalosVFX = new ArrayList<>(1);
     public ArrayList<LightVO> sLights = new ArrayList<>(1);
@@ -59,9 +58,6 @@ public class CompositeVO {
         }
         for (int i = 0; i < vo.sComposites.size(); i++) {
             sComposites.add(new CompositeItemVO(vo.sComposites.get(i)));
-        }
-        for (int i = 0; i < vo.sSelectBoxes.size(); i++) {
-            sSelectBoxes.add(new SelectBoxVO(vo.sSelectBoxes.get(i)));
         }
 
         for (int i = 0; i < vo.sParticleEffects.size(); i++) {
@@ -113,9 +109,6 @@ public class CompositeVO {
         if (className.equals("CompositeItemVO")) {
             sComposites.add((CompositeItemVO) vo);
         }
-        if (className.equals("SelectBoxVO")) {
-            sSelectBoxes.add((SelectBoxVO) vo);
-        }
         if (className.equals("ParticleEffectVO")) {
             sParticleEffects.add((ParticleEffectVO) vo);
         }
@@ -153,9 +146,6 @@ public class CompositeVO {
         if (className.equals("CompositeItemVO")) {
             sComposites.remove((CompositeItemVO) vo);
         }
-        if (className.equals("SelectBoxVO")) {
-            sSelectBoxes.remove((SelectBoxVO) vo);
-        }
         if (className.equals("ParticleEffectVO")) {
             sParticleEffects.remove((ParticleEffectVO) vo);
         }
@@ -181,7 +171,6 @@ public class CompositeVO {
         sTextBox.clear();
         sLabels.clear();
         sComposites.clear();
-        sSelectBoxes.clear();
         sParticleEffects.clear();
         sTalosVFX.clear();
         sLights.clear();
@@ -200,7 +189,6 @@ public class CompositeVO {
                 sParticleEffects.isEmpty() &&
                 sTalosVFX.isEmpty() &&
                 sSpineAnimations.isEmpty() &&
-                sSelectBoxes.isEmpty() &&
                 sTextBox.isEmpty() &&
                 sColorPrimitives.isEmpty();
     }
@@ -316,9 +304,6 @@ public class CompositeVO {
             itemsList.add(vo);
         }
         for(MainItemVO vo: compositeVo.sTalosVFX) {
-            itemsList.add(vo);
-        }
-        for(MainItemVO vo: compositeVo.sSelectBoxes) {
             itemsList.add(vo);
         }
         for(MainItemVO vo: compositeVo.sSpineAnimations) {
