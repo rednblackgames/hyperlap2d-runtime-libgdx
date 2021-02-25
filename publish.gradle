@@ -2,7 +2,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'games.rednblack.hyperlap2d'
-version = '0.0.5'
+version = '0.0.6'
 ext.artifact = 'runtime-libgdx'
 ext.packaging = 'jar'
 
