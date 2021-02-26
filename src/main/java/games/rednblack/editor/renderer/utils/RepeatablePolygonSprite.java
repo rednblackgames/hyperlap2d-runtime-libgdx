@@ -82,7 +82,8 @@ public class RepeatablePolygonSprite implements Disposable {
         fullVertsParts.clear();
         indices.clear();
         if (polygon.getVertices().length == 0) return;
-        float[] vertices = polygon.getVertices().clone();
+        float[] vertices = new float[polygon.getVertices().length];
+        System.arraycopy(polygon.getVertices(), 0, vertices, 0, vertices.length);
 
         Polygon polygon = new Polygon(vertices);
         Polygon tmpPoly = new Polygon();
@@ -239,7 +240,9 @@ public class RepeatablePolygonSprite implements Disposable {
      * Any other implementations are welcome
      */
     private float[] snapToGrid(float[] vertices, int row, int col) {
-        float[] resultVerts = vertices.clone();
+        float[] resultVerts = new float[vertices.length];
+        System.arraycopy(vertices, 0, resultVerts, 0, resultVerts.length);
+
         for (int i = 0; i < resultVerts.length; i += 2) {
             float inGridX = resultVerts[i] - col * gridWidth;
             float inGridY = resultVerts[i + 1] - row * gridHeight;
@@ -267,7 +270,8 @@ public class RepeatablePolygonSprite implements Disposable {
      * @return offsetted vertices
      */
     private float[] offset(float[] vertices) {
-        float[] result = vertices.clone();
+        float[] result = new float[vertices.length];
+        System.arraycopy(vertices, 0, result, 0, result.length);
 
         Polygon polygon = new Polygon(result);
         Rectangle bounds = polygon.getBoundingRectangle();
@@ -682,11 +686,15 @@ public class RepeatablePolygonSprite implements Disposable {
     }
 
     public float[] getOriginalVertices() {
-        return polygon.getVertices().clone();
+        float[] vertices = new float[polygon.getVertices().length];
+        System.arraycopy(polygon.getVertices(), 0, vertices, 0, vertices.length);
+        return vertices;
     }
 
     public float[] getTransformedVertices() {
-        return polygon.getTransformedVertices().clone();
+        float[] vertices = new float[polygon.getTransformedVertices().length];
+        System.arraycopy(polygon.getTransformedVertices(), 0, vertices, 0, vertices.length);
+        return vertices;
     }
 
     public Polygon getPolygon() {
