@@ -133,7 +133,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		}
 		batch.end();
 
-        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        batch.setBlendFunctionSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA,
+				GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
 
 		//3. Over Screen
 		if (rayHandler != null) {
@@ -200,12 +201,13 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			frameBufferManager.endCurrent();
 
 			batch.setProjectionMatrix(camera.combined);
+			batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
 			batch.begin();
 
 			applyShader(rootEntity, batch);
 
 			Texture bufferTexture = frameBufferManager.getColorBufferTexture(tag);
-			bufferTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 			batch.draw(bufferTexture,
 					transform.x, transform.y,
 					transform.originX, transform.originY,
@@ -217,6 +219,9 @@ public class HyperLap2dRenderer extends IteratingSystem {
 					false, true);
 
 			resetShader(rootEntity, batch);
+
+			batch.setBlendFunctionSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA,
+					GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
 		} else {
 			resetShader(rootEntity, batch);
 
