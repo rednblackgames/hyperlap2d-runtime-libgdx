@@ -36,6 +36,15 @@ public class FrameBufferManager {
         frameBuffers.put(tag, fbo);
     }
 
+    public void createIfNotExists(String tag, int width, int height) {
+        FrameBuffer buffer = frameBuffers.get(tag);
+        if (buffer == null) {
+            createFBO(tag, width, height);
+        } else if (buffer.getWidth() != width || buffer.getHeight() != height) {
+                createFBO(tag, width, height, true);
+        }
+    }
+
     public void begin(String tag) {
         if (!stack.isEmpty()) {
             stack.peek().end();
@@ -68,7 +77,7 @@ public class FrameBufferManager {
     public void dispose(String tag) {
         FrameBuffer buffer = frameBuffers.get(tag);
         if (buffer == null)
-            throw new IllegalArgumentException("FBO '" + tag + "' does not exists.");
+            return;
 
         buffer.dispose();
         frameBuffers.remove(tag);

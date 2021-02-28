@@ -45,10 +45,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 	private final FrameBufferManager frameBufferManager;
 	private final Camera screenCamera;
+	private final Camera tmpFBOCamera;
 	private Texture screenTexture;
 	private final TextureRegion screenTextureRegion = new TextureRegion();
 
 	private float invScreenWidth, invScreenHeight;
+	private int pixelsPerWU;
 
 	private final Vector3 tmpVec3 = new Vector3();
 
@@ -63,6 +65,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+		tmpFBOCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 		screenCamera.translate(screenCamera.viewportWidth * 0.5f, screenCamera.viewportHeight * 0.5f, 0f);
 		screenCamera.update();
 
@@ -72,6 +76,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 	public void addDrawableType(IExternalItemType itemType) {
 		drawableLogicMapper.addDrawableToMap(itemType.getTypeId(), itemType.getDrawable());
+	}
+
+	public void setPixelsPerWU(int pixelsPerWU) {
+		this.pixelsPerWU = pixelsPerWU;
 	}
 
 	@Override
@@ -141,38 +149,82 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private void drawRecursively(Entity rootEntity, float parentAlpha) {
 		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		TransformComponent transform = transformMapper.get(rootEntity);
+		DimensionsComponent dimensions = dimensionsMapper.get(rootEntity);
+		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
+
+		String tag = mainItemComponent.itemIdentifier;
 
 		boolean scissors = false;
 
-		if (transform.shouldTransform()){
+		if (curCompositeTransformComponent.renderToFBO) {
+			//Active composite frame buffer
+			batch.end();
+
+			frameBufferManager.createIfNotExists(tag, (int) dimensions.width, (int) dimensions.height);
+
+			tmpFBOCamera.viewportWidth = dimensions.width;
+			tmpFBOCamera.viewportHeight = dimensions.height;
+			tmpFBOCamera.position.set(tmpFBOCamera.viewportWidth * 0.5f, tmpFBOCamera.viewportHeight * 0.5f, 0f);
+			tmpFBOCamera.update();
+			batch.setProjectionMatrix(tmpFBOCamera.combined);
+
+			frameBufferManager.begin(tag);
+
+			batch.begin();
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		} else if (transform.shouldTransform()) {
 			computeTransform(rootEntity);
 			applyTransform(rootEntity, batch);
-		}
 
-		if (curCompositeTransformComponent.scissorsEnabled) {
-			batch.flush();
-			//TODO Scissors rectangle can't rotate.. another solution should be used if we want rotation
-			ScissorStack.calculateScissors(camera, transform.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
-			if (ScissorStack.pushScissors(curCompositeTransformComponent.scissors)) {
-				scissors = true;
+			if (curCompositeTransformComponent.scissorsEnabled) {
+				batch.flush();
+				ScissorStack.calculateScissors(camera, transform.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
+				if (ScissorStack.pushScissors(curCompositeTransformComponent.scissors)) {
+					scissors = true;
+				}
 			}
-		}
 
-		applyShader(rootEntity, batch);
+			applyShader(rootEntity, batch);
+		}
 
         TintComponent tintComponent = ComponentRetriever.get(rootEntity, TintComponent.class);
         parentAlpha *= tintComponent.color.a;
 
 		drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha);
 
-		if (transform.shouldTransform())
-			resetTransform(rootEntity, batch);
+		if (curCompositeTransformComponent.renderToFBO) {
+			//Close FBO and render the result
+			batch.end();
+			frameBufferManager.endCurrent();
 
-		resetShader(rootEntity, batch);
+			batch.setProjectionMatrix(camera.combined);
+			batch.begin();
 
-		if (scissors) {
-			batch.flush();
-			ScissorStack.popScissors();
+			applyShader(rootEntity, batch);
+
+			Texture bufferTexture = frameBufferManager.getColorBufferTexture(tag);
+			bufferTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+			batch.draw(bufferTexture,
+					transform.x, transform.y,
+					transform.originX, transform.originY,
+					dimensions.width, dimensions.height,
+					transform.scaleX, transform.scaleY,
+					transform.rotation,
+					0, 0,
+					bufferTexture.getWidth(), bufferTexture.getHeight(),
+					false, true);
+
+			resetShader(rootEntity, batch);
+		} else {
+			resetShader(rootEntity, batch);
+
+			if (scissors) {
+				batch.flush();
+				ScissorStack.popScissors();
+			}
+
+			if (transform.shouldTransform())
+				resetTransform(rootEntity, batch);
 		}
 	}
 
@@ -180,7 +232,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		NodeComponent nodeComponent = nodeMapper.get(rootEntity);
 		Entity[] children = nodeComponent.children.begin();
 		TransformComponent transform = transformMapper.get(rootEntity);
-		if (transform.shouldTransform()) {
+		if (transform.shouldTransform() && !curCompositeTransformComponent.renderToFBO) {
 			for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
 				Entity child = children[i];
 
@@ -212,7 +264,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 			float offsetX = compositeTransform.x, offsetY = compositeTransform.y;
 
-			if(viewPortMapper.has(rootEntity)){
+			if(viewPortMapper.has(rootEntity) || curCompositeTransformComponent.renderToFBO){
 				offsetX = 0;
 				offsetY = 0;
 			}
@@ -425,6 +477,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	public Batch getBatch() {
         return batch;
     }
+
+    public FrameBufferManager getFrameBufferManager() {
+		return frameBufferManager;
+	}
 
     public void dispose() {
 		frameBufferManager.dispose("main");

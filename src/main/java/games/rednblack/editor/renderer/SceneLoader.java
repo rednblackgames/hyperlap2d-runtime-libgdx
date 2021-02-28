@@ -31,6 +31,7 @@ import games.rednblack.editor.renderer.systems.*;
 import games.rednblack.editor.renderer.systems.action.ActionSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
+import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.CpuPolygonSpriteBatch;
@@ -56,7 +57,7 @@ public class SceneLoader {
     private EntityFactory entityFactory;
     private ActionFactory actionFactory;
 
-    private float pixelsPerWU = 1;
+    private int pixelsPerWU = 1;
 
     private HyperLap2dRenderer renderer;
 
@@ -264,6 +265,7 @@ public class SceneLoader {
         engine.clearPools();
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
+        renderer.setPixelsPerWU(pixelsPerWU);
 
         sceneVO = rm.getSceneVO(sceneName);
         world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));
@@ -442,7 +444,7 @@ public class SceneLoader {
         return world;
     }
 
-    public float getPixelsPerWU() {
+    public int getPixelsPerWU() {
         return pixelsPerWU;
     }
 
@@ -489,5 +491,9 @@ public class SceneLoader {
 
     public Batch getBatch() {
         return renderer.getBatch();
+    }
+    
+    public FrameBufferManager getFrameBufferManager() {
+        return renderer.getFrameBufferManager();
     }
 }
