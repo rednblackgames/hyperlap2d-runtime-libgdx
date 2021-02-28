@@ -172,9 +172,11 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 			batch.begin();
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		} else if (transform.shouldTransform()) {
-			computeTransform(rootEntity);
-			applyTransform(rootEntity, batch);
+		} else {
+			if (transform.shouldTransform()) {
+				computeTransform(rootEntity);
+				applyTransform(rootEntity, batch);
+			}
 
 			if (curCompositeTransformComponent.scissorsEnabled) {
 				batch.flush();
