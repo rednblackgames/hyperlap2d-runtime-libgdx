@@ -160,7 +160,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			//Active composite frame buffer
 			batch.end();
 
-			frameBufferManager.createIfNotExists(tag, (int) dimensions.width, (int) dimensions.height);
+			frameBufferManager.createIfNotExists(tag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU);
 
 			tmpFBOCamera.viewportWidth = dimensions.width;
 			tmpFBOCamera.viewportHeight = dimensions.height;
