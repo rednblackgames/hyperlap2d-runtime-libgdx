@@ -490,7 +490,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	}
 
     public void dispose() {
-		frameBufferManager.dispose("main");
+		frameBufferManager.disposeAll();
 	}
 
     public void resize(int width, int height) {

@@ -83,6 +83,12 @@ public class FrameBufferManager {
         frameBuffers.remove(tag);
     }
 
+    public void disposeAll() {
+        for (FrameBuffer buffer : frameBuffers.values())
+            buffer.dispose();
+        frameBuffers.clear();
+    }
+
     public Texture getColorBufferTexture(String tag) {
         FrameBuffer buffer = frameBuffers.get(tag);
         if (buffer == null)
