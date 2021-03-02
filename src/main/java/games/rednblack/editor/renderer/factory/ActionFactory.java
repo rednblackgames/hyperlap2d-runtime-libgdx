@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.factory;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.data.GraphConnectionVO;
 import games.rednblack.editor.renderer.data.GraphNodeVO;
@@ -46,8 +45,7 @@ public class ActionFactory {
         if (actionsLibrary.get(actionName) == null)
             throw new IllegalArgumentException("The action '" + actionName + "' does not exists.");
 
-        Json json = new Json();
-        ActionData data = null;
+        ActionData data;
         try {
             data = parseGraph(actionsLibrary.get(actionName), autoPoolable, params, listener);
         } catch (Exception e) {
