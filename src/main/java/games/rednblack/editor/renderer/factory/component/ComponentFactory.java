@@ -127,6 +127,9 @@ public abstract class ComponentFactory {
         if (Float.isNaN(vo.originY)) component.originY = dimensionsComponent.height / 2f;
         else component.originY = vo.originY;
 
+        component.flipX = vo.flipX;
+        component.flipY = vo.flipY;
+
         entity.add(component);
 
         return component;

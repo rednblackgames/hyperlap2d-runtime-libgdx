@@ -208,11 +208,13 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			applyShader(rootEntity, batch);
 
 			Texture bufferTexture = frameBufferManager.getColorBufferTexture(tag);
+			float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
+			float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
 			batch.draw(bufferTexture,
 					transform.x, transform.y,
 					transform.originX, transform.originY,
 					dimensions.width, dimensions.height,
-					transform.scaleX, transform.scaleY,
+					scaleX, scaleY,
 					transform.rotation,
 					0, 0,
 					bufferTexture.getWidth(), bufferTexture.getHeight(),
@@ -336,8 +338,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		float x = curTransform.x;
 		float y = curTransform.y;
 		float rotation = curTransform.rotation;
-		float scaleX = curTransform.scaleX;
-		float scaleY = curTransform.scaleY;
+		float scaleX = curTransform.scaleX * (curTransform.flipX ? -1 : 1);
+		float scaleY = curTransform.scaleY * (curTransform.flipY ? -1 : 1);
 
 		worldTransform.setToTrnRotScl(x + originX, y + originY, rotation, scaleX, scaleY);
 		if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);

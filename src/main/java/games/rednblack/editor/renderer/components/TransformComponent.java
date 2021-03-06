@@ -15,6 +15,8 @@ public class TransformComponent implements BaseComponent {
     public float rotation;
     public float originX;
     public float originY;
+    public boolean flipX = false;
+    public boolean flipY = false;
 
     private TransformComponent backup = null;
 
@@ -30,6 +32,8 @@ public class TransformComponent implements BaseComponent {
         rotation = component.rotation;
         originX = component.originX;
         originY = component.originY;
+        flipX = component.flipX;
+        flipY = component.flipY;
 
         worldTransform.set(component.worldTransform);
         computedTransform.set(component.computedTransform);
@@ -45,6 +49,8 @@ public class TransformComponent implements BaseComponent {
         scaleX = 1f;
         scaleY = 1f;
         rotation = 0;
+        flipX = false;
+        flipY = false;
     }
 
     public void enableTransform() {
@@ -56,11 +62,13 @@ public class TransformComponent implements BaseComponent {
         rotation = backup.rotation;
         originX = backup.originX;
         originY = backup.originY;
+        flipX = backup.flipX;
+        flipY = backup.flipY;
         backup = null;
     }
 
     public boolean shouldTransform() {
-        return (rotation != 0 || scaleX != 1 || scaleY != 1);
+        return (rotation != 0 || scaleX != 1 || scaleY != 1 || flipY || flipX);
     }
 
     public TransformComponent getRealComponent() {
@@ -78,6 +86,8 @@ public class TransformComponent implements BaseComponent {
         rotation = 0;
         originX = 0;
         originY = 0;
+        flipX = false;
+        flipY = false;
 
         worldTransform.idt();
         computedTransform.idt();

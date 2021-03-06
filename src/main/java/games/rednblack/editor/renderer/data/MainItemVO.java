@@ -26,6 +26,8 @@ public class MainItemVO {
 	public int zIndex = 0;
 	public String layerName = "";
 	public float[] tint = {1, 1, 1, 1};
+	public boolean flipX = false;
+	public boolean flipY = false;
 
 	public String shaderName = "";
 	public HashMap<String, ShaderUniformVO> shaderUniforms = new HashMap<>();
@@ -55,6 +57,8 @@ public class MainItemVO {
 		scaleY 		= vo.scaleY;
 		originX 	= vo.originX;
 		originY 	= vo.originY;
+		flipX = vo.flipX;
+		flipY = vo.flipY;
 
 		if(vo.shape != null) {
 			shape = vo.shape.clone();
@@ -96,6 +100,9 @@ public class MainItemVO {
 		originX = transformComponent.originX;
 		originY = transformComponent.originY;
 		rotation = transformComponent.rotation;
+
+		flipX = transformComponent.flipX;
+		flipY = transformComponent.flipY;
 
         layerName = zindexComponent.layerName;
 

@@ -56,7 +56,9 @@ public class TextureRegionDrawLogic implements Drawable {
 
         repeatablePolygonSprite.setPosition(entityTransformComponent.x, entityTransformComponent.y);
         repeatablePolygonSprite.setOrigin(entityTransformComponent.originX, entityTransformComponent.originY);
-        repeatablePolygonSprite.setScale(entityTransformComponent.scaleX, entityTransformComponent.scaleY);
+        float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
+        float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
+        repeatablePolygonSprite.setScale(scaleX, scaleY);
         repeatablePolygonSprite.setRotation(entityTransformComponent.rotation);
         repeatablePolygonSprite.setColor(tintComponent.color.r, tintComponent.color.g, tintComponent.color.b, tintComponent.color.a * parentAlpha);
         repeatablePolygonSprite.setWrapType(isRepeat ? RepeatablePolygonSprite.WrapType.REPEAT : RepeatablePolygonSprite.WrapType.STRETCH);
@@ -71,11 +73,14 @@ public class TextureRegionDrawLogic implements Drawable {
         DimensionsComponent dimensionsComponent = dimensionsComponentComponentMapper.get(entity);
         batch.setColor(tintComponent.color.r, tintComponent.color.g, tintComponent.color.b, tintComponent.color.a * parentAlpha);
 
+        float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
+        float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
+
         batch.draw(entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 dimensionsComponent.width, dimensionsComponent.height,
-                entityTransformComponent.scaleX, entityTransformComponent.scaleY,
+                scaleX, scaleY,
                 entityTransformComponent.rotation);
     }
 }

@@ -47,8 +47,8 @@ public class TransformMathUtils {
 		TransformComponent transform = childEntity.getComponent(TransformComponent.class);
 
 		final float rotation = transform.rotation;
-		final float scaleX = transform.scaleX;
-		final float scaleY = transform.scaleY;
+		final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
+		final float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
 		final float childX = transform.x;
 		final float childY = transform.y;
 		if (rotation == 0) {
@@ -100,8 +100,8 @@ public class TransformMathUtils {
 		TransformComponent transform = entity.getComponent(TransformComponent.class);
 
 		final float rotation = -transform.rotation;
-		final float scaleX = transform.scaleX;
-		final float scaleY = transform.scaleY;
+		final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
+		final float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
 		final float x = transform.x;
 		final float y = transform.y;
 		if (rotation == 0) {
@@ -130,8 +130,8 @@ public class TransformMathUtils {
     public static Matrix3 transform(TransformComponent transformComponent) {
         float translationX = transformComponent.x + transformComponent.originX;
         float translationY = transformComponent.y + transformComponent.originY;
-        float scaleX = transformComponent.scaleX;
-        float scaleY = transformComponent.scaleY;
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
         float angle = transformComponent.rotation;
         tmpMat.idt();
         return tmpMat
@@ -152,8 +152,8 @@ public class TransformMathUtils {
 		float x = curTransform.x;
 		float y = curTransform.y;
 		float rotation = curTransform.rotation;
-		float scaleX = curTransform.scaleX;
-		float scaleY = curTransform.scaleY;
+		float scaleX = curTransform.scaleX * (curTransform.flipX ? -1 : 1);
+		float scaleY = curTransform.scaleY * (curTransform.flipY ? -1 : 1);
 
 		worldTransform.setToTrnRotScl(x + originX , y + originY, rotation, scaleX, scaleY);
 		if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);

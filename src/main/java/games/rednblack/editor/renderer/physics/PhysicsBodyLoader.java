@@ -70,6 +70,9 @@ public class PhysicsBodyLoader {
 
         PolygonShape polygonShape = new PolygonShape();
 
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
         for (Vector2[] minPolygonDatum : minPolygonData) {
             float[] verts = new float[minPolygonDatum.length * 2];
             for (int j = 0; j < verts.length; j += 2) {
@@ -79,8 +82,8 @@ public class PhysicsBodyLoader {
                 minPolygonDatum[j / 2].x -= transformComponent.originX;
                 minPolygonDatum[j / 2].y -= transformComponent.originY;
 
-                minPolygonDatum[j / 2].x *= transformComponent.scaleX;
-                minPolygonDatum[j / 2].y *= transformComponent.scaleY;
+                minPolygonDatum[j / 2].x *= scaleX;
+                minPolygonDatum[j / 2].y *= scaleY;
 
                 verts[j] = minPolygonDatum[j / 2].x;
                 verts[j + 1] = minPolygonDatum[j / 2].y;
