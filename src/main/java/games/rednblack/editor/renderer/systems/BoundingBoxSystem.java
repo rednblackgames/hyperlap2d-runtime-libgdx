@@ -136,8 +136,8 @@ public class BoundingBoxSystem extends IteratingSystem {
             scaleOffsetX = 0;
             scaleOffsetY = 0;
         } else {
-            scaleOffsetX = (width - dimension.width) / 2;
-            scaleOffsetY = (height - dimension.height) / 2;
+            scaleOffsetX = (width - dimension.width) * (transform.originX / dimension.width);
+            scaleOffsetY = (height - dimension.height) * (transform.originY / dimension.height);
         }
 
         for(int i = 0; i < 4; i++)
