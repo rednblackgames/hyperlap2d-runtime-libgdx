@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -23,6 +24,7 @@ import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Map;
+import java.util.Stack;
 
 public class HyperLap2dRenderer extends IteratingSystem {
 	private final ComponentMapper<ViewPortComponent> viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
@@ -45,7 +47,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 	private final FrameBufferManager frameBufferManager;
 	private final Camera screenCamera;
-	private final Camera tmpFBOCamera;
 	private Texture screenTexture;
 	private final TextureRegion screenTextureRegion = new TextureRegion();
 
@@ -53,6 +54,13 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private int pixelsPerWU;
 
 	private final Vector3 tmpVec3 = new Vector3();
+	private final Stack<OrthographicCamera> fboCameraStack = new Stack<>();
+	private final Pool<OrthographicCamera> fboCameraPool = new Pool<OrthographicCamera>() {
+		@Override
+		protected OrthographicCamera newObject() {
+			return new OrthographicCamera();
+		}
+	};
 
 	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
 
@@ -64,8 +72,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		frameBufferManager = new FrameBufferManager();
 		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-		tmpFBOCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		screenCamera.translate(screenCamera.viewportWidth * 0.5f, screenCamera.viewportHeight * 0.5f, 0f);
 		screenCamera.update();
@@ -163,11 +169,14 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 			frameBufferManager.createIfNotExists(tag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU);
 
-			tmpFBOCamera.viewportWidth = dimensions.width;
-			tmpFBOCamera.viewportHeight = dimensions.height;
-			tmpFBOCamera.position.set(tmpFBOCamera.viewportWidth * 0.5f, tmpFBOCamera.viewportHeight * 0.5f, 0f);
-			tmpFBOCamera.update();
-			batch.setProjectionMatrix(tmpFBOCamera.combined);
+			OrthographicCamera fboCamera = fboCameraPool.obtain();
+
+			fboCamera.viewportWidth = dimensions.width;
+			fboCamera.viewportHeight = dimensions.height;
+			fboCamera.position.set(fboCamera.viewportWidth * 0.5f, fboCamera.viewportHeight * 0.5f, 0f);
+			fboCamera.update();
+			batch.setProjectionMatrix(fboCamera.combined);
+			fboCameraStack.push(fboCamera);
 
 			frameBufferManager.begin(tag);
 
@@ -200,7 +209,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			batch.end();
 			frameBufferManager.endCurrent();
 
-			batch.setProjectionMatrix(camera.combined);
+			OrthographicCamera fboCamera = fboCameraStack.pop();
+			fboCameraPool.free(fboCamera);
+
+			Camera renderingCamera = fboCameraStack.size() == 0 ? camera : fboCameraStack.peek();
+
+			batch.setProjectionMatrix(renderingCamera.combined);
 			batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
 			batch.begin();
@@ -493,6 +507,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
     public void dispose() {
 		frameBufferManager.disposeAll();
+		fboCameraPool.clear();
 	}
 
     public void resize(int width, int height) {
