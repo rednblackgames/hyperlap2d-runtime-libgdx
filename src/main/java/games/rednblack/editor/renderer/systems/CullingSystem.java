@@ -38,6 +38,9 @@ public class CullingSystem extends IteratingSystem {
         view.x = camera.position.x - (view.width * 0.5f);
         view.y = camera.position.y - (view.height * 0.5f);
 
+        MainItemComponent m = mainItemMapper.get(entity);
+        m.culled = false;
+
         NodeComponent node = nodeMapper.get(entity);
         Entity[] children = node.children.begin();
         for (int i = 0, n = node.children.size; i < n; i++) {
