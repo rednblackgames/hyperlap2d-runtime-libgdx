@@ -42,6 +42,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private Viewport viewport;
 
 	public static float timeRunning = 0;
+	public static Color clearColor = Color.CLEAR;
 
 	public Batch batch;
 
@@ -97,8 +98,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		viewport = ViewPortComponent.viewPort;
 		camera = viewport.getCamera();
 
+		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		frameBufferManager.begin("main");
-		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		camera.update();

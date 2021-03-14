@@ -26,11 +26,11 @@ public class DefaultShaders {
             + "varying LOWP vec4 v_color;\n" //
             + "varying vec2 v_texCoords;\n" //
             + "uniform sampler2D u_texture;\n" //
-            + "uniform int wtf;\n" //
+            //+ "uniform int wtf;\n" //
             + "void main()\n"//
             + "{\n" //
             //TODO the most weird bug I've ever found!
-            //+ "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n"
-            + "  if (wtf == 0) { gl_FragColor = v_color * texture2D(u_texture, v_texCoords); } else { gl_FragColor = vec4(0.0); }\n" //
+            + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n"
+            //+ "  if (wtf == 0) { gl_FragColor = v_color * texture2D(u_texture, v_texCoords); } else { gl_FragColor = vec4(0.0); }\n" //
             + "}";
 }
