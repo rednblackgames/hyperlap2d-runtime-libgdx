@@ -18,10 +18,10 @@
 
 package games.rednblack.editor.renderer.commons;
 
-import box2dLight.RayHandler;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.physics.box2d.World;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.systems.render.logic.Drawable;

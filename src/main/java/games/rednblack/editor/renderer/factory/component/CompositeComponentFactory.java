@@ -18,18 +18,16 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.CompositeTransformComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.LayerMapComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
-import games.rednblack.editor.renderer.data.CompositeVO;
 import games.rednblack.editor.renderer.data.LayerItemVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;

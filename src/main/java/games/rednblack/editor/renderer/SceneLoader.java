@@ -1,11 +1,7 @@
 package games.rednblack.editor.renderer;
 
-import box2dLight.DirectionalLight;
-import box2dLight.RayHandler;
-
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -15,6 +11,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import games.rednblack.editor.renderer.box2dLight.DirectionalLight;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.box2dLight.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -99,10 +98,11 @@ public class SceneLoader {
         }
 
         if (rayHandler == null) {
-            RayHandler.setGammaCorrection(true);
-            RayHandler.useDiffuseLight(true);
+            RayHandlerOptions rayHandlerOptions = new RayHandlerOptions();
+            rayHandlerOptions.setGammaCorrection(false);
+            rayHandlerOptions.setDiffuse(true);
 
-            rayHandler = new RayHandler(world);
+            rayHandler = new RayHandler(world, rayHandlerOptions);
             rayHandler.setAmbientLight(1f, 1f, 1f, 1f);
             rayHandler.setCulling(true);
             rayHandler.setBlur(true);
@@ -383,19 +383,15 @@ public class SceneLoader {
         boolean isDiffuse = !vo.lightsPropertiesVO.lightType.equals("BRIGHT");
         if (override || !vo.lightsPropertiesVO.enabled) {
             isDiffuse = true;
-            if (isDiffuse != RayHandler.isDiffuse) {
-                RayHandler.useDiffuseLight(isDiffuse);
-                rayHandler.resizeFBO(Gdx.graphics.getWidth() / 4, Gdx.graphics
-                        .getHeight() / 4);
+            if (isDiffuse != RayHandler.isDiffuseLight()) {
+                rayHandler.setDiffuseLight(isDiffuse);
             }
             rayHandler.setAmbientLight(1f, 1f, 1f, 1f);
             return;
         }
 
-        if (isDiffuse != RayHandler.isDiffuse) {
-            RayHandler.useDiffuseLight(isDiffuse);
-            rayHandler.resizeFBO(Gdx.graphics.getWidth() / 4, Gdx.graphics
-                    .getHeight() / 4);
+        if (isDiffuse != RayHandler.isDiffuseLight()) {
+            rayHandler.setDiffuseLight(isDiffuse);
         }
 
         if (vo.lightsPropertiesVO.ambientColor != null) {

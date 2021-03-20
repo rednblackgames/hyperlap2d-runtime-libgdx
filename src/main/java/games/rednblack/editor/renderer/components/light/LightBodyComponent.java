@@ -1,11 +1,11 @@
 package games.rednblack.editor.renderer.components.light;
 
-import box2dLight.ChainLight;
-import box2dLight.RayHandler;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import games.rednblack.editor.renderer.box2dLight.ChainLight;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.RefreshableObject;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.RemovableComponent;

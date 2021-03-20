@@ -18,7 +18,6 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import box2dLight.RayHandler;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.graphics.Color;
@@ -26,13 +25,11 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
-import games.rednblack.editor.renderer.data.ProjectInfoVO;
-import games.rednblack.editor.renderer.data.SimpleImageVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;

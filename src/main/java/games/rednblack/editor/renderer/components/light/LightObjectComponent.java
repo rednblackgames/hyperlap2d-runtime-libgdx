@@ -1,11 +1,10 @@
 package games.rednblack.editor.renderer.components.light;
 
-import box2dLight.ConeLight;
-import box2dLight.Light;
-
-import box2dLight.PointLight;
-import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.Color;
+import games.rednblack.editor.renderer.box2dLight.ConeLight;
+import games.rednblack.editor.renderer.box2dLight.Light;
+import games.rednblack.editor.renderer.box2dLight.PointLight;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BaseComponent;
 import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.data.LightVO.LightType;

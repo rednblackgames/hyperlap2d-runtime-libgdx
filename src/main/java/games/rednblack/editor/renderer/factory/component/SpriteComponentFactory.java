@@ -18,13 +18,12 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;

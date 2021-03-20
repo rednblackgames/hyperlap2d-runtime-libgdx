@@ -7,7 +7,6 @@
     <inherits name='com.badlogic.gdx.physics.box2d.box2d-gwt' />
     <inherits name='com.badlogic.ashley_gwt' />
     <inherits name="com.rafaskoberg.gdx.typinglabel.typinglabel" />
-    <inherits name='Box2DLights' />
 
     <extend-configuration-property name="gdx.reflect.include" value="games.rednblack.editor.renderer"/>
 </module>

@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.render;
 
-import box2dLight.RayHandler;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -16,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.data.MainItemVO;

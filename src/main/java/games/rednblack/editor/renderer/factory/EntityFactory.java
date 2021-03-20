@@ -1,11 +1,10 @@
 package games.rednblack.editor.renderer.factory;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.ashley.core.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;

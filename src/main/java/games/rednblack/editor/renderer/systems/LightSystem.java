@@ -1,9 +1,5 @@
 package games.rednblack.editor.renderer.systems;
 
-import box2dLight.ConeLight;
-import box2dLight.Light;
-
-import box2dLight.RayHandler;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -11,6 +7,9 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import games.rednblack.editor.renderer.box2dLight.ConeLight;
+import games.rednblack.editor.renderer.box2dLight.Light;
+import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
