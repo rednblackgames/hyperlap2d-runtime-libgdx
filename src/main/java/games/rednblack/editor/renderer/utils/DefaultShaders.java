@@ -3,7 +3,7 @@ package games.rednblack.editor.renderer.utils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class DefaultShaders {
-    public static String DEFAULT_VERTEX_SHADER = "#version 100\n" + "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+    public static String DEFAULT_VERTEX_SHADER = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
             + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
             + "uniform mat4 u_projTrans;\n" //
@@ -17,7 +17,7 @@ public class DefaultShaders {
             + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
             + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "}";
-    public static String DEFAULT_FRAGMENT_SHADER = "#version 100\n" + "#ifdef GL_ES\n" //
+    public static String DEFAULT_FRAGMENT_SHADER = "#ifdef GL_ES\n" //
             + "#define LOWP lowp\n" //
             + "precision mediump float;\n" //
             + "#else\n" //
