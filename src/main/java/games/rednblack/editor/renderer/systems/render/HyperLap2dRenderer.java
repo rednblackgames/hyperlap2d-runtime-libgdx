@@ -388,7 +388,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	protected void applyShader(Entity entity, Batch batch) {
 		if(shaderComponentMapper.has(entity)){
 			ShaderComponent shaderComponent = shaderComponentMapper.get(entity);
-			if(shaderComponent.getShader() != null) {
+			if(shaderComponent.getShader() != null && shaderComponent.getShader().isCompiled()) {
 				batch.setShader(shaderComponent.getShader());
 
 				batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
