@@ -101,8 +101,8 @@ public class CompositeSystem extends IteratingSystem {
             transformComponent.y -= lowerY;
         }
 
-        dimensionsComponent.width = (upperX - lowerX);
-        dimensionsComponent.height = (upperY - lowerY);
+        dimensionsComponent.width = Math.max((upperX - lowerX), 0);
+        dimensionsComponent.height = Math.max((upperY - lowerY), 0);
         lowerX = 0;
         lowerY = 0;
         dimensionsComponent.boundBox.set(lowerX, lowerY, dimensionsComponent.width, dimensionsComponent.height);
