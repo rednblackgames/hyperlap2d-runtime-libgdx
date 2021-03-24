@@ -71,7 +71,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		drawableLogicMapper = new DrawableLogicMapper();
 
 		frameBufferManager = new FrameBufferManager();
-		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		tmpFboCamera = new OrthographicCamera();
 
@@ -148,8 +148,9 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (rayHandler != null) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
 
+			int retinaScale = Gdx.graphics.getBackBufferHeight() / Gdx.graphics.getHeight();
 			rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(),
-					viewport.getScreenWidth(), viewport.getScreenHeight());
+					viewport.getScreenWidth() * retinaScale, viewport.getScreenHeight() * retinaScale);
 			rayHandler.setCombinedMatrix(orthoCamera);
 			rayHandler.updateAndRender();
 		}
@@ -514,7 +515,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
     public void resize(int width, int height) {
 		frameBufferManager.endCurrent();
 		frameBufferManager.dispose("main");
-		frameBufferManager.createFBO("main", Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
 		screenCamera.viewportWidth = width;
 		screenCamera.viewportHeight = height;
 		screenCamera.position.set(0, 0 , 0);
