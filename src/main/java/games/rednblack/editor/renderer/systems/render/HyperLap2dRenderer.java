@@ -148,7 +148,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		if (rayHandler != null) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
 
-			int retinaScale = Gdx.graphics.getBackBufferHeight() / Gdx.graphics.getHeight();
+			int retinaScale = Gdx.graphics.getHeight() > 0 ?
+					Gdx.graphics.getBackBufferHeight() / Gdx.graphics.getHeight() : 1;
 			rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(),
 					viewport.getScreenWidth() * retinaScale, viewport.getScreenHeight() * retinaScale);
 			rayHandler.setCombinedMatrix(orthoCamera);
