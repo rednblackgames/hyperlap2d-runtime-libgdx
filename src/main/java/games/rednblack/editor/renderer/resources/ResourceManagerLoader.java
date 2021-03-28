@@ -73,7 +73,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<ResourceManag
         }
 
         for (String name : this.asyncResourceManager.getSpineAnimNamesToLoad()) {
-            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager + File.separator + this.asyncResourceManager.spineAnimationsPath + File.separator + name + File.separator + name + ".atlas");
+            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + this.asyncResourceManager.spineAnimationsPath + File.separator + name + File.separator + name + ".atlas");
             deps.add(new AssetDescriptor(packFile, TextureAtlas.class));
         }
 
