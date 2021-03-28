@@ -197,6 +197,33 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
         }
     }
 
+    /*
+        Prepare additional assets
+     */
+    public void prepareParticleEffect(String name) {
+        particleEffectNamesToLoad.add(name);
+    }
+
+    public void prepareTalosVFX(String name) {
+        talosNamesToLoad.add(name);
+    }
+
+    public void prepareSpine(String name) {
+        spineAnimNamesToLoad.add(name);
+    }
+
+    public void prepareSprite(String name) {
+        spriteAnimNamesToLoad.add(name);
+    }
+
+    public void prepareFont(FontSizePair name) {
+        fontsToLoad.add(name);
+    }
+
+    public void prepareShader(String name) {
+        shaderNamesToLoad.add(name);
+    }
+
     /**
      * Loads all the scheduled assets into memory including
      * main atlas pack, particle effects, sprite animations, spine animations and fonts
