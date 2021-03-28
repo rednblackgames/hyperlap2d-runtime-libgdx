@@ -5,11 +5,14 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
 public class CullingSystem extends IteratingSystem {
+
+    private boolean debug = false;
 
     final private ComponentMapper<ViewPortComponent> viewPortMapper;
     final private ComponentMapper<NodeComponent> nodeMapper;
@@ -20,8 +23,10 @@ public class CullingSystem extends IteratingSystem {
     Rectangle view = new Rectangle();
     OrthographicCamera camera;
 
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
+
     public CullingSystem() {
-        super(Family.all(ViewPortComponent.class).get());
+        super(Family.all(ViewPortComponent.class).get(), 2);
         viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
         nodeMapper = ComponentMapper.getFor(NodeComponent.class);
         boundingBoxMapper = ComponentMapper.getFor(BoundingBoxComponent.class);
@@ -41,6 +46,11 @@ public class CullingSystem extends IteratingSystem {
         MainItemComponent m = mainItemMapper.get(entity);
         m.culled = false;
 
+        if(debug) {
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        }
+
         NodeComponent node = nodeMapper.get(entity);
         Entity[] children = node.children.begin();
         for (int i = 0, n = node.children.size; i < n; i++) {
@@ -48,6 +58,9 @@ public class CullingSystem extends IteratingSystem {
             cull(child);
         }
         node.children.end();
+
+        if (debug)
+            shapeRenderer.end();
     }
 
     void cull(Entity entity) {
@@ -60,6 +73,8 @@ public class CullingSystem extends IteratingSystem {
         MainItemComponent m = mainItemMapper.get(entity);
 
         m.culled = !view.overlaps(b.rectangle);
+        if (debug)
+            shapeRenderer.rect(b.rectangle.x, b.rectangle.y, b.rectangle.width, b.rectangle.height);
 
         if (!m.culled) {
             NodeComponent node = nodeMapper.get(entity);
@@ -73,5 +88,9 @@ public class CullingSystem extends IteratingSystem {
                 node.children.end();
             }
         }
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }
