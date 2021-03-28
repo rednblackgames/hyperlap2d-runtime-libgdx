@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 
@@ -41,6 +42,19 @@ public class BoundingBoxSystem extends IteratingSystem {
 
         if (m != null && (!m.visible || m.culled))
                 return;
+
+        float originalX = t.x;
+        float originalY = t.y;
+        float originalWidth = d.width;
+        float originalHeight = d.height;
+
+        if (d.polygon != null) {
+            Rectangle rectangle = d.polygon.getBoundingRectangle();
+            d.width = rectangle.width;
+            d.height = rectangle.height;
+            t.x += rectangle.x;
+            t.y += rectangle.y;
+        }
 
         if (calcCheckSum(entity) != b.checksum) {
             float scaleX = t.scaleX * (t.flipX ? -1 : 1);
@@ -91,6 +105,13 @@ public class BoundingBoxSystem extends IteratingSystem {
             }
             b.checksum = calcCheckSum(entity);
             b.createBoundingRect();
+        }
+
+        if (d.polygon != null) {
+            d.width = originalWidth;
+            d.height = originalHeight;
+            t.x = originalX;
+            t.y = originalY;
         }
     }
 
