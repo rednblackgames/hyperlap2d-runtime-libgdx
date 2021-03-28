@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.MySkin;
 
@@ -27,7 +27,7 @@ import games.rednblack.editor.renderer.utils.MySkin;
  *
  * Created by azakhary on 9/9/2014.
  */
-public class ResourceManager implements IResourceLoader, IResourceRetriever {
+public class ResourceManager implements IResourceLoader, IResourceRetriever, Disposable {
 
     /**
      *  Paths (please change if different) this is the default structure exported from editor
@@ -464,8 +464,18 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever {
         return getProjectVO().getResolution(packResolutionName);
     }
 
+    @Override
     public void dispose() {
         mainPack.dispose();
+        for (TextureAtlas textureAtlas : skeletonAtlases.values()) {
+            textureAtlas.dispose();
+        }
+        for (TextureAtlas textureAtlas : spriteAnimations.values()) {
+            textureAtlas.dispose();
+        }
+        for (BitmapFont font : bitmapFonts.values()) {
+            font.dispose();
+        }
     }
 
 	@Override
