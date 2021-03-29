@@ -16,6 +16,7 @@ import java.util.*;
 
 public class ActionFactory {
     private final Map<String, GraphVO> actionsLibrary;
+    private final Map<String, GraphCache> actionsCache = new HashMap<String, GraphCache>();
 
     public ActionFactory(Map<String, GraphVO> actions) {
         actionsLibrary = actions;
@@ -45,9 +46,11 @@ public class ActionFactory {
         if (actionsLibrary.get(actionName) == null)
             throw new IllegalArgumentException("The action '" + actionName + "' does not exists.");
 
+        GraphCache graphCache = getOrCreateGraphData(actionName);
+
         ActionData data;
         try {
-            data = parseGraph(actionsLibrary.get(actionName), autoPoolable, params, listener);
+            data = getActionData(graphCache.rootNode, graphCache.toNodeConnections, graphCache.nodes, autoPoolable, params, listener);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("The action '" + actionName + "' has not a valid format.");
@@ -55,28 +58,27 @@ public class ActionFactory {
         return data;
     }
 
-    private ActionData parseGraph(GraphVO actionGraph, boolean autoPoolable, ObjectMap<String, Object> params,
-                                  ActionEventListener listener) {
-        Map<String, List<GraphConnection>> toNodeConnections = new HashMap<>();
+    private GraphCache getOrCreateGraphData(String actionName) {
+        if (actionsCache.get(actionName) != null)
+            return actionsCache.get(actionName);
 
-        Map<String, GraphNode> nodes = new HashMap<>();
+        GraphVO actionGraph = actionsLibrary.get(actionName);
+
+        Map<String, List<GraphConnectionVO>> toNodeConnections = new HashMap<>();
+
+        Map<String, GraphNodeVO> nodes = new HashMap<>();
         for (GraphNodeVO node : actionGraph.nodes) {
-            String type = node.type;
-            String id = node.id;
-            HashMap<String, String> data = node.data;
-
-            toNodeConnections.put(id, new ArrayList<GraphConnection>());
-            nodes.put(id, new GraphNode(id, type, data));
+            toNodeConnections.put(node.id, new ArrayList<GraphConnectionVO>());
+            nodes.put(node.id, node);
         }
 
         String actionNode = "";
         for (GraphConnectionVO connection : actionGraph.connections) {
             String fromNode = connection.fromNode;
-            String fromField = connection.fromField;
             String toNode = connection.toNode;
             String toField = connection.toField;
 
-            toNodeConnections.get(toNode).add(new GraphConnection(fromNode, fromField, toField));
+            toNodeConnections.get(toNode).add(connection);
             Collections.sort(toNodeConnections.get(toNode));
 
             if (toNode.equals("end") && toField.equals("action")) {
@@ -84,15 +86,22 @@ public class ActionFactory {
             }
         }
 
-        return getActionData(nodes.get(actionNode), toNodeConnections, nodes, autoPoolable, params, listener);
+        GraphCache graphCache = new GraphCache();
+        graphCache.rootNode = nodes.get(actionNode);
+        graphCache.nodes = nodes;
+        graphCache.toNodeConnections = toNodeConnections;
+
+        actionsCache.put(actionName, graphCache);
+
+        return graphCache;
     }
 
-    private ActionData getActionData(GraphNode node, Map<String, List<GraphConnection>> toNodeConnections,
-                                     Map<String, GraphNode> nodes, boolean autoPoolable, ObjectMap<String, Object> params,
+    private ActionData getActionData(GraphNodeVO node, Map<String, List<GraphConnectionVO>> toNodeConnections,
+                                     Map<String, GraphNodeVO> nodes, boolean autoPoolable, ObjectMap<String, Object> params,
                                      ActionEventListener listener) {
         ActionData actionData = mapTypeToActionData(node.type, autoPoolable);
 
-        for (GraphConnection inConnection : toNodeConnections.get(node.id)) {
+        for (GraphConnectionVO inConnection : toNodeConnections.get(node.id)) {
             if (inConnection.toField.contains("action")) {
                 ActionData subAction = getActionData(nodes.get(inConnection.fromNode), toNodeConnections,
                         nodes, autoPoolable, params, listener);
@@ -116,10 +125,10 @@ public class ActionFactory {
         }
     }
 
-    private void addActionDataParameter(ActionData actionData, Map<String, GraphNode> nodes,
-                                        List<GraphConnection> connections, ObjectMap<String, Object> params) {
+    private void addActionDataParameter(ActionData actionData, Map<String, GraphNodeVO> nodes,
+                                        List<GraphConnectionVO> connections, ObjectMap<String, Object> params) {
         if (actionData instanceof TemporalData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "duration":
                         ((TemporalData) actionData).setDuration((Float) getValue(nodes.get(connection.fromNode), params));
@@ -132,7 +141,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof MoveToData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "position":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -144,7 +153,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof MoveByData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "position":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -156,7 +165,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof RotateToData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "degree":
                         ((RotateToData) actionData).setEnd((Float) getValue(nodes.get(connection.fromNode), params));
@@ -166,7 +175,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof RotateByData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "degree":
                         ((RotateByData) actionData).setAmount((Float) getValue(nodes.get(connection.fromNode), params));
@@ -176,7 +185,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof SizeToData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "size":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -188,7 +197,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof SizeByData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "size":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -200,7 +209,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof ScaleToData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "scale":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -212,7 +221,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof ScaleByData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "scale":
                         Vector2 pos = (Vector2) getValue(nodes.get(connection.fromNode), params);
@@ -224,7 +233,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof ColorData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "color":
                         ((ColorData) actionData).setEndColor((Color) getValue(nodes.get(connection.fromNode), params));
@@ -234,7 +243,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof AlphaData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "alpha":
                         ((AlphaData) actionData).setEnd((Float) getValue(nodes.get(connection.fromNode), params));
@@ -244,7 +253,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof DelayData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "delay":
                         ((DelayData) actionData).setDuration((Float) getValue(nodes.get(connection.fromNode), params));
@@ -254,7 +263,7 @@ public class ActionFactory {
         }
 
         if (actionData instanceof RepeatData) {
-            for (GraphConnection connection : connections) {
+            for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "count":
                         int count = (int) getValue(nodes.get(connection.fromNode), params);
@@ -265,7 +274,7 @@ public class ActionFactory {
         }
     }
 
-    private void addActionDataValueParameter(GraphNode node, ActionData actionData, final ActionEventListener listener) {
+    private void addActionDataValueParameter(GraphNodeVO node, ActionData actionData, final ActionEventListener listener) {
         if (actionData instanceof RunnableData) {
             final String eventName = (String) node.data.get("v");
             if (listener != null) {
@@ -279,7 +288,7 @@ public class ActionFactory {
         }
     }
 
-    private Object getValue(GraphNode node, ObjectMap<String, Object> params) {
+    private Object getValue(GraphNodeVO node, ObjectMap<String, Object> params) {
         switch (node.type) {
             case "ValueBoolean":
                 return node.data.get("v") != null;
@@ -349,32 +358,13 @@ public class ActionFactory {
         }
     }
 
-    private static class GraphNode {
-        String id;
-        String type;
-        HashMap<String, String> data;
-
-        public GraphNode(String id, String type, HashMap<String, String> data) {
-            this.id = id;
-            this.data = data;
-            this.type = type;
-        }
+    public void invalidateCache() {
+        actionsCache.clear();
     }
 
-    private static class GraphConnection implements Comparable<GraphConnection> {
-        String fromNode;
-        String fromField;
-        String toField;
-
-        public GraphConnection(String fromNode, String fromField, String toField) {
-            this.fromField = fromField;
-            this.fromNode = fromNode;
-            this.toField = toField;
-        }
-
-        @Override
-        public int compareTo(GraphConnection o) {
-            return toField.compareTo(o.toField);
-        }
+    private static class GraphCache {
+        GraphNodeVO rootNode;
+        Map<String, List<GraphConnectionVO>> toNodeConnections;
+        Map<String, GraphNodeVO> nodes;
     }
 }
