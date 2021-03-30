@@ -117,9 +117,9 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
             if (sc instanceof PhysicsContact) {
                 PhysicsContact ct = (PhysicsContact) sc;
                 if (in)
-                    ct.beginContact(et2);
+                    ct.beginContact(et2, f2, f1);
                 else
-                    ct.endContact(et2);
+                    ct.endContact(et2, f2, f1);
             }
         }
 
@@ -127,9 +127,9 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
             if (sc instanceof PhysicsContact) {
                 PhysicsContact ct = (PhysicsContact) sc;
                 if (in)
-                    ct.beginContact(et1);
+                    ct.beginContact(et1, f1, f2);
                 else
-                    ct.endContact(et1);
+                    ct.endContact(et1, f1, f2);
             }
         }
     }
