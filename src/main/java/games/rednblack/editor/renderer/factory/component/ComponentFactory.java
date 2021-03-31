@@ -169,13 +169,6 @@ public abstract class ComponentFactory {
         component.parentEntity = root;
         entity.add(component);
 
-        //set visible to true depending on parent
-        // TODO: I do not likes this part
-        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
-        LayerMapComponent layerMapComponent = ComponentRetriever.get(root, LayerMapComponent.class);
-        ZIndexComponent zIndexComponent = ComponentRetriever.get(root, ZIndexComponent.class);
-        mainItemComponent.visible = layerMapComponent.isVisible(zIndexComponent.layerName);
-
         return component;
     }
 
