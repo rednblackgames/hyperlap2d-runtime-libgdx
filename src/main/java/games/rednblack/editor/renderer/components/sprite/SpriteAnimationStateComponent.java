@@ -8,6 +8,7 @@ import games.rednblack.editor.renderer.components.BaseComponent;
 import games.rednblack.editor.renderer.data.FrameRange;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class SpriteAnimationStateComponent implements BaseComponent {
     public Array<TextureAtlas.AtlasRegion> allRegions;
@@ -15,6 +16,10 @@ public class SpriteAnimationStateComponent implements BaseComponent {
 	public float time = 0.0f;
 
     public  boolean paused = false;
+
+    private FrameRange lastFrameRange;
+    private int lastFPS;
+    private Animation.PlayMode lastPlayMode;
 
     public SpriteAnimationStateComponent() {
     }
@@ -32,12 +37,20 @@ public class SpriteAnimationStateComponent implements BaseComponent {
     }
 
     public void set(FrameRange range, int fps, Animation.PlayMode playMode) {
+        if (Objects.equals(range, lastFrameRange) && fps == lastFPS && Objects.equals(playMode, lastPlayMode))
+            return;
+
         Array<TextureAtlas.AtlasRegion> textureRegions = new Array<>(range.endFrame - range.startFrame + 1);
         for (int r = range.startFrame; r <= range.endFrame; r++) {
             textureRegions.add(allRegions.get(r));
         }
+
         currentAnimation =  new Animation<TextureRegion>(1f/fps, textureRegions, playMode);
         time = 0.0f;
+
+        lastFrameRange = range;
+        lastFPS = fps;
+        lastPlayMode = playMode;
     }
 
     private Array<TextureAtlas.AtlasRegion> sortAndGetRegions(Array<TextureAtlas.AtlasRegion> regions) {
