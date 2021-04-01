@@ -90,7 +90,7 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         this.isPhysicsOn = isPhysicsOn;
     }
 
-    private void processCollision(Contact contact, boolean in) {
+    private void processCollision(Contact contact, boolean in, boolean preSolve, boolean postSolve) {
         // Get both fixtures
         Fixture f1 = contact.getFixtureA();
         Fixture f2 = contact.getFixtureB();
@@ -116,41 +116,51 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         for (IScript sc : ic1.scripts) {
             if (sc instanceof PhysicsContact) {
                 PhysicsContact ct = (PhysicsContact) sc;
-                if (in)
-                    ct.beginContact(et2, f2, f1);
-                else
-                    ct.endContact(et2, f2, f1);
+                if (preSolve) {
+                    ct.preSolve(et2, f2, f1, contact);
+                } else if (postSolve) {
+                    ct.postSolve(et2, f2, f1, contact);
+                } else if (in) {
+                    ct.beginContact(et2, f2, f1, contact);
+                } else {
+                    ct.endContact(et2, f2, f1, contact);
+                }
             }
         }
 
         for (IScript sc : ic2.scripts) {
             if (sc instanceof PhysicsContact) {
                 PhysicsContact ct = (PhysicsContact) sc;
-                if (in)
-                    ct.beginContact(et1, f1, f2);
-                else
-                    ct.endContact(et1, f1, f2);
+                if (preSolve) {
+                    ct.preSolve(et1, f1, f2, contact);
+                } else if (postSolve) {
+                    ct.postSolve(et1, f1, f2, contact);
+                } else if (in) {
+                    ct.beginContact(et1, f1, f2, contact);
+                } else {
+                    ct.endContact(et1, f1, f2, contact);
+                }
             }
         }
     }
 
     @Override
     public void beginContact(Contact contact) {
-        processCollision(contact, true);
+        processCollision(contact, true, false, false);
     }
 
     @Override
     public void endContact(Contact contact) {
-        processCollision(contact, false);
+        processCollision(contact, false, false, false);
     }
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
-
+        processCollision(contact, false, true, false);
     }
 
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
-
+        processCollision(contact, false, false, true);
     }
 }
