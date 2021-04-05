@@ -214,7 +214,8 @@ public class SceneLoader {
                 if (nodeComponent != null) {
                     // it is composite
                     for (Entity node : nodeComponent.children) {
-                        engine.removeEntity(node);
+                       if (!node.isRemoving() && !node.isScheduledForRemoval())
+                           engine.removeEntity(node);
                     }
                 }
 
