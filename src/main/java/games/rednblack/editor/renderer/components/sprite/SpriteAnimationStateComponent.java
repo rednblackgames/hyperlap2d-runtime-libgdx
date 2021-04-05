@@ -17,9 +17,9 @@ public class SpriteAnimationStateComponent implements BaseComponent {
 
     public  boolean paused = false;
 
-    private FrameRange lastFrameRange;
-    private int lastFPS;
-    private Animation.PlayMode lastPlayMode;
+    private FrameRange lastFrameRange = null;
+    private int lastFPS = -1;
+    private Animation.PlayMode lastPlayMode = null;
 
     public SpriteAnimationStateComponent() {
     }
@@ -65,6 +65,9 @@ public class SpriteAnimationStateComponent implements BaseComponent {
         currentAnimation = null;
         time = 0.0f;
         paused = false;
+        lastFrameRange = null;
+        lastFPS = -1;
+        lastPlayMode = null;
     }
 
     private static class SortRegionsComparator implements Comparator<TextureAtlas.AtlasRegion> {

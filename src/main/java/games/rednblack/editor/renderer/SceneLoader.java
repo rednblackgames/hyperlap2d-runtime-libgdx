@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -262,7 +263,8 @@ public class SceneLoader {
         // this has to be done differently.
         engine.removeAllEntities();
         entityFactory.clean();
-        engine.clearPools();
+        //Update the engine to ensure that all pending operations are completed!!
+        engine.update(Gdx.graphics.getDeltaTime());
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
         renderer.setPixelsPerWU(pixelsPerWU);

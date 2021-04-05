@@ -38,14 +38,12 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
  */
 public class SimpleImageComponentFactory extends ComponentFactory {
 
-   private TextureRegionComponent textureRegionComponent;
-
     public SimpleImageComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
 
     public void createComponents(Entity root, Entity entity, MainItemVO vo) {
-    	textureRegionComponent = createTextureRegionComponent(entity, (SimpleImageVO) vo);
+    	createTextureRegionComponent(entity, (SimpleImageVO) vo);
         createCommonComponents( entity, vo, EntityFactory.IMAGE_TYPE);
         createParentNodeComponent(root, entity);
         createNodeComponent(root, entity);

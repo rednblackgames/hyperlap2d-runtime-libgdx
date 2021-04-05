@@ -70,7 +70,7 @@ public class CompositeComponentFactory extends ComponentFactory {
             super.createNodeComponent(root, entity);
         }
 
-        NodeComponent node = new NodeComponent();
+        NodeComponent node = engine.createComponent(NodeComponent.class);
         entity.add(node);
     }
 
@@ -81,7 +81,7 @@ public class CompositeComponentFactory extends ComponentFactory {
         compositeTransform.scissorsEnabled = vo.scissorsEnabled;
         compositeTransform.renderToFBO = vo.renderToFBO;
 
-        LayerMapComponent layerMap = new LayerMapComponent();
+        LayerMapComponent layerMap = engine.createComponent(LayerMapComponent.class);
         if(vo.composite.layers.size() == 0) {
             vo.composite.layers.add(LayerItemVO.createDefault());
         }

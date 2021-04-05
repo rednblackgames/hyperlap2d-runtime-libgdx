@@ -105,7 +105,7 @@ public class SpriteComponentFactory extends ComponentFactory {
 
         stateComponent.set(spriteAnimationComponent);
 
-        TextureRegionComponent textureRegionComponent = new TextureRegionComponent();
+        TextureRegionComponent textureRegionComponent = engine.createComponent(TextureRegionComponent.class);
         textureRegionComponent.region = regions.get(0);
         
         entity.add(textureRegionComponent);
