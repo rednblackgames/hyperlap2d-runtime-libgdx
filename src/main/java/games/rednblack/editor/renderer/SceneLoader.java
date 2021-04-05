@@ -384,6 +384,8 @@ public class SceneLoader {
             sceneDirectionalLight = null;
         }
         boolean isDiffuse = !vo.lightsPropertiesVO.lightType.equals("BRIGHT");
+        renderer.setUseLights(vo.lightsPropertiesVO.enabled);
+
         if (override || !vo.lightsPropertiesVO.enabled) {
             isDiffuse = true;
             if (isDiffuse != RayHandler.isDiffuseLight()) {

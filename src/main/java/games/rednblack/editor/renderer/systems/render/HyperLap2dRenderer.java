@@ -54,6 +54,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private float invScreenWidth, invScreenHeight;
 	private int pixelsPerWU;
 
+	private boolean useLights = false;
+
 	private final Vector3 tmpVec3 = new Vector3();
 	private final Stack<Matrix4> fboM4Stack = new Stack<>();
 	private final Pool<Matrix4> fboM4Pool = new Pool<Matrix4>() {
@@ -145,7 +147,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
 
 		//3. Over Screen
-		if (rayHandler != null) {
+		if (rayHandler != null && useLights) {
 			OrthographicCamera orthoCamera = (OrthographicCamera) camera;
 
 			int retinaScale = Gdx.graphics.getHeight() > 0 ?
@@ -526,6 +528,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		invScreenWidth = 1f / screenCamera.viewportWidth;
 		invScreenHeight = 1f / screenCamera.viewportHeight;
+	}
+
+	public void setUseLights(boolean useLights) {
+		this.useLights = useLights;
 	}
 }
 
