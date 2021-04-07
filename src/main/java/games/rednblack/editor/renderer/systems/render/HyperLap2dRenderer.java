@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.systems.render;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -20,13 +19,14 @@ import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
+import games.rednblack.editor.renderer.systems.DetachableSystem;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Map;
 import java.util.Stack;
 
-public class HyperLap2dRenderer extends IteratingSystem {
+public class HyperLap2dRenderer extends DetachableSystem {
 	private final ComponentMapper<ViewPortComponent> viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
 	private final ComponentMapper<CompositeTransformComponent> compositeTransformMapper = ComponentMapper.getFor(CompositeTransformComponent.class);
 	private final ComponentMapper<NodeComponent> nodeMapper = ComponentMapper.getFor(NodeComponent.class);

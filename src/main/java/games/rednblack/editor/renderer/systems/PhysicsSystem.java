@@ -3,8 +3,6 @@ package games.rednblack.editor.renderer.systems;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.components.PolygonComponent;
@@ -15,15 +13,17 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class PhysicsSystem extends IteratingSystem implements ContactListener {
+public class PhysicsSystem extends DetachableSystem implements ContactListener {
+
+    public static int VELOCITY_ITERATIONS = 8;
+    public static int POSITION_ITERATIONS = 3;
+    public static float TIME_STEP = 1f / 60f;
 
     protected ComponentMapper<TransformComponent> transformComponentMapper = ComponentMapper.getFor(TransformComponent.class);
 
-    private final float TIME_STEP = 1f / 60;
     private final World world;
     private boolean isPhysicsOn = true;
     private float accumulator = 0;
-    private final Vector2 tmp = new Vector2();
 
     public PhysicsSystem(World world) {
         super(Family.all(PhysicsBodyComponent.class).get());
@@ -33,28 +33,84 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
 
     @Override
     public void update(float deltaTime) {
-        if (world != null && isPhysicsOn) {
-            doPhysicsStep(deltaTime);
-        }
+        if (!isDetached())
+            fixedPhysicStep(deltaTime);
 
         super.update(deltaTime);
     }
 
+    /**
+     * WARN Physics world isn't updated with a fixed time step.
+     *
+     * @param deltaTime time step passed directly to {@link World#step}
+     */
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
-        TransformComponent transformComponent = transformComponentMapper.get(entity);
+    public void manualUpdate(float deltaTime) {
+        physicStep(deltaTime);
 
-        processBody(entity);
+        super.manualUpdate(deltaTime);
+    }
 
+    private void fixedPhysicStep(float deltaTime) {
+        if (world != null && isPhysicsOn) {
+            float frameTime = Math.min(deltaTime, 0.25f); //avoid spiral of death
+            accumulator += frameTime;
+            while (accumulator >= TIME_STEP) {
+                physicStep(TIME_STEP);
+                accumulator -= TIME_STEP;
+            }
+        }
+    }
+
+    private void physicStep(float deltaTime) {
+        world.step(deltaTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+    }
+
+    /**
+     * Iterate over all entities and interpolate {@link TransformComponent#x} and {@link TransformComponent#y}
+     * to current {@link PhysicsBodyComponent#body} position
+     *
+     * @param alpha linear interpolation factor
+     */
+    public void interpolate(float alpha) {
+        for (int i = 0; i < getEntities().size(); ++i) {
+            interpolate(getEntities().get(i), alpha);
+        }
+    }
+
+    /**
+     * Interpolate {@link TransformComponent#x} and {@link TransformComponent#y}
+     * to current {@link PhysicsBodyComponent#body} position
+     *
+     * @param entity Entity to interpolate
+     * @param alpha linear interpolation factor
+     */
+    public void interpolate(Entity entity, float alpha) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
         Body body = physicsBodyComponent.body;
-        if (body != null) {
-            tmp.set(body.getPosition());
 
-            transformComponent.x = tmp.x - transformComponent.originX;
-            transformComponent.y = tmp.y - transformComponent.originY;
-            transformComponent.rotation = body.getAngle() * MathUtils.radiansToDegrees;
-        }
+        if (body == null)
+            return;
+
+        TransformComponent transformComponent = transformComponentMapper.get(entity);
+
+        Transform transform = body.getTransform();
+        Vector2 bodyPosition = transform.getPosition();
+        bodyPosition.sub(transformComponent.originX, transformComponent.originY);
+        float angle = (float) Math.toRadians(transformComponent.rotation);
+        float bodyAngle = transform.getRotation();
+
+        transformComponent.x = bodyPosition.x * alpha + transformComponent.x * (1.0f - alpha);
+        transformComponent.y = bodyPosition.y * alpha + transformComponent.y * (1.0f - alpha);
+        transformComponent.rotation = (float) Math.toDegrees(bodyAngle * alpha + angle * (1.0f - alpha));
+    }
+
+    @Override
+    protected void processEntity(Entity entity, float deltaTime) {
+        processBody(entity);
+
+        if (!isDetached())
+            interpolate(entity, 1);
     }
 
     protected void processBody(Entity entity) {
@@ -73,17 +129,6 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         }
 
         physicsBodyComponent.executeRefresh(entity);
-    }
-
-    private void doPhysicsStep(float deltaTime) {
-        // fixed time step
-        // max frame time to avoid spiral of death (on slow devices)
-        float frameTime = Math.min(deltaTime, 0.25f);
-        accumulator += frameTime;
-        while (accumulator >= TIME_STEP) {
-            world.step(TIME_STEP, 6, 2);
-            accumulator -= TIME_STEP;
-        }
     }
 
     public void setPhysicsOn(boolean isPhysicsOn) {

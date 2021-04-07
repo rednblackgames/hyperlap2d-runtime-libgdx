@@ -3,16 +3,16 @@ package games.rednblack.editor.renderer.systems.action;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.components.ActionComponent;
+import games.rednblack.editor.renderer.systems.DetachableSystem;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.logic.ActionLogic;
 
 /**
  * Created by ZeppLondon on 10/13/2015.
  */
-public class ActionSystem extends IteratingSystem {
+public class ActionSystem extends DetachableSystem {
     private final ComponentMapper<ActionComponent> actionMapper;
 
     public ActionSystem() {

@@ -175,18 +175,6 @@ public class SceneLoader {
         engine.addEntityListener(new EntityListener() {
             @Override
             public void entityAdded(Entity entity) {
-                // TODO: Gev knows what to do. (do this for all entities)
-
-                // mae sure we assign correct z-index here
-				/*
-				ZindexComponent zindexComponent = ComponentRetriever.get(entity, ZindexComponent.class);
-				ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
-				if (parentNodeComponent != null) {
-					NodeComponent nodeComponent = parentNodeComponent.parentEntity.getComponent(NodeComponent.class);
-					zindexComponent.setZIndex(nodeComponent.children.size);
-					zindexComponent.needReOrder = false;
-				}*/
-
                 // call init for a system
                 ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
                 if (scriptComponent != null) {
@@ -468,5 +456,11 @@ public class SceneLoader {
     
     public FrameBufferManager getFrameBufferManager() {
         return renderer.getFrameBufferManager();
+    }
+
+    public <T extends DetachableSystem> T detachSystem(Class<T> systemClass) {
+        T system = engine.getSystem(systemClass);
+        system.detach();
+        return system;
     }
 }

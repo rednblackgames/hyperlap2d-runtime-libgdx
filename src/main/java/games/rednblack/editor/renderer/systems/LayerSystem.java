@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 
 import com.badlogic.ashley.core.ComponentMapper;
@@ -9,16 +8,14 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.utils.SnapshotArray;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.data.LayerItemVO;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LayerSystem extends IteratingSystem {
 
-	private Comparator<Entity> comparator = new ZComparator();
+	private final Comparator<Entity> comparator = new ZComparator();
 	
-	private ComponentMapper<ZIndexComponent> zIndexMapper;
-	private ComponentMapper<LayerMapComponent> layerMapper;
-	private ComponentMapper<NodeComponent> nodeMapper;
+	private final ComponentMapper<ZIndexComponent> zIndexMapper;
+	private final ComponentMapper<LayerMapComponent> layerMapper;
+	private final ComponentMapper<NodeComponent> nodeMapper;
 	
 	public LayerSystem() {
 		super(Family.all(CompositeTransformComponent.class).get());
@@ -36,7 +33,7 @@ public class LayerSystem extends IteratingSystem {
 		sort(nodeComponent.children);
 		
 		if(layerMapComponent.autoIndexing){
-			updateZindexes(nodeComponent.children);
+			updateZIndices(nodeComponent.children);
 		}
 	}
 	
@@ -44,8 +41,7 @@ public class LayerSystem extends IteratingSystem {
 		for (int i = 0; i < children.size; i++) {
 			Entity entity = children.get(i);
 			ZIndexComponent zindexComponent = zIndexMapper.get(entity);
-			MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
-			zindexComponent.layerIndex = getlayerIndexByName(zindexComponent.layerName,layerMapComponent);
+			zindexComponent.layerIndex = getLayerIndexByName(zindexComponent.layerName, layerMapComponent);
 			if(zindexComponent.needReOrder && layerMapComponent.autoIndexing){
 				if (zindexComponent.getZIndex() < 0) throw new IllegalArgumentException("ZIndex cannot be < 0.");
 				if (children.size == 1){ 
@@ -62,7 +58,7 @@ public class LayerSystem extends IteratingSystem {
         }
 	}
 	
-	private void updateZindexes(SnapshotArray<Entity> children) {
+	private void updateZIndices(SnapshotArray<Entity> children) {
 		for (int i = 0; i < children.size; i++) {
 			Entity entity = children.get(i);
 			ZIndexComponent zindexComponent = zIndexMapper.get(entity);
@@ -75,7 +71,7 @@ public class LayerSystem extends IteratingSystem {
 		children.sort(comparator);
 	}
 	
-	private int getlayerIndexByName(String layerName, LayerMapComponent layerMapComponent) {
+	private int getLayerIndexByName(String layerName, LayerMapComponent layerMapComponent) {
 		 if(layerMapComponent == null){
 			 return 0;
 		 }
@@ -88,7 +84,6 @@ public class LayerSystem extends IteratingSystem {
         	ZIndexComponent zIndexComponent1 = zIndexMapper.get(e1);
         	ZIndexComponent zIndexComponent2 = zIndexMapper.get(e2);
         	return zIndexComponent1.layerIndex == zIndexComponent2.layerIndex ? Integer.signum(zIndexComponent1.getZIndex() - zIndexComponent2.getZIndex()) : Integer.signum(zIndexComponent1.layerIndex - zIndexComponent2.layerIndex);
-            //return (int)Math.signum(pm.get(e1).z - pm.get(e2).z);
         }
     }
 
