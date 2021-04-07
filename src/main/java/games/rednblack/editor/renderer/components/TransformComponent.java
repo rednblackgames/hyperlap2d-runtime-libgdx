@@ -43,6 +43,7 @@ public class TransformComponent implements BaseComponent {
     }
 
     public void disableTransform() {
+        if (backup != null) return;
         backup = new TransformComponent(this);
         x = 0;
         y = 0;
