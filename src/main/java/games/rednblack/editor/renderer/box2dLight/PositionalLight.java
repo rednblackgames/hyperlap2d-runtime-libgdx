@@ -414,6 +414,38 @@ public abstract class PositionalLight extends Light {
 					segments[size++] = endColBits;
 					segments[size++] = f2;
 				}
+				if (data.shadow || pseudo3dHeight <= data.height) {
+					for (int n = 0; n < vertexCount; n++) {
+						tmpVec.set(tmpVerts.get(n));
+
+						float dst = tmpVec.dst(start);
+						float f1 = 1f - dst / distance;
+
+						tmpColor.set(Color.BLACK);
+						float startColBits = rayHandler.shadowColorInterpolation
+								? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits()
+								: oneColorBits;
+
+						segments[size++] = tmpVec.x;
+						segments[size++] = tmpVec.y;
+						segments[size++] = startColBits;
+						segments[size++] = f1;
+						if (n == vertexCount - 1) {
+							tmpVec.set(tmpVerts.get(0));
+							dst = tmpVec.dst(start);
+							f1 = 1f - dst / distance;
+							tmpColor.set(Color.BLACK);
+							startColBits = rayHandler.shadowColorInterpolation
+									? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits()
+									: oneColorBits;
+
+							segments[size++] = tmpVec.x;
+							segments[size++] = tmpVec.y;
+							segments[size++] = startColBits;
+							segments[size++] = f1;
+						}
+					}
+				}
 			} else if (type == Shape.Type.Circle) {
 				CircleShape shape = (CircleShape)fixtureShape;
 				float r = shape.getRadius();
@@ -520,8 +552,12 @@ public abstract class PositionalLight extends Light {
 
 			Mesh mesh = null;
 			if (meshInd >= dynamicShadowMeshes.size) {
+				VertexDataType vertexDataType = VertexDataType.VertexArray;
+				if (Gdx.gl30 != null) {
+					vertexDataType = VertexDataType.VertexBufferObjectWithVAO;
+				}
 				mesh = new Mesh(
-						VertexDataType.VertexArray, false, RayHandler.MAX_SHADOW_VERTICES, 0,
+						vertexDataType, false, RayHandler.MAX_SHADOW_VERTICES, 0,
 						new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 						new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 						new VertexAttribute(Usage.Generic, 1, "s"));

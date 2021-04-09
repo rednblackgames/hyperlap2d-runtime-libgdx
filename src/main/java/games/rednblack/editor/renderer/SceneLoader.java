@@ -388,6 +388,8 @@ public class SceneLoader {
             rayHandler.setDiffuseLight(isDiffuse);
         }
 
+        rayHandler.setPseudo3dLight(vo.lightsPropertiesVO.pseudo3d);
+
         if (vo.lightsPropertiesVO.ambientColor != null) {
             Color clr = new Color(vo.lightsPropertiesVO.ambientColor[0], vo.lightsPropertiesVO.ambientColor[1],
                     vo.lightsPropertiesVO.ambientColor[2], vo.lightsPropertiesVO.ambientColor[3]);

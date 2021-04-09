@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.data;
 
 public class LightsPropertiesVO {
     public boolean enabled;
+    public boolean pseudo3d;
     public float[] ambientColor;
     public int blurNum;
     public String lightType; //DIFFUSE, DIRECTIONAL
@@ -14,6 +15,7 @@ public class LightsPropertiesVO {
         blurNum = 3;
         lightType = "DIFFUSE";
         enabled = false;
+        pseudo3d = false;
         directionalRays = 12;
         directionalDegree = 0;
         ambientColor = new float[]{1f, 1f, 1f, 1f};
@@ -22,6 +24,7 @@ public class LightsPropertiesVO {
 
     public LightsPropertiesVO(LightsPropertiesVO lightsPropertiesVO) {
         this.enabled = lightsPropertiesVO.enabled;
+        this.pseudo3d = lightsPropertiesVO.pseudo3d;
         this.blurNum = lightsPropertiesVO.blurNum;
         this.lightType = lightsPropertiesVO.lightType;
         this.directionalRays = lightsPropertiesVO.directionalRays;

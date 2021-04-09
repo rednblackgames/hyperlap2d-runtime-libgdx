@@ -15,6 +15,7 @@ public class LightObjectComponent implements BaseComponent {
 	public int rays = 12;
 	public float distance = 10;
 	public float directionDegree = 0;
+	public float height = 0;
 	public float coneDegree = 30;
 	public float softnessLength = 1f;
 
@@ -58,6 +59,7 @@ public class LightObjectComponent implements BaseComponent {
 		rays = 12;
 		distance = 10;
 		directionDegree = 0;
+		height = 0;
 		coneDegree = 30;
 		softnessLength = 1f;
 

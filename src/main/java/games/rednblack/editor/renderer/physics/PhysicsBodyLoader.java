@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -96,7 +97,7 @@ public class PhysicsBodyLoader {
             }
             polygonShape.set(verts);
             fixtureDef.shape = polygonShape;
-            body.createFixture(fixtureDef);
+            body.createFixture(fixtureDef).setUserData(new LightData(1));
         }
 
         polygonShape.dispose();

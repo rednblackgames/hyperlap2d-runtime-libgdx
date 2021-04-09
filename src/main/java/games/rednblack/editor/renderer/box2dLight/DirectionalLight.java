@@ -402,8 +402,12 @@ public class DirectionalLight extends Light {
 
 			Mesh shadowMesh = null;
 			if (meshInd >= dynamicShadowMeshes.size) {
+				VertexDataType vertexDataType = VertexDataType.VertexArray;
+				if (Gdx.gl30 != null) {
+					vertexDataType = VertexDataType.VertexBufferObjectWithVAO;
+				}
 				shadowMesh = new Mesh(
-						VertexDataType.VertexArray, false, 128, 0,
+						vertexDataType, false, 128, 0,
 						new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 						new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 						new VertexAttribute(Usage.Generic, 1, "s"));

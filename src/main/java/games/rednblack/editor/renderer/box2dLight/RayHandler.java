@@ -199,43 +199,6 @@ public class RayHandler implements Disposable {
 	 * and used for culling and rendering. Remember to update it if camera
 	 * changes. This will work with rotated cameras.
 	 * 
-	 * <p>NOTE: Matrix4 is assumed to be orthogonal for culling
-	 * and directional lights.
-	 * 
-	 * @param combined
-	 *            matrix that include projection and translation matrices
-	 * 
-	 * @deprecated use {@link #setCombinedMatrix(OrthographicCamera)} or
-	 * {@link #setCombinedMatrix(Matrix4, float, float, float, float)} instead
-	 */
-	@Deprecated
-	public void setCombinedMatrix(Matrix4 combined) {
-		System.arraycopy(combined.val, 0, this.combined.val, 0, 16);
-
-		// updateCameraCorners
-		float invWidth = combined.val[Matrix4.M00];
-
-		final float halfViewPortWidth = 1f / invWidth;
-		final float x = -halfViewPortWidth * combined.val[Matrix4.M03];
-		x1 = x - halfViewPortWidth;
-		x2 = x + halfViewPortWidth;
-
-		float invHeight = combined.val[Matrix4.M11];
-
-		final float halfViewPortHeight = 1f / invHeight;
-		final float y = -halfViewPortHeight * combined.val[Matrix4.M13];
-		y1 = y - halfViewPortHeight;
-		y2 = y + halfViewPortHeight;
-
-	}
-
-	/**
-	 * Sets combined camera matrix.
-	 * 
-	 * <p>Matrix must be set to work in box2d coordinates, it will be copied
-	 * and used for culling and rendering. Remember to update it if camera
-	 * changes. This will work with rotated cameras.
-	 * 
 	 * @param combined
 	 *            matrix that include projection and translation matrices
 	 * @param x
@@ -403,7 +366,6 @@ public class RayHandler implements Disposable {
 	 *
 	 * @see #updateAndRender()
 	 * @see #update()
-	 * @see #setCombinedMatrix(Matrix4)
 	 * @see #setCombinedMatrix(Matrix4, float, float, float, float)
 	 */
 	public void render() {
@@ -646,22 +608,6 @@ public class RayHandler implements Disposable {
 
 	public static float getDynamicShadowColorReduction () {
 		return dynamicShadowColorReduction;
-	}
-
-	/**
-	 * Static setters are deprecated, use {@link RayHandlerOptions}
-	 */
-	@Deprecated
-	public static void useDiffuseLight(boolean useDiffuse) {
-
-	}
-
-	/**
-	 * Static setters are deprecated, use {@link RayHandlerOptions}
-	 */
-	@Deprecated
-	public static void setGammaCorrection(boolean gammaCorrectionWanted) {
-
 	}
 
 	/**

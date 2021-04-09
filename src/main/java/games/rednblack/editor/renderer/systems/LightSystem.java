@@ -83,10 +83,7 @@ public class LightSystem extends IteratingSystem {
 			light.setSoftnessLength(lightObjectComponent.softnessLength);
 			light.setActive(lightObjectComponent.isActive);
 			light.setSoft(lightObjectComponent.isSoft);
-		}
-
-		if(light != null && lightObjectComponent.getType() == LightType.CONE){
-			light.setDirection(lightObjectComponent.directionDegree+relativeRotation);
+			light.setHeight(lightObjectComponent.height);
 		}
 		
 		if (lightObjectComponent.getType() == LightVO.LightType.POINT) {
@@ -99,7 +96,7 @@ public class LightSystem extends IteratingSystem {
         	lightObjectComponent.lightObject.setColor(Color.CLEAR);
             lightObjectComponent.lightObject.setDistance(lightObjectComponent.distance);
             lightObjectComponent.lightObject.setStaticLight(lightObjectComponent.isStatic);
-            lightObjectComponent.lightObject.setDirection(lightObjectComponent.directionDegree);
+			lightObjectComponent.lightObject.setDirection(lightObjectComponent.directionDegree+relativeRotation);
             ((ConeLight) lightObjectComponent.lightObject).setConeDegree(lightObjectComponent.coneDegree);
             lightObjectComponent.lightObject.setXray(lightObjectComponent.isXRay);
         }

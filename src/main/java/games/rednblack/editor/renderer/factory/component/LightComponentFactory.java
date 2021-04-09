@@ -74,6 +74,7 @@ public class LightComponentFactory extends ComponentFactory {
         component.coneDegree = vo.coneDegree;
         component.directionDegree = vo.directionDegree;
         component.distance = vo.distance;
+        component.height = vo.height;
         component.softnessLength = vo.softnessLength;
         component.isStatic = vo.isStatic;
         component.isXRay = vo.isXRay;
