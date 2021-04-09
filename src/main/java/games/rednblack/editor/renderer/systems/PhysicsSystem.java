@@ -3,6 +3,8 @@ package games.rednblack.editor.renderer.systems;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.components.PolygonComponent;
@@ -13,7 +15,7 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class PhysicsSystem extends DetachableSystem implements ContactListener {
+public class PhysicsSystem extends IteratingSystem implements ContactListener {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
@@ -33,8 +35,7 @@ public class PhysicsSystem extends DetachableSystem implements ContactListener {
 
     @Override
     public void update(float deltaTime) {
-        if (!isDetached())
-            fixedPhysicStep(deltaTime);
+        fixedPhysicStep(deltaTime);
 
         super.update(deltaTime);
     }
@@ -44,11 +45,10 @@ public class PhysicsSystem extends DetachableSystem implements ContactListener {
      *
      * @param deltaTime time step passed directly to {@link World#step}
      */
-    @Override
     public void manualUpdate(float deltaTime) {
         physicStep(deltaTime);
 
-        super.manualUpdate(deltaTime);
+        super.update(deltaTime);
     }
 
     private void fixedPhysicStep(float deltaTime) {
@@ -97,20 +97,23 @@ public class PhysicsSystem extends DetachableSystem implements ContactListener {
         Transform transform = body.getTransform();
         Vector2 bodyPosition = transform.getPosition();
         bodyPosition.sub(transformComponent.originX, transformComponent.originY);
-        float angle = (float) Math.toRadians(transformComponent.rotation);
+        float angle = transformComponent.rotation;
         float bodyAngle = transform.getRotation();
 
         transformComponent.x = bodyPosition.x * alpha + transformComponent.x * (1.0f - alpha);
         transformComponent.y = bodyPosition.y * alpha + transformComponent.y * (1.0f - alpha);
-        transformComponent.rotation = (float) Math.toDegrees(bodyAngle * alpha + angle * (1.0f - alpha));
+
+        float cs = (1.0f - alpha) * MathUtils.cosDeg(angle) + alpha * MathUtils.cos(bodyAngle);
+        float sn = (1.0f - alpha) * MathUtils.sinDeg(angle) + alpha * MathUtils.sin(bodyAngle);
+
+        transformComponent.rotation = MathUtils.atan2(sn, cs) * MathUtils.radiansToDegrees;
     }
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
         processBody(entity);
 
-        if (!isDetached())
-            interpolate(entity, 1);
+        interpolate(entity, 1f);
     }
 
     protected void processBody(Entity entity) {

@@ -211,6 +211,7 @@ public class SceneLoader {
                 PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
                 if (physicsBodyComponent != null && physicsBodyComponent.body != null) {
                     world.destroyBody(physicsBodyComponent.body);
+                    physicsBodyComponent.body = null;
                 }
 
                 // check if it is light
@@ -456,11 +457,5 @@ public class SceneLoader {
     
     public FrameBufferManager getFrameBufferManager() {
         return renderer.getFrameBufferManager();
-    }
-
-    public <T extends DetachableSystem> T detachSystem(Class<T> systemClass) {
-        T system = engine.getSystem(systemClass);
-        system.detach();
-        return system;
     }
 }
