@@ -399,6 +399,7 @@ public class SceneLoader {
                         vo.lightsPropertiesVO.directionalColor[2], vo.lightsPropertiesVO.directionalColor[3]);
                 sceneDirectionalLight = new DirectionalLight(rayHandler, vo.lightsPropertiesVO.directionalRays,
                         lightColor, vo.lightsPropertiesVO.directionalDegree);
+                sceneDirectionalLight.setHeight(vo.lightsPropertiesVO.directionalHeight);
             }
             rayHandler.setAmbientLight(clr);
             rayHandler.setBlurNum(vo.lightsPropertiesVO.blurNum);

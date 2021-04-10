@@ -9,6 +9,7 @@ public class LightsPropertiesVO {
 
     public int directionalRays;
     public float directionalDegree;
+    public float directionalHeight;
     public float[] directionalColor;
 
     public LightsPropertiesVO() {
@@ -18,6 +19,7 @@ public class LightsPropertiesVO {
         pseudo3d = false;
         directionalRays = 12;
         directionalDegree = 0;
+        directionalHeight = 0;
         ambientColor = new float[]{1f, 1f, 1f, 1f};
         directionalColor = new float[]{1f, 1f, 1f, 1f};
     }
@@ -29,6 +31,7 @@ public class LightsPropertiesVO {
         this.lightType = lightsPropertiesVO.lightType;
         this.directionalRays = lightsPropertiesVO.directionalRays;
         this.directionalDegree = lightsPropertiesVO.directionalDegree;
+        this.directionalHeight = lightsPropertiesVO.directionalHeight;
         this.ambientColor = new float[4];
         System.arraycopy(lightsPropertiesVO.ambientColor, 0, this.ambientColor, 0, ambientColor.length);
         this.directionalColor = new float[4];
