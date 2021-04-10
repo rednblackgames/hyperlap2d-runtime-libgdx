@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.components.light;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.ChainLight;
@@ -88,9 +89,6 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
                     chainArray.add(tmp.x, tmp.y);
                 }
             }
-            Vector2 point = polygonComponent.vertices[0][0];
-            tmp.set(point).sub(transformComponent.originX, transformComponent.originY);
-            chainArray.add(tmp.x, tmp.y);
 
             int i = 0;
             float[] chain = new float[chainArray.size];

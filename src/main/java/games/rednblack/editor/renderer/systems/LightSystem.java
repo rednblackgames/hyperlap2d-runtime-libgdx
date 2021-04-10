@@ -6,7 +6,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -17,7 +16,6 @@ import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.LightVO;
-import games.rednblack.editor.renderer.data.LightVO.LightType;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LightSystem extends IteratingSystem {
@@ -88,7 +86,6 @@ public class LightSystem extends IteratingSystem {
 		
 		if (lightObjectComponent.getType() == LightVO.LightType.POINT) {
 			lightObjectComponent.lightObject.setColor(Color.CLEAR);
-            // TODO Physics and resolution part
             lightObjectComponent.lightObject.setDistance(lightObjectComponent.distance);
             lightObjectComponent.lightObject.setStaticLight(lightObjectComponent.isStatic);
             lightObjectComponent.lightObject.setXray(lightObjectComponent.isXRay);
@@ -101,8 +98,6 @@ public class LightSystem extends IteratingSystem {
             lightObjectComponent.lightObject.setXray(lightObjectComponent.isXRay);
         }
 	}
-
-	Vector2 tmp = new Vector2();
 
 	private void processLightBody(Entity entity) {
 		LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class);
