@@ -13,6 +13,7 @@ import games.rednblack.editor.renderer.components.RemovableComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.utils.PolygonUtils;
 
 public class LightBodyComponent extends RefreshableObject implements RemovableComponent {
 
@@ -80,14 +81,13 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
 
         if (polygonComponent != null && physicsComponent != null && polygonComponent.vertices != null) {
+            Vector2[] verticesArray = PolygonUtils.mergeTouchingPolygonsToOne(polygonComponent.vertices);
             Array<Float> chainArray = new Array<>();
 
-            for (int i = 0; i < polygonComponent.vertices.length; i++) {
-                for (int j = 0; j < polygonComponent.vertices[i].length; j++) {
-                    Vector2 point = polygonComponent.vertices[i][j];
-                    tmp.set(point).sub(transformComponent.originX, transformComponent.originY);
-                    chainArray.add(tmp.x, tmp.y);
-                }
+            for (int i = 0; i < verticesArray.length; i++) {
+                Vector2 point = verticesArray[i];
+                tmp.set(point).sub(transformComponent.originX, transformComponent.originY);
+                chainArray.add(tmp.x, tmp.y);
             }
 
             int i = 0;
