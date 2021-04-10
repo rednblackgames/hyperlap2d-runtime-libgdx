@@ -33,6 +33,8 @@ public class PhysicsBodyComponent extends RefreshableObject implements Removable
 	public float restitution = 0;
     public Filter filter = new Filter();
 
+    public float height = 1;
+
     public float centerX;
     public float centerY;
 
@@ -75,6 +77,8 @@ public class PhysicsBodyComponent extends RefreshableObject implements Removable
         filter.categoryBits = 0x0001;
         filter.maskBits = -1;
         filter.groupIndex = 0;
+
+        height = 1;
 
         needsRefresh = false;
         body = null;

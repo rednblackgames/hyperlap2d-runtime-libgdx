@@ -24,7 +24,9 @@ public class PhysicsBodyDataVO {
     public float density;
     public float friction;
     public float restitution;
-    
+
+    public float height;
+
     public PhysicsBodyDataVO(){
     	centerOfMass = new Vector2();
     }
@@ -45,6 +47,7 @@ public class PhysicsBodyDataVO {
         friction = vo.friction;
         restitution = vo.restitution;
         fixedRotation = vo.fixedRotation;
+        height = vo.height;
     }
 
     public void loadFromComponent(PhysicsBodyComponent physicsComponent) {
@@ -63,6 +66,7 @@ public class PhysicsBodyDataVO {
         restitution = physicsComponent.restitution;
         angularDamping = physicsComponent.angularDamping;
         fixedRotation = physicsComponent.fixedRotation;
+        height = physicsComponent.height;
     }
 
     @Override
@@ -84,11 +88,12 @@ public class PhysicsBodyDataVO {
                 Float.compare(that.density, density) == 0 &&
                 Float.compare(that.friction, friction) == 0 &&
                 Float.compare(that.restitution, restitution) == 0 &&
+                Float.compare(that.height, height) == 0 &&
                 centerOfMass.equals(that.centerOfMass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bodyType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, density, friction, restitution);
+        return Objects.hash(bodyType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, density, friction, restitution, height);
     }
 }

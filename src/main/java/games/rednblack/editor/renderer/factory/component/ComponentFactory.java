@@ -203,6 +203,8 @@ public abstract class ComponentFactory {
         component.angularDamping = vo.physics.angularDamping;
         component.fixedRotation = vo.physics.fixedRotation;
 
+        component.height = vo.physics.height;
+
         entity.add(component);
 
         return component;

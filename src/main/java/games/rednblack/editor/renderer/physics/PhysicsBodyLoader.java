@@ -97,7 +97,7 @@ public class PhysicsBodyLoader {
             }
             polygonShape.set(verts);
             fixtureDef.shape = polygonShape;
-            body.createFixture(fixtureDef).setUserData(new LightData(1));
+            body.createFixture(fixtureDef).setUserData(new LightData(physicsComponent.height));
         }
 
         polygonShape.dispose();
