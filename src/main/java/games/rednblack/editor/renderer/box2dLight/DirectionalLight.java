@@ -326,7 +326,7 @@ public class DirectionalLight extends Light {
 					segments[shadowSize++] = endColBits;
 					segments[shadowSize++] = f;
 				}
-				if (data.shadow) {
+				if (data.roofShadow) {
 					for (int n = 0; n < vertexCount; n++) {
 						tmpVec.set(tmpVerts.get(n));
 						segments[shadowSize++] = tmpVec.x;

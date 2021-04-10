@@ -8,7 +8,7 @@ public class LightData {
 
 	public float height;
 
-	public boolean shadow;
+	public boolean roofShadow;
 
 	int shadowsDropped = 0;
 
@@ -16,15 +16,15 @@ public class LightData {
 		height = h;
 	}
 
-	public LightData (float h, boolean shadow) {
+	public LightData (float h, boolean roofShadow) {
 		height = h;
-		this.shadow = shadow;
+		this.roofShadow = roofShadow;
 	}
 
-	public LightData (Object data, float h, boolean shadow) {
+	public LightData (Object data, float h, boolean roofShadow) {
 		height = h;
 		userData = data;
-		this.shadow = shadow;
+		this.roofShadow = roofShadow;
 	}
 
 	public float getLimit (float distance, float lightHeight, float lightRange) {

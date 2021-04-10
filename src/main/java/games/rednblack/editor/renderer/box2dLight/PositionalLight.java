@@ -414,7 +414,7 @@ public abstract class PositionalLight extends Light {
 					segments[size++] = endColBits;
 					segments[size++] = f2;
 				}
-				if (data.shadow || pseudo3dHeight <= data.height) {
+				if (data.roofShadow || pseudo3dHeight <= data.height) {
 					for (int n = 0; n < vertexCount; n++) {
 						tmpVec.set(tmpVerts.get(n));
 
