@@ -7,8 +7,10 @@ import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
+import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 /**
@@ -71,6 +73,35 @@ public class PhysicsBodyLoader {
 
         Body body = world.createBody(bodyDef);
 
+        if (ComponentRetriever.get(entity, LightBodyComponent.class) != null) {
+            createChainShape(body, fixtureDef, minPolygonData);
+        } else {
+            createPolygonShape(body, fixtureDef, transformComponent, physicsComponent, minPolygonData);
+        }
+
+        if (physicsComponent.mass != 0) {
+            MassData massData = new MassData();
+            massData.mass = physicsComponent.mass;
+            massData.center.set(physicsComponent.centerOfMass);
+            massData.I = physicsComponent.rotationalInertia;
+
+            body.setMassData(massData);
+        }
+
+        return body;
+    }
+
+    private void createChainShape(Body body, FixtureDef fixtureDef, Vector2[][] minPolygonData) {
+        Vector2[] vertices = PolygonUtils.mergeTouchingPolygonsToOne(minPolygonData);
+        ChainShape chainShape = new ChainShape();
+        chainShape.createChain(vertices);
+
+        fixtureDef.shape = chainShape;
+        body.createFixture(fixtureDef);
+        chainShape.dispose();
+    }
+
+    private void createPolygonShape(Body body, FixtureDef fixtureDef, TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
         PolygonShape polygonShape = new PolygonShape();
 
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
@@ -101,17 +132,5 @@ public class PhysicsBodyLoader {
         }
 
         polygonShape.dispose();
-
-        if (physicsComponent.mass != 0) {
-            MassData massData = new MassData();
-            massData.mass = physicsComponent.mass;
-            massData.center.set(physicsComponent.centerOfMass);
-            massData.I = physicsComponent.rotationalInertia;
-
-            body.setMassData(massData);
-        }
-
-        return body;
     }
-
 }
