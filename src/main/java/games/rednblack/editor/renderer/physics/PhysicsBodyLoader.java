@@ -74,7 +74,7 @@ public class PhysicsBodyLoader {
         Body body = world.createBody(bodyDef);
 
         if (ComponentRetriever.get(entity, LightBodyComponent.class) != null) {
-            createChainShape(body, fixtureDef, minPolygonData);
+            //createChainShape(body, fixtureDef, minPolygonData);
         } else {
             createPolygonShape(body, fixtureDef, transformComponent, physicsComponent, minPolygonData);
         }
