@@ -30,8 +30,6 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
     public ChainLight lightObject;
     private RayHandler rayHandler;
 
-    Vector2 tmp = new Vector2();
-
     public LightBodyComponent() {
 
     }
@@ -82,18 +80,13 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
 
         if (polygonComponent != null && physicsComponent != null && polygonComponent.vertices != null) {
             Vector2[] verticesArray = PolygonUtils.mergeTouchingPolygonsToOne(polygonComponent.vertices);
-            Array<Float> chainArray = new Array<>();
 
-            for (int i = 0; i < verticesArray.length; i++) {
+            float[] chain = new float[verticesArray.length * 2];
+
+            for (int i = 0, j = 0; i < verticesArray.length; i++) {
                 Vector2 point = verticesArray[i];
-                tmp.set(point).sub(transformComponent.originX, transformComponent.originY);
-                chainArray.add(tmp.x, tmp.y);
-            }
-
-            int i = 0;
-            float[] chain = new float[chainArray.size];
-            for (Float f : chainArray) {
-                chain[i++] = (f != null ? f : Float.NaN);
+                chain[j++] = point.x - transformComponent.originX;
+                chain[j++] = point.y - transformComponent.originY;
             }
 
             Color lightColor = new Color(color[0], color[1], color[2], color[3]);
