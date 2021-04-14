@@ -26,7 +26,10 @@ public abstract class TemporalAction<T extends TemporalData> extends ActionLogic
             if (actionData.interpolation != null) percent = actionData.interpolation.apply(percent);
         }
         update(percent, entity, actionData);
-        if (actionData.complete) end(entity, actionData);
+        if (actionData.complete) {
+            end(entity, actionData);
+            actionData.began = false;
+        }
         return actionData.complete;
     }
 
