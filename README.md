@@ -42,7 +42,7 @@ dependencies {
 
 | HyperLap2D         |      libGDX     | Ashley | Box2DLights  | TypingLabel |
 | ------------------ | --------------- | ------ | ------------ | ----------- |
-| 0.0.6-SNAPSHOT     | 1.9.15-SNAPSHOT | 1.7.4  |   Included   |    1.2.0    |
+| 0.0.6-SNAPSHOT     | 1.10.0          | 1.7.4  |   Included   |    1.2.0    |
 | 0.0.5              | 1.9.14          | 1.7.4  | 1.6-SNAPSHOT |    1.2.0    |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
