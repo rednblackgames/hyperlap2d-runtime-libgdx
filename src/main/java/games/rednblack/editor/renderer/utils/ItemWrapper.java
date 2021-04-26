@@ -28,6 +28,7 @@ import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.IScript;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by azakhary on 7/8/2015.
@@ -37,7 +38,8 @@ public class ItemWrapper {
     private Entity entity;
 
     private NodeComponent nodeComponent;
-    private final HashMap<String, Entity> childMap = new HashMap<>();
+    private final HashMap<String, Entity> childrenMap = new HashMap<>();
+    private final HashMap<String, HashSet<Entity>> childrenTagsMap = new HashMap<>();
 
     public ItemWrapper() {
         // empty wrapper is better then null pointer
@@ -48,17 +50,39 @@ public class ItemWrapper {
         nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
         if(nodeComponent != null) {
             for (Entity child : nodeComponent.children) {
-                MainItemComponent mainItemComponent = ComponentRetriever.get(child, MainItemComponent.class);
-                childMap.put(mainItemComponent.itemIdentifier, child);
+                mapEntity(child);
             }
         }
     }
 
+    private void mapEntity(Entity entity) {
+        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        childrenMap.put(mainItemComponent.itemIdentifier, entity);
+
+        for (String tag : mainItemComponent.tags) {
+            mapTagEntity(tag, entity);
+        }
+    }
+
+    private void mapTagEntity(String tag, Entity entity) {
+        if (childrenTagsMap.get(tag) == null)
+            childrenTagsMap.put(tag, new HashSet<Entity>());
+
+        childrenTagsMap.get(tag).add(entity);
+    }
+
     public ItemWrapper getChild(String id) {
-        Entity entity = childMap.get(id);
+        Entity entity = childrenMap.get(id);
         if(entity == null) return new ItemWrapper();
 
         return new ItemWrapper(entity);
+    }
+
+    public HashSet<Entity> getChildrenByTag(String tagName) {
+        if (childrenTagsMap.get(tagName) == null)
+            childrenTagsMap.put(tagName, new HashSet<Entity>());
+
+        return childrenTagsMap.get(tagName);
     }
 
     public <T extends Component> T getComponent(Class<T> clazz) {
@@ -67,9 +91,17 @@ public class ItemWrapper {
 
     public ItemWrapper addChild(Entity child) {
         if(nodeComponent != null) {
-            ParentNodeComponent parentNodeComponent = child.getComponent(ParentNodeComponent.class);
+            ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class);
+            if (parentNodeComponent.parentEntity != null) {
+                //Remove child from its parent
+                NodeComponent parentNode = ComponentRetriever.get(parentNodeComponent.parentEntity, NodeComponent.class);
+                if (parentNode != null)
+                    parentNode.removeChild(child);
+            }
             parentNodeComponent.parentEntity = entity;
             nodeComponent.children.add(child);
+
+            mapEntity(child);
 
             return  new ItemWrapper(child);
         }

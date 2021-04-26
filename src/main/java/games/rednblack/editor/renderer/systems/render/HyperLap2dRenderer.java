@@ -165,7 +165,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		DimensionsComponent dimensions = dimensionsMapper.get(rootEntity);
 		MainItemComponent mainItemComponent = mainItemComponentMapper.get(rootEntity);
 
-		String tag = mainItemComponent.itemIdentifier;
+		String fboTag = mainItemComponent.itemIdentifier;
 
 		boolean scissors = false;
 
@@ -173,7 +173,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			//Active composite frame buffer
 			batch.end();
 
-			frameBufferManager.createIfNotExists(tag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU);
+			frameBufferManager.createIfNotExists(fboTag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU);
 
 			tmpFboCamera.viewportWidth = dimensions.width;
 			tmpFboCamera.viewportHeight = dimensions.height;
@@ -182,7 +182,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			batch.setProjectionMatrix(tmpFboCamera.combined);
 			fboM4Stack.push(fboM4Pool.obtain().set(tmpFboCamera.combined));
 
-			frameBufferManager.begin(tag);
+			frameBufferManager.begin(fboTag);
 
 			batch.begin();
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -225,7 +225,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 			applyShader(rootEntity, batch);
 
-			Texture bufferTexture = frameBufferManager.getColorBufferTexture(tag);
+			Texture bufferTexture = frameBufferManager.getColorBufferTexture(fboTag);
 			float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
 			float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
 			batch.draw(bufferTexture,
