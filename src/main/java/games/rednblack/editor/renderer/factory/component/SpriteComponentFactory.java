@@ -72,7 +72,6 @@ public class SpriteComponentFactory extends ComponentFactory {
         SpriteAnimationComponent spriteAnimationComponent = engine.createComponent(SpriteAnimationComponent.class);
         spriteAnimationComponent.animationName = vo.animationName;
 
-        spriteAnimationComponent.frameRangeMap = new HashMap<>();
         for(int i = 0; i < vo.frameRangeMap.size(); i++) {
             spriteAnimationComponent.frameRangeMap.put(vo.frameRangeMap.get(i).name, vo.frameRangeMap.get(i));
         }
