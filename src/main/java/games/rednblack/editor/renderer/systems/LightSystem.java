@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -17,6 +17,7 @@ import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class LightSystem extends IteratingSystem {
 	final private ComponentMapper<LightObjectComponent> lightObjectComponentMapper = ComponentMapper.getFor(LightObjectComponent.class);
@@ -30,6 +31,8 @@ public class LightSystem extends IteratingSystem {
 		super(Family.one(LightObjectComponent.class, LightBodyComponent.class).get());
 	}
 
+	private final Vector2 localCoord = new Vector2();
+
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		if (lightBodyComponentMapper.get(entity) != null) {
@@ -38,17 +41,15 @@ public class LightSystem extends IteratingSystem {
 		}
 
 		LightObjectComponent lightObjectComponent = lightObjectComponentMapper.get(entity);
-		TransformComponent transformComponent = transformComponentMapper.get(entity);
 
 		Light light = lightObjectComponent.lightObject;
 		if (light.getRayNum() != lightObjectComponent.rays) {
 			light = lightObjectComponent.rebuildRays(rayHandler);
 		}
 
+		TransformMathUtils.localToSceneCoordinates(entity, localCoord.set(0, 0));
 		ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entity);
-		
-		float relativeX = transformComponent.x;
-		float relativeY = transformComponent.y;
+
 		float relativeRotation = 0;
 		
 		Entity parentEntity = parentNodeComponent.parentEntity;
@@ -56,8 +57,6 @@ public class LightSystem extends IteratingSystem {
 
 		while (parentEntity != null) {
 			parentTransformComponent = transformComponentMapper.get(parentEntity);
-			relativeX+=parentTransformComponent.x;
-			relativeY+=parentTransformComponent.y;
 			relativeRotation+=parentTransformComponent.rotation;
 			parentNodeComponent = parentNodeComponentMapper.get(parentEntity);
 			if(parentNodeComponent == null){
@@ -67,17 +66,7 @@ public class LightSystem extends IteratingSystem {
 		}
 		
 		if(light != null){
-			float yy = 0;
-			float xx = 0;
-			
-			if(relativeRotation != 0){
-				xx = transformComponent.x*MathUtils.cosDeg(relativeRotation) - transformComponent.y*MathUtils.sinDeg(relativeRotation);
-				yy = transformComponent.y*MathUtils.cosDeg(relativeRotation) + transformComponent.x*MathUtils.sinDeg(relativeRotation);
-				yy=transformComponent.y-yy;
-				xx=transformComponent.x-xx;
-			}
-
-			light.setPosition(relativeX-xx, relativeY-yy);
+			light.setPosition(localCoord.x, localCoord.y);
 			light.setSoftnessLength(lightObjectComponent.softnessLength);
 			light.setActive(lightObjectComponent.isActive);
 			light.setSoft(lightObjectComponent.isSoft);
