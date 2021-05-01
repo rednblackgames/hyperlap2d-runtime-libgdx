@@ -225,7 +225,7 @@ public class SceneLoader {
                     lightBodyComponent.lightObject.remove(true);
                 }
 
-                ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
+                ScriptComponent scriptComponent = ComponentRetriever.get(entity, ScriptComponent.class);
                 if (scriptComponent != null) {
                     for (IScript script : scriptComponent.scripts) {
                         script.dispose();

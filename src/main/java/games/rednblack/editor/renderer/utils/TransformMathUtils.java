@@ -13,7 +13,7 @@ public class TransformMathUtils {
 
 	/** Transforms the specified point in the scene's coordinates to the entity's local coordinate system. */
 	public static Vector2 sceneToLocalCoordinates (Entity entity, Vector2 sceneCoords) {
-		ParentNodeComponent parentNodeComponent = entity.getComponent(ParentNodeComponent.class);
+		ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
 		Entity parentEntity = null;
 		if(parentNodeComponent != null){
 			parentEntity = parentNodeComponent.parentEntity;
@@ -24,7 +24,7 @@ public class TransformMathUtils {
 	}
 
     public static Vector2 globalToLocalCoordinates (Entity entity, Vector2 sceneCoords) {
-        ParentNodeComponent parentNodeComponent = entity.getComponent(ParentNodeComponent.class);
+        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
         Entity parentEntity = null;
         if(parentNodeComponent != null){
             ViewPortComponent viewPortComponent = ComponentRetriever.get(parentNodeComponent.parentEntity, ViewPortComponent.class);
@@ -44,7 +44,7 @@ public class TransformMathUtils {
 
 	/** Converts the coordinates given in the parent's coordinate system to this entity's coordinate system. */
 	public static Vector2 parentToLocalCoordinates (Entity childEntity, Vector2 parentCoords) {
-		TransformComponent transform = childEntity.getComponent(TransformComponent.class);
+		TransformComponent transform = ComponentRetriever.get(childEntity, TransformComponent.class);
 
 		final float rotation = transform.rotation;
 		final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
@@ -85,7 +85,7 @@ public class TransformMathUtils {
 	public static Vector2 localToAscendantCoordinates (Entity ascendant, Entity entity, Vector2 localCoords) {
 		while (entity != null) {
 			localToParentCoordinates(entity, localCoords);
-			ParentNodeComponent parentNode = entity.getComponent(ParentNodeComponent.class);
+			ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class);
 			if(parentNode == null){
 				break;
 			}
@@ -97,7 +97,7 @@ public class TransformMathUtils {
 
 	/** Transforms the specified point in the actor's coordinates to be in the parent's coordinates. */
 	public static Vector2 localToParentCoordinates (Entity entity, Vector2 localCoords) {
-		TransformComponent transform = entity.getComponent(TransformComponent.class);
+		TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class);
 
 		final float rotation = -transform.rotation;
 		final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);

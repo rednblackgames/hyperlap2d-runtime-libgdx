@@ -63,7 +63,7 @@ public class ButtonSystem extends IteratingSystem {
     }
 
     private boolean isTouched(Entity entity) {
-        ButtonComponent buttonComponent = entity.getComponent(ButtonComponent.class);
+        ButtonComponent buttonComponent = ComponentRetriever.get(entity, ButtonComponent.class);
         if(Gdx.input.isTouched()) {
             DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
             Vector2 localCoordinates  = new Vector2(Gdx.input.getX(), Gdx.input.getY());

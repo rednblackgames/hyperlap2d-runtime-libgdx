@@ -50,7 +50,7 @@ public class LightSystem extends IteratingSystem {
 		TransformMathUtils.localToSceneCoordinates(entity, localCoord.set(0, 0));
 		ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entity);
 
-		TransformComponent transform = entity.getComponent(TransformComponent.class);
+		TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class);
 		float relativeRotation = transform.rotation;
 		
 		Entity parentEntity = parentNodeComponent.parentEntity;
