@@ -28,12 +28,14 @@ import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LightComponentFactory extends ComponentFactory {
 
@@ -91,6 +93,10 @@ public class LightComponentFactory extends ComponentFactory {
         component.lightObject.setSoftnessLength(component.softnessLength);
 
         entity.add(component);
+
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        transformComponent.originX = 0;
+        transformComponent.originY = 0;
         return component;
     }
 }
