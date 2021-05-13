@@ -93,8 +93,6 @@ public class ShadedDistanceFieldFont extends BitmapFont {
         this.distanceFieldSmoothing = distanceFieldSmoothing;
     }
 
-    /** Returns a new instance of the distance field shader, see https://github.com/libgdx/libgdx/wiki/Distance-field-fonts if the
-     * u_smoothing uniform > 0.0. Otherwise the same code as the default SpriteBatch shader is used. */
     static public ShaderProgram createDistanceFieldShader () {
         String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
                 + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
@@ -121,14 +119,10 @@ public class ShadedDistanceFieldFont extends BitmapFont {
                 + "varying vec2 v_texCoords;\n" //
                 + "\n" //
                 + "void main() {\n" //
-                + "	if (u_smoothing > 0.0) {\n" //
-                + "		float smoothing = 0.25 / u_smoothing;\n" //
-                + "		float distance = texture2D(u_texture, v_texCoords).a;\n" //
-                + "		float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n" //
-                + "		gl_FragColor = vec4(v_color.rgb, alpha * v_color.a);\n" //
-                + "	} else {\n" //
-                + "		gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" //
-                + "	}\n" //
+                + "	float smoothing = 0.25 / u_smoothing;\n" //
+                + "	float distance = texture2D(u_texture, v_texCoords).a;\n" //
+                + "	float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n" //
+                + "	gl_FragColor = vec4(v_color.rgb, alpha * v_color.a);\n" //
                 + "}\n";
 
         ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
