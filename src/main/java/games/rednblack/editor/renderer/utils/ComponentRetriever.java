@@ -27,6 +27,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -99,6 +100,7 @@ public class ComponentRetriever {
         mappers.put(ShaderComponent.class, ComponentMapper.getFor(ShaderComponent.class));
 
         mappers.put(ActionComponent.class, ComponentMapper.getFor(ActionComponent.class));
+        mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class));
     }
 
     /**

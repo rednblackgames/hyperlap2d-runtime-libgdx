@@ -24,7 +24,7 @@ public class LightDrawableLogic implements Drawable {
     }
 
     @Override
-    public void draw(Batch batch, Entity entity, float parentAlpha) {
+    public void draw(Batch batch, Entity entity, float parentAlpha, boolean normal) {
         LightObjectComponent lightObjectComponent = lightComponentMapper.get(entity);
         TintComponent tint = tintComponentMapper.get(entity);
 

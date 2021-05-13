@@ -66,6 +66,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	};
 
 	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
+	private final SnapshotArray<Entity> normalMappedEntities = new SnapshotArray<>(true, 1, Entity.class);
 
 	public HyperLap2dRenderer(Batch batch) {
 		super(Family.all(ViewPortComponent.class).get(), 1);
@@ -337,7 +338,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		applyShader(child, batch);
 		//Find the logic from mapper and draw it
-		drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha);
+		drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha, false);
 
 		resetShader(child, batch);
 	}

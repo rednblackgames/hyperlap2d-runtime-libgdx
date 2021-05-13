@@ -28,7 +28,7 @@ public class TextureRegionDrawLogic implements Drawable {
     }
 
     @Override
-    public void draw(Batch batch, Entity entity, float parentAlpha) {
+    public void draw(Batch batch, Entity entity, float parentAlpha, boolean normal) {
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
 

@@ -22,7 +22,7 @@ public class NinePatchDrawableLogic implements Drawable {
 	}
 
 	@Override
-	public void draw(Batch batch, Entity entity, float parentAlpha) {
+	public void draw(Batch batch, Entity entity, float parentAlpha, boolean normal) {
 		TintComponent tintComponent = tintComponentComponentMapper.get(entity);
 		TransformComponent entityTransformComponent = transformMapper.get(entity);
 		DimensionsComponent entityDimensionsComponent = dimensionsMapper.get(entity);

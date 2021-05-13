@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
 import games.rednblack.editor.renderer.data.*;
-import games.rednblack.editor.renderer.utils.MySkin;
 
 /**
  * Default ResourceManager that you can reuse or extend
@@ -442,8 +441,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public MySkin getSkin() {
-        return null;
+    public boolean hasTextureRegion(String regionName) {
+        return mainPack.findRegion(regionName) != null;
     }
 
     @Override
