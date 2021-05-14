@@ -35,6 +35,11 @@ import com.badlogic.gdx.utils.Array;
  * @author Florian Falkner */
 public class ShadedDistanceFieldFont extends BitmapFont {
     private float distanceFieldSmoothing;
+    private ShaderProgram distanceShader;
+
+    public ShadedDistanceFieldFont() {
+        super();
+    }
 
     public ShadedDistanceFieldFont (BitmapFontData data, Array<TextureRegion> pageRegions, boolean integer) {
         super(data, pageRegions, integer);
@@ -75,11 +80,14 @@ public class ShadedDistanceFieldFont extends BitmapFont {
         final Array<TextureRegion> regions = getRegions();
         for (TextureRegion region : regions)
             region.getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        setUseIntegerPositions(false);
     }
 
     @Override
     public BitmapFontCache newFontCache () {
-        return new DistanceFieldFontCache(this, usesIntegerPositions());
+        if (distanceShader == null)
+            distanceShader = createDistanceFieldShader();
+        return new DistanceFieldFontCache(this, distanceShader);
     }
 
     /** @return The distance field smoothing factor for this font. */
@@ -135,14 +143,16 @@ public class ShadedDistanceFieldFont extends BitmapFont {
      * needed for smoothing factor, so a flush is performed before and after every font rendering.
      * @author Florian Falkner */
     static private class DistanceFieldFontCache extends BitmapFontCache {
-        ShaderProgram distanceShader = createDistanceFieldShader();
+        ShaderProgram distanceShader;
 
-        public DistanceFieldFontCache (ShadedDistanceFieldFont font) {
+        public DistanceFieldFontCache (ShadedDistanceFieldFont font, ShaderProgram distanceShader) {
             super(font, font.usesIntegerPositions());
+            this.distanceShader = distanceShader;
         }
 
-        public DistanceFieldFontCache (ShadedDistanceFieldFont font, boolean integer) {
+        public DistanceFieldFontCache (ShadedDistanceFieldFont font, boolean integer, ShaderProgram distanceShader) {
             super(font, integer);
+            this.distanceShader = distanceShader;
         }
 
         private float getSmoothingFactor () {
