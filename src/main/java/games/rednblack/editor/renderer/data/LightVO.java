@@ -16,6 +16,7 @@ public class LightVO extends MainItemVO {
 	public float height = 0;
 	public float coneDegree = 30;
 	public float softnessLength = -1f;
+	public float intensity = 1f;
 	public boolean isStatic = true;
 	public boolean isXRay = true;
 	public boolean isSoft = true;
@@ -36,6 +37,7 @@ public class LightVO extends MainItemVO {
 		distance = vo.distance;
 		directionDegree = vo.directionDegree;
 		height = vo.height;
+		intensity = vo.intensity;
 		coneDegree = vo.coneDegree;
 		isStatic = vo.isStatic;
 		isXRay = vo.isXRay;
@@ -60,6 +62,7 @@ public class LightVO extends MainItemVO {
 		softnessLength = lightObjectComponent.softnessLength;
 		isSoft = lightObjectComponent.isSoft;
 		isActive = lightObjectComponent.isActive;
+		intensity = lightObjectComponent.intensity;
 	}
 
 	@Override
@@ -71,6 +74,7 @@ public class LightVO extends MainItemVO {
 				Float.compare(lightVO.distance, distance) == 0 &&
 				Float.compare(lightVO.directionDegree, directionDegree) == 0 &&
 				Float.compare(lightVO.height, height) == 0 &&
+				Float.compare(lightVO.intensity, intensity) == 0 &&
 				Float.compare(lightVO.coneDegree, coneDegree) == 0 &&
 				Float.compare(lightVO.softnessLength, softnessLength) == 0 &&
 				isStatic == lightVO.isStatic &&
@@ -82,6 +86,6 @@ public class LightVO extends MainItemVO {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, rays, distance, directionDegree, height, coneDegree, softnessLength, isStatic, isXRay, isSoft, isActive);
+		return Objects.hash(type, rays, distance, directionDegree, height, coneDegree, softnessLength, isStatic, isXRay, isSoft, isActive, intensity);
 	}
 }

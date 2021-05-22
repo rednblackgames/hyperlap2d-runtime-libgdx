@@ -28,9 +28,10 @@ public final class LightShader {
 			+ "#define MED \n"
 			+ "#endif\n" //
 				+ "varying vec4 v_color;\n" //
+				+ "uniform float u_intensity;\n" //
 				+ "void main()\n"//
 				+ "{\n" //
-				+ "  gl_FragColor = "+gamma+"(v_color);\n" //
+				+ "  gl_FragColor = "+gamma+"(v_color * u_intensity);\n" //
 				+ "}";
 
 		ShaderProgram.pedantic = false;

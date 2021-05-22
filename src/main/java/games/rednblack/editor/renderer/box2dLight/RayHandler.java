@@ -10,10 +10,14 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.shaders.LightShader;
+import games.rednblack.editor.renderer.box2dLight.shaders.LightWithNormalMapShader;
 
 /**
  * Handler that manages everything related to lights updating and rendering
@@ -42,6 +46,8 @@ public class RayHandler implements Disposable {
 	static int MAX_SHADOW_VERTICES = 64;
 
 	static boolean isDiffuse = false;
+
+	public static final Vector3 FALLOFF = new Vector3(.4f, 3f, 20f);
 	/**
 	 * Blend function for lights rendering with both shadows and diffusion
 	 * <p>Default: (GL20.GL_DST_COLOR, GL20.GL_ZERO)
@@ -81,12 +87,15 @@ public class RayHandler implements Disposable {
 	final Array<Light> disabledLights = new Array<Light>(false, 16);
 
 	LightMap lightMap;
-	final ShaderProgram lightShader;
+	ShaderProgram lightShader;
+	ShaderProgram lightShaderWithoutNormals;
+	ShaderProgram lightShaderWithNormals;
 	ShaderProgram customLightShader = null;
 
 	boolean culling = true;
 	boolean shadows = true;
 	boolean blur = true;
+	boolean normalMaps = false;
 
 	/** Experimental mode */
 	boolean pseudo3d = false;
@@ -99,7 +108,12 @@ public class RayHandler implements Disposable {
 	int viewportY = 0;
 	int viewportWidth = Gdx.graphics.getWidth();
 	int viewportHeight = Gdx.graphics.getHeight();
-	
+	private Viewport viewport;
+
+	Vector2 tmp = new Vector2();
+
+	private Texture normalMapTexture = null;
+
 	/** How many lights passed culling and rendered to scene last time */
 	int lightRenderedLastFrame = 0;
 
@@ -157,7 +171,6 @@ public class RayHandler implements Disposable {
 		}
 
 		resizeFBO(fboWidth, fboHeight);
-		lightShader = LightShader.createLightShader();
 	}
 
 	/**
@@ -168,6 +181,9 @@ public class RayHandler implements Disposable {
 			lightMap.dispose();
 		}
 		lightMap = new LightMap(this, fboWidth, fboHeight);
+		lightShaderWithoutNormals = LightShader.createLightShader();
+		lightShaderWithNormals = LightWithNormalMapShader.createLightShader();
+		lightShader = lightShaderWithoutNormals;
 	}
 	
 	/**
@@ -275,6 +291,18 @@ public class RayHandler implements Disposable {
 	}
 
 	/**
+	 * Set a normal map texture with the same size of lights FBO
+	 * to be passed to {@link LightWithNormalMapShader}
+	 *
+	 * @param normalMap texture
+	 */
+	public void setNormalMap(Texture normalMap) {
+		this.normalMapTexture = normalMap;
+		normalMaps = normalMapTexture != null;
+		lightShader = normalMaps ? lightShaderWithNormals : lightShaderWithoutNormals;
+	}
+
+	/**
 	 * Prepare all lights for rendering.
 	 *
 	 * <p>You should need to use this method only if you want to render lights
@@ -303,12 +331,30 @@ public class RayHandler implements Disposable {
 		ShaderProgram shader = customLightShader != null ? customLightShader : lightShader;
 		shader.bind();
 		{
+			if (normalMaps) {
+				normalMapTexture.bind(0);
+				lightShader.setUniformi("u_normals", 0);
+				lightShader.setUniformf("u_resolution", viewportWidth, viewportHeight);
+				lightShader.setUniformf("u_falloff", FALLOFF);
+			}
 			lightShader.setUniformMatrix("u_projTrans", combined);
+
 			shader.setUniformMatrix("u_projTrans", combined);
 			if (customLightShader != null) updateLightShader();
 
 			for (Light light : lightList) {
 				if (customLightShader != null) updateLightShaderPerLight(light);
+
+				if (normalMaps) {
+					tmp.set(light.getX(), light.getY());
+					viewport.project(tmp);
+					// light position must be normalized
+					float x = (tmp.x) / viewportWidth;
+					float y = (tmp.y) / viewportHeight;
+					lightShader.setUniformf("u_lightpos", x, y, light.pseudo3dHeight * 0.01f);
+				}
+				lightShader.setUniformf("u_intensity", light.intensity);
+
 				light.render();
 			}
 		}
@@ -622,7 +668,11 @@ public class RayHandler implements Disposable {
 		viewportWidth = width;
 		viewportHeight = height;
 	}
-	
+
+	public void setViewport(Viewport viewport) {
+		this.viewport = viewport;
+	}
+
 	/**
 	 * Sets rendering to default viewport
 	 * 

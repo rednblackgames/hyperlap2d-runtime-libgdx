@@ -59,11 +59,11 @@ public abstract class Light implements Disposable {
 	protected float[] f;
 	protected int m_index = 0;
 
-	/**
-	 * Dynamic shadows variables *
-	 */
-	protected static final LightData tmpData = new LightData(0f);
+	protected float intensity = 1f;
 
+	/**
+	 * Dynamic shadows variables/pseudo3d effects
+	 */
 	protected float pseudo3dHeight = 0f;
 
 	protected final Array<Mesh> dynamicShadowMeshes = new Array<Mesh>();
@@ -317,6 +317,15 @@ public abstract class Light implements Disposable {
 	public void setXray(boolean xray) {
 		this.xray = xray;
 		if (staticLight) dirty = true;
+	}
+
+	/**
+	 * Change current intensity of the light
+	 *
+	 * @param intensity factor
+	 */
+	public void setIntensity(float intensity) {
+		this.intensity = intensity;
 	}
 
 	/**

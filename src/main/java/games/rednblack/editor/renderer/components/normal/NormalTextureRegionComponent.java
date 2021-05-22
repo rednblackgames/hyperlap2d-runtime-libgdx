@@ -1,9 +1,10 @@
-package games.rednblack.editor.renderer.components;
+package games.rednblack.editor.renderer.components.normal;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import games.rednblack.editor.renderer.components.BaseComponent;
 
 public class NormalTextureRegionComponent implements BaseComponent {
-    TextureRegion textureRegion = null;
+    public TextureRegion textureRegion = null;
 
     @Override
     public void reset() {

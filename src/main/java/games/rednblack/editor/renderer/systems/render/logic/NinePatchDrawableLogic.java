@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.systems.render.logic;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Matrix4;
 import games.rednblack.editor.renderer.components.*;
 
 public class NinePatchDrawableLogic implements Drawable {
@@ -22,7 +21,7 @@ public class NinePatchDrawableLogic implements Drawable {
 	}
 
 	@Override
-	public void draw(Batch batch, Entity entity, float parentAlpha, boolean normal) {
+	public void draw(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
 		TintComponent tintComponent = tintComponentComponentMapper.get(entity);
 		TransformComponent entityTransformComponent = transformMapper.get(entity);
 		DimensionsComponent entityDimensionsComponent = dimensionsMapper.get(entity);

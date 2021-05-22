@@ -18,6 +18,7 @@ public class LightObjectComponent implements BaseComponent {
 	public float height = 0;
 	public float coneDegree = 30;
 	public float softnessLength = 1f;
+	public float intensity = 1f;
 
 	public boolean isStatic = true;
 	public boolean isXRay = true;

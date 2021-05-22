@@ -231,6 +231,8 @@ public class SceneLoader {
                         script.dispose();
                     }
                 }
+
+                renderer.removeSpecialEntity(entity);
             }
         });
     }
@@ -407,7 +409,7 @@ public class SceneLoader {
     }
 
     public void resize(int width, int height) {
-        rayHandler.resizeFBO(width / 4, height / 4);
+        rayHandler.resizeFBO(width, height);
         renderer.resize(width, height);
     }
 

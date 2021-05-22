@@ -9,6 +9,7 @@ public class LightBodyDataVO {
     public float[] color;
     public int rays;
     public float distance;
+    public float intensity = 1f;
     public int rayDirection;
     public float softnessLength;
     public boolean isStatic;
@@ -31,6 +32,7 @@ public class LightBodyDataVO {
         isXRay = vo.isXRay;
         isSoft = vo.isSoft;
         isActive = vo.isActive;
+        intensity = vo.intensity;
     }
 
     public void loadFromComponent(LightBodyComponent lightComponent) {
@@ -44,6 +46,7 @@ public class LightBodyDataVO {
         isXRay = lightComponent.isXRay;
         isSoft = lightComponent.isSoft;
         isActive = lightComponent.isActive;
+        intensity = lightComponent.intensity;
     }
 
     @Override
@@ -51,12 +54,14 @@ public class LightBodyDataVO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LightBodyDataVO that = (LightBodyDataVO) o;
-        return rays == that.rays && Float.compare(that.distance, distance) == 0 && rayDirection == that.rayDirection && Float.compare(that.softnessLength, softnessLength) == 0 && isStatic == that.isStatic && isXRay == that.isXRay && isSoft == that.isSoft && isActive == that.isActive && Arrays.equals(color, that.color);
+        return rays == that.rays && Float.compare(that.distance, distance) == 0 &&
+                Float.compare(that.intensity, intensity) == 0 &&
+                rayDirection == that.rayDirection && Float.compare(that.softnessLength, softnessLength) == 0 && isStatic == that.isStatic && isXRay == that.isXRay && isSoft == that.isSoft && isActive == that.isActive && Arrays.equals(color, that.color);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(rays, distance, rayDirection, softnessLength, isStatic, isXRay, isSoft, isActive);
+        int result = Objects.hash(rays, distance, rayDirection, softnessLength, isStatic, isXRay, isSoft, isActive, intensity);
         result = 31 * result + Arrays.hashCode(color);
         return result;
     }

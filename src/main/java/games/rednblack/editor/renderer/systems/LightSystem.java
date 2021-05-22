@@ -72,6 +72,7 @@ public class LightSystem extends IteratingSystem {
 			light.setActive(lightObjectComponent.isActive);
 			light.setSoft(lightObjectComponent.isSoft);
 			light.setHeight(lightObjectComponent.height);
+			light.setIntensity(lightObjectComponent.intensity);
 		}
 		
 		if (lightObjectComponent.getType() == LightVO.LightType.POINT) {
@@ -115,6 +116,7 @@ public class LightSystem extends IteratingSystem {
 
 		if (lightBodyComponent.lightObject != null) {
 			lightBodyComponent.lightObject.setSoftnessLength(lightBodyComponent.softnessLength);
+			lightBodyComponent.lightObject.setIntensity(lightBodyComponent.intensity);
 			lightBodyComponent.lightObject.setDistance(lightBodyComponent.distance);
 			lightBodyComponent.lightObject.setActive(lightBodyComponent.isActive);
 			lightBodyComponent.lightObject.setSoft(lightBodyComponent.isSoft);

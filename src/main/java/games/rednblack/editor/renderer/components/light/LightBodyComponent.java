@@ -26,6 +26,7 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
     public boolean isXRay = false;
     public boolean isSoft = true;
     public boolean isActive = true;
+    public float intensity = 1f;
 
     public ChainLight lightObject;
     private RayHandler rayHandler;

@@ -64,9 +64,10 @@ public abstract class PositionalLight extends Light {
 		if (Gdx.gl30 != null) {
 			vertexDataType = VertexDataType.VertexBufferObjectWithVAO;
 		}
-		lightMesh = new Mesh(vertexDataType, false, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
-			"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
-			new VertexAttribute(Usage.Generic, 1, "s"));
+		lightMesh = new Mesh(vertexDataType, false, vertexNum, 0,
+				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+				new VertexAttribute(Usage.Generic, 1, "s"));
 		softShadowMesh = new Mesh(vertexDataType, false, vertexNum * 2, 0, new VertexAttribute(Usage.Position, 2,
 			"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 			new VertexAttribute(Usage.Generic, 1, "s"));

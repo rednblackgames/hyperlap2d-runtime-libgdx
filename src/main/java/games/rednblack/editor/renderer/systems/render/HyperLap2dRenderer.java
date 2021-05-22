@@ -18,8 +18,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
+import games.rednblack.editor.renderer.systems.render.logic.Drawable;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
@@ -35,6 +37,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private final ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
 	private final ComponentMapper<ShaderComponent> shaderComponentMapper = ComponentMapper.getFor(ShaderComponent.class);
 	private final ComponentMapper<DimensionsComponent> dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
+	private final ComponentMapper<NormalMapRendering> normalMapMapper = ComponentMapper.getFor(NormalMapRendering.class);
 
 	private final DrawableLogicMapper drawableLogicMapper;
 	private RayHandler rayHandler;
@@ -55,6 +58,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	private int pixelsPerWU;
 
 	private boolean useLights = false;
+	private boolean hasNormals = false;
 
 	private final Vector3 tmpVec3 = new Vector3();
 	private final Stack<Matrix4> fboM4Stack = new Stack<>();
@@ -66,7 +70,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
 	};
 
 	private final SnapshotArray<Entity> screenReadingEntities = new SnapshotArray<>(true, 1, Entity.class);
-	private final SnapshotArray<Entity> normalMappedEntities = new SnapshotArray<>(true, 1, Entity.class);
 
 	public HyperLap2dRenderer(Batch batch) {
 		super(Family.all(ViewPortComponent.class).get(), 1);
@@ -75,6 +78,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 		frameBufferManager = new FrameBufferManager();
 		frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+		frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
 		screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		tmpFboCamera = new OrthographicCamera();
 
@@ -109,9 +113,24 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		batch.setProjectionMatrix(camera.combined);
 
 		batch.begin();
-		drawRecursively(entity, 1f);
+		drawRecursively(entity, 1f, Drawable.RenderingType.TEXTURE);
 		batch.end();
 		frameBufferManager.endCurrent();
+
+		if (rayHandler != null && useLights) {
+			//Render normal map texture only if lights are enabled
+			frameBufferManager.begin("normalMap");
+			Gdx.gl.glClearColor(0, 0, 0, 0);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+			batch.setProjectionMatrix(camera.combined);
+
+			batch.begin();
+			hasNormals = false;
+			drawRecursively(entity, 1f, Drawable.RenderingType.NORMAL_MAP);
+			batch.end();
+			frameBufferManager.endCurrent();
+		}
 
 		screenTexture = frameBufferManager.getColorBufferTexture("main");
 
@@ -129,6 +148,16 @@ public class HyperLap2dRenderer extends IteratingSystem {
 				screenTexture.getWidth(), screenTexture.getHeight(),
 				false, true);
 
+		/*batch.draw(frameBufferManager.getColorBufferTexture("normalMap"),
+				viewport.getScreenX(), viewport.getScreenY(),
+				0, 0,
+				viewport.getScreenWidth(), viewport.getScreenHeight(),
+				1, 1,
+				0,
+				0, 0,
+				screenTexture.getWidth(), screenTexture.getHeight(),
+				false, false);*/
+
 		//2. Screen Effects
 		if (screenReadingEntities.size > 0) {
 			batch.setProjectionMatrix(camera.combined);
@@ -136,7 +165,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 			for (int i = 0; i < screenReadingEntities.size; i++) {
 				Entity child = children[i];
 				if (mainItemComponentMapper.has(child))
-					drawEntity(batch, child, 1);
+					drawEntity(batch, child, 1, Drawable.RenderingType.TEXTURE);
 				else
 					screenReadingEntities.removeIndex(i);
 			}
@@ -153,14 +182,26 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 			int retinaScale = Gdx.graphics.getHeight() > 0 ?
 					Gdx.graphics.getBackBufferHeight() / Gdx.graphics.getHeight() : 1;
+			int screenWidth = viewport.getScreenWidth() * retinaScale;
+			int screenHeight = viewport.getScreenHeight() * retinaScale;
+
+			rayHandler.setViewport(viewport);
 			rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(),
-					viewport.getScreenWidth() * retinaScale, viewport.getScreenHeight() * retinaScale);
+					screenWidth, screenHeight);
+
+			if (hasNormals) {
+				Texture normal = frameBufferManager.getColorBufferTexture("normalMap");
+				rayHandler.setNormalMap(normal);
+			} else {
+				rayHandler.setNormalMap(null);
+			}
+
 			rayHandler.setCombinedMatrix(orthoCamera);
 			rayHandler.updateAndRender();
 		}
 	}
 
-	private void drawRecursively(Entity rootEntity, float parentAlpha) {
+	private void drawRecursively(Entity rootEntity, float parentAlpha, Drawable.RenderingType renderingType) {
 		CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
 		TransformComponent transform = transformMapper.get(rootEntity);
 		DimensionsComponent dimensions = dimensionsMapper.get(rootEntity);
@@ -207,7 +248,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         TintComponent tintComponent = ComponentRetriever.get(rootEntity, TintComponent.class);
         parentAlpha *= tintComponent.color.a;
 
-		drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha);
+		drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha, renderingType);
 
 		if (curCompositeTransformComponent.renderToFBO) {
 			//Close FBO and render the result
@@ -256,7 +297,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		}
 	}
 
-	private void drawChildren(Entity rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha) {
+	private void drawChildren(Entity rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
+							  Drawable.RenderingType renderingType) {
 		NodeComponent nodeComponent = nodeMapper.get(rootEntity);
 		Entity[] children = nodeComponent.children.begin();
 		TransformComponent transform = transformMapper.get(rootEntity);
@@ -280,10 +322,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 				if(childNodeComponent ==null) {
                     if (checkRenderingLayer(child))
-					    drawEntity(batch, child, parentAlpha);
+					    drawEntity(batch, child, parentAlpha, renderingType);
 				}else{
 					//Step into Composite
-					drawRecursively(child, parentAlpha);
+					drawRecursively(child, parentAlpha, renderingType);
 				}
 			}
 		} else {
@@ -321,10 +363,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
 				if(childNodeComponent ==null) {
                     if (checkRenderingLayer(child))
-					    drawEntity(batch, child, parentAlpha);
+					    drawEntity(batch, child, parentAlpha, renderingType);
 				}else{
 					//Step into Composite
-					drawRecursively(child, parentAlpha);
+					drawRecursively(child, parentAlpha, renderingType);
 				}
 				childTransformComponent.x = cx;
 				childTransformComponent.y = cy;
@@ -333,13 +375,16 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		nodeComponent.children.end();
 	}
 
-	private void drawEntity(Batch batch, Entity child, float parentAlpha) {
+	private void drawEntity(Batch batch, Entity child, float parentAlpha, Drawable.RenderingType renderingType) {
+		if (renderingType == Drawable.RenderingType.NORMAL_MAP && !normalMapMapper.has(child)) {
+			return;
+		} else if (renderingType == Drawable.RenderingType.NORMAL_MAP && normalMapMapper.has(child))
+			hasNormals = true;
 		int entityType = mainItemComponentMapper.get(child).entityType;
 
 		applyShader(child, batch);
 		//Find the logic from mapper and draw it
-		drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha, false);
-
+		drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha, renderingType);
 		resetShader(child, batch);
 	}
 
@@ -498,6 +543,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		return true;
 	}
 
+	public void removeSpecialEntity(Entity entity) {
+		screenReadingEntities.removeValue(entity, true);
+	}
+
 	public void setRayHandler(RayHandler rayHandler){
 		this.rayHandler = rayHandler;
 	}
@@ -520,6 +569,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 		frameBufferManager.endCurrent();
 		frameBufferManager.dispose("main");
 		frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+		frameBufferManager.dispose("normalMap");
+		frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
 		screenCamera.viewportWidth = width;
 		screenCamera.viewportHeight = height;
 		screenCamera.position.set(0, 0 , 0);

@@ -23,6 +23,8 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
+import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -85,6 +87,13 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         component.isRepeat = vo.isRepeat;
         component.isPolygon = vo.isPolygon;
         entity.add(component);
+
+        if (rm.hasTextureRegion(vo.imageName + ".normal")) {
+            NormalTextureRegionComponent normalComponent = engine.createComponent(NormalTextureRegionComponent.class);
+            normalComponent.textureRegion = rm.getTextureRegion(vo.imageName + ".normal");
+            entity.add(normalComponent);
+            entity.add(engine.createComponent(NormalMapRendering.class));
+        }
 
         return component;
     }

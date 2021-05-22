@@ -29,7 +29,6 @@ import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -219,6 +218,7 @@ public abstract class ComponentFactory {
         component.rays = vo.light.rays;
         component.color = vo.light.color;
         component.distance = vo.light.distance;
+        component.intensity = vo.light.intensity;
         component.rayDirection = vo.light.rayDirection;
         component.softnessLength = vo.light.softnessLength;
         component.isXRay = vo.light.isXRay;
