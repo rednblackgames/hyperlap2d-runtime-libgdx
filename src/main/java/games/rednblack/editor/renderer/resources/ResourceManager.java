@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
 import games.rednblack.editor.renderer.data.*;
@@ -36,7 +37,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     public String scenesPath = "scenes";
     public String particleEffectsPath = "particles";
     public String talosPath = "talos-vfx";
-    public String spriteAnimationsPath = "sprite_animations";
     public String spineAnimationsPath = "spine_animations";
     public String fontsPath = "freetypefonts";
     public String shadersPath = "shaders";
@@ -59,10 +59,9 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
     protected HashMap<String, FileHandle> talosVFXs = new HashMap<String, FileHandle>();
 
-    protected HashMap<String, TextureAtlas> skeletonAtlases = new HashMap<String, TextureAtlas>();
     protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
 
-    protected HashMap<String, TextureAtlas> spriteAnimations = new HashMap<String, TextureAtlas>();
+    protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<String, Array<TextureAtlas.AtlasRegion>>();
 
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<FontSizePair, BitmapFont>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<String, ShaderProgram>();
@@ -285,33 +284,17 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
 
         for (String name : spriteAnimNamesToLoad) {
-            TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal(packResolutionName + File.separator + spriteAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
-            spriteAnimations.put(name, animAtlas);
+            spriteAnimations.put(name, mainPack.findRegions(name));
         }
     }
 
     public void loadSpineAnimation(String name) {
-        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal(packResolutionName + File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
-        skeletonAtlases.put(name, animAtlas);
         skeletonJSON.put(name, Gdx.files.internal("orig"+ File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".json"));
     }
   
 
     @Override
     public void loadSpineAnimations() {
-        // empty existing ones that are not scheduled to load
-        Iterator it = skeletonAtlases.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            if(spineAnimNamesToLoad.contains(pairs.getKey())) {
-                spineAnimNamesToLoad.remove(pairs.getKey());
-            } else {
-                it.remove();
-                skeletonJSON.remove(pairs.getKey());
-            }
-        }
-
-
         for (String name : spineAnimNamesToLoad) {
         	loadSpineAnimation(name);
         }
@@ -416,11 +399,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public TextureAtlas getSkeletonAtlas(String name) {
-        return skeletonAtlases.get(name);
-    }
-
-    @Override
     public FileHandle getSkeletonJSON(String name) {
         return skeletonJSON.get(name);
     }
@@ -431,7 +409,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public TextureAtlas getSpriteAnimation(String name) {
+    public Array<TextureAtlas.AtlasRegion> getSpriteAnimation(String name) {
         return spriteAnimations.get(name);
     }
 
@@ -466,12 +444,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     @Override
     public void dispose() {
         mainPack.dispose();
-        for (TextureAtlas textureAtlas : skeletonAtlases.values()) {
-            textureAtlas.dispose();
-        }
-        for (TextureAtlas textureAtlas : spriteAnimations.values()) {
-            textureAtlas.dispose();
-        }
+
         for (BitmapFont font : bitmapFonts.values()) {
             font.dispose();
         }

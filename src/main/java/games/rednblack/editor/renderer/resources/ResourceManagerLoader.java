@@ -41,8 +41,8 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         TextureAtlas textureAtlas = manager.get(packFile.path(), TextureAtlas.class);
         this.asyncResourceManager.setMainPack(textureAtlas);
         this.asyncResourceManager.loadSpineAnimations(manager);
-        this.asyncResourceManager.loadSpriteAnimations(manager);
         this.asyncResourceManager.loadParticleEffects(manager);
+        this.asyncResourceManager.loadSpriteAnimations();
         this.asyncResourceManager.loadFonts();
         this.asyncResourceManager.loadShaders();
 
@@ -93,16 +93,6 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + "pack.atlas");
         if (packFile.exists()) {
             deps.add(new AssetDescriptor(packFile, TextureAtlas.class));
-        }
-
-        for (String name : this.asyncResourceManager.getSpineAnimNamesToLoad()) {
-            FileHandle res = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + this.asyncResourceManager.spineAnimationsPath + File.separator + name + File.separator + name + ".atlas");
-            deps.add(new AssetDescriptor(res, TextureAtlas.class));
-        }
-
-        for (String name : this.asyncResourceManager.getSpriteAnimNamesToLoad()) {
-            FileHandle res = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + this.asyncResourceManager.spriteAnimationsPath + File.separator + name + File.separator + name + ".atlas");
-            deps.add(new AssetDescriptor(res, TextureAtlas.class));
         }
 
         for (String name : this.asyncResourceManager.getParticleEffectsNamesToLoad()) {
