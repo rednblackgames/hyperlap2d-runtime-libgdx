@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.ShortArray;
  *
  * @author Avetis Zakharyan (concept and first version)
  * @author Kablion (rewrite)
+ * @author fgnm (bug fixes and optimizations)
  */
 public class RepeatablePolygonSprite implements Disposable {
 
@@ -36,7 +37,6 @@ public class RepeatablePolygonSprite implements Disposable {
     private float colorPacked = Color.WHITE_FLOAT_BITS;
 
     private TextureRegion textureRegion;
-    private TextureRegion whiteTextureRegion;
 
     private Vector2 textureOffset = new Vector2();
     private float textureWidth = 0;
@@ -67,11 +67,6 @@ public class RepeatablePolygonSprite implements Disposable {
     private final Polygon intersectionPoly = new Polygon();
 
     public RepeatablePolygonSprite() {
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
-        this.whiteTextureRegion = new TextureRegion(new Texture(pixmap));
-        pixmap.dispose();
     }
 
     /**
@@ -206,10 +201,8 @@ public class RepeatablePolygonSprite implements Disposable {
                 if (textureRegion != null) {
                     u = textureRegion.getU() + (textureRegion.getU2() - textureRegion.getU()) * u;
                     v = textureRegion.getV() + (textureRegion.getV2() - textureRegion.getV()) * v;
-                } else {
-                    u = whiteTextureRegion.getU() + (whiteTextureRegion.getU2() - whiteTextureRegion.getU()) * u;
-                    v = whiteTextureRegion.getV() + (whiteTextureRegion.getV2() - whiteTextureRegion.getV()) * v;
                 }
+
                 fullVerts[idx++] = u;
                 fullVerts[idx++] = v;
             }
@@ -298,15 +291,12 @@ public class RepeatablePolygonSprite implements Disposable {
             buildVertices();
         }
 
-        Texture textureToDraw;
         if (textureRegion != null) {
-            textureToDraw = textureRegion.getTexture();
-        } else {
-            textureToDraw = whiteTextureRegion.getTexture();
-        }
+            Texture textureToDraw = textureRegion.getTexture();
 
-        for (int i = 0; i < vertices.size; i++) {
-            batch.draw(textureToDraw, vertices.get(i), 0, vertices.get(i).length, indices.get(i), 0, indices.get(i).length);
+            for (int i = 0; i < vertices.size; i++) {
+                batch.draw(textureToDraw, vertices.get(i), 0, vertices.get(i).length, indices.get(i), 0, indices.get(i).length);
+            }
         }
     }
 
@@ -346,12 +336,6 @@ public class RepeatablePolygonSprite implements Disposable {
 
     @Override
     public void dispose() {
-        whiteTextureRegion.getTexture().dispose();
-        whiteTextureRegion = null;
-        if (textureRegion != null) {
-            textureRegion.getTexture().dispose();
-            textureRegion = null;
-        }
         polygon = null;
         boundingRect = null;
         parts.clear();
