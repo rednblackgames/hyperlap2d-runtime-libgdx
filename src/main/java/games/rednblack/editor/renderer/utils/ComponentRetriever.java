@@ -26,7 +26,24 @@ import java.util.Map;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
-import games.rednblack.editor.renderer.components.*;
+
+import games.rednblack.editor.renderer.components.ActionComponent;
+import games.rednblack.editor.renderer.components.BoundingBoxComponent;
+import games.rednblack.editor.renderer.components.CompositeTransformComponent;
+import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.LayerMapComponent;
+import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.NinePatchComponent;
+import games.rednblack.editor.renderer.components.NodeComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.ScriptComponent;
+import games.rednblack.editor.renderer.components.ShaderComponent;
+import games.rednblack.editor.renderer.components.TextureRegionComponent;
+import games.rednblack.editor.renderer.components.TintComponent;
+import games.rednblack.editor.renderer.components.TransformComponent;
+import games.rednblack.editor.renderer.components.ViewPortComponent;
+import games.rednblack.editor.renderer.components.ZIndexComponent;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
@@ -36,6 +53,7 @@ import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
+import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 
@@ -79,6 +97,7 @@ public class ComponentRetriever {
 
     	mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class));
     	mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class));
+    	mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class));
         mappers.put(LightBodyComponent.class, ComponentMapper.getFor(LightBodyComponent.class));
 
         mappers.put(SpriteAnimationComponent.class, ComponentMapper.getFor(SpriteAnimationComponent.class));

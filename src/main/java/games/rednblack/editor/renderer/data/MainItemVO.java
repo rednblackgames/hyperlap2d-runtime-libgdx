@@ -1,12 +1,19 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
-import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.light.LightBodyComponent;
-import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
-
 import java.util.Arrays;
 import java.util.HashMap;
+
+import com.badlogic.ashley.core.Entity;
+
+import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.ShaderComponent;
+import games.rednblack.editor.renderer.components.TintComponent;
+import games.rednblack.editor.renderer.components.TransformComponent;
+import games.rednblack.editor.renderer.components.ZIndexComponent;
+import games.rednblack.editor.renderer.components.light.LightBodyComponent;
+import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
+import games.rednblack.editor.renderer.components.physics.SensorComponent;
 
 public class MainItemVO {
 	public enum RenderingLayer {SCREEN, SCREEN_READING}
@@ -36,6 +43,7 @@ public class MainItemVO {
 	public ShapeVO shape = null;
 	public PhysicsBodyDataVO physics = null;
 	public LightBodyDataVO light = null;
+	public SensorDataVO sensor = null;
 	
 	public MainItemVO() {
 		
@@ -66,6 +74,10 @@ public class MainItemVO {
 
 		if(vo.physics != null){
             physics = new PhysicsBodyDataVO(vo.physics);
+		}
+		
+		if (vo.sensor != null) {
+			sensor = new SensorDataVO(vo.sensor);
 		}
 
 		if(vo.light != null){
@@ -126,6 +138,12 @@ public class MainItemVO {
         if(physicsComponent != null) {
             physics = new PhysicsBodyDataVO();
             physics.loadFromComponent(physicsComponent);
+        }
+
+        SensorComponent sensorComponent = entity.getComponent(SensorComponent.class);
+        if (sensorComponent != null) {
+        	sensor = new SensorDataVO();
+        	sensor.loadFromComponent(sensorComponent);
         }
 
         LightBodyComponent lightBodyComponent = entity.getComponent(LightBodyComponent.class);

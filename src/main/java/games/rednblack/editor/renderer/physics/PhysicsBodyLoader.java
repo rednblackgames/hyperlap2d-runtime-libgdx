@@ -3,12 +3,22 @@ package games.rednblack.editor.renderer.physics;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.ChainShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.MassData;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+
 import games.rednblack.editor.renderer.box2dLight.LightData;
+import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
+import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.components.physics.SensorUserData;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
@@ -87,11 +97,85 @@ public class PhysicsBodyLoader {
 
             body.setMassData(massData);
         }
+        
+        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class);
+    	DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        if (sensorComponent != null && dimensionsComponent != null) {
+        	createSensors(body, sensorComponent, dimensionsComponent);
+        }
 
         return body;
     }
 
-    private void createChainShape(Body body, FixtureDef fixtureDef, Vector2[][] minPolygonData) {
+    /**
+     * Creates the sensors and attaches them to the body.
+     * 
+     * @param body The body to attach the sensor to.
+     * @param sensorComponent The sensor component.
+     * @param dimensionsComponent The dimension of the body. Used to compute the position and dimension of the sensors.
+     * 
+     * @author Jan-Thierry Wegener
+     */
+    private void createSensors(Body body, SensorComponent sensorComponent, DimensionsComponent dimensionsComponent) {
+    	if (sensorComponent.bottom) {
+    		Vector2 center = new Vector2(dimensionsComponent.width / 2f, 0);
+    		
+    		PolygonShape ps = new PolygonShape();
+    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, center, 0f);
+    		
+    		FixtureDef sensorFix = new FixtureDef();
+    		sensorFix.isSensor = true;
+    		sensorFix.shape = ps;
+    		
+    		body.createFixture(sensorFix).setUserData(SensorUserData.BOTTOM);
+    		
+    		ps.dispose();
+    	}
+    	if (sensorComponent.top) {
+    		Vector2 center = new Vector2(dimensionsComponent.width / 2f, dimensionsComponent.height);
+    		
+    		PolygonShape ps = new PolygonShape();
+    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, center, 0f);
+    		
+    		FixtureDef sensorFix = new FixtureDef();
+    		sensorFix.isSensor = true;
+    		sensorFix.shape = ps;
+    		
+    		body.createFixture(sensorFix).setUserData(SensorUserData.TOP);
+    		
+    		ps.dispose();
+    	}
+    	if (sensorComponent.left) {
+    		Vector2 center = new Vector2(0, dimensionsComponent.height / 2f);
+    		
+    		PolygonShape ps = new PolygonShape();
+    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, center, 0f);
+    		
+    		FixtureDef sensorFix = new FixtureDef();
+    		sensorFix.isSensor = true;
+    		sensorFix.shape = ps;
+    		
+    		body.createFixture(sensorFix).setUserData(SensorUserData.LEFT);
+    		
+    		ps.dispose();
+    	}
+    	if (sensorComponent.right) {
+    		Vector2 center = new Vector2(dimensionsComponent.width, dimensionsComponent.height / 2f);
+    		
+    		PolygonShape ps = new PolygonShape();
+    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, center, 0f);
+    		
+    		FixtureDef sensorFix = new FixtureDef();
+    		sensorFix.isSensor = true;
+    		sensorFix.shape = ps;
+    		
+    		body.createFixture(sensorFix).setUserData(SensorUserData.RIGHT);
+    		
+    		ps.dispose();
+    	}
+	}
+
+	private void createChainShape(Body body, FixtureDef fixtureDef, Vector2[][] minPolygonData) {
         Vector2[] vertices = PolygonUtils.mergeTouchingPolygonsToOne(minPolygonData);
         ChainShape chainShape = new ChainShape();
         chainShape.createChain(vertices);
