@@ -10,8 +10,6 @@ import games.rednblack.editor.renderer.data.ProjectInfoVO;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 
 public class AsyncResourceManager extends ResourceManager {
 
