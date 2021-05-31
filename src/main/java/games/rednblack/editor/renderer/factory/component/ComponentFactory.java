@@ -18,20 +18,32 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.BoundingBoxComponent;
+import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.NodeComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.ScriptComponent;
+import games.rednblack.editor.renderer.components.ShaderComponent;
+import games.rednblack.editor.renderer.components.TintComponent;
+import games.rednblack.editor.renderer.components.TransformComponent;
+import games.rednblack.editor.renderer.components.ZIndexComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
+import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-
-import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * Created by azakhary on 5/22/2015.
@@ -73,6 +85,7 @@ public abstract class ComponentFactory {
         createScriptComponent(entity, vo);
         createMeshComponent(entity, vo);
         createPhysicsComponents(entity, vo);
+        createSensorComponent(entity, vo);
         createLightComponents(entity, vo);
         createShaderComponent(entity, vo);
     }
@@ -182,6 +195,26 @@ public abstract class ComponentFactory {
         }
 
         createPhysicsBodyPropertiesComponent(entity, vo);
+    }
+    
+    /**
+     * Creats the sensor component and adds it to the entity.
+     * 
+     * @param entity The entity to add the component to.
+     * @param vo The data transfer object to create the component from.
+     */
+    protected void createSensorComponent(Entity entity, MainItemVO vo) {
+    	if (vo.sensor == null) {
+    		return;
+    	}
+    	
+    	SensorComponent sensorComponent = engine.createComponent(SensorComponent.class);
+    	sensorComponent.bottom = vo.sensor.bottom;
+    	sensorComponent.left = vo.sensor.left;
+    	sensorComponent.right = vo.sensor.right;
+    	sensorComponent.top = vo.sensor.top;
+    	
+    	entity.add(sensorComponent);
     }
 
     protected PhysicsBodyComponent createPhysicsBodyPropertiesComponent(Entity entity, MainItemVO vo) {
