@@ -19,6 +19,9 @@ public class ProjectInfoVO {
     public HashMap<String, CompositeItemVO> libraryItems = new HashMap<>();
     public HashMap<String, GraphVO> libraryActions = new HashMap<>();
 
+    public HashMap<String, TexturePackVO> imagesPacks = new HashMap<>();
+    public HashMap<String, TexturePackVO> animationsPacks = new HashMap<>();
+
     public String constructJsonString() {
         String str = "";
         Json json = new Json();
