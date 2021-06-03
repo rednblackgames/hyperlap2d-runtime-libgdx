@@ -6,9 +6,7 @@ import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
-import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -37,11 +35,19 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             throw new GdxRuntimeException("fileName must be project.dt");
         }
 
-        FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + "pack.atlas");
-        TextureAtlas textureAtlas = manager.get(packFile.path(), TextureAtlas.class);
-        this.asyncResourceManager.setMainPack(textureAtlas);
+        for (String pack : projectInfoVO.imagesPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
+        }
+        for (String pack : projectInfoVO.animationsPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
+        }
+        this.asyncResourceManager.loadReverseAtlasMap();
         this.asyncResourceManager.loadSpineAnimations(manager);
-        this.asyncResourceManager.loadParticleEffects(manager);
+        this.asyncResourceManager.loadParticleEffects();
         this.asyncResourceManager.loadSpriteAnimations();
         this.asyncResourceManager.loadFonts();
         this.asyncResourceManager.loadShaders();
@@ -88,18 +94,22 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         }
 
         //Build dependency list
-        Array<AssetDescriptor> deps = new Array();
+        Array<AssetDescriptor> deps = new Array<AssetDescriptor>();
 
-        FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + "pack.atlas");
-        if (packFile.exists()) {
-            deps.add(new AssetDescriptor(packFile, TextureAtlas.class));
+        for (String pack : projectInfoVO.imagesPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            if (packFile.exists()) {
+                deps.add(new AssetDescriptor(packFile, TextureAtlas.class));
+            }
         }
 
-        for (String name : this.asyncResourceManager.getParticleEffectsNamesToLoad()) {
-            FileHandle res = Gdx.files.internal(this.asyncResourceManager.particleEffectsPath + File.separator + name);
-            ParticleEffectLoader.ParticleEffectParameter params = new ParticleEffectLoader.ParticleEffectParameter();
-            params.atlasFile = packFile.path();
-            deps.add(new AssetDescriptor(res, ParticleEffect.class, params));
+        for (String pack : projectInfoVO.animationsPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            if (packFile.exists()) {
+                deps.add(new AssetDescriptor(packFile, TextureAtlas.class));
+            }
         }
 
         return deps;

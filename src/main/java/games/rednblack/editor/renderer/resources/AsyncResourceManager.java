@@ -26,8 +26,8 @@ public class AsyncResourceManager extends ResourceManager {
         return this.spineAnimNamesToLoad;
     }
 
-    public void setMainPack(TextureAtlas mainPack) {
-        this.mainPack = mainPack;
+    public void addAtlasPack(String name, TextureAtlas pack) {
+        this.atlasesPack.put(name, pack);
     }
 
     /**
@@ -52,46 +52,5 @@ public class AsyncResourceManager extends ResourceManager {
 
     public void loadSpineAnimation(AssetManager manager, String name) {
         skeletonJSON.put(name, Gdx.files.internal("orig" + File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".json"));
-    }
-
-    /**
-     * Particle Effect
-     */
-
-    @Override
-    public void loadParticleEffects() {
-        throw new GdxRuntimeException("see loadParticleEffects(AssetManager)");
-    }
-
-    public HashSet<String> getParticleEffectsNamesToLoad() {
-        return this.particleEffectNamesToLoad;
-    }
-
-    public void loadParticleEffects(AssetManager manager) {
-        // empty existing ones that are not scheduled to load
-        for (String key : particleEffects.keySet()) {
-            if (!particleEffectNamesToLoad.contains(key)) {
-                particleEffects.remove(key);
-            }
-        }
-
-        // load scheduled
-        for (String name : particleEffectNamesToLoad) {
-            FileHandle res = Gdx.files.internal(particleEffectsPath + File.separator + name);
-            particleEffects.put(name, manager.get(res.path(), ParticleEffect.class));
-        }
-
-        //Talos
-        // empty existing ones that are not scheduled to load
-        for (String key : talosVFXs.keySet()) {
-            if (!talosNamesToLoad.contains(key)) {
-                talosVFXs.remove(key);
-            }
-        }
-
-        // load scheduled
-        for (String name : talosNamesToLoad) {
-            talosVFXs.put(name, Gdx.files.internal(talosPath + File.separator + name));
-        }
     }
 }

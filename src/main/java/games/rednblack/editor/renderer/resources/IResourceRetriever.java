@@ -15,9 +15,8 @@ import games.rednblack.editor.renderer.data.SceneVO;
  * Created by azakhary on 9/9/2014.
  */
 public interface IResourceRetriever {
-    TextureAtlas getMainPack();
-
     TextureRegion getTextureRegion(String name);
+    TextureAtlas getTextureAtlas(String atlasName);
     boolean hasTextureRegion(String name);
     ParticleEffect getParticleEffect(String name);
     FileHandle getSkeletonJSON(String name);

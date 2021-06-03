@@ -55,7 +55,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashSet<FontSizePair> fontsToLoad = new HashSet<FontSizePair>();
     protected HashSet<String> shaderNamesToLoad = new HashSet<String>();
 
-    protected TextureAtlas mainPack;
+    protected HashMap<String, String> reverseAtlasMap = new HashMap<String, String>();
+    protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<String, TextureAtlas>();
     protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
     protected HashMap<String, FileHandle> talosVFXs = new HashMap<String, FileHandle>();
 
@@ -237,11 +238,32 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public void loadAtlasPack() {
-        FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + "pack.atlas");
-        if (!packFile.exists()) {
-            return;
+        for (String pack : projectVO.imagesPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
+            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+                atlasesPack.put(pack, new TextureAtlas(packFile));
+            }
         }
-        mainPack = new TextureAtlas(packFile);
+
+        for (String pack : projectVO.animationsPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
+            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+                atlasesPack.put(pack, new TextureAtlas(packFile));
+            }
+        }
+
+        loadReverseAtlasMap();
+    }
+
+    public void loadReverseAtlasMap() {
+        for (String atlasPackName : atlasesPack.keySet()) {
+            TextureAtlas atlas = atlasesPack.get(atlasPackName);
+            for (TextureAtlas.AtlasRegion region : atlas.getRegions()) {
+                reverseAtlasMap.put(region.name, atlasPackName);
+            }
+        }
     }
 
     @Override
@@ -256,8 +278,14 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         // load scheduled
         for (String name : particleEffectNamesToLoad) {
             ParticleEffect effect = new ParticleEffect();
-            effect.load(Gdx.files.internal(particleEffectsPath + File.separator + name), mainPack, "");
-            particleEffects.put(name, effect);
+            effect.loadEmitters(Gdx.files.internal(particleEffectsPath + File.separator + name));
+            for (TextureAtlas atlas : atlasesPack.values()) {
+                try {
+                    effect.loadEmitterImages(atlas, "");
+                    particleEffects.put(name, effect);
+                    break;
+                } catch (Exception ignore) { }
+            }
         }
 
         //Talos
@@ -284,7 +312,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
 
         for (String name : spriteAnimNamesToLoad) {
-            spriteAnimations.put(name, mainPack.findRegions(name));
+            TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(name));
+            spriteAnimations.put(name, atlas.findRegions(name));
         }
     }
 
@@ -384,13 +413,16 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
      */
 
     @Override
-    public TextureAtlas getMainPack() {
-        return mainPack;
+    public TextureRegion getTextureRegion(String name) {
+        if (reverseAtlasMap.get(name) == null)
+            return null;
+        TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(name));
+        return atlas.findRegion(name);
     }
 
     @Override
-    public TextureRegion getTextureRegion(String name) {
-        return mainPack.findRegion(name);
+    public TextureAtlas getTextureAtlas(String atlasName) {
+        return atlasesPack.get(atlasName);
     }
 
     @Override
@@ -420,7 +452,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public boolean hasTextureRegion(String regionName) {
-        return mainPack.findRegion(regionName) != null;
+        if (reverseAtlasMap.get(regionName) == null)
+            return false;
+        TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(regionName));
+        return atlas.findRegion(regionName) != null;
     }
 
     @Override
@@ -443,7 +478,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public void dispose() {
-        mainPack.dispose();
+        for (TextureAtlas atlas : atlasesPack.values())
+            atlas.dispose();
 
         for (BitmapFont font : bitmapFonts.values()) {
             font.dispose();
