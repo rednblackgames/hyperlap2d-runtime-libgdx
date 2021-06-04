@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.resources;
 
-
 /**
  * Created by azakhary on 9/9/2014.
  */

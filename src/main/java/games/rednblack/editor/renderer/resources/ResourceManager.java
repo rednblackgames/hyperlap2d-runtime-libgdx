@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
 import games.rednblack.editor.renderer.data.*;
@@ -36,7 +37,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     public String scenesPath = "scenes";
     public String particleEffectsPath = "particles";
     public String talosPath = "talos-vfx";
-    public String spriteAnimationsPath = "sprite_animations";
     public String spineAnimationsPath = "spine_animations";
     public String fontsPath = "freetypefonts";
     public String shadersPath = "shaders";
@@ -55,14 +55,14 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashSet<FontSizePair> fontsToLoad = new HashSet<FontSizePair>();
     protected HashSet<String> shaderNamesToLoad = new HashSet<String>();
 
-    protected TextureAtlas mainPack;
+    protected HashMap<String, String> reverseAtlasMap = new HashMap<String, String>();
+    protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<String, TextureAtlas>();
     protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
     protected HashMap<String, FileHandle> talosVFXs = new HashMap<String, FileHandle>();
 
-    protected HashMap<String, TextureAtlas> skeletonAtlases = new HashMap<String, TextureAtlas>();
     protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
 
-    protected HashMap<String, TextureAtlas> spriteAnimations = new HashMap<String, TextureAtlas>();
+    protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<String, Array<TextureAtlas.AtlasRegion>>();
 
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<FontSizePair, BitmapFont>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<String, ShaderProgram>();
@@ -238,11 +238,32 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public void loadAtlasPack() {
-        FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + "pack.atlas");
-        if (!packFile.exists()) {
-            return;
+        for (String pack : projectVO.imagesPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
+            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+                atlasesPack.put(pack, new TextureAtlas(packFile));
+            }
         }
-        mainPack = new TextureAtlas(packFile);
+
+        for (String pack : projectVO.animationsPacks.keySet()) {
+            String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
+            FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
+            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+                atlasesPack.put(pack, new TextureAtlas(packFile));
+            }
+        }
+
+        loadReverseAtlasMap();
+    }
+
+    public void loadReverseAtlasMap() {
+        for (String atlasPackName : atlasesPack.keySet()) {
+            TextureAtlas atlas = atlasesPack.get(atlasPackName);
+            for (TextureAtlas.AtlasRegion region : atlas.getRegions()) {
+                reverseAtlasMap.put(region.name, atlasPackName);
+            }
+        }
     }
 
     @Override
@@ -257,8 +278,14 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         // load scheduled
         for (String name : particleEffectNamesToLoad) {
             ParticleEffect effect = new ParticleEffect();
-            effect.load(Gdx.files.internal(particleEffectsPath + File.separator + name), mainPack, "");
-            particleEffects.put(name, effect);
+            effect.loadEmitters(Gdx.files.internal(particleEffectsPath + File.separator + name));
+            for (TextureAtlas atlas : atlasesPack.values()) {
+                try {
+                    effect.loadEmitterImages(atlas, "");
+                    particleEffects.put(name, effect);
+                    break;
+                } catch (Exception ignore) { }
+            }
         }
 
         //Talos
@@ -285,33 +312,18 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
 
         for (String name : spriteAnimNamesToLoad) {
-            TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal(packResolutionName + File.separator + spriteAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
-            spriteAnimations.put(name, animAtlas);
+            TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(name));
+            spriteAnimations.put(name, atlas.findRegions(name));
         }
     }
 
     public void loadSpineAnimation(String name) {
-        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal(packResolutionName + File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".atlas"));
-        skeletonAtlases.put(name, animAtlas);
         skeletonJSON.put(name, Gdx.files.internal("orig"+ File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".json"));
     }
   
 
     @Override
     public void loadSpineAnimations() {
-        // empty existing ones that are not scheduled to load
-        Iterator it = skeletonAtlases.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            if(spineAnimNamesToLoad.contains(pairs.getKey())) {
-                spineAnimNamesToLoad.remove(pairs.getKey());
-            } else {
-                it.remove();
-                skeletonJSON.remove(pairs.getKey());
-            }
-        }
-
-
         for (String name : spineAnimNamesToLoad) {
         	loadSpineAnimation(name);
         }
@@ -401,23 +413,21 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
      */
 
     @Override
-    public TextureAtlas getMainPack() {
-        return mainPack;
+    public TextureRegion getTextureRegion(String name) {
+        if (reverseAtlasMap.get(name) == null)
+            return null;
+        TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(name));
+        return atlas.findRegion(name);
     }
 
     @Override
-    public TextureRegion getTextureRegion(String name) {
-        return mainPack.findRegion(name);
+    public TextureAtlas getTextureAtlas(String atlasName) {
+        return atlasesPack.get(atlasName);
     }
 
     @Override
     public ParticleEffect getParticleEffect(String name) {
         return new ParticleEffect(particleEffects.get(name));
-    }
-
-    @Override
-    public TextureAtlas getSkeletonAtlas(String name) {
-        return skeletonAtlases.get(name);
     }
 
     @Override
@@ -431,7 +441,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public TextureAtlas getSpriteAnimation(String name) {
+    public Array<TextureAtlas.AtlasRegion> getSpriteAnimation(String name) {
         return spriteAnimations.get(name);
     }
 
@@ -442,7 +452,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public boolean hasTextureRegion(String regionName) {
-        return mainPack.findRegion(regionName) != null;
+        if (reverseAtlasMap.get(regionName) == null)
+            return false;
+        TextureAtlas atlas = atlasesPack.get(reverseAtlasMap.get(regionName));
+        return atlas.findRegion(regionName) != null;
     }
 
     @Override
@@ -465,13 +478,9 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public void dispose() {
-        mainPack.dispose();
-        for (TextureAtlas textureAtlas : skeletonAtlases.values()) {
-            textureAtlas.dispose();
-        }
-        for (TextureAtlas textureAtlas : spriteAnimations.values()) {
-            textureAtlas.dispose();
-        }
+        for (TextureAtlas atlas : atlasesPack.values())
+            atlas.dispose();
+
         for (BitmapFont font : bitmapFonts.values()) {
             font.dispose();
         }

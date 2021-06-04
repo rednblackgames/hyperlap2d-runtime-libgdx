@@ -43,6 +43,7 @@ import games.rednblack.editor.renderer.utils.DefaultShaders;
  * root actor of scene and load scenes.
  */
 public class SceneLoader {
+    public static final int BATCH_VERTICES_SIZE = 2000;
 
     private String curResolution = "orig";
     private SceneVO sceneVO;
@@ -144,7 +145,7 @@ public class SceneLoader {
         ActionSystem actionSystem = new ActionSystem();
         BoundingBoxSystem boundingBoxSystem = new BoundingBoxSystem();
         CullingSystem cullingSystem = new CullingSystem();
-        renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(2000, createDefaultShader()));
+        renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(BATCH_VERTICES_SIZE, createDefaultShader()));
         renderer.setRayHandler(rayHandler);
 
         engine.addSystem(animationSystem);

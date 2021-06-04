@@ -78,10 +78,6 @@ public class BoundingBoxSystem extends IteratingSystem {
                 TransformComponent parentTransform = transformMapper.get(parentNode.parentEntity);
                 if (parentTransform == null)
                     break;
-                if (parentTransform.rotation != 0) {
-                    for(int i = 0; i < 4; i++)
-                        b.points[i].rotateDeg(parentTransform.rotation);
-                }
 
                 float pScaleX = parentTransform.scaleX * (parentTransform.flipX ? -1 : 1);
                 float pScaleY = parentTransform.scaleY * (parentTransform.flipY ? -1 : 1);
@@ -98,8 +94,14 @@ public class BoundingBoxSystem extends IteratingSystem {
                 for(int i = 0; i < 4; i++) {
                     b.points[i].add(originX - tmpVec.x, originY - tmpVec.y);
 
-                    b.points[i].x = b.points[i].x * pScaleX + parentTransform.x - scaleOffsetX;
-                    b.points[i].y = b.points[i].y * pScaleY + parentTransform.y - scaleOffsetY;
+                    b.points[i].x = b.points[i].x * pScaleX;
+                    b.points[i].y = b.points[i].y * pScaleY;
+
+                    if (parentTransform.rotation != 0)
+                        b.points[i].rotateDeg(parentTransform.rotation);
+
+                    b.points[i].x += parentTransform.x - scaleOffsetX;
+                    b.points[i].y += parentTransform.y - scaleOffsetY;
                 }
                 parentNode =  parentNodeMapper.get(parentNode.parentEntity);
             }
@@ -130,8 +132,8 @@ public class BoundingBoxSystem extends IteratingSystem {
             DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);
             if (pt == null || dt == null)
                 break;
-            float pScaleX = t.scaleX * (t.flipX ? -1 : 1);
-            float pScaleY = t.scaleY * (t.flipY ? -1 : 1);
+            float pScaleX = pt.scaleX * (pt.flipX ? -1 : 1);
+            float pScaleY = pt.scaleY * (pt.flipY ? -1 : 1);
             checksum += pt.rotation + pScaleX + pScaleY + pt.x + pt.y + pt.originX + pt.originY + dt.width + dt.height;
             parentNode = parentNodeMapper.get(parentNode.parentEntity);
         }

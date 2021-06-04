@@ -71,17 +71,11 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
     protected TextureRegionComponent createTextureRegionComponent(Entity entity, MainItemVO vo) {
         TextureRegionComponent component = engine.createComponent(TextureRegionComponent.class);
 
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
-        Texture texture = new Texture(pixmap);
-        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        component.region = new TextureRegion(texture);
+        component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;
         component.isPolygon = true;
         entity.add(component);
 
-        pixmap.dispose();
         return component;
     }
 }

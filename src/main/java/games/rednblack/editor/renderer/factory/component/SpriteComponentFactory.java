@@ -56,7 +56,7 @@ public class SpriteComponentFactory extends ComponentFactory {
         DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
 
         SpriteAnimationVO sVo = (SpriteAnimationVO) vo;
-        Array<TextureAtlas.AtlasRegion> regions = getRegions(sVo.animationName);
+        Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(sVo.animationName);
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
@@ -87,7 +87,7 @@ public class SpriteComponentFactory extends ComponentFactory {
         if(vo.playMode == 6) spriteAnimationComponent.playMode = Animation.PlayMode.NORMAL;
 
         // filtering regions by name
-        Array<TextureAtlas.AtlasRegion> regions = getRegions(spriteAnimationComponent.animationName);
+        Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(spriteAnimationComponent.animationName);
 
         SpriteAnimationStateComponent stateComponent = engine.createComponent(SpriteAnimationStateComponent.class);
         stateComponent.setAllRegions(regions);
@@ -112,18 +112,5 @@ public class SpriteComponentFactory extends ComponentFactory {
         entity.add(spriteAnimationComponent);
 
         return spriteAnimationComponent;
-    }
-
-    private Array<TextureAtlas.AtlasRegion> getRegions(String filter) {
-        // filtering regions by name
-        Array<TextureAtlas.AtlasRegion> allRegions = rm.getSpriteAnimation(filter).getRegions();
-        Array<TextureAtlas.AtlasRegion> regions = new Array<>();
-        for(TextureAtlas.AtlasRegion region: allRegions) {
-            if(region.name.contains(filter)) {
-                regions.add(region);
-            }
-        }
-
-        return regions;
     }
 }

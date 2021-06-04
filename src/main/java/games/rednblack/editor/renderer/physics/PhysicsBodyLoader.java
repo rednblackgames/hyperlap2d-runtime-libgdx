@@ -29,7 +29,7 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
 public class PhysicsBodyLoader {
 
     private static PhysicsBodyLoader instance;
-    private final Vector2 bodyPosition = new Vector2();
+    private final Vector2 tmp = new Vector2();
 
     public static PhysicsBodyLoader getInstance() {
         if(instance == null) {
@@ -59,9 +59,9 @@ public class PhysicsBodyLoader {
         fixtureDef.filter.categoryBits = physicsComponent.filter.categoryBits;
 
         BodyDef bodyDef = new BodyDef();
-        bodyPosition.set(transformComponent.originX, transformComponent.originY);
-        TransformMathUtils.localToSceneCoordinates(entity, bodyPosition);
-        bodyDef.position.set(bodyPosition.x, bodyPosition.y);
+        tmp.set(transformComponent.originX, transformComponent.originY);
+        TransformMathUtils.localToSceneCoordinates(entity, tmp);
+        bodyDef.position.set(tmp.x, tmp.y);
         bodyDef.angle = transformComponent.rotation * MathUtils.degreesToRadians;
 
         bodyDef.gravityScale = physicsComponent.gravityScale;
@@ -118,10 +118,10 @@ public class PhysicsBodyLoader {
      */
     private void createSensors(Body body, SensorComponent sensorComponent, DimensionsComponent dimensionsComponent) {
     	if (sensorComponent.bottom) {
-    		Vector2 center = new Vector2(dimensionsComponent.width / 2f, 0);
+            tmp.set(dimensionsComponent.width / 2f, 0);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, center, 0f);
+    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -132,10 +132,10 @@ public class PhysicsBodyLoader {
     		ps.dispose();
     	}
     	if (sensorComponent.top) {
-    		Vector2 center = new Vector2(dimensionsComponent.width / 2f, dimensionsComponent.height);
+            tmp.set(dimensionsComponent.width / 2f, dimensionsComponent.height);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, center, 0f);
+    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -146,10 +146,10 @@ public class PhysicsBodyLoader {
     		ps.dispose();
     	}
     	if (sensorComponent.left) {
-    		Vector2 center = new Vector2(0, dimensionsComponent.height / 2f);
+            tmp.set(0, dimensionsComponent.height / 2f);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, center, 0f);
+    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -160,10 +160,10 @@ public class PhysicsBodyLoader {
     		ps.dispose();
     	}
     	if (sensorComponent.right) {
-    		Vector2 center = new Vector2(dimensionsComponent.width, dimensionsComponent.height / 2f);
+            tmp.set(dimensionsComponent.width, dimensionsComponent.height / 2f);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, center, 0f);
+    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
