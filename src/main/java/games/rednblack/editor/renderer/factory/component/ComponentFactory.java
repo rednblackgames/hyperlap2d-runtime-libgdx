@@ -213,6 +213,11 @@ public abstract class ComponentFactory {
     	sensorComponent.left = vo.sensor.left;
     	sensorComponent.right = vo.sensor.right;
     	sensorComponent.top = vo.sensor.top;
+
+    	sensorComponent.bottomSpanPercent = vo.sensor.bottomSpanPercent;
+    	sensorComponent.leftSpanPercent = vo.sensor.leftSpanPercent;
+    	sensorComponent.rightSpanPercent = vo.sensor.rightSpanPercent;
+    	sensorComponent.topSpanPercent = vo.sensor.topSpanPercent;
     	
     	entity.add(sensorComponent);
     }

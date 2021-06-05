@@ -121,7 +121,7 @@ public class PhysicsBodyLoader {
             tmp.set(dimensionsComponent.width / 2f, 0);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, tmp, 0f);
+    		ps.setAsBox(dimensionsComponent.width * sensorComponent.bottomSpanPercent, 0.05f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -135,7 +135,7 @@ public class PhysicsBodyLoader {
             tmp.set(dimensionsComponent.width / 2f, dimensionsComponent.height);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(dimensionsComponent.width / 4f, 0.05f, tmp, 0f);
+    		ps.setAsBox(dimensionsComponent.width * sensorComponent.topSpanPercent, 0.05f, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -149,7 +149,7 @@ public class PhysicsBodyLoader {
             tmp.set(0, dimensionsComponent.height / 2f);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, tmp, 0f);
+    		ps.setAsBox(0.05f, dimensionsComponent.height * sensorComponent.leftSpanPercent, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;
@@ -163,7 +163,7 @@ public class PhysicsBodyLoader {
             tmp.set(dimensionsComponent.width, dimensionsComponent.height / 2f);
     		
     		PolygonShape ps = new PolygonShape();
-    		ps.setAsBox(0.05f, dimensionsComponent.height / 4f, tmp, 0f);
+    		ps.setAsBox(0.05f, dimensionsComponent.height * sensorComponent.rightSpanPercent, tmp, 0f);
     		
     		FixtureDef sensorFix = new FixtureDef();
     		sensorFix.isSensor = true;

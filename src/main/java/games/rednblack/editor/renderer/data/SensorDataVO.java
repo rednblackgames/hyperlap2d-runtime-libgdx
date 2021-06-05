@@ -13,7 +13,12 @@ public class SensorDataVO {
 	public boolean left;
 	public boolean right;
 	public boolean top;
-	
+
+	public float bottomSpanPercent;
+	public float leftSpanPercent;
+	public float rightSpanPercent;
+	public float topSpanPercent;
+
 	public SensorDataVO() {
 	}
 	
@@ -22,6 +27,11 @@ public class SensorDataVO {
 		left = vo.left;
 		right = vo.right;
 		top = vo.top;
+		
+		bottomSpanPercent = vo.bottomSpanPercent;
+		leftSpanPercent = vo.leftSpanPercent;
+		rightSpanPercent = vo.rightSpanPercent;
+		topSpanPercent = vo.topSpanPercent;
 	}
 
     public void loadFromComponent(SensorComponent sensorComponent) {
@@ -29,6 +39,11 @@ public class SensorDataVO {
     	left = sensorComponent.left;
     	right = sensorComponent.right;
     	top = sensorComponent.top;
+
+    	bottomSpanPercent = sensorComponent.bottomSpanPercent;
+    	leftSpanPercent = sensorComponent.leftSpanPercent;
+    	rightSpanPercent = sensorComponent.rightSpanPercent;
+    	topSpanPercent = sensorComponent.topSpanPercent;
     }
 
 	@Override
@@ -36,9 +51,13 @@ public class SensorDataVO {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (bottom ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(bottomSpanPercent);
 		result = prime * result + (left ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(leftSpanPercent);
 		result = prime * result + (right ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(rightSpanPercent);
 		result = prime * result + (top ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(topSpanPercent);
 		return result;
 	}
 
@@ -53,13 +72,21 @@ public class SensorDataVO {
 		SensorDataVO other = (SensorDataVO) obj;
 		if (bottom != other.bottom)
 			return false;
+		if (Float.floatToIntBits(bottomSpanPercent) != Float.floatToIntBits(other.bottomSpanPercent))
+			return false;
 		if (left != other.left)
+			return false;
+		if (Float.floatToIntBits(leftSpanPercent) != Float.floatToIntBits(other.leftSpanPercent))
 			return false;
 		if (right != other.right)
 			return false;
+		if (Float.floatToIntBits(rightSpanPercent) != Float.floatToIntBits(other.rightSpanPercent))
+			return false;
 		if (top != other.top)
+			return false;
+		if (Float.floatToIntBits(topSpanPercent) != Float.floatToIntBits(other.topSpanPercent))
 			return false;
 		return true;
 	}
-	
+
 }
