@@ -241,7 +241,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         for (String pack : projectVO.imagesPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
-            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+            if (packFile.exists() && atlasesPack.get(pack) == null) {
                 atlasesPack.put(pack, new TextureAtlas(packFile));
             }
         }
@@ -249,7 +249,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         for (String pack : projectVO.animationsPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
-            if (!packFile.exists() && atlasesPack.get(pack) == null) {
+            if (packFile.exists() && atlasesPack.get(pack) == null) {
                 atlasesPack.put(pack, new TextureAtlas(packFile));
             }
         }
