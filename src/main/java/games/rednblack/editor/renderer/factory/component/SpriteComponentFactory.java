@@ -18,9 +18,8 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -32,19 +31,17 @@ import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
-import java.util.HashMap;
-
 /**
  * Created by azakhary on 5/22/2015.
  */
 public class SpriteComponentFactory extends ComponentFactory {
 
-    public SpriteComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public SpriteComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
 
     @Override
-    public void createComponents(Entity root, Entity entity, MainItemVO vo) {
+    public void createComponents(int root, int entity, MainItemVO vo) {
         createCommonComponents(entity, vo, EntityFactory.SPRITE_TYPE);
         createParentNodeComponent(root, entity);
         createNodeComponent(root, entity);
@@ -52,8 +49,8 @@ public class SpriteComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
+        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
 
         SpriteAnimationVO sVo = (SpriteAnimationVO) vo;
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(sVo.animationName);
@@ -64,52 +61,47 @@ public class SpriteComponentFactory extends ComponentFactory {
         component.width = (float) regions.get(0).getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
         component.height = (float) regions.get(0).getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
 
-        entity.add(component);
         return component;
     }
 
-    protected SpriteAnimationComponent createSpriteAnimationDataComponent(Entity entity, SpriteAnimationVO vo) {
-        SpriteAnimationComponent spriteAnimationComponent = engine.createComponent(SpriteAnimationComponent.class);
+    protected SpriteAnimationComponent createSpriteAnimationDataComponent(int entity, SpriteAnimationVO vo) {
+        SpriteAnimationComponent spriteAnimationComponent = engine.edit(entity).create(SpriteAnimationComponent.class);
         spriteAnimationComponent.animationName = vo.animationName;
 
-        for(int i = 0; i < vo.frameRangeMap.size(); i++) {
+        for (int i = 0; i < vo.frameRangeMap.size(); i++) {
             spriteAnimationComponent.frameRangeMap.put(vo.frameRangeMap.get(i).name, vo.frameRangeMap.get(i));
         }
         spriteAnimationComponent.fps = vo.fps;
         spriteAnimationComponent.currentAnimation = vo.currentAnimation;
 
-        if(vo.playMode == 0) spriteAnimationComponent.playMode = Animation.PlayMode.NORMAL;
-        if(vo.playMode == 1) spriteAnimationComponent.playMode = Animation.PlayMode.REVERSED;
-        if(vo.playMode == 2) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
-        if(vo.playMode == 3) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_REVERSED;
-        if(vo.playMode == 4) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_PINGPONG;
-        if(vo.playMode == 5) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_RANDOM;
-        if(vo.playMode == 6) spriteAnimationComponent.playMode = Animation.PlayMode.NORMAL;
+        if (vo.playMode == 0) spriteAnimationComponent.playMode = Animation.PlayMode.NORMAL;
+        if (vo.playMode == 1) spriteAnimationComponent.playMode = Animation.PlayMode.REVERSED;
+        if (vo.playMode == 2) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
+        if (vo.playMode == 3) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_REVERSED;
+        if (vo.playMode == 4) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_PINGPONG;
+        if (vo.playMode == 5) spriteAnimationComponent.playMode = Animation.PlayMode.LOOP_RANDOM;
+        if (vo.playMode == 6) spriteAnimationComponent.playMode = Animation.PlayMode.NORMAL;
 
         // filtering regions by name
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(spriteAnimationComponent.animationName);
 
-        SpriteAnimationStateComponent stateComponent = engine.createComponent(SpriteAnimationStateComponent.class);
+        SpriteAnimationStateComponent stateComponent = engine.edit(entity).create(SpriteAnimationStateComponent.class);
         stateComponent.setAllRegions(regions);
 
-        if(spriteAnimationComponent.frameRangeMap.isEmpty()) {
-            spriteAnimationComponent.frameRangeMap.put("Default", new FrameRange("Default", 0, regions.size-1));
+        if (spriteAnimationComponent.frameRangeMap.isEmpty()) {
+            spriteAnimationComponent.frameRangeMap.put("Default", new FrameRange("Default", 0, regions.size - 1));
         }
-        if(spriteAnimationComponent.currentAnimation == null) {
+        if (spriteAnimationComponent.currentAnimation == null) {
             spriteAnimationComponent.currentAnimation = (String) spriteAnimationComponent.frameRangeMap.keySet().toArray()[0];
         }
-        if(spriteAnimationComponent.playMode == null) {
+        if (spriteAnimationComponent.playMode == null) {
             spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
         }
 
         stateComponent.set(spriteAnimationComponent);
 
-        TextureRegionComponent textureRegionComponent = engine.createComponent(TextureRegionComponent.class);
+        TextureRegionComponent textureRegionComponent = engine.edit(entity).create(TextureRegionComponent.class);
         textureRegionComponent.region = regions.get(0);
-        
-        entity.add(textureRegionComponent);
-        entity.add(stateComponent);
-        entity.add(spriteAnimationComponent);
 
         return spriteAnimationComponent;
     }

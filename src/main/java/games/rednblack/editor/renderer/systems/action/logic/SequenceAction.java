@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.SequenceData;
 
@@ -9,7 +8,7 @@ import games.rednblack.editor.renderer.systems.action.data.SequenceData;
  */
 public class SequenceAction<T extends SequenceData> extends ParallelAction<T> {
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         if (actionData.index >= actionData.actionsData.size) return true;
         ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData.get(actionData.index).logicClassName);
         if (logic.act(delta, entity, actionData.actionsData.get(actionData.index))) {

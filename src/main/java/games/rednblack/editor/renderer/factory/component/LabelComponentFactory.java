@@ -1,47 +1,47 @@
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
-import games.rednblack.editor.renderer.data.*;
+import games.rednblack.editor.renderer.data.LabelVO;
+import games.rednblack.editor.renderer.data.MainItemVO;
+import games.rednblack.editor.renderer.data.ProjectInfoVO;
+import games.rednblack.editor.renderer.data.ResolutionEntryVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
-public class LabelComponentFactory extends ComponentFactory{
-	
-	private static int labelDefaultSize = 12;
+public class LabelComponentFactory extends ComponentFactory {
 
-	public LabelComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
-		super(engine, rayHandler, world, rm);
-	}
+    private static int labelDefaultSize = 12;
 
-	@Override
-	public void createComponents(Entity root, Entity entity, MainItemVO vo) {
-		 createCommonComponents(entity, vo, EntityFactory.LABEL_TYPE);
-		 createParentNodeComponent(root, entity);
-		 createNodeComponent(root, entity);
-		 createLabelComponent(entity, (LabelVO) vo);
-	}
+    public LabelComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+        super(engine, rayHandler, world, rm);
+    }
 
-	@Override
-	protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    @Override
+    public void createComponents(int root, int entity, MainItemVO vo) {
+        createCommonComponents(entity, vo, EntityFactory.LABEL_TYPE);
+        createParentNodeComponent(root, entity);
+        createNodeComponent(root, entity);
+        createLabelComponent(entity, (LabelVO) vo);
+    }
+
+    @Override
+    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
+        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
         component.height = ((LabelVO) vo).height;
         component.width = ((LabelVO) vo).width;
 
-        entity.add(component);
         return component;
     }
 
-    protected LabelComponent createLabelComponent(Entity entity, LabelVO vo) {
-	    LabelComponent component = engine.createComponent(LabelComponent.class);
-	    component.setText(vo.text);
-	    component.setStyle(generateStyle(rm, vo.style, vo.size));
+    protected LabelComponent createLabelComponent(int entity, LabelVO vo) {
+        LabelComponent component = engine.edit(entity).create(LabelComponent.class);
+        component.setText(vo.text);
+        component.setStyle(generateStyle(rm, vo.style, vo.size));
         component.fontName = vo.style;
         component.fontSize = vo.size;
         component.setAlignment(vo.align);
@@ -51,18 +51,15 @@ public class LabelComponentFactory extends ComponentFactory{
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
-        component.setFontScale(multiplier/projectInfoVO.pixelToWorld);
-
-        entity.add(component);
+        component.setFontScale(multiplier / projectInfoVO.pixelToWorld);
 
         if (vo.isTyping) {
-            TypingLabelComponent typingLabelComponent = engine.createComponent(TypingLabelComponent.class);
-            entity.add(typingLabelComponent);
+            TypingLabelComponent typingLabelComponent = engine.edit(entity).create(TypingLabelComponent.class);
         }
         return component;
     }
-    
-    
+
+
     public static LabelStyle generateStyle(IResourceRetriever rManager, String fontName, int size) {
 
         if (size == 0) {

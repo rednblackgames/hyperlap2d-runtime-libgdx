@@ -1,7 +1,6 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
@@ -15,24 +14,26 @@ import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
 public class TextureRegionDrawLogic implements Drawable {
 
-    private final ComponentMapper<TintComponent> tintComponentComponentMapper;
-    private final ComponentMapper<TextureRegionComponent> textureRegionMapper;
-    private final ComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
-    private final ComponentMapper<TransformComponent> transformMapper;
-    private final ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
+    protected BaseComponentMapper<TintComponent> tintComponentComponentMapper;
+    protected BaseComponentMapper<TextureRegionComponent> textureRegionMapper;
+    protected BaseComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
+    protected BaseComponentMapper<TransformComponent> transformMapper;
+    protected BaseComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
 
     private final Color batchColor = new Color();
 
-    public TextureRegionDrawLogic() {
-        tintComponentComponentMapper = ComponentMapper.getFor(TintComponent.class);
-        textureRegionMapper = ComponentMapper.getFor(TextureRegionComponent.class);
-        transformMapper = ComponentMapper.getFor(TransformComponent.class);
-        dimensionsComponentComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-        normalTextureRegionMapper = ComponentMapper.getFor(NormalTextureRegionComponent.class);
+    private void init() {
+        tintComponentComponentMapper = ComponentRetriever.getMapper(TintComponent.class);
+        textureRegionMapper = ComponentRetriever.getMapper(TextureRegionComponent.class);
+        transformMapper = ComponentRetriever.getMapper(TransformComponent.class);
+        dimensionsComponentComponentMapper = ComponentRetriever.getMapper(DimensionsComponent.class);
+        normalTextureRegionMapper = ComponentRetriever.getMapper(NormalTextureRegionComponent.class);
     }
 
     @Override
-    public void draw(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
+    public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+        if(tintComponentComponentMapper==null) init(); // TODO: Can we have an injection for this object?
+
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
 
@@ -51,7 +52,7 @@ public class TextureRegionDrawLogic implements Drawable {
         batch.setColor(batchColor);
     }
 
-    public void drawRepeatablePolygonSprite (Batch batch, Entity entity, float parentAlpha) {
+    public void drawRepeatablePolygonSprite(Batch batch, int entity, float parentAlpha) {
         TintComponent tintComponent = tintComponentComponentMapper.get(entity);
         TextureRegionComponent textureRegionComponent = textureRegionMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
@@ -74,7 +75,7 @@ public class TextureRegionDrawLogic implements Drawable {
         repeatablePolygonSprite.draw((PolygonSpriteBatch) batch);
     }
 
-    public void drawSprite(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
+    public void drawSprite(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
         TintComponent tintComponent = tintComponentComponentMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);

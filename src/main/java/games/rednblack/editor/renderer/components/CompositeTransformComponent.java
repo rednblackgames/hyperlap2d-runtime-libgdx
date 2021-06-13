@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Rectangle;
 
-public class CompositeTransformComponent implements BaseComponent {
+public class CompositeTransformComponent  extends PooledComponent {
 	public boolean automaticResize = true;
 	public boolean scissorsEnabled = false;
 	public boolean renderToFBO = false;

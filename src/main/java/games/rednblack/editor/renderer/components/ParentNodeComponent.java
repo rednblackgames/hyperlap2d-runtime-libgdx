@@ -1,12 +1,12 @@
 package games.rednblack.editor.renderer.components;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.PooledComponent;
 
-public class ParentNodeComponent implements BaseComponent {
-	public Entity parentEntity = null;
+public class ParentNodeComponent extends PooledComponent {
+    public int parentEntity = -1;
 
-	@Override
-	public void reset() {
-		parentEntity = null;
-	}
+    @Override
+    public void reset() {
+        parentEntity = -1;
+    }
 }

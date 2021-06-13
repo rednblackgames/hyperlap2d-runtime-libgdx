@@ -1,7 +1,8 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.PooledComponent;
 
+import games.rednblack.editor.renderer.commons.IRefreshableObject;
 import games.rednblack.editor.renderer.commons.RefreshableObject;
 import games.rednblack.editor.renderer.components.RemovableComponent;
 
@@ -10,7 +11,9 @@ import games.rednblack.editor.renderer.components.RemovableComponent;
  * 
  * @author Jan-Thierry Wegener
  */
-public class SensorComponent extends RefreshableObject implements RemovableComponent {
+public class SensorComponent  extends PooledComponent implements IRefreshableObject {
+
+	protected boolean needsRefresh = false;
 	
 	public boolean bottom;
 	public boolean left;
@@ -37,9 +40,6 @@ public class SensorComponent extends RefreshableObject implements RemovableCompo
 	public SensorComponent() {
 	}
 
-    @Override
-    public void onRemove() {
-    }
 
     @Override
     public void reset() {
@@ -57,7 +57,19 @@ public class SensorComponent extends RefreshableObject implements RemovableCompo
     }
 
 	@Override
-	protected void refresh(Entity entity) {
+	public void scheduleRefresh() {
+		needsRefresh = true;
+	}
+
+	@Override
+	public void executeRefresh(int entity) {
+		if (needsRefresh) {
+			refresh(entity);
+			needsRefresh = false;
+		}
+	}
+
+	protected void refresh(int entity) {
 		// TODO create the sensors
 	}
 

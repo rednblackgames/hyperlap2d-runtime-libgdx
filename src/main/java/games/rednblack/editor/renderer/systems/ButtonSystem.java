@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
@@ -13,21 +13,19 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
 /**
  * Created by azakhary on 8/1/2015.
  */
+@All(ButtonComponent.class)
 public class ButtonSystem extends IteratingSystem {
 
-
-    public ButtonSystem() {
-        super(Family.all(ButtonComponent.class).get());
-    }
+    protected ComponentMapper<NodeComponent> componentMapper;
 
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
-        NodeComponent nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
+    protected void process(int entity) {
+        NodeComponent nodeComponent = componentMapper.get(entity);
 
         if(nodeComponent == null) return;
 
         for (int i = 0; i < nodeComponent.children.size; i++) {
-            Entity childEntity = nodeComponent.children.get(i);
+            Integer childEntity = nodeComponent.children.get(i);
             MainItemComponent childMainItemComponent = ComponentRetriever.get(childEntity, MainItemComponent.class);
             childMainItemComponent.visible = true;
         }
@@ -40,7 +38,7 @@ public class ButtonSystem extends IteratingSystem {
 
 
         for (int i = 0; i < nodeComponent.children.size; i++) {
-            Entity childEntity = nodeComponent.children.get(i);
+            Integer childEntity = nodeComponent.children.get(i);
             MainItemComponent childMainItemComponent = ComponentRetriever.get(childEntity, MainItemComponent.class);
             ZIndexComponent childZComponent = ComponentRetriever.get(childEntity, ZIndexComponent.class);
             if(isTouched(entity)) {
@@ -62,7 +60,7 @@ public class ButtonSystem extends IteratingSystem {
 
     }
 
-    private boolean isTouched(Entity entity) {
+    private boolean isTouched(Integer entity) {
         ButtonComponent buttonComponent = ComponentRetriever.get(entity, ButtonComponent.class);
         if(Gdx.input.isTouched()) {
             DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);

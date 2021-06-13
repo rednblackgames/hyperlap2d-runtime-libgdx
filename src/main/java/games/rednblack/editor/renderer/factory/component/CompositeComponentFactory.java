@@ -18,8 +18,6 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -38,14 +36,14 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class CompositeComponentFactory extends ComponentFactory {
 
-    public CompositeComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public CompositeComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
 
     @Override
-    public void createComponents(Entity root, Entity entity, MainItemVO vo) {
+    public void createComponents(int root, int entity, MainItemVO vo) {
         createCommonComponents(entity, vo, EntityFactory.COMPOSITE_TYPE);
-        if(root != null) {
+        if (root != -1) {
             createParentNodeComponent(root, entity);
         }
         createNodeComponent(root, entity);
@@ -55,39 +53,35 @@ public class CompositeComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
+        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
         component.width = ((CompositeItemVO) vo).width;
         component.height = ((CompositeItemVO) vo).height;
-        component.boundBox = new Rectangle(0,0,component.width,component.height);
-        entity.add(component);
+        component.boundBox = new Rectangle(0, 0, component.width, component.height);
         return component;
     }
 
     @Override
-    protected void createNodeComponent(Entity root, Entity entity) {
-        if(root != null) {
+    protected void createNodeComponent(int root, int entity) {
+        if (root != -1) {
             super.createNodeComponent(root, entity);
         }
 
-        NodeComponent node = engine.createComponent(NodeComponent.class);
-        entity.add(node);
+        NodeComponent node = engine.edit(entity).create(NodeComponent.class);
     }
 
-    protected void createCompositeComponents(Entity entity, CompositeItemVO vo) {
-        CompositeTransformComponent compositeTransform = engine.createComponent(CompositeTransformComponent.class);
+    protected void createCompositeComponents(int entity, CompositeItemVO vo) {
+        CompositeTransformComponent compositeTransform = engine.edit(entity).create(CompositeTransformComponent.class);
 
         compositeTransform.automaticResize = vo.automaticResize;
         compositeTransform.scissorsEnabled = vo.scissorsEnabled;
         compositeTransform.renderToFBO = vo.renderToFBO;
 
-        LayerMapComponent layerMap = engine.createComponent(LayerMapComponent.class);
-        if(vo.composite.layers.size() == 0) {
+        LayerMapComponent layerMap = engine.edit(entity).create(LayerMapComponent.class);
+        if (vo.composite.layers.size() == 0) {
             vo.composite.layers.add(LayerItemVO.createDefault());
         }
         layerMap.setLayers(vo.composite.layers);
 
-        entity.add(compositeTransform);
-        entity.add(layerMap);
     }
 }

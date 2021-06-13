@@ -18,8 +18,6 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
@@ -39,22 +37,22 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 public class ParticleEffectComponentFactory extends ComponentFactory {
 
 
-    public ParticleEffectComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public ParticleEffectComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
 
     @Override
-    public void createComponents(Entity root, Entity entity, MainItemVO vo) {
+    public void createComponents(int root, int entity, MainItemVO vo) {
         createCommonComponents(entity, vo, EntityFactory.PARTICLE_TYPE);
-        entity.remove(BoundingBoxComponent.class);
+        engine.edit(entity).remove(BoundingBoxComponent.class);
         createParentNodeComponent(root, entity);
         createNodeComponent(root, entity);
         createParticleComponent(entity, (ParticleEffectVO) vo);
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
+        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 70f;
@@ -62,22 +60,20 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         component.width = boundBoxSize / projectInfoVO.pixelToWorld;
         component.height = boundBoxSize / projectInfoVO.pixelToWorld;
 
-        entity.add(component);
         return component;
     }
 
-    protected ParticleComponent createParticleComponent(Entity entity, ParticleEffectVO vo) {
-        ParticleComponent component = engine.createComponent(ParticleComponent.class);
+    protected ParticleComponent createParticleComponent(int entity, ParticleEffectVO vo) {
+        ParticleComponent component = engine.edit(entity).create(ParticleComponent.class);
         component.particleName = vo.particleName;
         component.transform = vo.transform;
-		ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));
-		particleEffect.start();
+        ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));
+        particleEffect.start();
         component.particleEffect = particleEffect;
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
-        component.worldMultiplier = 1f/projectInfoVO.pixelToWorld;
+        component.worldMultiplier = 1f / projectInfoVO.pixelToWorld;
         component.scaleEffect(1f);
 
-        entity.add(component);
         return component;
     }
 }

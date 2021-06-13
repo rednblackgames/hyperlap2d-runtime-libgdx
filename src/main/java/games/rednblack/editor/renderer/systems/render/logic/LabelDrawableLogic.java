@@ -1,36 +1,38 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class LabelDrawableLogic implements Drawable {
 
-	private final ComponentMapper<LabelComponent> labelComponentMapper;
-	private final ComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
-	private final ComponentMapper<TintComponent> tintComponentMapper;
-	private final ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
-	private final ComponentMapper<TransformComponent> transformMapper;
-	private final ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
+	protected BaseComponentMapper<LabelComponent> labelComponentMapper;
+	protected BaseComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
+	protected BaseComponentMapper<TintComponent> tintComponentMapper;
+	protected BaseComponentMapper<DimensionsComponent> dimensionsComponentMapper;
+	protected BaseComponentMapper<TransformComponent> transformMapper;
+	protected BaseComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
 
 	private final Color tmpColor = new Color();
 
-	public LabelDrawableLogic() {
-		labelComponentMapper = ComponentMapper.getFor(LabelComponent.class);
-		tintComponentMapper = ComponentMapper.getFor(TintComponent.class);
-		dimensionsComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-		transformMapper = ComponentMapper.getFor(TransformComponent.class);
-		parentNodeComponentComponentMapper = ComponentMapper.getFor(ParentNodeComponent.class);
-		typingLabelComponentMapper = ComponentMapper.getFor(TypingLabelComponent.class);
+	public void init() {
+		labelComponentMapper = ComponentRetriever.getMapper(LabelComponent.class);
+		tintComponentMapper = ComponentRetriever.getMapper(TintComponent.class);
+		dimensionsComponentMapper = ComponentRetriever.getMapper(DimensionsComponent.class);
+		transformMapper = ComponentRetriever.getMapper(TransformComponent.class);
+		parentNodeComponentComponentMapper = ComponentRetriever.getMapper(ParentNodeComponent.class);
+		typingLabelComponentMapper = ComponentRetriever.getMapper(TypingLabelComponent.class);
 	}
 	
 	@Override
-	public void draw(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
+	public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+		if(labelComponentMapper==null) init(); // TODO: Can we have an injection for this object?
+
 		TransformComponent entityTransformComponent = transformMapper.get(entity);
 		LabelComponent labelComponent = labelComponentMapper.get(entity);
 		DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);

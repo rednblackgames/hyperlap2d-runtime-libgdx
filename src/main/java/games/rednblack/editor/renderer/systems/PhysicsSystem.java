@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.BaseEntitySystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -15,29 +15,33 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class PhysicsSystem extends IteratingSystem implements ContactListener {
+@All(PhysicsBodyComponent.class)
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
     public static float TIME_STEP = 1f / 60f;
 
-    protected ComponentMapper<TransformComponent> transformComponentMapper = ComponentMapper.getFor(TransformComponent.class);
+    protected ComponentMapper<TransformComponent> transformComponentMapper;
 
     private final World world;
     private boolean isPhysicsOn = true;
     private float accumulator = 0;
 
     public PhysicsSystem(World world) {
-        super(Family.all(PhysicsBodyComponent.class).get());
         this.world = world;
         world.setContactListener(this);
     }
 
     @Override
-    public void update(float deltaTime) {
-        fixedPhysicStep(deltaTime);
+    protected final void processSystem() {
+        fixedPhysicStep(getWorld().delta);
 
-        super.update(deltaTime);
+        IntBag actives = subscription.getEntities();
+        int[] ids = actives.getData();
+        for (int i = 0, s = actives.size(); s > i; i++) {
+            process(ids[i]);
+        }
     }
 
     /**
@@ -47,8 +51,6 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
      */
     public void manualUpdate(float deltaTime) {
         physicStep(deltaTime);
-
-        super.update(deltaTime);
     }
 
     private void fixedPhysicStep(float deltaTime) {
@@ -73,8 +75,9 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
      * @param alpha linear interpolation factor
      */
     public void interpolate(float alpha) {
-        for (int i = 0; i < getEntities().size(); ++i) {
-            interpolate(getEntities().get(i), alpha);
+        IntBag bag = subscription.getEntities();
+        for (int i = 0, s = bag.size(); i < s; ++i) {
+            interpolate(bag.get(i), alpha);
         }
     }
 
@@ -83,9 +86,9 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
      * to current {@link PhysicsBodyComponent#body} position
      *
      * @param entity Entity to interpolate
-     * @param alpha linear interpolation factor
+     * @param alpha  linear interpolation factor
      */
-    public void interpolate(Entity entity, float alpha) {
+    public void interpolate(int entity, float alpha) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
         Body body = physicsBodyComponent.body;
 
@@ -109,14 +112,13 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         transformComponent.rotation = MathUtils.atan2(sn, cs) * MathUtils.radiansToDegrees;
     }
 
-    @Override
-    protected void processEntity(Entity entity, float deltaTime) {
+    protected void process(int entity) {
         processBody(entity);
 
         interpolate(entity, 1f);
     }
 
-    protected void processBody(Entity entity) {
+    protected void processBody(int entity) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
 
@@ -150,12 +152,12 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         Object o1 = b1.getUserData();
         Object o2 = b2.getUserData();
 
-        if (!(o1 instanceof Entity) || !(o2 instanceof Entity))
+        if (!(o1 instanceof Integer) || !(o2 instanceof Integer))
             return;
 
         // cast to entity
-        Entity et1 = (Entity) o1;
-        Entity et2 = (Entity) o2;
+        int et1 = (int) o1;
+        int et2 = (int) o2;
         // get script comp
         ScriptComponent ic1 = ComponentRetriever.get(et1, ScriptComponent.class);
         ScriptComponent ic2 = ComponentRetriever.get(et2, ScriptComponent.class);

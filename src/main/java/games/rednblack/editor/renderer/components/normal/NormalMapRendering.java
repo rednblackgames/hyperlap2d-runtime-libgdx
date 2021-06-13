@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.components.normal;
 
-import games.rednblack.editor.renderer.components.BaseComponent;
+import com.artemis.PooledComponent;
 
-public class NormalMapRendering implements BaseComponent {
+public class NormalMapRendering extends PooledComponent {
     @Override
     public void reset() {
     }

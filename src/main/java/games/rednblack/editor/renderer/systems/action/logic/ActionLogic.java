@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 
 /**
@@ -8,5 +7,5 @@ import games.rednblack.editor.renderer.systems.action.data.ActionData;
  */
 abstract public class ActionLogic<T extends ActionData> {
 
-    abstract public boolean act(float delta, Entity entity, T actionData);
+    abstract public boolean act(float delta, int entity, T actionData);
 }

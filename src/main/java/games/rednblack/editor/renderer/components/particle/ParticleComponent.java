@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.components.particle;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import games.rednblack.editor.renderer.components.BaseComponent;
 
-public class ParticleComponent implements BaseComponent {
+public class ParticleComponent extends PooledComponent {
     public String particleName = "";
     public boolean transform = true;
 

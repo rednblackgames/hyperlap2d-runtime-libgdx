@@ -13,3 +13,7 @@ assets/configs/config.pit
 assets/.hyperlap2d/configs/
 assets/tiled.atlas
 assets/tiled.png
+gradlew
+gradlew.bat
+/gradle/
+gradle.properties

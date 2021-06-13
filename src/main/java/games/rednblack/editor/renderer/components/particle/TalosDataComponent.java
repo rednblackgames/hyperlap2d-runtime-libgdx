@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.components.particle;
 
-import games.rednblack.editor.renderer.components.BaseComponent;
+import com.artemis.PooledComponent;
 
-public class TalosDataComponent implements BaseComponent {
+public class TalosDataComponent extends PooledComponent {
 
     public String particleName = "";
     public boolean transform = true;

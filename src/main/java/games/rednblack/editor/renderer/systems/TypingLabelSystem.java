@@ -1,26 +1,22 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 
+@All({TypingLabelComponent.class, LabelComponent.class})
 public class TypingLabelSystem extends IteratingSystem {
-    private final ComponentMapper<LabelComponent> labelComponentMapper = ComponentMapper.getFor(LabelComponent.class);
-    private final ComponentMapper<TypingLabelComponent> typingLabelComponentMapper = ComponentMapper.getFor(TypingLabelComponent.class);
-    private final ComponentMapper<DimensionsComponent> dimensionsComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-
-    public TypingLabelSystem() {
-        super(Family.all(LabelComponent.class, TypingLabelComponent.class).get());
-    }
+    protected ComponentMapper<LabelComponent> labelComponentMapper;
+    protected ComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
 
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
+    protected void process(int entity) {
         TypingLabelComponent typingLabelComponent = typingLabelComponentMapper.get(entity);
         LabelComponent labelComponent = labelComponentMapper.get(entity);
         DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
@@ -55,6 +51,6 @@ public class TypingLabelSystem extends IteratingSystem {
             }
         }
 
-        typingLabelComponent.typingLabel.act(deltaTime);
+        typingLabelComponent.typingLabel.act(world.getDelta());
     }
 }

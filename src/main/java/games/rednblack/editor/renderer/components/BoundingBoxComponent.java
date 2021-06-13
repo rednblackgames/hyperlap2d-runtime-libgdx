@@ -1,9 +1,10 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class BoundingBoxComponent implements BaseComponent {
+public class BoundingBoxComponent  extends PooledComponent {
 
     public Rectangle rectangle = new Rectangle();
 

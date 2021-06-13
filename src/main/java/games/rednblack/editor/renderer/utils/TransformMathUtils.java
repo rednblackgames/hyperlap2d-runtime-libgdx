@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.utils;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.*;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
@@ -12,20 +11,20 @@ public class TransformMathUtils {
 	private static final Matrix3 tmpMat = new Matrix3();
 
 	/** Transforms the specified point in the scene's coordinates to the entity's local coordinate system. */
-	public static Vector2 sceneToLocalCoordinates (Entity entity, Vector2 sceneCoords) {
+	public static Vector2 sceneToLocalCoordinates (int entity, Vector2 sceneCoords) {
 		ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
-		Entity parentEntity = null;
+		int parentEntity = -1;
 		if(parentNodeComponent != null){
 			parentEntity = parentNodeComponent.parentEntity;
 		}
-		if (parentEntity != null) sceneToLocalCoordinates(parentEntity, sceneCoords);
+		if (parentEntity != -1) sceneToLocalCoordinates(parentEntity, sceneCoords);
 		parentToLocalCoordinates(entity, sceneCoords);
 		return sceneCoords;
 	}
 
-    public static Vector2 globalToLocalCoordinates (Entity entity, Vector2 sceneCoords) {
+    public static Vector2 globalToLocalCoordinates (int entity, Vector2 sceneCoords) {
         ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
-        Entity parentEntity = null;
+        int parentEntity = -1;
         if(parentNodeComponent != null){
             ViewPortComponent viewPortComponent = ComponentRetriever.get(parentNodeComponent.parentEntity, ViewPortComponent.class);
             if(viewPortComponent == null) {
@@ -34,7 +33,7 @@ public class TransformMathUtils {
 				viewPortComponent.viewPort.unproject(sceneCoords);
             }
         }
-        if (parentEntity != null) {
+        if (parentEntity != -1) {
             globalToLocalCoordinates(parentEntity, sceneCoords);
         }
         parentToLocalCoordinates(entity, sceneCoords);
@@ -43,7 +42,7 @@ public class TransformMathUtils {
 
 
 	/** Converts the coordinates given in the parent's coordinate system to this entity's coordinate system. */
-	public static Vector2 parentToLocalCoordinates (Entity childEntity, Vector2 parentCoords) {
+	public static Vector2 parentToLocalCoordinates (int childEntity, Vector2 parentCoords) {
 		TransformComponent transform = ComponentRetriever.get(childEntity, TransformComponent.class);
 
 		final float rotation = transform.rotation;
@@ -99,13 +98,13 @@ public class TransformMathUtils {
 	}
 
 	/** Transforms the specified point in the entity's coordinates to be in the scene's coordinates.*/
-	public static Vector2 localToSceneCoordinates (Entity entity, Vector2 localCoords) {
-		return localToAscendantCoordinates(null, entity, localCoords);
+	public static Vector2 localToSceneCoordinates (int entity, Vector2 localCoords) {
+		return localToAscendantCoordinates(-1, entity, localCoords);
 	}
 
 	/** Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent. */
-	public static Vector2 localToAscendantCoordinates (Entity ascendant, Entity entity, Vector2 localCoords) {
-		while (entity != null) {
+	public static Vector2 localToAscendantCoordinates (int ascendant, int entity, Vector2 localCoords) {
+		while (entity != -1) {
 			localToParentCoordinates(entity, localCoords);
 			ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class);
 			if(parentNode == null){
@@ -118,7 +117,7 @@ public class TransformMathUtils {
 	}
 
 	/** Transforms the specified point in the actor's coordinates to be in the parent's coordinates. */
-	public static Vector2 localToParentCoordinates (Entity entity, Vector2 localCoords) {
+	public static Vector2 localToParentCoordinates (int entity, Vector2 localCoords) {
 		TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class);
 
 		final float rotation = -transform.rotation;
@@ -164,7 +163,7 @@ public class TransformMathUtils {
 
     }
 
-	public static Matrix4 computeTransform(Entity entity) {
+	public static Matrix4 computeTransform(int entity) {
 		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
 
 		Affine2 worldTransform = curTransform.worldTransform;
@@ -185,13 +184,13 @@ public class TransformMathUtils {
 		return curTransform.computedTransform;
 	}
 
-	public static void applyTransform(Entity entity, Batch batch) {
+	public static void applyTransform(int entity, Batch batch) {
 		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
 		curTransform.oldTransform.set(batch.getTransformMatrix());
 		batch.setTransformMatrix(curTransform.computedTransform);
 	}
 
-	public static void resetTransform(Entity entity, Batch batch) {
+	public static void resetTransform(int entity, Batch batch) {
 		TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
 		batch.setTransformMatrix(curTransform.oldTransform);
 	}

@@ -1,5 +1,7 @@
 package games.rednblack.editor.renderer.components;
 
-public interface RemovableComponent extends BaseComponent {
-    void onRemove();
+import com.artemis.PooledComponent;
+
+public abstract class RemovableComponent extends PooledComponent {
+    abstract void onRemove();
 }
