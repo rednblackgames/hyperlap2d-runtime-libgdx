@@ -1,21 +1,20 @@
 package games.rednblack.editor.renderer.components.light;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.ChainLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.commons.RefreshableObject;
+import games.rednblack.editor.renderer.commons.IRefreshableObject;
 import games.rednblack.editor.renderer.components.PolygonComponent;
-import games.rednblack.editor.renderer.components.RemovableComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 
-public class LightBodyComponent extends RefreshableObject implements RemovableComponent {
+public class LightBodyComponent extends PooledComponent implements IRefreshableObject {
+
+    protected boolean needsRefresh = false;
 
     public float[] color = new float[]{1f, 1f, 1f, 1f};
     public int rays = 4;
@@ -35,7 +34,8 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
 
     }
 
-    @Override
+    //    @Override
+    // TODO: Hmm, so do i have to implement a system to invoke it's onRemove calls?
     public void onRemove() {
         if (lightObject != null) {
             lightObject.remove();
@@ -69,7 +69,19 @@ public class LightBodyComponent extends RefreshableObject implements RemovableCo
     }
 
     @Override
-    protected void refresh(Entity entity) {
+    public void scheduleRefresh() {
+        needsRefresh = true;
+    }
+
+    @Override
+    public void executeRefresh(int entity) {
+        if (needsRefresh) {
+            refresh(entity);
+            needsRefresh = false;
+        }
+    }
+
+    protected void refresh(int entity) {
         if (lightObject != null) {
             lightObject.remove();
             lightObject = null;

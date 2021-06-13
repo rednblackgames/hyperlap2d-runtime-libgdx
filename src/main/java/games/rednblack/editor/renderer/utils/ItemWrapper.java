@@ -18,9 +18,9 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.Component;
+import com.artemis.World;
+import com.badlogic.gdx.utils.IntSet;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
@@ -35,27 +35,27 @@ import java.util.HashSet;
  */
 public class ItemWrapper {
 
-    private Entity entity;
+    private int entity;
 
     private NodeComponent nodeComponent;
-    private final HashMap<String, Entity> childrenMap = new HashMap<>();
-    private final HashMap<String, HashSet<Entity>> childrenTagsMap = new HashMap<>();
+    private final HashMap<String, Integer> childrenMap = new HashMap<>();
+    private final HashMap<String, IntSet> childrenTagsMap = new HashMap<>();
 
     public ItemWrapper() {
         // empty wrapper is better then null pointer
     }
 
-    public ItemWrapper(Entity entity) {
+    public ItemWrapper(int entity) {
         this.entity = entity;
         nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
         if(nodeComponent != null) {
-            for (Entity child : nodeComponent.children) {
+            for (int child : nodeComponent.children) {
                 mapEntity(child);
             }
         }
     }
 
-    private void mapEntity(Entity entity) {
+    private void mapEntity(int entity) {
         MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
         childrenMap.put(mainItemComponent.itemIdentifier, entity);
 
@@ -64,23 +64,23 @@ public class ItemWrapper {
         }
     }
 
-    private void mapTagEntity(String tag, Entity entity) {
+    private void mapTagEntity(String tag, int entity) {
         if (childrenTagsMap.get(tag) == null)
-            childrenTagsMap.put(tag, new HashSet<Entity>());
+            childrenTagsMap.put(tag, new IntSet());
 
         childrenTagsMap.get(tag).add(entity);
     }
 
     public ItemWrapper getChild(String id) {
-        Entity entity = childrenMap.get(id);
-        if(entity == null) return new ItemWrapper();
+        int entity = childrenMap.get(id);
+        if(entity == -1) return new ItemWrapper();
 
         return new ItemWrapper(entity);
     }
 
-    public HashSet<Entity> getChildrenByTag(String tagName) {
+    public IntSet getChildrenByTag(String tagName) {
         if (childrenTagsMap.get(tagName) == null)
-            childrenTagsMap.put(tagName, new HashSet<Entity>());
+            childrenTagsMap.put(tagName, new IntSet());
 
         return childrenTagsMap.get(tagName);
     }
@@ -89,10 +89,10 @@ public class ItemWrapper {
         return ComponentRetriever.get(entity, clazz);
     }
 
-    public ItemWrapper addChild(Entity child) {
+    public ItemWrapper addChild(int child) {
         if(nodeComponent != null) {
             ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class);
-            if (parentNodeComponent.parentEntity != null) {
+            if (parentNodeComponent.parentEntity != -1) {
                 //Remove child from its parent
                 NodeComponent parentNode = ComponentRetriever.get(parentNodeComponent.parentEntity, NodeComponent.class);
                 if (parentNode != null)
@@ -114,15 +114,14 @@ public class ItemWrapper {
         return mainItemComponent.entityType;
     }
 
-    public Entity getEntity() {
+    public int getEntity() {
         return entity;
     }
 
-    public IScript addScript(IScript script, PooledEngine engine) {
+    public IScript addScript(IScript script, World engine) {
         ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
         if(component == null) {
-            component = engine.createComponent(ScriptComponent.class);
-            entity.add(component);
+            component = engine.edit(entity).create(ScriptComponent.class);
         }
         component.addScript(script);
         script.init(entity);

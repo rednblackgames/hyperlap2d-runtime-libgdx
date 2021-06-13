@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.ArrayList;
 
@@ -26,10 +26,10 @@ public class SpriteAnimationVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(Entity entity) {
+    public void loadFromEntity(int entity) {
         super.loadFromEntity(entity);
 
-        SpriteAnimationComponent spriteAnimationComponent = entity.getComponent(SpriteAnimationComponent.class);
+        SpriteAnimationComponent spriteAnimationComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class);
         animationName = spriteAnimationComponent.animationName;
         fps = spriteAnimationComponent.fps;
         frameRangeMap = new ArrayList<FrameRange>();

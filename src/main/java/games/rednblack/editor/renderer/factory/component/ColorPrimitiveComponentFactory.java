@@ -18,12 +18,6 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -39,12 +33,12 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
  */
 public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
-    public ColorPrimitiveComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public ColorPrimitiveComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
 
     @Override
-    public void createComponents(Entity root, Entity entity, MainItemVO vo) {
+    public void createComponents(int root, int entity, MainItemVO vo) {
         createCommonComponents(entity, vo, EntityFactory.COLOR_PRIMITIVE);
         createParentNodeComponent(root, entity);
         createNodeComponent(root, entity);
@@ -59,22 +53,19 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
+        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
         component.setFromShape(vo.shape);
-
-        entity.add(component);
 
         return component;
     }
 
-    protected TextureRegionComponent createTextureRegionComponent(Entity entity, MainItemVO vo) {
-        TextureRegionComponent component = engine.createComponent(TextureRegionComponent.class);
+    protected TextureRegionComponent createTextureRegionComponent(int entity, MainItemVO vo) {
+        TextureRegionComponent component = engine.edit(entity).create(TextureRegionComponent.class);
 
         component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;
         component.isPolygon = true;
-        entity.add(component);
 
         return component;
     }

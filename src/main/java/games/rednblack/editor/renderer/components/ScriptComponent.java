@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
@@ -10,7 +11,7 @@ import java.util.Iterator;
 /**
  * Created by azakhary on 6/19/2015.
  */
-public class ScriptComponent implements BaseComponent {
+public class ScriptComponent  extends PooledComponent {
 
     public Array<IScript> scripts = new Array<>();
 

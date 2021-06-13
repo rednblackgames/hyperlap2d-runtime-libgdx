@@ -1,8 +1,6 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.TransformComponent;
-import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.RotateByData;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
@@ -11,7 +9,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
  */
 public class RotateByAction<T extends RotateByData> extends RelativeTemporalAction<T> {
     @Override
-    protected void updateRelative(float percentDelta, Entity entity, T actionData) {
+    protected void updateRelative(float percentDelta, int entity, T actionData) {
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
         transformComponent.rotation += actionData.amount * percentDelta;
     }

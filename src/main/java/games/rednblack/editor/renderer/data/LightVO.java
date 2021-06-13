@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Objects;
 
@@ -47,10 +47,10 @@ public class LightVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(Entity entity) {
+	public void loadFromEntity(int entity) {
 		super.loadFromEntity(entity);
 
-		LightObjectComponent lightObjectComponent = entity.getComponent(LightObjectComponent.class);
+		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class);
 		type = lightObjectComponent.getType();
 		rays = lightObjectComponent.rays;
 		distance = lightObjectComponent.distance;

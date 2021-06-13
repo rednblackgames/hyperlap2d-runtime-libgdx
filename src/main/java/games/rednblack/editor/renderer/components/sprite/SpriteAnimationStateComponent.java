@@ -1,16 +1,16 @@
 package games.rednblack.editor.renderer.components.sprite;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-import games.rednblack.editor.renderer.components.BaseComponent;
 import games.rednblack.editor.renderer.data.FrameRange;
 
 import java.util.Comparator;
 import java.util.Objects;
 
-public class SpriteAnimationStateComponent implements BaseComponent {
+public class SpriteAnimationStateComponent  extends PooledComponent {
     public Array<TextureAtlas.AtlasRegion> allRegions;
 	public Animation<TextureRegion> currentAnimation;
 	public float time = 0.0f;

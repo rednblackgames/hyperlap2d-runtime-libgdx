@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class SimpleImageVO extends MainItemVO {
 	public String imageName = "";
@@ -20,10 +20,10 @@ public class SimpleImageVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(Entity entity) {
+	public void loadFromEntity(int entity) {
 		super.loadFromEntity(entity);
 
-		TextureRegionComponent textureRegionComponent = entity.getComponent(TextureRegionComponent.class);
+		TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
 		loadFromComponent(textureRegionComponent);
 	}
 

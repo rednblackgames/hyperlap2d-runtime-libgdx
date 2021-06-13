@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class Image9patchVO extends MainItemVO {
 
@@ -23,11 +23,11 @@ public class Image9patchVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(Entity entity) {
+    public void loadFromEntity(int entity) {
         super.loadFromEntity(entity);
 
-        NinePatchComponent ninePatchComponent = entity.getComponent(NinePatchComponent.class);
-        DimensionsComponent dimensionsComponent = entity.getComponent(DimensionsComponent.class);
+        NinePatchComponent ninePatchComponent = ComponentRetriever.get(entity, NinePatchComponent.class);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
         imageName = ninePatchComponent.textureRegionName;
 
         width = dimensionsComponent.width;

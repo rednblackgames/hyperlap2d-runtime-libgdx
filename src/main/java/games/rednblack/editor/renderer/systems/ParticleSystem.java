@@ -1,26 +1,22 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
+@All(ParticleComponent.class)
 public class ParticleSystem extends IteratingSystem {
 
-	protected final ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
-	
-	public ParticleSystem() {
-		super(Family.all(ParticleComponent.class).get());
-	}
+	protected ComponentMapper<ParticleComponent> particleComponentMapper;
 
-	@Override
-	protected void processEntity(Entity entity, float deltaTime) {
-		ParticleComponent particleComponent = particleComponentMapper.get(entity);
+    @Override
+    protected void process(int entityId) {
+		ParticleComponent particleComponent = particleComponentMapper.get(entityId);
 
 		ParticleEffect particleEffect = particleComponent.particleEffect;
-		particleEffect.update(deltaTime);
-	}
+		particleEffect.update(getWorld().getDelta());
+    }
 
 }

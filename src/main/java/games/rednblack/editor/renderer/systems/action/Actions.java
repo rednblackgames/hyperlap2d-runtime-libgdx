@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.BaseComponentMapper;
+import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Pool;
@@ -320,27 +320,26 @@ public class Actions {
         return actionData;
     }
 
-    public static void addAction(PooledEngine engine, final Entity entity, ActionData data) {
+    public static void addAction(World engine, final int entity, ActionData data) {
         checkInit();
         ActionComponent actionComponent;
         actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
 
         if (actionComponent == null) {
-            actionComponent = engine.createComponent(ActionComponent.class);
-            entity.add(actionComponent);
+            actionComponent = engine.edit(entity).create(ActionComponent.class);
         }
 
         actionComponent.dataArray.add(data);
     }
 
-    public static void removeActions(Entity entity) {
+    public static void removeActions(int entity) {
         ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
         if (actionComponent != null) {
             actionComponent.reset(); // action component with empty data array will be removed later by ActionSystem
         }
     }
 
-    public static void removeAction(Entity entity, ActionData data) {
+    public static void removeAction(int entity, ActionData data) {
         ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
         if (actionComponent != null) {
             if (actionComponent.dataArray.contains(data, true)) {
@@ -351,7 +350,7 @@ public class Actions {
         }
     }
 
-    public static boolean hasActions(Entity entity) {
+    public static boolean hasActions(int entity) {
         ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
         return actionComponent != null && actionComponent.dataArray.size > 0;
     }

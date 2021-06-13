@@ -1,20 +1,20 @@
 package games.rednblack.editor.renderer.commons;
 
-import com.badlogic.ashley.core.Entity;
-
-public abstract class RefreshableObject {
+public abstract class RefreshableObject implements IRefreshableObject {
     protected boolean needsRefresh = false;
 
+    @Override
     public void scheduleRefresh() {
         needsRefresh = true;
     }
 
-    public void executeRefresh(Entity entity) {
+    @Override
+    public void executeRefresh(int entity) {
         if (needsRefresh) {
             refresh(entity);
             needsRefresh = false;
         }
     }
 
-    protected abstract void refresh(Entity entity);
+    protected abstract void refresh(int entity);
 }

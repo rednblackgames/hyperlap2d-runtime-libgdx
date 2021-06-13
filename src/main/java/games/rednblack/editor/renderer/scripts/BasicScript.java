@@ -1,20 +1,18 @@
 package games.rednblack.editor.renderer.scripts;
 
-import com.badlogic.ashley.core.Entity;
-
 /**
  * Created by CyberJoe on 6/19/2015.
  */
 public abstract class BasicScript implements IScript {
 
-    protected Entity entity;
+    protected int entity;
 
     @Override
-    public void init(Entity item) {
+    public void init(int item) {
         entity = item;
     }
 
-    public Entity getEntity() {
+    public int getEntity() {
         return entity;
     }
 }

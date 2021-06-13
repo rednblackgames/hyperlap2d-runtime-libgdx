@@ -1,14 +1,17 @@
 package games.rednblack.editor.renderer.components;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import games.rednblack.editor.renderer.commons.IRefreshableObject;
 import games.rednblack.editor.renderer.commons.RefreshableObject;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
-public class TextureRegionComponent extends RefreshableObject implements BaseComponent {
+public class TextureRegionComponent  extends PooledComponent implements IRefreshableObject {
+    protected boolean needsRefresh = false;
+
     public String regionName = "";
     public TextureRegion region = null;
     public boolean isRepeat = false;
@@ -43,7 +46,19 @@ public class TextureRegionComponent extends RefreshableObject implements BaseCom
     }
 
     @Override
-    protected void refresh(Entity entity) {
+    public void scheduleRefresh() {
+        needsRefresh = true;
+    }
+
+    @Override
+    public void executeRefresh(int entity) {
+        if (needsRefresh) {
+            refresh(entity);
+            needsRefresh = false;
+        }
+    }
+
+    protected void refresh(int entity) {
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
 
         if (isPolygon && polygonComponent != null) {

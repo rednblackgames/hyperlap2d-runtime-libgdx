@@ -1,12 +1,12 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseComponentMapper;
 import games.rednblack.editor.renderer.components.LayerMapComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.FontSizePair;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,7 +117,7 @@ public class CompositeVO {
         if (className.equals("SpriteAnimationVO")) {
             sSpriteAnimations.add((SpriteAnimationVO) vo);
         }
-        if(className.equals("ColorPrimitiveVO")) {
+        if (className.equals("ColorPrimitiveVO")) {
             sColorPrimitives.add((ColorPrimitiveVO) vo);
         }
     }
@@ -151,7 +151,7 @@ public class CompositeVO {
         if (className.equals("SpriteAnimationVO")) {
             sSpriteAnimations.remove((SpriteAnimationVO) vo);
         }
-        if(className.equals("ColorPrimitiveVO")) {
+        if (className.equals("ColorPrimitiveVO")) {
             sColorPrimitives.remove((ColorPrimitiveVO) vo);
         }
     }
@@ -255,17 +255,17 @@ public class CompositeVO {
 
         return finalList;
     }
-    
+
     public String[] getRecursiveShaderList() {
-    	HashSet<String> list = new HashSet<String>();
-    	for (MainItemVO item : getAllItems()) {
-            if(item.shaderName != null && !item.shaderName.isEmpty()){
-            	list.add(item.shaderName);
+        HashSet<String> list = new HashSet<String>();
+        for (MainItemVO item : getAllItems()) {
+            if (item.shaderName != null && !item.shaderName.isEmpty()) {
+                list.add(item.shaderName);
             }
         }
-    	String[] finalList = new String[list.size()];
+        String[] finalList = new String[list.size()];
         list.toArray(finalList);
-    	return finalList;
+        return finalList;
     }
 
     public ArrayList<MainItemVO> getAllItems() {
@@ -276,95 +276,95 @@ public class CompositeVO {
     }
 
     private ArrayList<MainItemVO> getAllItemsRecursive(ArrayList<MainItemVO> itemsList, CompositeVO compositeVo) {
-        for(MainItemVO vo: compositeVo.sImage9patchs) {
+        for (MainItemVO vo : compositeVo.sImage9patchs) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sImages) {
+        for (MainItemVO vo : compositeVo.sImages) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sLabels) {
+        for (MainItemVO vo : compositeVo.sLabels) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sLights) {
+        for (MainItemVO vo : compositeVo.sLights) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sParticleEffects) {
+        for (MainItemVO vo : compositeVo.sParticleEffects) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sTalosVFX) {
+        for (MainItemVO vo : compositeVo.sTalosVFX) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sSpineAnimations) {
+        for (MainItemVO vo : compositeVo.sSpineAnimations) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sSpriteAnimations) {
+        for (MainItemVO vo : compositeVo.sSpriteAnimations) {
             itemsList.add(vo);
         }
-        for(MainItemVO vo: compositeVo.sColorPrimitives) {
+        for (MainItemVO vo : compositeVo.sColorPrimitives) {
             itemsList.add(vo);
         }
-        for(CompositeItemVO vo: compositeVo.sComposites) {
-            itemsList = getAllItemsRecursive(itemsList,vo.composite);
+        for (CompositeItemVO vo : compositeVo.sComposites) {
+            itemsList = getAllItemsRecursive(itemsList, vo.composite);
             itemsList.add(vo);
         }
 
         return itemsList;
     }
 
-    public void loadFromEntity(Entity compositeEntity) {
-        NodeComponent nodeComponent = compositeEntity.getComponent(NodeComponent.class);
-        ComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentMapper.getFor(MainItemComponent.class);
-        ComponentMapper<LayerMapComponent> layerMainItemComponentComponentMapper = ComponentMapper.getFor(LayerMapComponent.class);
-        
-        if(nodeComponent == null) return;
-        for(Entity entity: nodeComponent.children) {
-        	int entityType = mainItemComponentMapper.get(entity).entityType;
-            if(entityType == EntityFactory.COMPOSITE_TYPE) {
+    public void loadFromEntity(int compositeEntity) {
+        NodeComponent nodeComponent = ComponentRetriever.get(compositeEntity, NodeComponent.class);
+        BaseComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentRetriever.getMapper(MainItemComponent.class);
+        BaseComponentMapper<LayerMapComponent> layerMainItemComponentComponentMapper = ComponentRetriever.getMapper(LayerMapComponent.class);
+
+        if (nodeComponent == null) return;
+        for (int entity : nodeComponent.children) {
+            int entityType = mainItemComponentMapper.get(entity).entityType;
+            if (entityType == EntityFactory.COMPOSITE_TYPE) {
                 CompositeItemVO vo = new CompositeItemVO();
                 vo.loadFromEntity(entity);
                 sComposites.add(vo);
             }
-            if(entityType == EntityFactory.IMAGE_TYPE) {
+            if (entityType == EntityFactory.IMAGE_TYPE) {
                 SimpleImageVO vo = new SimpleImageVO();
                 vo.loadFromEntity(entity);
                 sImages.add(vo);
             }
-            if(entityType == EntityFactory.NINE_PATCH) {
+            if (entityType == EntityFactory.NINE_PATCH) {
                 Image9patchVO vo = new Image9patchVO();
                 vo.loadFromEntity(entity);
                 sImage9patchs.add(vo);
             }
-            if(entityType == EntityFactory.LABEL_TYPE) {
+            if (entityType == EntityFactory.LABEL_TYPE) {
                 LabelVO vo = new LabelVO();
                 vo.loadFromEntity(entity);
                 sLabels.add(vo);
             }
-            if(entityType == EntityFactory.PARTICLE_TYPE) {
+            if (entityType == EntityFactory.PARTICLE_TYPE) {
                 ParticleEffectVO vo = new ParticleEffectVO();
                 vo.loadFromEntity(entity);
                 sParticleEffects.add(vo);
             }
-            if(entityType == EntityFactory.TALOS_TYPE) {
+            if (entityType == EntityFactory.TALOS_TYPE) {
                 TalosVO vo = new TalosVO();
                 vo.loadFromEntity(entity);
                 sTalosVFX.add(vo);
             }
-            if(entityType == EntityFactory.SPRITE_TYPE) {
+            if (entityType == EntityFactory.SPRITE_TYPE) {
                 SpriteAnimationVO vo = new SpriteAnimationVO();
                 vo.loadFromEntity(entity);
                 sSpriteAnimations.add(vo);
             }
-            if(entityType == EntityFactory.SPINE_TYPE) {
+            if (entityType == EntityFactory.SPINE_TYPE) {
                 SpineVO vo = new SpineVO();
                 vo.loadFromEntity(entity);
                 sSpineAnimations.add(vo);
             }
-            if(entityType == EntityFactory.LIGHT_TYPE) {
+            if (entityType == EntityFactory.LIGHT_TYPE) {
                 LightVO vo = new LightVO();
                 vo.loadFromEntity(entity);
                 sLights.add(vo);
             }
-            if(entityType == EntityFactory.COLOR_PRIMITIVE) {
+            if (entityType == EntityFactory.COLOR_PRIMITIVE) {
                 ColorPrimitiveVO vo = new ColorPrimitiveVO();
                 vo.loadFromEntity(entity);
                 sColorPrimitives.add(vo);

@@ -18,8 +18,7 @@
 
 package games.rednblack.editor.renderer.commons;
 
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.BaseSystem;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
@@ -32,8 +31,8 @@ import games.rednblack.editor.renderer.systems.render.logic.Drawable;
 public interface IExternalItemType {
     int getTypeId();
     Drawable getDrawable();
-    EntitySystem getSystem();
+    BaseSystem getSystem();
     ComponentFactory getComponentFactory();
     void injectMappers();
-    void injectDependencies(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm);
+    void injectDependencies(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm);
 }

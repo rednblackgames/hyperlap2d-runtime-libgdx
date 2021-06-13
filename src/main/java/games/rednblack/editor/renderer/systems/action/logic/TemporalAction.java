@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.data.TemporalData;
 
 /**
@@ -8,7 +7,7 @@ import games.rednblack.editor.renderer.systems.action.data.TemporalData;
  */
 public abstract class TemporalAction<T extends TemporalData> extends ActionLogic<T> {
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         if (actionData.complete) return true;
 
         if (!actionData.began) {
@@ -33,13 +32,13 @@ public abstract class TemporalAction<T extends TemporalData> extends ActionLogic
         return actionData.complete;
     }
 
-    abstract protected void update (float percent, Entity entity, T actionData);
+    abstract protected void update (float percent, int entity, T actionData);
 
-    public void begin(Entity entity, T actionData) {
+    public void begin(int entity, T actionData) {
 
     }
 
-    public void end(Entity entity, T actionData) {
+    public void end(int entity, T actionData) {
 
     }
 }

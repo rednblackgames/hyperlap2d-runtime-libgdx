@@ -1,37 +1,40 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseComponentMapper;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class ParticleDrawableLogic implements Drawable {
 
-	private final ComponentMapper<ParticleComponent> particleComponentMapper = ComponentMapper.getFor(ParticleComponent.class);
-	private final ComponentMapper<TransformComponent> transformComponentMapper = ComponentMapper.getFor(TransformComponent.class);
+    protected BaseComponentMapper<ParticleComponent> particleComponentMapper;
+    protected BaseComponentMapper<TransformComponent> transformComponentMapper;
 
-	public ParticleDrawableLogic() {
+    public void init() {
+        particleComponentMapper = ComponentRetriever.getMapper(ParticleComponent.class);
+        transformComponentMapper = ComponentRetriever.getMapper(TransformComponent.class);
+    }
 
-	}
-	
-	@Override
-	public void draw(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
-		ParticleComponent particleComponent = particleComponentMapper.get(entity);
+    @Override
+    public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+        if(particleComponentMapper ==null) init(); // TODO: Can we have an injection for this object?
 
-		if (particleComponent.transform) {
-			TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
-			TransformMathUtils.applyTransform(entity, batch);
-		} else {
-			TransformComponent transformComponent = transformComponentMapper.get(entity);
-			particleComponent.particleEffect.setPosition(transformComponent.x, transformComponent.y);
-		}
+        ParticleComponent particleComponent = particleComponentMapper.get(entity);
 
-		particleComponent.particleEffect.draw(batch);
+        if (particleComponent.transform) {
+            TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
+            TransformMathUtils.applyTransform(entity, batch);
+        } else {
+            TransformComponent transformComponent = transformComponentMapper.get(entity);
+            particleComponent.particleEffect.setPosition(transformComponent.x, transformComponent.y);
+        }
 
-		if (particleComponent.transform) {
-			TransformMathUtils.resetTransform(entity, batch);
-		}
-	}
+        particleComponent.particleEffect.draw(batch);
+
+        if (particleComponent.transform) {
+            TransformMathUtils.resetTransform(entity, batch);
+        }
+    }
 }

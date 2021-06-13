@@ -1,11 +1,12 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import games.rednblack.editor.renderer.utils.CustomVariables;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainItemComponent implements BaseComponent {
+public class MainItemComponent  extends PooledComponent {
     public int uniqueId = 0;
 	public String itemIdentifier = "";
 	public String libraryLink = "";
