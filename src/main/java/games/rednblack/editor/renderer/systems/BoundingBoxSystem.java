@@ -5,8 +5,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class BoundingBoxSystem extends IteratingSystem {
 
@@ -15,8 +15,6 @@ public class BoundingBoxSystem extends IteratingSystem {
     final private ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     final private ComponentMapper<MainItemComponent> mainItemMapper;
     final private ComponentMapper<TransformComponent> transformMapper;
-
-    private final Vector2 tmpVec = new Vector2();
 
     public BoundingBoxSystem() {
         super(Family.all(BoundingBoxComponent.class).get());
@@ -57,54 +55,13 @@ public class BoundingBoxSystem extends IteratingSystem {
         }
 
         if (calcCheckSum(entity) != b.checksum) {
-            float scaleX = t.scaleX * (t.flipX ? -1 : 1);
-            float scaleY = t.scaleY * (t.flipY ? -1 : 1);
+            b.points[0].set(0, 0);
+            b.points[1].set(d.width, 0);
+            b.points[2].set(d.width, d.height);
+            b.points[3].set(0, d.height);
 
-            if (t.rotation == 0) {
-                float scaleOffsetX = t.originX * scaleX - t.originX;
-                float scaleOffsetY = t.originY * scaleY - t.originY;
+            TransformMathUtils.localToSceneCoordinates(entity, b.points);
 
-                b.points[0].set(t.x -scaleOffsetX,t.y -scaleOffsetY);
-                b.points[1].set(t.x -scaleOffsetX + d.width*scaleX,t.y -scaleOffsetY);
-                b.points[2].set(t.x -scaleOffsetX + d.width*scaleX,t.y -scaleOffsetY + d.height*scaleY);
-                b.points[3].set(t.x -scaleOffsetX ,t.y -scaleOffsetY + d.height*scaleY);
-            } else {
-                float pivotX = t.originX * scaleX;
-                float pivotY = t.originY * scaleY;
-                calcFor(b, t, d, pivotX, pivotY);
-            }
-
-            while (parentNode != null) {
-                TransformComponent parentTransform = transformMapper.get(parentNode.parentEntity);
-                if (parentTransform == null)
-                    break;
-
-                float pScaleX = parentTransform.scaleX * (parentTransform.flipX ? -1 : 1);
-                float pScaleY = parentTransform.scaleY * (parentTransform.flipY ? -1 : 1);
-
-                float originX = parentTransform.originX * pScaleX;
-                float originY = parentTransform.originY * pScaleY;
-
-                float scaleOffsetX = originX - parentTransform.originX;
-                float scaleOffsetY = originY - parentTransform.originY;
-
-                tmpVec.set(originX, originY);
-                tmpVec.rotateDeg(parentTransform.rotation);
-
-                for(int i = 0; i < 4; i++) {
-                    b.points[i].add(originX - tmpVec.x, originY - tmpVec.y);
-
-                    b.points[i].x = b.points[i].x * pScaleX;
-                    b.points[i].y = b.points[i].y * pScaleY;
-
-                    if (parentTransform.rotation != 0)
-                        b.points[i].rotateDeg(parentTransform.rotation);
-
-                    b.points[i].x += parentTransform.x - scaleOffsetX;
-                    b.points[i].y += parentTransform.y - scaleOffsetY;
-                }
-                parentNode =  parentNodeMapper.get(parentNode.parentEntity);
-            }
             b.checksum = calcCheckSum(entity);
             b.createBoundingRect();
         }
@@ -138,37 +95,5 @@ public class BoundingBoxSystem extends IteratingSystem {
             parentNode = parentNodeMapper.get(parentNode.parentEntity);
         }
         return checksum;
-    }
-
-    private void calcFor(BoundingBoxComponent box, TransformComponent transform, DimensionsComponent dimension, float pivotX, float pivotY) {
-        float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
-        float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
-
-        float width = dimension.width*scaleX;
-        float height = dimension.height*scaleY;
-
-        box.points[0].set(-pivotX,-pivotY);
-        box.points[1].set(width-pivotX, -pivotY);
-        box.points[2].set(-pivotX,height-pivotY);
-        box.points[3].set(width-pivotX,height-pivotY);
-
-        float scaleOffsetX;
-        float scaleOffsetY;
-
-        if (pivotX == 0 && pivotY == 0) {
-            scaleOffsetX = 0;
-            scaleOffsetY = 0;
-        } else {
-            scaleOffsetX = (width - dimension.width) * (transform.originX / dimension.width);
-            scaleOffsetY = (height - dimension.height) * (transform.originY / dimension.height);
-        }
-
-        for(int i = 0; i < 4; i++)
-            box.points[i].rotateDeg(transform.rotation);
-
-        for(int i = 0; i < 4; i++) {
-            box.points[i].x = box.points[i].x + transform.x - scaleOffsetX + pivotX;
-            box.points[i].y = box.points[i].y + transform.y - scaleOffsetY + pivotY;
-        }
     }
 }
