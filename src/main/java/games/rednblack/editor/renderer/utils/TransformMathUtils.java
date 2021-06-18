@@ -63,8 +63,8 @@ public class TransformMathUtils {
 				parentCoords.y = (parentCoords.y - childY - originY) / scaleY + originY;
 			}
 		} else {
-			final float cos = (float)Math.cos(rotation * MathUtils.degreesToRadians);
-			final float sin = (float)Math.sin(rotation * MathUtils.degreesToRadians);
+			final float cos = MathUtils.cosDeg(rotation);
+			final float sin = MathUtils.sinDeg(rotation);
 
 			final float originX = transform.originX;
 			final float originY = transform.originY;
@@ -137,8 +137,8 @@ public class TransformMathUtils {
 				localCoords.y = (localCoords.y - originY) * scaleY + originY + y;
 			}
 		} else {
-			final float cos = (float)Math.cos(rotation * MathUtils.degreesToRadians);
-			final float sin = (float)Math.sin(rotation * MathUtils.degreesToRadians);
+			final float cos = MathUtils.cosDeg(rotation);
+			final float sin = MathUtils.sinDeg(rotation);
 			final float originX = transform.originX;
 			final float originY = transform.originY;
 			final float tox = (localCoords.x - originX) * scaleX;

@@ -54,7 +54,8 @@ public class BoundingBoxSystem extends IteratingSystem {
             t.y += rectangle.y;
         }
 
-        if (calcCheckSum(entity) != b.checksum) {
+        float checksum = calcCheckSum(entity);
+        if (checksum != b.checksum) {
             b.points[0].set(0, 0);
             b.points[1].set(d.width, 0);
             b.points[2].set(d.width, d.height);
@@ -62,7 +63,7 @@ public class BoundingBoxSystem extends IteratingSystem {
 
             TransformMathUtils.localToSceneCoordinates(entity, b.points);
 
-            b.checksum = calcCheckSum(entity);
+            b.checksum = checksum;
             b.createBoundingRect();
         }
 
