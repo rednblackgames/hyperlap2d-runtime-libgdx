@@ -25,6 +25,7 @@ import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
+import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 
 import java.util.HashMap;
@@ -125,6 +126,18 @@ public class ItemWrapper {
             entity.add(component);
         }
         component.addScript(script);
+        script.init(entity);
+
+        return script;
+    }
+
+    public <T extends BasicScript> T addScript(Class<T> scriptClazz, PooledEngine engine) {
+        ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
+        if(component == null) {
+            component = engine.createComponent(ScriptComponent.class);
+            entity.add(component);
+        }
+        T script = component.addScript(scriptClazz);
         script.init(entity);
 
         return script;

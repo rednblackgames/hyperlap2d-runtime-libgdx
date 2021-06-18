@@ -257,7 +257,7 @@ public class SceneLoader {
         engine.removeAllEntities();
         entityFactory.clean();
         //Update the engine to ensure that all pending operations are completed!!
-        engine.update(Gdx.graphics.getDeltaTime());
+        engine.update(0);
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
         renderer.setPixelsPerWU(pixelsPerWU);
