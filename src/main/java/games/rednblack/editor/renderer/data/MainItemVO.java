@@ -101,8 +101,11 @@ public class MainItemVO {
 		uniqueId = mainItemComponent.uniqueId;
 		itemIdentifier = mainItemComponent.itemIdentifier;
 		itemName = mainItemComponent.libraryLink;
-        tags = new String[mainItemComponent.tags.size()];
-        tags = mainItemComponent.tags.toArray(tags);
+        tags = new String[mainItemComponent.tags.size];
+        int i = 0;
+        for (String tag : mainItemComponent.tags) {
+			tags[i++] = tag;
+		}
 		customVars = mainItemComponent.getCustomVarString();
 
 		x = transformComponent.x;

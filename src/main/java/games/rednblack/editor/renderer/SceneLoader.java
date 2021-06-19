@@ -176,8 +176,8 @@ public class SceneLoader {
         engine.addEntityListener(new EntityListener() {
             @Override
             public void entityAdded(Entity entity) {
-                // call init for a system
-                ScriptComponent scriptComponent = entity.getComponent(ScriptComponent.class);
+                // Check if there are scripts to entity and call init that
+                ScriptComponent scriptComponent = ComponentRetriever.get(entity, ScriptComponent.class);
                 if (scriptComponent != null) {
                     for (IScript script : scriptComponent.scripts) {
                         script.init(entity);

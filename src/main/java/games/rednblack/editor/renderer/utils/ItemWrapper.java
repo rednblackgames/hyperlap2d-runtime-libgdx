@@ -21,15 +21,14 @@ package games.rednblack.editor.renderer.utils;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
-
-import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * Created by azakhary on 7/8/2015.
@@ -39,8 +38,8 @@ public class ItemWrapper {
     private Entity entity;
 
     private NodeComponent nodeComponent;
-    private final HashMap<String, Entity> childrenMap = new HashMap<>();
-    private final HashMap<String, HashSet<Entity>> childrenTagsMap = new HashMap<>();
+    private final ObjectMap<String, Entity> childrenMap = new ObjectMap<>();
+    private final ObjectMap<String, ObjectSet<Entity>> childrenTagsMap = new ObjectMap<>();
 
     public ItemWrapper() {
         // empty wrapper is better then null pointer
@@ -67,7 +66,7 @@ public class ItemWrapper {
 
     private void mapTagEntity(String tag, Entity entity) {
         if (childrenTagsMap.get(tag) == null)
-            childrenTagsMap.put(tag, new HashSet<Entity>());
+            childrenTagsMap.put(tag, new ObjectSet<Entity>());
 
         childrenTagsMap.get(tag).add(entity);
     }
@@ -79,17 +78,32 @@ public class ItemWrapper {
         return new ItemWrapper(entity);
     }
 
-    public HashSet<Entity> getChildrenByTag(String tagName) {
+    /**
+     * Get a child set from this composite using which contains a tag
+     * @param tagName tag to find
+     */
+    public ObjectSet<Entity> getChildrenByTag(String tagName) {
         if (childrenTagsMap.get(tagName) == null)
-            childrenTagsMap.put(tagName, new HashSet<Entity>());
+            childrenTagsMap.put(tagName, new ObjectSet<Entity>());
 
         return childrenTagsMap.get(tagName);
     }
 
+    /**
+     * Return a component from the current entity using mappers. See {@link ComponentRetriever}
+     * @param clazz component class
+     */
     public <T extends Component> T getComponent(Class<T> clazz) {
         return ComponentRetriever.get(entity, clazz);
     }
 
+    /**
+     * Add new child entity to the current Composite (must have the {@link NodeComponent}).
+     * If child already has a parent it will be removed from its node list
+     *
+     * @param child Entity child
+     * @return new {@link ItemWrapper} instance for the child param
+     */
     public ItemWrapper addChild(Entity child) {
         if(nodeComponent != null) {
             ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class);
@@ -110,6 +124,10 @@ public class ItemWrapper {
         return new ItemWrapper();
     }
 
+    /**
+     * Get the type of the current entity from {@link MainItemComponent},
+     * see {@link games.rednblack.editor.renderer.factory.EntityFactory} for possible values
+     */
     public int getType() {
         MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
         return mainItemComponent.entityType;
@@ -119,6 +137,12 @@ public class ItemWrapper {
         return entity;
     }
 
+    /**
+     * Attach a script to the entity using {@link ScriptComponent}
+     * @param script script instance
+     * @param engine PooledEngine instance
+     * @return same input script instance
+     */
     public IScript addScript(IScript script, PooledEngine engine) {
         ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
         if(component == null) {
@@ -131,6 +155,14 @@ public class ItemWrapper {
         return script;
     }
 
+    /**
+     * Attach a script to the entity using {@link ScriptComponent},
+     * Scripts will be automatically pooled and must extends {@link BasicScript}
+     *
+     * @param scriptClazz script class definition
+     * @param engine PooledEngine instance
+     * @return instance of the script obtained
+     */
     public <T extends BasicScript> T addScript(Class<T> scriptClazz, PooledEngine engine) {
         ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
         if(component == null) {

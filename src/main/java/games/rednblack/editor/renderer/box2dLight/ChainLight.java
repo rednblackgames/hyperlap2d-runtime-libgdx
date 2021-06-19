@@ -318,7 +318,7 @@ public class ChainLight extends Light {
 				.sub(chain.items[i], chain.items[i + 1]);
 			segmentLengths.add(v1.len());
 			segmentAngles.add(
-				v1.rotate90(rayDirection).angle() * MathUtils.degreesToRadians
+				v1.rotate90(rayDirection).angleRad()
 			);
 			remainingLength += segmentLengths.items[j];
 		}

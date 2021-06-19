@@ -115,7 +115,8 @@ public abstract class ComponentFactory {
         component.itemIdentifier = vo.itemIdentifier;
         component.libraryLink = vo.itemName;
         if (vo.tags != null) {
-            component.tags = new HashSet<>(Arrays.asList(vo.tags));
+            for (String tag : vo.tags)
+                component.tags.add(tag);
         }
         component.entityType = entityType;
 
