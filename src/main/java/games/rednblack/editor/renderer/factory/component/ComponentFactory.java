@@ -18,7 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.artemis.BaseComponentMapper;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -28,7 +28,6 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,14 +42,23 @@ public abstract class ComponentFactory {
     protected World world;
     protected com.artemis.World engine;
 
-    protected BaseComponentMapper<NodeComponent> nodeComponentMapper;
-
-    public ComponentFactory() {
-        nodeComponentMapper = ComponentRetriever.getMapper(NodeComponent.class);
-    }
+    protected static ComponentMapper<BoundingBoxComponent> boundingBoxCM;
+    protected static ComponentMapper<DimensionsComponent> dimensionsCM;
+    protected static ComponentMapper<LightBodyComponent> lightBodyCM;
+    protected static ComponentMapper<MainItemComponent> mainItemCM;
+    protected static ComponentMapper<NodeComponent> nodeCM;
+    protected static ComponentMapper<ParentNodeComponent> parentNodeCM;
+    protected static ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
+    protected static ComponentMapper<PolygonComponent> polygonCM;
+    protected static ComponentMapper<ScriptComponent> scriptCM;
+    protected static ComponentMapper<SensorComponent> sensorCM;
+    protected static ComponentMapper<ShaderComponent> shaderCM;
+    protected static ComponentMapper<TintComponent> tintCM;
+    protected static ComponentMapper<TransformComponent> transformCM;
+    protected static ComponentMapper<ZIndexComponent> zIndexCM;
 
     public ComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
-        this();
+        engine.inject(this);
         injectDependencies(engine, rayHandler, world, rm);
     }
 
@@ -79,15 +87,14 @@ public abstract class ComponentFactory {
     }
 
     protected BoundingBoxComponent createBoundingBoxComponent(int entity, MainItemVO vo) {
-        BoundingBoxComponent component = engine.edit(entity).create(BoundingBoxComponent.class);
-        return component;
+        return boundingBoxCM.create(entity);
     }
 
     protected ShaderComponent createShaderComponent(int entity, MainItemVO vo) {
         if (vo.shaderName == null || vo.shaderName.isEmpty()) {
             return null;
         }
-        ShaderComponent component = engine.edit(entity).create(ShaderComponent.class);
+        ShaderComponent component = shaderCM.create(entity);
         component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
         component.customUniforms.putAll(vo.shaderUniforms);
         component.renderingLayer = vo.renderingLayer;
@@ -95,7 +102,7 @@ public abstract class ComponentFactory {
     }
 
     protected MainItemComponent createMainItemComponent(int entity, MainItemVO vo, int entityType) {
-        MainItemComponent component = engine.edit(entity).create(MainItemComponent.class);
+        MainItemComponent component = mainItemCM.create(entity);
         component.setCustomVarString(vo.customVars);
         component.uniqueId = vo.uniqueId;
         component.itemIdentifier = vo.itemIdentifier;
@@ -110,7 +117,7 @@ public abstract class ComponentFactory {
     }
 
     protected TransformComponent createTransformComponent(int entity, MainItemVO vo, DimensionsComponent dimensionsComponent) {
-        TransformComponent component = engine.edit(entity).create(TransformComponent.class);
+        TransformComponent component = transformCM.create(entity);
         component.rotation = vo.rotation;
         component.scaleX = vo.scaleX;
         component.scaleY = vo.scaleY;
@@ -132,14 +139,14 @@ public abstract class ComponentFactory {
     protected abstract DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo);
 
     protected TintComponent createTintComponent(int entity, MainItemVO vo) {
-        TintComponent component = engine.edit(entity).create(TintComponent.class);
+        TintComponent component = tintCM.create(entity);
         component.color.set(vo.tint[0], vo.tint[1], vo.tint[2], vo.tint[3]);
 
         return component;
     }
 
     protected ZIndexComponent createZIndexComponent(int entity, MainItemVO vo) {
-        ZIndexComponent component = engine.edit(entity).create(ZIndexComponent.class);
+        ZIndexComponent component = zIndexCM.create(entity);
 
         if (vo.layerName == "" || vo.layerName == null) vo.layerName = "Default";
 
@@ -151,19 +158,19 @@ public abstract class ComponentFactory {
     }
 
     protected ScriptComponent createScriptComponent(int entity, MainItemVO vo) {
-        ScriptComponent component = engine.edit(entity).create(ScriptComponent.class);
+        ScriptComponent component = scriptCM.create(entity);
+        component.engine = engine;
         return component;
     }
 
     protected ParentNodeComponent createParentNodeComponent(int root, int entity) {
-        ParentNodeComponent component = engine.edit(entity).create(ParentNodeComponent.class);
+        ParentNodeComponent component = parentNodeCM.create(entity);
         component.parentEntity = root;
-
         return component;
     }
 
     protected void createNodeComponent(int root, int entity) {
-        NodeComponent component = nodeComponentMapper.get(root);
+        NodeComponent component = nodeCM.get(root);
         component.children.add(entity);
     }
 
@@ -171,7 +178,6 @@ public abstract class ComponentFactory {
         if (vo.physics == null) {
             return;
         }
-
         createPhysicsBodyPropertiesComponent(entity, vo);
     }
 
@@ -186,7 +192,7 @@ public abstract class ComponentFactory {
             return;
         }
 
-        SensorComponent sensorComponent = engine.edit(entity).create(SensorComponent.class);
+        SensorComponent sensorComponent = sensorCM.create(entity);
         sensorComponent.bottom = vo.sensor.bottom;
         sensorComponent.left = vo.sensor.left;
         sensorComponent.right = vo.sensor.right;
@@ -199,7 +205,7 @@ public abstract class ComponentFactory {
     }
 
     protected PhysicsBodyComponent createPhysicsBodyPropertiesComponent(int entity, MainItemVO vo) {
-        PhysicsBodyComponent component = engine.edit(entity).create(PhysicsBodyComponent.class);
+        PhysicsBodyComponent component = physicsBodyCM.create(entity);
         component.allowSleep = vo.physics.allowSleep;
         component.sensor = vo.physics.sensor;
         component.awake = vo.physics.awake;
@@ -226,7 +232,7 @@ public abstract class ComponentFactory {
             return null;
         }
 
-        LightBodyComponent component = engine.edit(entity).create(LightBodyComponent.class);
+        LightBodyComponent component = lightBodyCM.create(entity);
         component.rays = vo.light.rays;
         component.color = vo.light.color;
         component.distance = vo.light.distance;
@@ -242,7 +248,7 @@ public abstract class ComponentFactory {
     }
 
     protected PolygonComponent createMeshComponent(int entity, MainItemVO vo) {
-        PolygonComponent component = engine.edit(entity).create(PolygonComponent.class);
+        PolygonComponent component = polygonCM.create(entity);
         if (vo.shape != null) {
             component.vertices = new Vector2[vo.shape.polygons.length][];
             for (int i = 0; i < vo.shape.polygons.length; i++) {

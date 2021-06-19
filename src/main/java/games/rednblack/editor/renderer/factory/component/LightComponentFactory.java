@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
@@ -33,9 +34,10 @@ import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LightComponentFactory extends ComponentFactory {
+
+    protected static ComponentMapper<LightObjectComponent> lightObjectCM;
 
     public LightComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -52,7 +54,7 @@ public class LightComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 50f;
@@ -68,7 +70,7 @@ public class LightComponentFactory extends ComponentFactory {
             vo.softnessLength = vo.distance * 0.1f;
         }
 
-        LightObjectComponent component = engine.edit(entity).create(LightObjectComponent.class);
+        LightObjectComponent component = lightObjectCM.create(entity);
         component.setType(vo.type);
         component.coneDegree = vo.coneDegree;
         component.directionDegree = vo.directionDegree;
@@ -90,7 +92,7 @@ public class LightComponentFactory extends ComponentFactory {
 
         component.lightObject.setSoftnessLength(component.softnessLength);
 
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = transformCM.get(entity);
         transformComponent.originX = 0;
         transformComponent.originY = 0;
         return component;

@@ -6,8 +6,7 @@ import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.additional.ButtonComponent;import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 /**
@@ -16,22 +15,27 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
 @All(ButtonComponent.class)
 public class ButtonSystem extends IteratingSystem {
 
-    protected ComponentMapper<NodeComponent> componentMapper;
+    protected ComponentMapper<ButtonComponent> buttonComponentMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
+    protected ComponentMapper<NodeComponent> nodeComponentMapper;
+    protected ComponentMapper<MainItemComponent> mainItemComponentMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
+    protected ComponentMapper<ZIndexComponent> zIndexComponentMapper;
 
     @Override
     protected void process(int entity) {
-        NodeComponent nodeComponent = componentMapper.get(entity);
+        NodeComponent nodeComponent = nodeComponentMapper.get(entity);
 
-        if(nodeComponent == null) return;
+        if (nodeComponent == null) return;
 
         for (int i = 0; i < nodeComponent.children.size; i++) {
             Integer childEntity = nodeComponent.children.get(i);
-            MainItemComponent childMainItemComponent = ComponentRetriever.get(childEntity, MainItemComponent.class);
+            MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
             childMainItemComponent.visible = true;
         }
 
-        ViewPortComponent camera = ComponentRetriever.get(entity, ViewPortComponent.class);
-        if(camera != null) {
+        ViewPortComponent camera = viewPortComponentMapper.get(entity);
+        if (camera != null) {
             // if camera is on this entity, then it should not be processed
             return;
         }
@@ -39,20 +43,20 @@ public class ButtonSystem extends IteratingSystem {
 
         for (int i = 0; i < nodeComponent.children.size; i++) {
             Integer childEntity = nodeComponent.children.get(i);
-            MainItemComponent childMainItemComponent = ComponentRetriever.get(childEntity, MainItemComponent.class);
-            ZIndexComponent childZComponent = ComponentRetriever.get(childEntity, ZIndexComponent.class);
-            if(isTouched(entity)) {
-                if(childZComponent.layerName.equals("normal")) {
+            MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
+            ZIndexComponent childZComponent = zIndexComponentMapper.get(childEntity);
+            if (isTouched(entity)) {
+                if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = false;
                 }
-                if(childZComponent.layerName.equals("pressed")) {
+                if (childZComponent.layerName.equals("pressed")) {
                     childMainItemComponent.visible = true;
                 }
             } else {
-                if(childZComponent.layerName.equals("normal")) {
+                if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = true;
                 }
-                if(childZComponent.layerName.equals("pressed")) {
+                if (childZComponent.layerName.equals("pressed")) {
                     childMainItemComponent.visible = false;
                 }
             }
@@ -61,14 +65,14 @@ public class ButtonSystem extends IteratingSystem {
     }
 
     private boolean isTouched(Integer entity) {
-        ButtonComponent buttonComponent = ComponentRetriever.get(entity, ButtonComponent.class);
-        if(Gdx.input.isTouched()) {
-            DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-            Vector2 localCoordinates  = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
+        if (Gdx.input.isTouched()) {
+            DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
+            Vector2 localCoordinates = new Vector2(Gdx.input.getX(), Gdx.input.getY());
 
             TransformMathUtils.globalToLocalCoordinates(entity, localCoordinates);
 
-            if(dimensionsComponent.hit(localCoordinates.x, localCoordinates.y)) {
+            if (dimensionsComponent.hit(localCoordinates.x, localCoordinates.y)) {
                 buttonComponent.setTouchState(true);
                 return true;
             }

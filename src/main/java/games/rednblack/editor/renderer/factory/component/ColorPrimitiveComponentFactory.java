@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -26,12 +27,13 @@ import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by azakhary on 10/21/2015.
  */
 public class ColorPrimitiveComponentFactory extends ComponentFactory {
+
+    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
 
     public ColorPrimitiveComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -45,23 +47,23 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
         createTextureRegionComponent(entity, vo);
 
-        TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
+        DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
+        PolygonComponent polygonComponent = polygonCM.get(entity);
         dimensionsComponent.setPolygon(polygonComponent);
         textureRegionComponent.setPolygonSprite(polygonComponent);
     }
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
         component.setFromShape(vo.shape);
 
         return component;
     }
 
     protected TextureRegionComponent createTextureRegionComponent(int entity, MainItemVO vo) {
-        TextureRegionComponent component = engine.edit(entity).create(TextureRegionComponent.class);
+        TextureRegionComponent component = textureRegionCM.create(entity);
 
         component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;

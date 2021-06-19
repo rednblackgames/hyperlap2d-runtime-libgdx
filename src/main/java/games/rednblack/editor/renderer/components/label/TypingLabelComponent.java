@@ -2,9 +2,9 @@ package games.rednblack.editor.renderer.components.label;
 
 import com.artemis.PooledComponent;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
-import games.rednblack.editor.renderer.components.RemovableComponent;
+import games.rednblack.editor.renderer.components.RemovableObject;
 
-public class TypingLabelComponent extends PooledComponent {
+public class TypingLabelComponent extends PooledComponent implements RemovableObject {
 
     public TypingLabel typingLabel;
 
@@ -15,7 +15,7 @@ public class TypingLabelComponent extends PooledComponent {
         typingLabel = null;
     }
 
-    // TODO: onRemove thingy
+    @Override
     public void onRemove() {
         reset();
     }

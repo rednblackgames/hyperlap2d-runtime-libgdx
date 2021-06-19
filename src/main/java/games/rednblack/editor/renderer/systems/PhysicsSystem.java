@@ -13,7 +13,6 @@ import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 @All(PhysicsBodyComponent.class)
 public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
@@ -23,6 +22,9 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
     public static float TIME_STEP = 1f / 60f;
 
     protected ComponentMapper<TransformComponent> transformComponentMapper;
+    protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
+    protected ComponentMapper<PolygonComponent> polygonComponentMapper;
+    protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
     private final World world;
     private boolean isPhysicsOn = true;
@@ -89,7 +91,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
      * @param alpha  linear interpolation factor
      */
     public void interpolate(int entity, float alpha) {
-        PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
+        PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
         Body body = physicsBodyComponent.body;
 
         if (body == null)
@@ -119,8 +121,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
     }
 
     protected void processBody(int entity) {
-        PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
+        PolygonComponent polygonComponent = polygonComponentMapper.get(entity);
 
         physicsBodyComponent.setWorld(world);
 
@@ -159,8 +161,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
         int et1 = (int) o1;
         int et2 = (int) o2;
         // get script comp
-        ScriptComponent ic1 = ComponentRetriever.get(et1, ScriptComponent.class);
-        ScriptComponent ic2 = ComponentRetriever.get(et2, ScriptComponent.class);
+        ScriptComponent ic1 = scriptComponentMapper.get(et1);
+        ScriptComponent ic2 = scriptComponentMapper.get(et2);
 
         // cast script to contacts, if scripts implement contacts
         for (IScript sc : ic1.scripts) {

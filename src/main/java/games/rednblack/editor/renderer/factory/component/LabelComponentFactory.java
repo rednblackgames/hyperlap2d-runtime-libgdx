@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -17,6 +18,9 @@ public class LabelComponentFactory extends ComponentFactory {
 
     private static int labelDefaultSize = 12;
 
+    protected static ComponentMapper<LabelComponent> labelCM;
+    protected static ComponentMapper<TypingLabelComponent> typingLabelCM;
+
     public LabelComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
@@ -31,7 +35,7 @@ public class LabelComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
         component.height = ((LabelVO) vo).height;
         component.width = ((LabelVO) vo).width;
 
@@ -39,7 +43,7 @@ public class LabelComponentFactory extends ComponentFactory {
     }
 
     protected LabelComponent createLabelComponent(int entity, LabelVO vo) {
-        LabelComponent component = engine.edit(entity).create(LabelComponent.class);
+        LabelComponent component = labelCM.create(entity);
         component.setText(vo.text);
         component.setStyle(generateStyle(rm, vo.style, vo.size));
         component.fontName = vo.style;
@@ -54,7 +58,7 @@ public class LabelComponentFactory extends ComponentFactory {
         component.setFontScale(multiplier / projectInfoVO.pixelToWorld);
 
         if (vo.isTyping) {
-            TypingLabelComponent typingLabelComponent = engine.edit(entity).create(TypingLabelComponent.class);
+            typingLabelCM.create(entity);
         }
         return component;
     }

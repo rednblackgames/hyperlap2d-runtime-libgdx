@@ -13,10 +13,10 @@ public class ParticleSystem extends IteratingSystem {
 
     @Override
     protected void process(int entityId) {
-		ParticleComponent particleComponent = particleComponentMapper.get(entityId);
+        ParticleComponent particleComponent = particleComponentMapper.get(entityId);
 
-		ParticleEffect particleEffect = particleComponent.particleEffect;
-		particleEffect.update(getWorld().getDelta());
+        ParticleEffect particleEffect = particleComponent.particleEffect;
+        particleEffect.update(world.delta);
     }
 
 }

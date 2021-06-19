@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.factory;
 
+import com.artemis.ComponentMapper;
 import com.artemis.EntityEdit;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
@@ -13,7 +14,6 @@ import games.rednblack.editor.renderer.components.ViewPortComponent;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.component.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +32,8 @@ public class EntityFactory {
     public static final int SPINE_TYPE = 9;
     public static final int TALOS_TYPE = 10;
 
+    protected static ComponentMapper<MainItemComponent> mapper;
+
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
             simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
             ninePatchComponentFactory, colorPrimitiveFactory;
@@ -49,6 +51,7 @@ public class EntityFactory {
 
     public EntityFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         this.engine = engine;
+        this.engine.inject(this);
         this.rayHandler = rayHandler;
         this.world = world;
         this.rm = rm;
@@ -155,7 +158,7 @@ public class EntityFactory {
     }
 
     public int postProcessEntity(int entity) {
-        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        MainItemComponent mainItemComponent = mapper.get(entity);
 
         if (mainItemComponent.uniqueId == -1) mainItemComponent.uniqueId = getFreeId();
         entities.put(mainItemComponent.uniqueId, entity);
@@ -181,7 +184,7 @@ public class EntityFactory {
     }
 
     public int updateMap(int entity) {
-        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        MainItemComponent mainItemComponent = mapper.get(entity);
 
         entities.put(mainItemComponent.uniqueId, entity);
 

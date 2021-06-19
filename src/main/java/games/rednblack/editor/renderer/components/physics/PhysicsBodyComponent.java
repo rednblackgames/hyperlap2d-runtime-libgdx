@@ -1,17 +1,17 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.World;
-import games.rednblack.editor.renderer.commons.IRefreshableObject;
+import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class PhysicsBodyComponent extends PooledComponent implements IRefreshableObject {
+public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
     protected boolean needsRefresh = false;
 
     public int bodyType = 0;
@@ -46,7 +46,7 @@ public class PhysicsBodyComponent extends PooledComponent implements IRefreshabl
 
     }
 
-    // TODO: onRemove thingy
+    @Override
     public void onRemove() {
         if (body != null && body.getWorld() != null) {
             body.getWorld().destroyBody(body);
@@ -103,7 +103,6 @@ public class PhysicsBodyComponent extends PooledComponent implements IRefreshabl
         }
     }
 
-    // TODO: Entity ID
     protected void refresh(int entity) {
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
         if (polygonComponent == null || polygonComponent.vertices == null) return;

@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
@@ -36,6 +37,10 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class SpriteComponentFactory extends ComponentFactory {
 
+    protected static ComponentMapper<SpriteAnimationComponent> spriteAnimationCM;
+    protected static ComponentMapper<SpriteAnimationStateComponent> spriteAnimationStateCM;
+    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
+
     public SpriteComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
     }
@@ -50,7 +55,7 @@ public class SpriteComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
 
         SpriteAnimationVO sVo = (SpriteAnimationVO) vo;
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(sVo.animationName);
@@ -65,7 +70,7 @@ public class SpriteComponentFactory extends ComponentFactory {
     }
 
     protected SpriteAnimationComponent createSpriteAnimationDataComponent(int entity, SpriteAnimationVO vo) {
-        SpriteAnimationComponent spriteAnimationComponent = engine.edit(entity).create(SpriteAnimationComponent.class);
+        SpriteAnimationComponent spriteAnimationComponent = spriteAnimationCM.create(entity);
         spriteAnimationComponent.animationName = vo.animationName;
 
         for (int i = 0; i < vo.frameRangeMap.size(); i++) {
@@ -85,7 +90,7 @@ public class SpriteComponentFactory extends ComponentFactory {
         // filtering regions by name
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(spriteAnimationComponent.animationName);
 
-        SpriteAnimationStateComponent stateComponent = engine.edit(entity).create(SpriteAnimationStateComponent.class);
+        SpriteAnimationStateComponent stateComponent = spriteAnimationStateCM.create(entity);
         stateComponent.setAllRegions(regions);
 
         if (spriteAnimationComponent.frameRangeMap.isEmpty()) {
@@ -100,7 +105,7 @@ public class SpriteComponentFactory extends ComponentFactory {
 
         stateComponent.set(spriteAnimationComponent);
 
-        TextureRegionComponent textureRegionComponent = engine.edit(entity).create(TextureRegionComponent.class);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.create(entity);
         textureRegionComponent.region = regions.get(0);
 
         return spriteAnimationComponent;

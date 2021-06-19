@@ -1,14 +1,14 @@
 package games.rednblack.editor.renderer.commons;
 
-public abstract class RefreshableObject implements IRefreshableObject {
+import com.artemis.PooledComponent;
+
+public abstract class RefreshableComponent extends PooledComponent {
     protected boolean needsRefresh = false;
 
-    @Override
     public void scheduleRefresh() {
         needsRefresh = true;
     }
 
-    @Override
     public void executeRefresh(int entity) {
         if (needsRefresh) {
             refresh(entity);

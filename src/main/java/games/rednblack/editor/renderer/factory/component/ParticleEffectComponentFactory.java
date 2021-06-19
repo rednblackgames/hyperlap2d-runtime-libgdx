@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
@@ -36,6 +37,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class ParticleEffectComponentFactory extends ComponentFactory {
 
+    protected static ComponentMapper<ParticleComponent> particleCM;
 
     public ParticleEffectComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -52,7 +54,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 70f;
@@ -64,7 +66,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
     }
 
     protected ParticleComponent createParticleComponent(int entity, ParticleEffectVO vo) {
-        ParticleComponent component = engine.edit(entity).create(ParticleComponent.class);
+        ParticleComponent component = particleCM.create(entity);
         component.particleName = vo.particleName;
         component.transform = vo.transform;
         ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));

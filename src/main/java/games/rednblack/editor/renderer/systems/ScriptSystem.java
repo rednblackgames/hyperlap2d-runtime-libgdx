@@ -12,11 +12,11 @@ import games.rednblack.editor.renderer.scripts.IScript;
 @All(ScriptComponent.class)
 public class ScriptSystem extends IteratingSystem {
 
-    protected ComponentMapper<ScriptComponent> scriptComponentComponentMapper;
+    protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
     @Override
     protected void process(int entity) {
-        for (IScript script : scriptComponentComponentMapper.get(entity).scripts) {
+        for (IScript script : scriptComponentMapper.get(entity).scripts) {
             script.act(world.getDelta());
         }
     }

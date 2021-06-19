@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
+import com.artemis.World;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 
 import java.util.HashMap;
@@ -25,5 +26,9 @@ public class DrawableLogicMapper {
 
     public Drawable getDrawable(int type) {
         return logicClassMap.get(type);
+    }
+
+    public void injectMappers(World engine) {
+        for (Drawable value : logicClassMap.values()) engine.inject(value);
     }
 }

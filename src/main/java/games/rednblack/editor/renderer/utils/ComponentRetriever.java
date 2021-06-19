@@ -151,11 +151,13 @@ public class ComponentRetriever {
      */
     @SuppressWarnings("unchecked")
     public static <T extends Component> T get(int entity, Class<T> type) {
-        return (T) self().getMappers().get(type).get(entity);
+        return getMapper(type).get(entity);
+//        return (T) self().getMappers().get(type).get(entity);
     }
 
     public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type) {
-        return (BaseComponentMapper<T>) self().getMappers().get(type);
+        return self().engine.getMapper(type);
+//        return (BaseComponentMapper<T>) self().getMappers().get(type);
     }
 
     public static Collection<Component> getComponents(Entity entity) {

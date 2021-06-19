@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.SnapshotArray;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(CompositeTransformComponent.class)
@@ -17,6 +16,7 @@ public class CompositeSystem extends IteratingSystem {
     protected ComponentMapper<TransformComponent> transformMapper;
     protected ComponentMapper<NodeComponent> nodeMapper;
     protected ComponentMapper<CompositeTransformComponent> compositeMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
 
     private DimensionsComponent dimensionsComponent;
     private NodeComponent nodeComponent;
@@ -44,7 +44,7 @@ public class CompositeSystem extends IteratingSystem {
         TransformComponent transformComponent = transformMapper.get(entity);
 
         CompositeTransformComponent compositeTransformComponent = compositeMapper.get(entity);
-        ViewPortComponent viewPortComponent = ComponentRetriever.get(entity, ViewPortComponent.class);
+        ViewPortComponent viewPortComponent = viewPortComponentMapper.get(entity);
         if (compositeTransformComponent != null) {
 
             if (compositeTransformComponent.automaticResize && viewPortComponent == null) {

@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.artemis.BaseComponentMapper;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
@@ -14,26 +14,16 @@ import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
 public class TextureRegionDrawLogic implements Drawable {
 
-    protected BaseComponentMapper<TintComponent> tintComponentComponentMapper;
-    protected BaseComponentMapper<TextureRegionComponent> textureRegionMapper;
-    protected BaseComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
-    protected BaseComponentMapper<TransformComponent> transformMapper;
-    protected BaseComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
+    protected ComponentMapper<TintComponent> tintComponentComponentMapper;
+    protected ComponentMapper<TextureRegionComponent> textureRegionMapper;
+    protected ComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
+    protected ComponentMapper<TransformComponent> transformMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
 
     private final Color batchColor = new Color();
 
-    private void init() {
-        tintComponentComponentMapper = ComponentRetriever.getMapper(TintComponent.class);
-        textureRegionMapper = ComponentRetriever.getMapper(TextureRegionComponent.class);
-        transformMapper = ComponentRetriever.getMapper(TransformComponent.class);
-        dimensionsComponentComponentMapper = ComponentRetriever.getMapper(DimensionsComponent.class);
-        normalTextureRegionMapper = ComponentRetriever.getMapper(NormalTextureRegionComponent.class);
-    }
-
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
-        if(tintComponentComponentMapper==null) init(); // TODO: Can we have an injection for this object?
-
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
 

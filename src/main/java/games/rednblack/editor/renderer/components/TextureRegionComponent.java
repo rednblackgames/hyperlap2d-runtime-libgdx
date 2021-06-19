@@ -1,15 +1,13 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import games.rednblack.editor.renderer.commons.IRefreshableObject;
-import games.rednblack.editor.renderer.commons.RefreshableObject;
+import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
-public class TextureRegionComponent  extends PooledComponent implements IRefreshableObject {
+public class TextureRegionComponent extends RefreshableComponent {
     protected boolean needsRefresh = false;
 
     public String regionName = "";

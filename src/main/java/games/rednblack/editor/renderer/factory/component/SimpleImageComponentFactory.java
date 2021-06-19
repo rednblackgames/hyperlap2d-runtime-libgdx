@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -31,12 +32,14 @@ import games.rednblack.editor.renderer.data.ResolutionEntryVO;
 import games.rednblack.editor.renderer.data.SimpleImageVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by azakhary on 5/22/2015.
  */
 public class SimpleImageComponentFactory extends ComponentFactory {
+
+    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
+    protected static ComponentMapper<NormalTextureRegionComponent> normalTextureRegionCM;
 
     public SimpleImageComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -51,10 +54,10 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     private void updatePolygons(int entity) {
-        TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
+        DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
 
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        PolygonComponent polygonComponent = polygonCM.get(entity);
         if (textureRegionComponent.isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
             textureRegionComponent.setPolygonSprite(polygonComponent);
             dimensionsComponent.setPolygon(polygonComponent);
@@ -63,9 +66,9 @@ public class SimpleImageComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
 
-        TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
@@ -78,14 +81,14 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     protected TextureRegionComponent createTextureRegionComponent(int entity, SimpleImageVO vo) {
-        TextureRegionComponent component = engine.edit(entity).create(TextureRegionComponent.class);
+        TextureRegionComponent component = textureRegionCM.create(entity);
         component.regionName = vo.imageName;
         component.region = rm.getTextureRegion(vo.imageName);
         component.isRepeat = vo.isRepeat;
         component.isPolygon = vo.isPolygon;
 
         if (rm.hasTextureRegion(vo.imageName + ".normal")) {
-            NormalTextureRegionComponent normalComponent = engine.edit(entity).create(NormalTextureRegionComponent.class);
+            NormalTextureRegionComponent normalComponent = normalTextureRegionCM.create(entity);
             normalComponent.textureRegion = rm.getTextureRegion(vo.imageName + ".normal");
             engine.edit(entity).create(NormalMapRendering.class);
         }

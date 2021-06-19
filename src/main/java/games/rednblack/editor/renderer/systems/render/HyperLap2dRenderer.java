@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems.render;
 
 import com.artemis.ComponentMapper;
+import com.artemis.World;
 import com.artemis.annotations.All;
-import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -23,7 +23,6 @@ import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.systems.render.logic.Drawable;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Map;
 import java.util.Stack;
@@ -39,6 +38,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
     protected ComponentMapper<ShaderComponent> shaderComponentMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
     protected ComponentMapper<NormalMapRendering> normalMapMapper;
+    protected ComponentMapper<TintComponent> tintComponentMapper;
+    protected ComponentMapper<LayerMapComponent> layerMapComponentMapper;
+    protected ComponentMapper<ZIndexComponent> zIndexComponentMapper;
+    protected ComponentMapper<TextureRegionComponent> textureRegionComponentMapper;
 
     protected DrawableLogicMapper drawableLogicMapper;
     private RayHandler rayHandler;
@@ -163,7 +166,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             batch.setProjectionMatrix(camera.combined);
             Integer[] children = screenReadingEntities.begin();
             for (int i = 0; i < screenReadingEntities.size; i++) {
-				Integer child = children[i];
+                Integer child = children[i];
                 if (mainItemComponentMapper.has(child))
                     drawEntity(batch, child, 1, Drawable.RenderingType.TEXTURE);
                 else
@@ -245,7 +248,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             applyShader(rootEntity, batch);
         }
 
-        TintComponent tintComponent = ComponentRetriever.get(rootEntity, TintComponent.class);
+        TintComponent tintComponent = tintComponentMapper.get(rootEntity);
         parentAlpha *= tintComponent.color.a;
 
         drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha, renderingType);
@@ -300,14 +303,14 @@ public class HyperLap2dRenderer extends IteratingSystem {
     private void drawChildren(Integer rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
                               Drawable.RenderingType renderingType) {
         NodeComponent nodeComponent = nodeMapper.get(rootEntity);
-		Integer[] children = nodeComponent.children.begin();
+        Integer[] children = nodeComponent.children.begin();
         TransformComponent transform = transformMapper.get(rootEntity);
         if (transform.shouldTransform() && !curCompositeTransformComponent.renderToFBO) {
             for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-				Integer child = children[i];
+                Integer child = children[i];
 
-                LayerMapComponent rootLayers = ComponentRetriever.get(rootEntity, LayerMapComponent.class);
-                ZIndexComponent childZIndexComponent = ComponentRetriever.get(child, ZIndexComponent.class);
+                LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
+                ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
 
                 if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
                     continue;
@@ -340,10 +343,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
             }
 
             for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-				Integer child = children[i];
+                Integer child = children[i];
 
-                LayerMapComponent rootLayers = ComponentRetriever.get(rootEntity, LayerMapComponent.class);
-                ZIndexComponent childZIndexComponent = ComponentRetriever.get(child, ZIndexComponent.class);
+                LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
+                ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
 
                 if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
                     continue;
@@ -410,7 +413,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);
 
         // Find the parent that transforms.
-		Integer parentEntity = null;
+        Integer parentEntity = null;
         if (parentNodeComponent != null) {
             parentEntity = parentNodeComponent.parentEntity;
         }
@@ -445,7 +448,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
                 batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
                 batch.getShader().setUniformf("u_time", HyperLap2dRenderer.timeRunning);
 
-                TextureRegionComponent entityTextureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+                TextureRegionComponent entityTextureRegionComponent = textureRegionComponentMapper.get(entity);
                 if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
                     batch.getShader().setUniformf("u_atlas_coords", entityTextureRegionComponent.region.getU(),
                             entityTextureRegionComponent.region.getV(),
@@ -586,6 +589,10 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
     public void setUseLights(boolean useLights) {
         this.useLights = useLights;
+    }
+
+    public void injectMappers(World engine) {
+        drawableLogicMapper.injectMappers(engine);
     }
 }
 

@@ -18,6 +18,7 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -35,6 +36,9 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  * Created by azakhary on 5/22/2015.
  */
 public class CompositeComponentFactory extends ComponentFactory {
+
+    protected static ComponentMapper<CompositeTransformComponent> compositeTransformCM;
+    protected static ComponentMapper<LayerMapComponent> layerMapCM;
 
     public CompositeComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -54,7 +58,7 @@ public class CompositeComponentFactory extends ComponentFactory {
 
     @Override
     protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = engine.edit(entity).create(DimensionsComponent.class);
+        DimensionsComponent component = dimensionsCM.create(entity);
         component.width = ((CompositeItemVO) vo).width;
         component.height = ((CompositeItemVO) vo).height;
         component.boundBox = new Rectangle(0, 0, component.width, component.height);
@@ -67,17 +71,17 @@ public class CompositeComponentFactory extends ComponentFactory {
             super.createNodeComponent(root, entity);
         }
 
-        NodeComponent node = engine.edit(entity).create(NodeComponent.class);
+        NodeComponent node = nodeCM.create(entity);
     }
 
     protected void createCompositeComponents(int entity, CompositeItemVO vo) {
-        CompositeTransformComponent compositeTransform = engine.edit(entity).create(CompositeTransformComponent.class);
+        CompositeTransformComponent compositeTransform = compositeTransformCM.create(entity);
 
         compositeTransform.automaticResize = vo.automaticResize;
         compositeTransform.scissorsEnabled = vo.scissorsEnabled;
         compositeTransform.renderToFBO = vo.renderToFBO;
 
-        LayerMapComponent layerMap = engine.edit(entity).create(LayerMapComponent.class);
+        LayerMapComponent layerMap = layerMapCM.create(entity);
         if (vo.composite.layers.size() == 0) {
             vo.composite.layers.add(LayerItemVO.createDefault());
         }

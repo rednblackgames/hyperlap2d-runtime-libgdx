@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.One;
 import com.artemis.systems.IteratingSystem;
@@ -16,25 +15,21 @@ import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.LightVO;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 
 @One({LightObjectComponent.class, LightBodyComponent.class})
 public class LightSystem extends IteratingSystem {
     protected ComponentMapper<LightObjectComponent> lightObjectComponentMapper;
-	protected ComponentMapper<TransformComponent> transformComponentMapper;
-	protected ComponentMapper<ParentNodeComponent> parentNodeComponentMapper;
-	protected ComponentMapper<LightBodyComponent> lightBodyComponentMapper;
+    protected ComponentMapper<TransformComponent> transformComponentMapper;
+    protected ComponentMapper<ParentNodeComponent> parentNodeComponentMapper;
+    protected ComponentMapper<LightBodyComponent> lightBodyComponentMapper;
+    protected ComponentMapper<PolygonComponent> polygonComponentMapper;
+    protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
 
     private RayHandler rayHandler;
 
     private final Vector2 localCoord = new Vector2();
-
-    public LightSystem(Aspect.Builder aspect, RayHandler rayHandler) {
-        super(aspect);
-        this.rayHandler = rayHandler;
-    }
 
     public LightSystem(RayHandler rayHandler) {
         this.rayHandler = rayHandler;
@@ -58,7 +53,7 @@ public class LightSystem extends IteratingSystem {
         TransformMathUtils.localToSceneCoordinates(entityId, localCoord.set(0, 0));
         ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entityId);
 
-        TransformComponent transform = ComponentRetriever.get(entityId, TransformComponent.class);
+        TransformComponent transform = transformComponentMapper.get(entityId);
         float relativeRotation = transform.rotation;
 
         int parentEntity = parentNodeComponent.parentEntity;
@@ -99,9 +94,9 @@ public class LightSystem extends IteratingSystem {
     }
 
     private void processLightBody(int entityId) {
-        LightBodyComponent lightBodyComponent = ComponentRetriever.get(entityId, LightBodyComponent.class);
-        PolygonComponent polygonComponent = ComponentRetriever.get(entityId, PolygonComponent.class);
-        PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entityId, PhysicsBodyComponent.class);
+        LightBodyComponent lightBodyComponent = lightBodyComponentMapper.get(entityId);
+        PolygonComponent polygonComponent = polygonComponentMapper.get(entityId);
+        PhysicsBodyComponent physicsComponent = physicsBodyComponentMapper.get(entityId);
 
         lightBodyComponent.setRayHandler(rayHandler);
 

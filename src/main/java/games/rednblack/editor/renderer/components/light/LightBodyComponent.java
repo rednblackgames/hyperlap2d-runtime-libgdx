@@ -1,18 +1,18 @@
 package games.rednblack.editor.renderer.components.light;
 
-import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.box2dLight.ChainLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.commons.IRefreshableObject;
+import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 
-public class LightBodyComponent extends PooledComponent implements IRefreshableObject {
+public class LightBodyComponent extends RefreshableComponent implements RemovableObject {
 
     protected boolean needsRefresh = false;
 
@@ -34,8 +34,7 @@ public class LightBodyComponent extends PooledComponent implements IRefreshableO
 
     }
 
-    //    @Override
-    // TODO: Hmm, so do i have to implement a system to invoke it's onRemove calls?
+    @Override
     public void onRemove() {
         if (lightObject != null) {
             lightObject.remove();
