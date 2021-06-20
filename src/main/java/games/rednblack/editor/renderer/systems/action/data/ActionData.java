@@ -10,7 +10,8 @@ public class ActionData implements Pool.Poolable {
     public String logicClassName;
     public boolean detached;
 
-    private @Null Pool pool;
+    private @Null
+    Pool pool;
 
     @Override
     public void reset() {
@@ -27,7 +28,8 @@ public class ActionData implements Pool.Poolable {
         this.pool = pool;
     }
 
-    public @Null Pool getPool() {
+    public @Null
+    Pool getPool() {
         return pool;
     }
 }

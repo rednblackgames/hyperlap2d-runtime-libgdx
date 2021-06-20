@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.*;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,7 +16,10 @@ import games.rednblack.editor.renderer.box2dLight.DirectionalLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.box2dLight.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
-import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.NodeComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -45,24 +48,33 @@ import games.rednblack.editor.renderer.utils.DefaultShaders;
 public class SceneLoader {
     public static final int BATCH_VERTICES_SIZE = 2000;
 
+    // Initialised when a SceneLoader is instantiated
     private String curResolution = "orig";
-    private SceneVO sceneVO;
-    private IResourceRetriever rm = null;
-
-    private PooledEngine engine = null;
-    private RayHandler rayHandler;
     private World world;
-    private Entity rootEntity;
-    private DirectionalLight sceneDirectionalLight;
-
-    private EntityFactory entityFactory;
-    private ActionFactory actionFactory;
-
-    private int pixelsPerWU = 1;
-
+    private RayHandler rayHandler;
+    private IResourceRetriever rm = null;
+    private WorldConfigurationBuilder config;
     private HyperLap2dRenderer renderer;
 
-    public SceneLoader(World world, RayHandler rayHandler, boolean cullingEnabled, int entityPoolInitialSize, int entityPoolMaxSize, int componentPoolInitialSize, int componentPoolMaxSize) {
+    // Initialised when createEngine is called
+    private com.artemis.World engine = null;
+    private EntityFactory entityFactory;
+    private ComponentMapper<LightBodyComponent> lightBodyCM;
+    private ComponentMapper<LightObjectComponent> lightObjectCM;
+    private ComponentMapper<MainItemComponent> mainItemCM;
+    private ComponentMapper<NodeComponent> nodeCM;
+    private ComponentMapper<ParentNodeComponent> parentNodeCM;
+    private ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
+    private ComponentMapper<ScriptComponent> scriptCM;
+
+    // Initialised when loadScene is called
+    private int pixelsPerWU = 1;
+    private SceneVO sceneVO;
+    private int rootEntity;
+    private DirectionalLight sceneDirectionalLight;
+    private ActionFactory actionFactory;
+
+    public SceneLoader(World world, RayHandler rayHandler, boolean cullingEnabled) {
         this.world = world;
         this.rayHandler = rayHandler;
 
@@ -70,34 +82,35 @@ public class SceneLoader {
         rm.initAllResources();
         this.rm = rm;
 
-        initSceneLoader(cullingEnabled, entityPoolInitialSize, entityPoolMaxSize, componentPoolInitialSize, componentPoolMaxSize);
+        initSceneLoader(cullingEnabled);
     }
 
-    public SceneLoader(IResourceRetriever rm, World world, RayHandler rayHandler, boolean cullingEnabled, int entityPoolInitialSize, int entityPoolMaxSize, int componentPoolInitialSize, int componentPoolMaxSize) {
+    public SceneLoader(IResourceRetriever rm, World world, RayHandler rayHandler, boolean cullingEnabled) {
         this.world = world;
         this.rayHandler = rayHandler;
         this.rm = rm;
 
-        initSceneLoader(cullingEnabled, entityPoolInitialSize, entityPoolMaxSize, componentPoolInitialSize, componentPoolMaxSize);
+        initSceneLoader(cullingEnabled);
     }
 
     public SceneLoader() {
-        this(null, null, true, 10, 100, 10, 100);
+        this(null, null, true);
     }
 
     public SceneLoader(IResourceRetriever rm) {
-        this(rm, null, null, true, 10, 100, 10, 100);
+        this(rm, null, null, true);
     }
 
     /**
      * this method is called when rm has loaded all data
      */
-    private void initSceneLoader(boolean cullingEnabled, int entityPoolInitialSize, int entityPoolMaxSize, int componentPoolInitialSize, int componentPoolMaxSize) {
-        this.engine = new PooledEngine(entityPoolInitialSize, entityPoolMaxSize, componentPoolInitialSize, componentPoolMaxSize);
+    private void initSceneLoader(boolean cullingEnabled) {
 
         if (world == null) {
             world = new World(new Vector2(0, -10), true);
         }
+
+        this.config = new WorldConfigurationBuilder();
 
         if (rayHandler == null) {
             RayHandlerOptions rayHandlerOptions = new RayHandlerOptions();
@@ -113,7 +126,6 @@ public class SceneLoader {
         }
 
         addSystems(cullingEnabled);
-        entityFactory = new EntityFactory(engine, rayHandler, world, rm);
     }
 
     public void setResolution(String resolutionName) {
@@ -123,18 +135,49 @@ public class SceneLoader {
         }
     }
 
+    // TODO: Split injectExternalItemType in two parts, first where we add systems to be executed before engine creation, next all other activities to be executed after engine creation
     public void injectExternalItemType(IExternalItemType itemType) {
+
         itemType.injectDependencies(engine, rayHandler, world, rm);
         itemType.injectMappers();
         entityFactory.addExternalFactory(itemType);
-        engine.addSystem(itemType.getSystem());
+
+        addSystem(itemType.getSystem());
+
         renderer.addDrawableType(itemType);
+    }
+
+    public void addSystem(BaseSystem system) {
+        assert config != null : "Add systems before createEngine";
+        config.with(system);
+    }
+
+    public com.artemis.World createEngine() {
+        return createEngine(128, false);
+    }
+
+    public com.artemis.World createEngine(int expectedEntityCount, boolean alwaysDelayComponentRemoval) {
+        WorldConfiguration build = config.build();
+        build.expectedEntityCount(expectedEntityCount);
+        build.setAlwaysDelayComponentRemoval(alwaysDelayComponentRemoval);
+
+        this.engine = new com.artemis.World(build);
+        engine.inject(this); // LMAO, it initialises the mappers in here
+        renderer.injectMappers(engine);
+
+        ComponentRetriever.initialize(engine);
+        addEntityRemoveListener();
+
+        entityFactory = new EntityFactory(engine, rayHandler, world, rm);
+
+        config = null;
+
+        return engine;
     }
 
     private void addSystems(boolean cullingEnabled) {
         ParticleSystem particleSystem = new ParticleSystem();
-        LightSystem lightSystem = new LightSystem();
-        lightSystem.setRayHandler(rayHandler);
+        LightSystem lightSystem = new LightSystem(rayHandler);
         SpriteAnimationSystem animationSystem = new SpriteAnimationSystem();
         LayerSystem layerSystem = new LayerSystem();
         PhysicsSystem physicsSystem = new PhysicsSystem(world);
@@ -148,94 +191,112 @@ public class SceneLoader {
         renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(BATCH_VERTICES_SIZE, createDefaultShader()));
         renderer.setRayHandler(rayHandler);
 
-        engine.addSystem(animationSystem);
-        engine.addSystem(particleSystem);
-        engine.addSystem(layerSystem);
-        engine.addSystem(physicsSystem);
-        engine.addSystem(lightSystem);
-        engine.addSystem(typingLabelSystem);
-        engine.addSystem(compositeSystem);
-        engine.addSystem(labelSystem);
-        engine.addSystem(scriptSystem);
-        engine.addSystem(actionSystem);
+        config.with(animationSystem);
+        config.with(particleSystem);
+        config.with(layerSystem);
+        config.with(physicsSystem);
+        config.with(lightSystem);
+        config.with(typingLabelSystem);
+        config.with(compositeSystem);
+        config.with(labelSystem);
+        config.with(scriptSystem);
+        config.with(actionSystem);
 
         if (cullingEnabled) {
-            engine.addSystem(boundingBoxSystem);
-            engine.addSystem(cullingSystem);
+            config.with(boundingBoxSystem);
+            config.with(cullingSystem);
         }
 
-        engine.addSystem(renderer);
+        config.with(renderer);
 
         // additional
-        engine.addSystem(new ButtonSystem());
-
-        addEntityRemoveListener();
+        config.with(new ButtonSystem());
     }
 
     private void addEntityRemoveListener() {
-        engine.addEntityListener(new EntityListener() {
-            @Override
-            public void entityAdded(Entity entity) {
-                // Check if there are scripts to entity and call init that
-                ScriptComponent scriptComponent = ComponentRetriever.get(entity, ScriptComponent.class);
-                if (scriptComponent != null) {
-                    for (IScript script : scriptComponent.scripts) {
-                        script.init(entity);
+
+        // TODO: should we nat have a separate class extending SubscriptionListener?
+
+        engine.getAspectSubscriptionManager()
+                .get(Aspect.all())
+                .addSubscriptionListener(new EntitySubscription.SubscriptionListener() {
+
+                    @Override
+                    public void inserted(IntBag entities) {
+                        for (int i = 0, s = entities.size(); i < s; i++) {
+                            int entity = entities.get(i);
+                            ScriptComponent scriptComponent = scriptCM.get(entity);
+                            if (scriptComponent != null) {
+                                for (IScript script : scriptComponent.scripts) {
+                                    script.init(entity);
+                                }
+                            }
+                        }
                     }
-                }
-            }
 
-            @Override
-            public void entityRemoved(Entity entity) {
-                ParentNodeComponent parentComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
+                    @Override
+                    public void removed(IntBag entities) {
+                        for (int i = 0, s = entities.size(); i < s; i++) {
+                            int entity = entities.get(i);
+                            ParentNodeComponent parentComponent = parentNodeCM.get(entity);
 
-                if (parentComponent == null) {
-                    return;
-                }
+                            if (parentComponent == null) {
+                                return;
+                            }
 
-                Entity parentEntity = parentComponent.parentEntity;
-                NodeComponent parentNodeComponent = ComponentRetriever.get(parentEntity, NodeComponent.class);
-                if (parentNodeComponent != null)
-                    parentNodeComponent.removeChild(entity);
+                            int parentEntity = parentComponent.parentEntity;
+                            NodeComponent parentNodeComponent = nodeCM.get(parentEntity);
+                            if (parentNodeComponent != null)
+                                parentNodeComponent.removeChild(entity);
 
-                // check if composite and remove all children
-                NodeComponent nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
-                if (nodeComponent != null) {
-                    // it is composite
-                    for (Entity node : nodeComponent.children) {
-                       if (!node.isRemoving() && !node.isScheduledForRemoval())
-                           engine.removeEntity(node);
+                            // check if composite and remove all children
+                            NodeComponent nodeComponent = nodeCM.get(entity);
+                            if (nodeComponent != null) {
+                                // it is composite
+                                for (int node : nodeComponent.children) {
+                                    if (engine.getEntity(node).isActive())
+                                        engine.delete(node);
+                                }
+                            }
+
+                            // TODO: remove this comment
+                        /*if (nodeComponent != null) {
+                            // it is composite
+                            for (int node : nodeComponent.children) {
+                                if (!node.isRemoving() && !node.isScheduledForRemoval())
+                                    engine.removeEntity(node);
+                            }
+                        }*/
+
+                            //check for physics
+                            PhysicsBodyComponent physicsBodyComponent = physicsBodyCM.get(entity);
+                            if (physicsBodyComponent != null && physicsBodyComponent.body != null) {
+                                world.destroyBody(physicsBodyComponent.body);
+                                physicsBodyComponent.body = null;
+                            }
+
+                            // check if it is light
+                            LightObjectComponent lightObjectComponent = lightObjectCM.get(entity);
+                            if (lightObjectComponent != null) {
+                                lightObjectComponent.lightObject.remove(true);
+                            }
+
+                            LightBodyComponent lightBodyComponent = lightBodyCM.get(entity);
+                            if (lightBodyComponent != null && lightBodyComponent.lightObject != null) {
+                                lightBodyComponent.lightObject.remove(true);
+                            }
+
+                            ScriptComponent scriptComponent = scriptCM.get(entity);
+                            if (scriptComponent != null) {
+                                for (IScript script : scriptComponent.scripts) {
+                                    script.dispose();
+                                }
+                            }
+
+                            renderer.removeSpecialEntity(entity);
+                        }
                     }
-                }
-
-                //check for physics
-                PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-                if (physicsBodyComponent != null && physicsBodyComponent.body != null) {
-                    world.destroyBody(physicsBodyComponent.body);
-                    physicsBodyComponent.body = null;
-                }
-
-                // check if it is light
-                LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class);
-                if (lightObjectComponent != null) {
-                    lightObjectComponent.lightObject.remove(true);
-                }
-
-                LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class);
-                if (lightBodyComponent != null && lightBodyComponent.lightObject != null) {
-                    lightBodyComponent.lightObject.remove(true);
-                }
-
-                ScriptComponent scriptComponent = ComponentRetriever.get(entity, ScriptComponent.class);
-                if (scriptComponent != null) {
-                    for (IScript script : scriptComponent.scripts) {
-                        script.dispose();
-                    }
-                }
-
-                renderer.removeSpecialEntity(entity);
-            }
-        });
+                });
     }
 
     public SceneVO loadScene(String sceneName, Viewport viewport) {
@@ -253,11 +314,21 @@ public class SceneLoader {
     }
 
     public SceneVO loadScene(String sceneName, Viewport viewport, boolean customLight) {
-        // this has to be done differently.
-        engine.removeAllEntities();
+        assert engine != null : "You need to first create an engine by calling createEngine";
+
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all())
+                .getEntities();
+
+        int[] ids = entities.getData();
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            engine.delete(ids[i]);
+        }
+
         entityFactory.clean();
         //Update the engine to ensure that all pending operations are completed!!
-        engine.update(0);
+        engine.setDelta(Gdx.graphics.getDeltaTime());
+        engine.process();
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
         renderer.setPixelsPerWU(pixelsPerWU);
@@ -272,7 +343,6 @@ public class SceneLoader {
             sceneVO.composite = new CompositeVO();
         }
         rootEntity = entityFactory.createRootEntity(sceneVO.composite, viewport);
-        engine.addEntity(rootEntity);
 
         if (sceneVO.composite != null) {
             entityFactory.initAllChildren(engine, rootEntity, sceneVO.composite);
@@ -290,15 +360,17 @@ public class SceneLoader {
         return sceneVO;
     }
 
-    public Entity loadFromLibrary(String libraryName) {
+    public int loadFromLibrary(String libraryName) {
         ProjectInfoVO projectInfoVO = getRm().getProjectVO();
         CompositeItemVO compositeItemVO = projectInfoVO.libraryItems.get(libraryName);
 
         if (compositeItemVO != null) {
-            return entityFactory.createEntity(null, compositeItemVO);
+            int ent = engine.create();
+            entityFactory.initializeEntity(-1, ent, compositeItemVO);
+            return ent;
         }
 
-        return null;
+        return -1;
     }
 
     public CompositeItemVO loadVoFromLibrary(String libraryName) {
@@ -317,28 +389,37 @@ public class SceneLoader {
     }
 
     public void addComponentByTagName(String tagName, Class<? extends Component> componentClass) {
-        ImmutableArray<Entity> entities = engine.getEntities();
-        for (Entity entity : entities) {
-            MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all(MainItemComponent.class))
+                .getEntities();
+
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int id = entities.get(i);
+
+            MainItemComponent mainItemComponent = mainItemCM.get(id);
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
-                    entity.add(engine.createComponent(componentClass));
+                    engine.edit(id).create(componentClass);
                 }
             }
         }
     }
 
     /*
-    * Add an actions from library actions for any entity with specified tag
-    *
-    */
+     * Add an actions from library actions for any entity with specified tag
+     *
+     */
     public void addActionByTagName(String tagName, String action) {
-        ImmutableArray<Entity> entities = engine.getEntities();
-        for (Entity entity : entities) {
-            MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all(MainItemComponent.class))
+                .getEntities();
+
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int id = entities.get(i);
+            MainItemComponent mainItemComponent = mainItemCM.get(id);
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
-                    Actions.addAction(engine, entity, loadActionFromLibrary(action));
+                    Actions.addAction(engine, id, loadActionFromLibrary(action));
                 }
             }
         }
@@ -349,12 +430,16 @@ public class SceneLoader {
      *
      */
     public void addActionByTagName(String tagName, ActionData action) {
-        ImmutableArray<Entity> entities = engine.getEntities();
-        for (Entity entity : entities) {
-            MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all(MainItemComponent.class))
+                .getEntities();
+
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int id = entities.get(i);
+            MainItemComponent mainItemComponent = mainItemCM.get(id);
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
-                    Actions.addAction(engine, entity, action);
+                    Actions.addAction(engine, id, action);
                 }
             }
         }
@@ -428,8 +513,12 @@ public class SceneLoader {
         return rm;
     }
 
-    public PooledEngine getEngine() {
+    public com.artemis.World getEngine() {
         return engine;
+    }
+
+    public WorldConfigurationBuilder getConfig() {
+        return config;
     }
 
     public RayHandler getRayHandler() {
@@ -444,8 +533,12 @@ public class SceneLoader {
         return pixelsPerWU;
     }
 
-    public Entity getRoot() {
+    public int getRoot() {
         return rootEntity;
+    }
+
+    public Entity getRootEntity() {
+        return engine.getEntity(rootEntity);
     }
 
     /**
@@ -460,7 +553,7 @@ public class SceneLoader {
     public Batch getBatch() {
         return renderer.getBatch();
     }
-    
+
     public FrameBufferManager getFrameBufferManager() {
         return renderer.getFrameBufferManager();
     }

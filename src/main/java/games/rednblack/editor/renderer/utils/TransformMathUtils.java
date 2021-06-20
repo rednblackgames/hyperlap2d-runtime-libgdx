@@ -62,8 +62,8 @@ public class TransformMathUtils {
 				parentCoords.y = (parentCoords.y - childY - originY) / scaleY + originY;
 			}
 		} else {
-			final float cos = MathUtils.cosDeg(rotation);
-			final float sin = MathUtils.sinDeg(rotation);
+			final float cos = (float)Math.cos(rotation * MathUtils.degreesToRadians);
+			final float sin = (float)Math.sin(rotation * MathUtils.degreesToRadians);
 
 			final float originX = transform.originX;
 			final float originY = transform.originY;
@@ -73,28 +73,6 @@ public class TransformMathUtils {
 			parentCoords.y = (tox * -sin + toy * cos) / scaleY + originY;
 		}
 		return parentCoords;
-	}
-
-	/** Transforms the specified point array in the entity's coordinates to be in the scene's coordinates.*/
-	public static Vector2[] localToSceneCoordinates (Entity entity, Vector2[] localCoords) {
-		return localToAscendantCoordinates(null, entity, localCoords);
-	}
-
-	/** Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent. */
-	public static Vector2[] localToAscendantCoordinates (Entity ascendant, Entity entity, Vector2[] localCoords) {
-		while (entity != null) {
-			for (int i = 0; i < localCoords.length; i++) {
-				localToParentCoordinates(entity, localCoords[i]);
-			}
-
-			ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class);
-			if(parentNode == null){
-				break;
-			}
-			entity = parentNode.parentEntity;
-			if (entity == ascendant) break;
-		}
-		return localCoords;
 	}
 
 	/** Transforms the specified point in the entity's coordinates to be in the scene's coordinates.*/
@@ -136,8 +114,8 @@ public class TransformMathUtils {
 				localCoords.y = (localCoords.y - originY) * scaleY + originY + y;
 			}
 		} else {
-			final float cos = MathUtils.cosDeg(rotation);
-			final float sin = MathUtils.sinDeg(rotation);
+			final float cos = (float)Math.cos(rotation * MathUtils.degreesToRadians);
+			final float sin = (float)Math.sin(rotation * MathUtils.degreesToRadians);
 			final float originX = transform.originX;
 			final float originY = transform.originY;
 			final float tox = (localCoords.x - originX) * scaleX;

@@ -19,7 +19,6 @@ import java.util.HashMap;
  * Created by Eduard on 10/13/2015.
  */
 public class Actions {
-    public static int ACTIONS_POOL_SIZE = 100;
 
     public static HashMap<String, ActionLogic> actionLogicMap = new HashMap<>();
     public static HashMap<String, String> actionDataLogicMap = new HashMap<>();
@@ -60,7 +59,7 @@ public class Actions {
 
     static public <T extends ActionData> T actionData(Class<T> type, boolean autoPoolable) {
         checkInit();
-        Pool<T> pool = Pools.get(type, ACTIONS_POOL_SIZE);
+        Pool<T> pool = Pools.get(type);
         T action = pool.obtain();
         if (autoPoolable)
             action.setPool(pool);
