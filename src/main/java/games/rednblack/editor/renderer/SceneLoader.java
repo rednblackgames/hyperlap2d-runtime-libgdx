@@ -2,7 +2,6 @@ package games.rednblack.editor.renderer;
 
 import com.artemis.*;
 import com.artemis.utils.IntBag;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -44,6 +43,12 @@ import games.rednblack.editor.renderer.utils.DefaultShaders;
  * IResourceRetriever (or creates default one shipped with runtime) in order to
  * load entire scene data into viewable actors provides the functionality to get
  * root actor of scene and load scenes.
+ *
+ * Usage note:
+ * First, create an instance with suitable parameters.
+ * Second, inject all the external types using injectExternalItemType
+ * Third, create the engine, initialise mappers and external types by calling createEngine
+ * Fourth, load a scene using loadScene
  */
 public class SceneLoader {
     public static final int BATCH_VERTICES_SIZE = 2000;
@@ -55,10 +60,12 @@ public class SceneLoader {
     private IResourceRetriever rm;
     private WorldConfigurationBuilder config;
     private HyperLap2dRenderer renderer;
+    private EntityFactory entityFactory;
+
+    // Initialised when injectExternalItemType is called
 
     // Initialised when createEngine is called
     private com.artemis.World engine = null;
-    private EntityFactory entityFactory;
     private ComponentMapper<LightBodyComponent> lightBodyCM;
     private ComponentMapper<LightObjectComponent> lightObjectCM;
     private ComponentMapper<MainItemComponent> mainItemCM;
@@ -74,6 +81,10 @@ public class SceneLoader {
     private DirectionalLight sceneDirectionalLight;
     private ActionFactory actionFactory;
 
+    public SceneLoader() {
+        this(null, null, true);
+    }
+
     public SceneLoader(World world, RayHandler rayHandler, boolean cullingEnabled) {
         this.world = world;
         this.rayHandler = rayHandler;
@@ -85,20 +96,16 @@ public class SceneLoader {
         initSceneLoader(cullingEnabled);
     }
 
+    public SceneLoader(IResourceRetriever rm) {
+        this(rm, null, null, true);
+    }
+
     public SceneLoader(IResourceRetriever rm, World world, RayHandler rayHandler, boolean cullingEnabled) {
         this.world = world;
         this.rayHandler = rayHandler;
         this.rm = rm;
 
         initSceneLoader(cullingEnabled);
-    }
-
-    public SceneLoader() {
-        this(null, null, true);
-    }
-
-    public SceneLoader(IResourceRetriever rm) {
-        this(rm, null, null, true);
     }
 
     /**
@@ -125,57 +132,12 @@ public class SceneLoader {
             rayHandler.setShadows(true);
         }
 
-        addSystems(cullingEnabled);
+        entityFactory = new EntityFactory();
+
+        addInternalSystems(cullingEnabled);
     }
 
-    public void setResolution(String resolutionName) {
-        ResolutionEntryVO resolution = getRm().getProjectVO().getResolution(resolutionName);
-        if (resolution != null) {
-            curResolution = resolutionName;
-        }
-    }
-
-    // TODO: Split injectExternalItemType in two parts, first where we add systems to be executed before engine creation, next all other activities to be executed after engine creation
-    public void injectExternalItemType(IExternalItemType itemType) {
-
-        itemType.injectDependencies(engine, rayHandler, world, rm);
-        itemType.injectMappers();
-        entityFactory.addExternalFactory(itemType);
-
-        addSystem(itemType.getSystem());
-
-        renderer.addDrawableType(itemType);
-    }
-
-    public void addSystem(BaseSystem system) {
-        assert config != null : "Add systems before createEngine";
-        config.with(system);
-    }
-
-    public com.artemis.World createEngine() {
-        return createEngine(128, false);
-    }
-
-    public com.artemis.World createEngine(int expectedEntityCount, boolean alwaysDelayComponentRemoval) {
-        WorldConfiguration build = config.build();
-        build.expectedEntityCount(expectedEntityCount);
-        build.setAlwaysDelayComponentRemoval(alwaysDelayComponentRemoval);
-
-        this.engine = new com.artemis.World(build);
-        engine.inject(this); // LMAO, it initialises the mappers in here
-        renderer.injectMappers(engine);
-
-        ComponentRetriever.initialize(engine);
-        addEntityRemoveListener();
-
-        entityFactory = new EntityFactory(engine, rayHandler, world, rm);
-
-        config = null;
-
-        return engine;
-    }
-
-    private void addSystems(boolean cullingEnabled) {
+    private void addInternalSystems(boolean cullingEnabled) {
         ParticleSystem particleSystem = new ParticleSystem();
         LightSystem lightSystem = new LightSystem(rayHandler);
         SpriteAnimationSystem animationSystem = new SpriteAnimationSystem();
@@ -211,6 +173,48 @@ public class SceneLoader {
 
         // additional
         config.with(new ButtonSystem());
+    }
+
+    public void setResolution(String resolutionName) {
+        ResolutionEntryVO resolution = getRm().getProjectVO().getResolution(resolutionName);
+        if (resolution != null) {
+            curResolution = resolutionName;
+        }
+    }
+
+    public void injectExternalItemType(IExternalItemType itemType) {
+        itemType.injectMappers();
+        entityFactory.addExternalFactory(itemType);
+        addSystem(itemType.getSystem());
+        renderer.addDrawableType(itemType);
+    }
+
+    public void addSystem(BaseSystem system) {
+        assert config != null : "Add systems before createEngine";
+        config.with(system);
+    }
+
+    public com.artemis.World createEngine() {
+        return createEngine(128, false);
+    }
+
+    public com.artemis.World createEngine(int expectedEntityCount, boolean alwaysDelayComponentRemoval) {
+        WorldConfiguration build = config.build();
+        build.expectedEntityCount(expectedEntityCount);
+        build.setAlwaysDelayComponentRemoval(alwaysDelayComponentRemoval);
+
+        this.engine = new com.artemis.World(build);
+        engine.inject(this); // LMAO, it initialises the mappers in here
+        renderer.injectMappers(engine);
+
+        ComponentRetriever.initialize(engine);
+        addEntityRemoveListener();
+
+        entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
+
+        config = null;
+
+        return engine;
     }
 
     private void addEntityRemoveListener() {
@@ -290,10 +294,6 @@ public class SceneLoader {
                 });
     }
 
-    public SceneVO loadScene(String sceneName, Viewport viewport) {
-        return loadScene(sceneName, viewport, false);
-    }
-
     public SceneVO loadScene(String sceneName) {
         return loadScene(sceneName, false);
     }
@@ -302,6 +302,10 @@ public class SceneLoader {
         ProjectInfoVO projectVO = rm.getProjectVO();
         Viewport viewport = new ScalingViewport(Scaling.stretch, (float) projectVO.originalResolution.width / pixelsPerWU, (float) projectVO.originalResolution.height / pixelsPerWU, new OrthographicCamera());
         return loadScene(sceneName, viewport, customLight);
+    }
+
+    public SceneVO loadScene(String sceneName, Viewport viewport) {
+        return loadScene(sceneName, viewport, false);
     }
 
     public SceneVO loadScene(String sceneName, Viewport viewport, boolean customLight) {

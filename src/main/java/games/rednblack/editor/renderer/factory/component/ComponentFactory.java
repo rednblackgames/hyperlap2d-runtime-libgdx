@@ -18,6 +18,8 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
+import com.artemis.Archetype;
+import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -54,13 +56,19 @@ public abstract class ComponentFactory {
     protected static ComponentMapper<TransformComponent> transformCM;
     protected static ComponentMapper<ZIndexComponent> zIndexCM;
 
+    /**
+     * Do call injectDependencies manually when using this constructor!
+     */
+    public ComponentFactory() {
+    }
+
     public ComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
-        engine.inject(this);
         injectDependencies(engine, rayHandler, world, rm);
     }
 
     public void injectDependencies(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         this.engine = engine;
+        this.engine.inject(this);
         this.rayHandler = rayHandler;
         this.world = world;
         this.rm = rm;

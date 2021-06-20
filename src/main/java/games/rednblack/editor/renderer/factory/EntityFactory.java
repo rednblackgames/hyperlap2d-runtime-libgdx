@@ -49,7 +49,14 @@ public class EntityFactory {
     public IResourceRetriever rm = null;
     public com.artemis.World engine;
 
-    public EntityFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    /**
+     * Do call injectDependencies manually when using this constructor!
+     */
+    public EntityFactory() {
+
+    }
+
+    public void injectExternalItemType(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         this.engine = engine;
         this.engine.inject(this);
         this.rayHandler = rayHandler;
@@ -64,6 +71,10 @@ public class EntityFactory {
         labelComponentFactory = new LabelComponentFactory(engine, rayHandler, world, rm);
         ninePatchComponentFactory = new NinePatchComponentFactory(engine, rayHandler, world, rm);
         colorPrimitiveFactory = new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm);
+
+        for (ComponentFactory factory : externalFactories.values()) {
+            factory.injectDependencies(engine, rayHandler, world, rm);
+        }
     }
 
     public ComponentFactory getCompositeComponentFactory() {

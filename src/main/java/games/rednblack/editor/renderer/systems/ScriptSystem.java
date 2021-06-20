@@ -17,7 +17,7 @@ public class ScriptSystem extends IteratingSystem {
     @Override
     protected void process(int entity) {
         for (IScript script : scriptComponentMapper.get(entity).scripts) {
-            script.act(world.getDelta());
+            script.act(world.delta);
         }
     }
 }
