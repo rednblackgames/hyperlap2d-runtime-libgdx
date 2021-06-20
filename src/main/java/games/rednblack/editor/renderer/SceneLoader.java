@@ -43,7 +43,7 @@ import games.rednblack.editor.renderer.utils.DefaultShaders;
  * IResourceRetriever (or creates default one shipped with runtime) in order to
  * load entire scene data into viewable actors provides the functionality to get
  * root actor of scene and load scenes.
- *
+ * <p>
  * Usage note:
  * First, create an instance with suitable parameters.
  * Second, inject all the external types using injectExternalItemType
@@ -340,7 +340,7 @@ public class SceneLoader {
         rootEntity = entityFactory.createRootEntity(sceneVO.composite, viewport);
 
         if (sceneVO.composite != null) {
-            entityFactory.initAllChildren(engine, rootEntity, sceneVO.composite);
+            entityFactory.initAllChildren(rootEntity, sceneVO.composite);
         }
         if (!customLight) {
             setAmbientInfo(sceneVO);
@@ -360,9 +360,7 @@ public class SceneLoader {
         CompositeItemVO compositeItemVO = projectInfoVO.libraryItems.get(libraryName);
 
         if (compositeItemVO != null) {
-            int ent = engine.create();
-            entityFactory.initializeEntity(-1, ent, compositeItemVO);
-            return ent;
+            return entityFactory.initializeEntity(-1, compositeItemVO);
         }
 
         return -1;

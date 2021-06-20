@@ -1,12 +1,17 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.data.Image9patchVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
@@ -20,22 +25,36 @@ public class NinePatchComponentFactory extends ComponentFactory {
 
     private NinePatchComponent ninePatchComponent;
 
+    private final EntityTransmuter transmuter;
 
     public NinePatchComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(NinePatchComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        ninePatchComponent = createNinePatchComponent(entity, (Image9patchVO) vo);
-        createCommonComponents(entity, vo, EntityFactory.NINE_PATCH);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.NINE_PATCH);
+        transmuter.transmute(entity);
+
+        ninePatchComponent = ninePatchCM.get(entity);
+        createNinePatchComponent(ninePatchComponent, (Image9patchVO) vo);
+
+        // We need the dimension component created on basis of texture region component.
+        // That's why we call it again, after creating a texture region component.
+        initializeDimensionsComponent(dimensionsCM.get(entity), vo);
+
+        adjustNodeHierarchy(root, entity);
+
+        return entity;
     }
 
-    @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+        if(ninePatchComponent == null) return;
+
         component.height = ((Image9patchVO) vo).height;
         component.width = ((Image9patchVO) vo).width;
         if (component.width == 0) {
@@ -45,28 +64,23 @@ public class NinePatchComponentFactory extends ComponentFactory {
         if (component.height == 0) {
             component.height = ninePatchComponent.ninePatch.getTotalHeight();
         }
-
-        return component;
     }
 
-    private NinePatchComponent createNinePatchComponent(int entity, Image9patchVO vo) {
-        NinePatchComponent ninePatchComponent = ninePatchCM.create(entity);
+    private void createNinePatchComponent(NinePatchComponent component, Image9patchVO vo) {
         AtlasRegion atlasRegion = (AtlasRegion) rm.getTextureRegion(vo.imageName);
         int[] splits = atlasRegion.findValue("split");
         if (splits == null) {
             splits = new int[]{0, 0, 0, 0};
         }
-        ninePatchComponent.ninePatch = new NinePatch(atlasRegion, splits[0], splits[1], splits[2], splits[3]);
+        component.ninePatch = new NinePatch(atlasRegion, splits[0], splits[1], splits[2], splits[3]);
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
-        ninePatchComponent.ninePatch.scale(multiplier / projectInfoVO.pixelToWorld, multiplier / projectInfoVO.pixelToWorld);
+        component.ninePatch.scale(multiplier / projectInfoVO.pixelToWorld, multiplier / projectInfoVO.pixelToWorld);
 
-        ninePatchComponent.textureRegionName = vo.imageName;
-
-        return ninePatchComponent;
+        component.textureRegionName = vo.imageName;
     }
 
 }

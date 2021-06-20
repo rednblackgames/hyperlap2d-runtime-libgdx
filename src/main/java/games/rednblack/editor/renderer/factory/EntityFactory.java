@@ -8,12 +8,11 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
-import games.rednblack.editor.renderer.components.MainItemComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
-import games.rednblack.editor.renderer.components.ViewPortComponent;
+import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.component.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,61 +88,53 @@ public class EntityFactory {
         externalFactories.put(itemType.getTypeId(), itemType.getComponentFactory());
     }
 
-    public void initializeEntity(int root, int entity, SimpleImageVO vo) {
-        simpleImageComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, SimpleImageVO vo) {
+        postProcessEntity(simpleImageComponentFactory.createSpecialisedEntity(root, vo));
     }
 
-    public void initializeEntity(int root, int entity, Image9patchVO vo) {
-        ninePatchComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, Image9patchVO vo) {
+        postProcessEntity(ninePatchComponentFactory.createSpecialisedEntity(root, vo));
     }
 
-    public void initializeEntity(int root, int entity, LabelVO vo) {
-        labelComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, LabelVO vo) {
+        postProcessEntity(labelComponentFactory.createSpecialisedEntity(root, vo));
 
     }
 
-    public void initializeEntity(int root, int entity, ParticleEffectVO vo) {
-        particleEffectComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, ParticleEffectVO vo) {
+        postProcessEntity(particleEffectComponentFactory.createSpecialisedEntity(root, vo));
     }
 
-    public void initializeEntity(int root, int entity, TalosVO vo) {
+    public void initializeEntity(int root, TalosVO vo) {
         ComponentFactory factory = externalFactories.get(TALOS_TYPE);
         if (factory != null) {
-            factory.createComponents(root, entity, vo);
-            postProcessEntity(entity);
+            postProcessEntity(factory.createSpecialisedEntity(root, vo));
         }
     }
 
-    public void initializeEntity(int root, int entity, LightVO vo) {
-        lightComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, LightVO vo) {
+        postProcessEntity(lightComponentFactory.createSpecialisedEntity(root, vo));
     }
 
-    public void initializeEntity(int root, int entity, SpineVO vo) {
+    public void initializeEntity(int root, SpineVO vo) {
         ComponentFactory factory = externalFactories.get(SPINE_TYPE);
         if (factory != null) {
-            factory.createComponents(root, entity, vo);
-            postProcessEntity(entity);
+            postProcessEntity(factory.createSpecialisedEntity(root, vo));
         }
     }
 
-    public void initializeEntity(int root, int entity, SpriteAnimationVO vo) {
-        spriteComponentFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, SpriteAnimationVO vo) {
+        postProcessEntity(spriteComponentFactory.createSpecialisedEntity(root, vo));
     }
 
-    public void initializeEntity(int root, int entity, CompositeItemVO vo) {
-        compositeComponentFactory.createComponents(root, entity, vo);
+    public int initializeEntity(int root, CompositeItemVO vo) {
+        int entity = compositeComponentFactory.createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
+        return entity;
     }
 
-    public void initializeEntity(int root, int entity, ColorPrimitiveVO vo) {
-        colorPrimitiveFactory.createComponents(root, entity, vo);
-        postProcessEntity(entity);
+    public void initializeEntity(int root, ColorPrimitiveVO vo) {
+        postProcessEntity(colorPrimitiveFactory.createSpecialisedEntity(root, vo));
     }
 
     public int createRootEntity(CompositeVO compositeVo, Viewport viewport) {
@@ -152,10 +143,11 @@ public class EntityFactory {
         vo.composite = compositeVo;
         vo.automaticResize = false;
 
-        int entity = engine.create();
-        EntityEdit edit = engine.edit(entity);
 
-        compositeComponentFactory.createComponents(-1, entity, vo);
+        int entity = compositeComponentFactory.createSpecialisedEntity(-1, vo);
+
+        // TODO; remove this
+        EntityEdit edit = engine.edit(entity);
         TransformComponent transform = edit.create(TransformComponent.class);
 
         ViewPortComponent viewPortComponent = edit.create(ViewPortComponent.class);
@@ -178,9 +170,12 @@ public class EntityFactory {
     }
 
     private int getFreeId() {
-        if (entities == null || entities.size == 0) return 1;
+        // TODO: will entities always remain non null?
+//        if (entities == null || entities.size == 0) return 1;
+        if (entities.size == 0) return 1;
 
         // TODO: Is it performant enough?
+        // Just so you know why this TODO exists and what is really going on in here, i dont know why we need to sort the elements. That's why, to be on the safe side, i wrote some code to get it sorted
         IntIntMap.Keys keys = entities.keys();
         ArrayList<Integer> ids = new ArrayList<>();
         while (keys.hasNext) ids.add(keys.next());
@@ -202,57 +197,49 @@ public class EntityFactory {
         return mainItemComponent.uniqueId;
     }
 
-    public void initAllChildren(com.artemis.World engine, int entity, CompositeVO vo) {
+    public void initAllChildren(int root, CompositeVO vo) {
         for (int i = 0; i < vo.sImages.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sImages.get(i));
+            initializeEntity(root, vo.sImages.get(i));
         }
 
         for (int i = 0; i < vo.sImage9patchs.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sImage9patchs.get(i));
+            initializeEntity(root, vo.sImage9patchs.get(i));
         }
 
         for (int i = 0; i < vo.sLabels.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sLabels.get(i));
+            initializeEntity(root, vo.sLabels.get(i));
         }
 
         for (int i = 0; i < vo.sParticleEffects.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sParticleEffects.get(i));
+            initializeEntity(root, vo.sParticleEffects.get(i));
         }
 
         for (int i = 0; i < vo.sTalosVFX.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sTalosVFX.get(i));
+            initializeEntity(root, vo.sTalosVFX.get(i));
         }
 
         for (int i = 0; i < vo.sLights.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sLights.get(i));
+            initializeEntity(root, vo.sLights.get(i));
         }
 
         for (int i = 0; i < vo.sSpineAnimations.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sSpineAnimations.get(i));
+            initializeEntity(root, vo.sSpineAnimations.get(i));
         }
 
         for (int i = 0; i < vo.sSpriteAnimations.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sSpriteAnimations.get(i));
+            initializeEntity(root, vo.sSpriteAnimations.get(i));
         }
 
         for (int i = 0; i < vo.sColorPrimitives.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sColorPrimitives.get(i));
+            initializeEntity(root, vo.sColorPrimitives.get(i));
         }
 
         for (int i = 0; i < vo.sComposites.size(); i++) {
-            int child = engine.create();
-            initializeEntity(entity, child, vo.sComposites.get(i));
-            initAllChildren(engine, child, vo.sComposites.get(i).composite);
+            CompositeItemVO compositeItemVO = vo.sComposites.get(i);
+            int composite = initializeEntity(root, compositeItemVO);
+            initAllChildren(composite, compositeItemVO.composite);
         }
+
     }
 
     public int getEntityByUniqueId(int id) {

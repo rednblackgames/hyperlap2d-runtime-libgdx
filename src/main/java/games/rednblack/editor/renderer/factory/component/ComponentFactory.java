@@ -36,11 +36,6 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public abstract class ComponentFactory {
 
-    protected IResourceRetriever rm;
-    protected RayHandler rayHandler;
-    protected World world;
-    protected com.artemis.World engine;
-
     protected static ComponentMapper<BoundingBoxComponent> boundingBoxCM;
     protected static ComponentMapper<DimensionsComponent> dimensionsCM;
     protected static ComponentMapper<LightBodyComponent> lightBodyCM;
@@ -55,6 +50,14 @@ public abstract class ComponentFactory {
     protected static ComponentMapper<TintComponent> tintCM;
     protected static ComponentMapper<TransformComponent> transformCM;
     protected static ComponentMapper<ZIndexComponent> zIndexCM;
+
+    protected IResourceRetriever rm;
+    protected RayHandler rayHandler;
+    protected World world;
+    protected com.artemis.World engine;
+
+    private Archetype entityArchetype;
+
 
     /**
      * Do call injectDependencies manually when using this constructor!
@@ -72,42 +75,64 @@ public abstract class ComponentFactory {
         this.rayHandler = rayHandler;
         this.world = world;
         this.rm = rm;
+
+        this.entityArchetype = new ArchetypeBuilder()
+
+                .add(DimensionsComponent.class)
+                .add(BoundingBoxComponent.class)
+                .add(MainItemComponent.class)
+                .add(TransformComponent.class)
+
+                .add(TintComponent.class)
+                .add(ZIndexComponent.class)
+                .add(ScriptComponent.class)
+                .add(PolygonComponent.class)
+
+                .add(PhysicsBodyComponent.class)
+                .add(SensorComponent.class)
+                .add(LightBodyComponent.class)
+                .add(ShaderComponent.class)
+
+                .build(engine);
     }
 
-    public abstract void createComponents(int root, int entity, MainItemVO vo);
+    /**
+     * Creates an entity supplied with the necessary Specialised Components.
+     */
+    public abstract int createSpecialisedEntity(int root, MainItemVO vo);
 
-    protected void createCommonComponents(int entity, MainItemVO vo, int entityType) {
-        DimensionsComponent dimensionsComponent = createDimensionsComponent(entity, vo);
-        createBoundingBoxComponent(entity, vo);
-        createMainItemComponent(entity, vo, entityType);
-        createTransformComponent(entity, vo, dimensionsComponent);
-        createTintComponent(entity, vo);
-        createZIndexComponent(entity, vo);
-        createScriptComponent(entity, vo);
-        createMeshComponent(entity, vo);
-        createPhysicsComponents(entity, vo);
-        createSensorComponent(entity, vo);
-        createLightComponents(entity, vo);
-        createShaderComponent(entity, vo);
+    protected int createGeneralEntity(MainItemVO vo, int entityType) {
+        int entity = engine.create(entityArchetype);
+
+        DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
+
+        initializeDimensionsComponent(dimensionsComponent, vo);
+        initializeBoundingBoxComponent(boundingBoxCM.get(entity), vo);
+        initializeMainItemComponent(mainItemCM.get(entity), vo, entityType);
+        initializeTransformComponent(transformCM.get(entity), vo, dimensionsComponent);
+
+        initializeTintComponent(tintCM.get(entity), vo);
+        initializeZIndexComponent(zIndexCM.get(entity), vo);
+        initializeScriptComponent(scriptCM.get(entity), vo);
+        initializeMeshComponent(entity, vo);
+
+        checkPhysicsBodyComponent(entity, vo);
+        initializeSensorComponent(sensorCM.get(entity), vo);
+        checkLightBodyComponent(entity, vo);
+        checkShaderComponent(entity, vo);
+
+        return entity;
     }
 
-    protected BoundingBoxComponent createBoundingBoxComponent(int entity, MainItemVO vo) {
-        return boundingBoxCM.create(entity);
+    protected abstract void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo);
+
+    /**
+     * No initialization required, just add the component.
+     */
+    protected void initializeBoundingBoxComponent(BoundingBoxComponent component, MainItemVO vo) {
     }
 
-    protected ShaderComponent createShaderComponent(int entity, MainItemVO vo) {
-        if (vo.shaderName == null || vo.shaderName.isEmpty()) {
-            return null;
-        }
-        ShaderComponent component = shaderCM.create(entity);
-        component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
-        component.customUniforms.putAll(vo.shaderUniforms);
-        component.renderingLayer = vo.renderingLayer;
-        return component;
-    }
-
-    protected MainItemComponent createMainItemComponent(int entity, MainItemVO vo, int entityType) {
-        MainItemComponent component = mainItemCM.create(entity);
+    protected void initializeMainItemComponent(MainItemComponent component, MainItemVO vo, int entityType) {
         component.setCustomVarString(vo.customVars);
         component.uniqueId = vo.uniqueId;
         component.itemIdentifier = vo.itemIdentifier;
@@ -117,12 +142,9 @@ public abstract class ComponentFactory {
                 component.tags.add(tag);
         }
         component.entityType = entityType;
-
-        return component;
     }
 
-    protected TransformComponent createTransformComponent(int entity, MainItemVO vo, DimensionsComponent dimensionsComponent) {
-        TransformComponent component = transformCM.create(entity);
+    protected void initializeTransformComponent(TransformComponent component, MainItemVO vo, DimensionsComponent dimensionsComponent) {
         component.rotation = vo.rotation;
         component.scaleX = vo.scaleX;
         component.scaleY = vo.scaleY;
@@ -137,80 +159,47 @@ public abstract class ComponentFactory {
 
         component.flipX = vo.flipX;
         component.flipY = vo.flipY;
-
-        return component;
     }
 
-    protected abstract DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo);
-
-    protected TintComponent createTintComponent(int entity, MainItemVO vo) {
-        TintComponent component = tintCM.create(entity);
+    protected void initializeTintComponent(TintComponent component, MainItemVO vo) {
         component.color.set(vo.tint[0], vo.tint[1], vo.tint[2], vo.tint[3]);
-
-        return component;
     }
 
-    protected ZIndexComponent createZIndexComponent(int entity, MainItemVO vo) {
-        ZIndexComponent component = zIndexCM.create(entity);
-
+    protected void initializeZIndexComponent(ZIndexComponent component, MainItemVO vo) {
         if (vo.layerName == null || vo.layerName.isEmpty()) vo.layerName = "Default";
 
         component.layerName = vo.layerName;
         component.setZIndex(vo.zIndex);
         component.needReOrder = false;
-
-        return component;
     }
 
-    protected ScriptComponent createScriptComponent(int entity, MainItemVO vo) {
-        ScriptComponent component = scriptCM.create(entity);
+    protected void initializeScriptComponent(ScriptComponent component, MainItemVO vo) {
         component.engine = engine;
-        return component;
     }
 
-    protected ParentNodeComponent createParentNodeComponent(int root, int entity) {
-        ParentNodeComponent component = parentNodeCM.create(entity);
-        component.parentEntity = root;
-        return component;
+    protected void initializeMeshComponent(int entity, MainItemVO vo) {
+        if (vo.shape == null) {
+            polygonCM.remove(entity);
+            return;
+        }
+
+        PolygonComponent component = polygonCM.get(entity);
+        component.vertices = new Vector2[vo.shape.polygons.length][];
+        for (int i = 0; i < vo.shape.polygons.length; i++) {
+            component.vertices[i] = new Vector2[vo.shape.polygons[i].length];
+            System.arraycopy(vo.shape.polygons[i], 0, component.vertices[i], 0, vo.shape.polygons[i].length);
+        }
     }
 
-    protected void createNodeComponent(int root, int entity) {
-        NodeComponent component = nodeCM.get(root);
-        component.children.add(entity);
-    }
-
-    protected void createPhysicsComponents(int entity, MainItemVO vo) {
+    protected void checkPhysicsBodyComponent(int entity, MainItemVO vo) {
         if (vo.physics == null) {
+            physicsBodyCM.remove(entity);
             return;
         }
-        createPhysicsBodyPropertiesComponent(entity, vo);
+        initializePhysicsBodyPropertiesComponent(physicsBodyCM.get(entity), vo);
     }
 
-    /**
-     * Creats the sensor component and adds it to the entity.
-     *
-     * @param entity The entity to add the component to.
-     * @param vo     The data transfer object to create the component from.
-     */
-    protected void createSensorComponent(int entity, MainItemVO vo) {
-        if (vo.sensor == null) {
-            return;
-        }
-
-        SensorComponent sensorComponent = sensorCM.create(entity);
-        sensorComponent.bottom = vo.sensor.bottom;
-        sensorComponent.left = vo.sensor.left;
-        sensorComponent.right = vo.sensor.right;
-        sensorComponent.top = vo.sensor.top;
-
-        sensorComponent.bottomSpanPercent = vo.sensor.bottomSpanPercent;
-        sensorComponent.leftSpanPercent = vo.sensor.leftSpanPercent;
-        sensorComponent.rightSpanPercent = vo.sensor.rightSpanPercent;
-        sensorComponent.topSpanPercent = vo.sensor.topSpanPercent;
-    }
-
-    protected PhysicsBodyComponent createPhysicsBodyPropertiesComponent(int entity, MainItemVO vo) {
-        PhysicsBodyComponent component = physicsBodyCM.create(entity);
+    protected void initializePhysicsBodyPropertiesComponent(PhysicsBodyComponent component, MainItemVO vo) {
         component.allowSleep = vo.physics.allowSleep;
         component.sensor = vo.physics.sensor;
         component.awake = vo.physics.awake;
@@ -228,16 +217,29 @@ public abstract class ComponentFactory {
         component.fixedRotation = vo.physics.fixedRotation;
 
         component.height = vo.physics.height;
-
-        return component;
     }
 
-    protected LightBodyComponent createLightComponents(int entity, MainItemVO vo) {
+    protected void initializeSensorComponent(SensorComponent component, MainItemVO vo) {
+        if (vo.sensor == null) return;
+
+        component.bottom = vo.sensor.bottom;
+        component.left = vo.sensor.left;
+        component.right = vo.sensor.right;
+        component.top = vo.sensor.top;
+
+        component.bottomSpanPercent = vo.sensor.bottomSpanPercent;
+        component.leftSpanPercent = vo.sensor.leftSpanPercent;
+        component.rightSpanPercent = vo.sensor.rightSpanPercent;
+        component.topSpanPercent = vo.sensor.topSpanPercent;
+    }
+
+    protected void checkLightBodyComponent(int entity, MainItemVO vo) {
         if (vo.light == null) {
-            return null;
+            lightBodyCM.remove(entity);
+            return;
         }
 
-        LightBodyComponent component = lightBodyCM.create(entity);
+        LightBodyComponent component = lightBodyCM.get(entity);
         component.rays = vo.light.rays;
         component.color = vo.light.color;
         component.distance = vo.light.distance;
@@ -248,22 +250,34 @@ public abstract class ComponentFactory {
         component.isStatic = vo.light.isStatic;
         component.isSoft = vo.light.isSoft;
         component.isActive = vo.light.isActive;
-
-        return component;
     }
 
-    protected PolygonComponent createMeshComponent(int entity, MainItemVO vo) {
-        PolygonComponent component = polygonCM.create(entity);
-        if (vo.shape != null) {
-            component.vertices = new Vector2[vo.shape.polygons.length][];
-            for (int i = 0; i < vo.shape.polygons.length; i++) {
-                component.vertices[i] = new Vector2[vo.shape.polygons[i].length];
-                System.arraycopy(vo.shape.polygons[i], 0, component.vertices[i], 0, vo.shape.polygons[i].length);
-            }
-
-            return component;
+    protected void checkShaderComponent(int entity, MainItemVO vo) {
+        if (vo.shaderName == null || vo.shaderName.isEmpty()) {
+            shaderCM.remove(entity);
+            return;
         }
-        return null;
+        ShaderComponent component = shaderCM.get(entity);
+        component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
+        component.customUniforms.putAll(vo.shaderUniforms);
+        component.renderingLayer = vo.renderingLayer;
+    }
+
+    protected void initializeParentNodeComponent(int root, int entity) {
+        ParentNodeComponent component = parentNodeCM.create(entity);
+        component.parentEntity = root;
+    }
+
+    protected void createNodeComponent(int root, int entity) {
+        NodeComponent component = nodeCM.get(root);
+        component.children.add(entity);
+    }
+
+    protected void adjustNodeHierarchy(int root, int entity) {
+        // Add this component to it's parents children references
+        nodeCM.get(root).children.add(entity);
+        // Set the entity's parent reference to it's parent
+        parentNodeCM.get(entity).parentEntity=root;
     }
 
     public void setResourceManager(IResourceRetriever rm) {

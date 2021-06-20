@@ -19,9 +19,12 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
@@ -41,23 +44,41 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
     protected static ComponentMapper<NormalTextureRegionComponent> normalTextureRegionCM;
 
+    TextureRegionComponent textureRegionComponent;
+
+    private final EntityTransmuter transmuter;
+
     public SimpleImageComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(TextureRegionComponent.class)
+                .add(NormalMapRendering.class)
+                .build();
     }
 
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        createTextureRegionComponent(entity, (SimpleImageVO) vo);
-        createCommonComponents(entity, vo, EntityFactory.IMAGE_TYPE);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.IMAGE_TYPE);
+        transmuter.transmute(entity);
+
+        textureRegionComponent = textureRegionCM.get(entity);
+        initializeTextureRegionComponent(textureRegionComponent, (SimpleImageVO) vo);
+        checkNormalTextureRegionComponent(entity, (SimpleImageVO) vo);
+
+        // We need the dimension component created on basis of texture region component.
+        // That's why we call it again, after creating a texture region component.
+        initializeDimensionsComponent(dimensionsCM.get(entity), vo);
+
+        adjustNodeHierarchy(root, entity);
         updatePolygons(entity);
+
+        return entity;
     }
 
     private void updatePolygons(int entity) {
-        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
-
         PolygonComponent polygonComponent = polygonCM.get(entity);
+
         if (textureRegionComponent.isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
             textureRegionComponent.setPolygonSprite(polygonComponent);
             dimensionsComponent.setPolygon(polygonComponent);
@@ -65,10 +86,8 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
-
-        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+        if (textureRegionComponent == null) return;
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
@@ -76,23 +95,21 @@ public class SimpleImageComponentFactory extends ComponentFactory {
 
         component.width = (float) textureRegionComponent.region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
         component.height = (float) textureRegionComponent.region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
-
-        return component;
     }
 
-    protected TextureRegionComponent createTextureRegionComponent(int entity, SimpleImageVO vo) {
-        TextureRegionComponent component = textureRegionCM.create(entity);
+    protected void initializeTextureRegionComponent(TextureRegionComponent component, SimpleImageVO vo) {
         component.regionName = vo.imageName;
         component.region = rm.getTextureRegion(vo.imageName);
         component.isRepeat = vo.isRepeat;
         component.isPolygon = vo.isPolygon;
+    }
 
+    protected void checkNormalTextureRegionComponent(int entity, SimpleImageVO vo) {
         if (rm.hasTextureRegion(vo.imageName + ".normal")) {
-            NormalTextureRegionComponent normalComponent = normalTextureRegionCM.create(entity);
+            NormalTextureRegionComponent normalComponent = normalTextureRegionCM.get(entity);
             normalComponent.textureRegion = rm.getTextureRegion(vo.imageName + ".normal");
-            engine.edit(entity).create(NormalMapRendering.class);
+        } else {
+            normalTextureRegionCM.remove(entity);
         }
-
-        return component;
     }
 }

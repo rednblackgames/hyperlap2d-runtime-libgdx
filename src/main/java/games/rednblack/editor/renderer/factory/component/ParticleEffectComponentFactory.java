@@ -19,12 +19,16 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.NinePatchComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ParticleEffectVO;
@@ -39,34 +43,37 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
 
     protected static ComponentMapper<ParticleComponent> particleCM;
 
+    private final EntityTransmuter transmuter;
+
     public ParticleEffectComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(ParticleComponent.class)
+                .remove(BoundingBoxComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        createCommonComponents(entity, vo, EntityFactory.PARTICLE_TYPE);
-        engine.edit(entity).remove(BoundingBoxComponent.class);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
-        createParticleComponent(entity, (ParticleEffectVO) vo);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.PARTICLE_TYPE);
+        transmuter.transmute(entity);
+
+        adjustNodeHierarchy(root, entity);
+        initializeParticleComponent(particleCM.get(entity), (ParticleEffectVO) vo);
+
+        return entity;
     }
 
-    @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
-
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 70f;
         component.boundBox = new Rectangle((-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, (-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld);
         component.width = boundBoxSize / projectInfoVO.pixelToWorld;
         component.height = boundBoxSize / projectInfoVO.pixelToWorld;
-
-        return component;
     }
 
-    protected ParticleComponent createParticleComponent(int entity, ParticleEffectVO vo) {
-        ParticleComponent component = particleCM.create(entity);
+    protected void initializeParticleComponent(ParticleComponent component, ParticleEffectVO vo) {
         component.particleName = vo.particleName;
         component.transform = vo.transform;
         ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(vo.particleName));
@@ -75,7 +82,5 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         component.worldMultiplier = 1f / projectInfoVO.pixelToWorld;
         component.scaleEffect(1f);
-
-        return component;
     }
 }

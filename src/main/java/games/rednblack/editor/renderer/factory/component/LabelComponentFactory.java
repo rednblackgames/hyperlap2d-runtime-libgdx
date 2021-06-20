@@ -1,10 +1,13 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.data.LabelVO;
@@ -16,34 +19,42 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public class LabelComponentFactory extends ComponentFactory {
 
-    private static int labelDefaultSize = 12;
-
     protected static ComponentMapper<LabelComponent> labelCM;
     protected static ComponentMapper<TypingLabelComponent> typingLabelCM;
 
+    private static int labelDefaultSize = 12;
+
+    private final EntityTransmuter transmuter;
+
+
     public LabelComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(LabelComponent.class)
+                .add(TypingLabelComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        createCommonComponents(entity, vo, EntityFactory.LABEL_TYPE);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
-        createLabelComponent(entity, (LabelVO) vo);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.LABEL_TYPE);
+        transmuter.transmute(entity);
+
+        adjustNodeHierarchy(root, entity);
+
+        initializeLabelComponent(labelCM.get(entity), (LabelVO) vo);
+        checkTypingLabelComponent(entity, (LabelVO) vo);
+
+        return entity;
     }
 
-    @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
         component.height = ((LabelVO) vo).height;
         component.width = ((LabelVO) vo).width;
-
-        return component;
     }
 
-    protected LabelComponent createLabelComponent(int entity, LabelVO vo) {
-        LabelComponent component = labelCM.create(entity);
+    protected void initializeLabelComponent(LabelComponent component, LabelVO vo) {
         component.setText(vo.text);
         component.setStyle(generateStyle(rm, vo.style, vo.size));
         component.fontName = vo.style;
@@ -56,11 +67,10 @@ public class LabelComponentFactory extends ComponentFactory {
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
         component.setFontScale(multiplier / projectInfoVO.pixelToWorld);
+    }
 
-        if (vo.isTyping) {
-            typingLabelCM.create(entity);
-        }
-        return component;
+    protected void checkTypingLabelComponent(int entity, LabelVO vo) {
+        if (!vo.isTyping) typingLabelCM.remove(entity);
     }
 
 

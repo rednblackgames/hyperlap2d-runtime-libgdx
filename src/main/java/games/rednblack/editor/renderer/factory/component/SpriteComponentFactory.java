@@ -19,12 +19,15 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
@@ -41,22 +44,31 @@ public class SpriteComponentFactory extends ComponentFactory {
     protected static ComponentMapper<SpriteAnimationStateComponent> spriteAnimationStateCM;
     protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
 
+    private final EntityTransmuter transmuter;
+
     public SpriteComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(TextureRegionComponent.class)
+                .add(SpriteAnimationComponent.class)
+                .add(SpriteAnimationStateComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        createCommonComponents(entity, vo, EntityFactory.SPRITE_TYPE);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
-        createSpriteAnimationDataComponent(entity, (SpriteAnimationVO) vo);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.SPRITE_TYPE);
+        transmuter.transmute(entity);
+
+        adjustNodeHierarchy(root, entity);
+        initializeComponents(entity, (SpriteAnimationVO) vo);
+
+        return entity;
     }
 
     @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
-
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
         SpriteAnimationVO sVo = (SpriteAnimationVO) vo;
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(sVo.animationName);
 
@@ -65,12 +77,10 @@ public class SpriteComponentFactory extends ComponentFactory {
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
         component.width = (float) regions.get(0).getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
         component.height = (float) regions.get(0).getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
-
-        return component;
     }
 
-    protected SpriteAnimationComponent createSpriteAnimationDataComponent(int entity, SpriteAnimationVO vo) {
-        SpriteAnimationComponent spriteAnimationComponent = spriteAnimationCM.create(entity);
+    protected void initializeComponents(int entity, SpriteAnimationVO vo) {
+        SpriteAnimationComponent spriteAnimationComponent = spriteAnimationCM.get(entity);
         spriteAnimationComponent.animationName = vo.animationName;
 
         for (int i = 0; i < vo.frameRangeMap.size(); i++) {
@@ -90,7 +100,7 @@ public class SpriteComponentFactory extends ComponentFactory {
         // filtering regions by name
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(spriteAnimationComponent.animationName);
 
-        SpriteAnimationStateComponent stateComponent = spriteAnimationStateCM.create(entity);
+        SpriteAnimationStateComponent stateComponent = spriteAnimationStateCM.get(entity);
         stateComponent.setAllRegions(regions);
 
         if (spriteAnimationComponent.frameRangeMap.isEmpty()) {
@@ -105,9 +115,8 @@ public class SpriteComponentFactory extends ComponentFactory {
 
         stateComponent.set(spriteAnimationComponent);
 
-        TextureRegionComponent textureRegionComponent = textureRegionCM.create(entity);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         textureRegionComponent.region = regions.get(0);
 
-        return spriteAnimationComponent;
     }
 }

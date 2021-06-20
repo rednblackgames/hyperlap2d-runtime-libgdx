@@ -19,9 +19,12 @@
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -35,40 +38,42 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
     protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
 
+    private final EntityTransmuter transmuter;
+
     public ColorPrimitiveComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(TextureRegionComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(int root, int entity, MainItemVO vo) {
-        createCommonComponents(entity, vo, EntityFactory.COLOR_PRIMITIVE);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.COLOR_PRIMITIVE);
+        transmuter.transmute(entity);
 
-        createTextureRegionComponent(entity, vo);
+        adjustNodeHierarchy(root, entity);
 
         TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
-        DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
+        initializeTextureRegionComponent(textureRegionComponent);
+
         PolygonComponent polygonComponent = polygonCM.get(entity);
-        dimensionsComponent.setPolygon(polygonComponent);
+
         textureRegionComponent.setPolygonSprite(polygonComponent);
+
+        dimensionsCM.get(entity).setPolygon(polygonComponent);
+
+        return entity;
     }
 
-    @Override
-    protected DimensionsComponent createDimensionsComponent(int entity, MainItemVO vo) {
-        DimensionsComponent component = dimensionsCM.create(entity);
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
         component.setFromShape(vo.shape);
-
-        return component;
     }
 
-    protected TextureRegionComponent createTextureRegionComponent(int entity, MainItemVO vo) {
-        TextureRegionComponent component = textureRegionCM.create(entity);
-
+    protected void initializeTextureRegionComponent(TextureRegionComponent component) {
         component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;
         component.isPolygon = true;
-
-        return component;
     }
 }
