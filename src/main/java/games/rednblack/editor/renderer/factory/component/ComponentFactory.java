@@ -29,9 +29,6 @@ import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 /**
  * Created by azakhary on 5/22/2015.
  */
@@ -108,7 +105,8 @@ public abstract class ComponentFactory {
         component.itemIdentifier = vo.itemIdentifier;
         component.libraryLink = vo.itemName;
         if (vo.tags != null) {
-            component.tags = new HashSet<>(Arrays.asList(vo.tags));
+            for (String tag : vo.tags)
+                component.tags.add(tag);
         }
         component.entityType = entityType;
 
@@ -147,7 +145,7 @@ public abstract class ComponentFactory {
     protected ZIndexComponent createZIndexComponent(int entity, MainItemVO vo) {
         ZIndexComponent component = zIndexCM.create(entity);
 
-        if (vo.layerName == "" || vo.layerName == null) vo.layerName = "Default";
+        if (vo.layerName == null || vo.layerName.isEmpty()) vo.layerName = "Default";
 
         component.layerName = vo.layerName;
         component.setZIndex(vo.zIndex);

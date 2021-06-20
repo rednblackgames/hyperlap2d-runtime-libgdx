@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.components;
 
 import com.artemis.PooledComponent;
+import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.utils.CustomVariables;
 
 import java.util.HashSet;
@@ -10,7 +11,7 @@ public class MainItemComponent  extends PooledComponent {
     public int uniqueId = 0;
 	public String itemIdentifier = "";
 	public String libraryLink = "";
-    public Set<String> tags = new HashSet<>();
+    public ObjectSet<String> tags = new ObjectSet<>();
     private String customVars = "";
     public CustomVariables customVariables = new CustomVariables();
 	public int entityType;

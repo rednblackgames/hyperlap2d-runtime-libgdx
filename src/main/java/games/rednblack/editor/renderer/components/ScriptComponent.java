@@ -3,8 +3,11 @@ package games.rednblack.editor.renderer.components;
 import com.artemis.PooledComponent;
 import com.artemis.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 
 import java.util.Iterator;
@@ -13,6 +16,7 @@ import java.util.Iterator;
  * Created by azakhary on 6/19/2015.
  */
 public class ScriptComponent  extends PooledComponent {
+    public static int SCRIPTS_POOL_SIZE = 100;
 
     public Array<IScript> scripts = new Array<>();
     public World engine;
@@ -22,19 +26,25 @@ public class ScriptComponent  extends PooledComponent {
         scripts.add(script);
     }
 
-    public void addScript(Class<? extends IScript> clazz) {
-        try {
-            IScript script = ClassReflection.newInstance(clazz);
-            addScript(script);
-        } catch (ReflectionException e) {
-            e.printStackTrace();
-        }
+    public <T extends BasicScript> T addScript(Class<T> clazz) {
+        Pool<T> pool = Pools.get(clazz, SCRIPTS_POOL_SIZE);
+        T script = pool.obtain();
+        script.setPool(pool);
+        addScript(script);
+        return script;
     }
 
     public void removeScript(IScript script) {
         Iterator<IScript> i = scripts.iterator();
         while (i.hasNext()) {
             IScript s = i.next();
+            //Free script into pool
+            if (s instanceof BasicScript) {
+                BasicScript b = (BasicScript) s;
+                if (b.getPool() != null)
+                    b.getPool().free(b);
+            }
+            //Remove from scripts list
             if(s == script) {
                 i.remove();
             }
@@ -45,6 +55,13 @@ public class ScriptComponent  extends PooledComponent {
         Iterator<IScript> i = scripts.iterator();
         while (i.hasNext()) {
             IScript s = i.next();
+            //Free script into pool
+            if (s instanceof BasicScript) {
+                BasicScript b = (BasicScript) s;
+                if (b.getPool() != null)
+                    b.getPool().free(b);
+            }
+            //Remove from scripts list
             if(s.getClass() == clazz) {
                 i.remove();
             }
@@ -53,6 +70,15 @@ public class ScriptComponent  extends PooledComponent {
 
     @Override
     public void reset() {
+        for (IScript script : scripts) {
+            //Free script into pool
+            if (script instanceof BasicScript) {
+                BasicScript b = (BasicScript) script;
+                if (b.getPool() != null)
+                    b.getPool().free(b);
+            }
+        }
+        //Remove all scripts
         scripts.clear();
     }
 }

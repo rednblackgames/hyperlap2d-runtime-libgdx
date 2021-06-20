@@ -52,7 +52,7 @@ public class SceneLoader {
     private String curResolution = "orig";
     private World world;
     private RayHandler rayHandler;
-    private IResourceRetriever rm = null;
+    private IResourceRetriever rm;
     private WorldConfigurationBuilder config;
     private HyperLap2dRenderer renderer;
 
@@ -259,15 +259,6 @@ public class SceneLoader {
                                 }
                             }
 
-                            // TODO: remove this comment
-                        /*if (nodeComponent != null) {
-                            // it is composite
-                            for (int node : nodeComponent.children) {
-                                if (!node.isRemoving() && !node.isScheduledForRemoval())
-                                    engine.removeEntity(node);
-                            }
-                        }*/
-
                             //check for physics
                             PhysicsBodyComponent physicsBodyComponent = physicsBodyCM.get(entity);
                             if (physicsBodyComponent != null && physicsBodyComponent.body != null) {
@@ -327,7 +318,7 @@ public class SceneLoader {
 
         entityFactory.clean();
         //Update the engine to ensure that all pending operations are completed!!
-        engine.setDelta(Gdx.graphics.getDeltaTime());
+        engine.setDelta(0);
         engine.process();
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
@@ -375,9 +366,7 @@ public class SceneLoader {
 
     public CompositeItemVO loadVoFromLibrary(String libraryName) {
         ProjectInfoVO projectInfoVO = getRm().getProjectVO();
-        CompositeItemVO compositeItemVO = projectInfoVO.libraryItems.get(libraryName);
-
-        return compositeItemVO;
+        return projectInfoVO.libraryItems.get(libraryName);
     }
 
     public ActionData loadActionFromLibrary(String actionName) {
