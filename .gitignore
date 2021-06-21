@@ -1,7 +1,6 @@
 .DS_Store
 .idea/
 /build/
-.gradle/
 h2d-libgdx-spine-extension/build/
 hyperlap2d-common-api/build/
 hyperlap2d-runtime-libgdx/build/
@@ -13,10 +12,6 @@ assets/configs/config.pit
 assets/.hyperlap2d/configs/
 assets/tiled.atlas
 assets/tiled.png
-gradlew
-gradlew.bat
-/gradle/
-settings.gradle
 /assets/
 /TestGame/
 /out/
