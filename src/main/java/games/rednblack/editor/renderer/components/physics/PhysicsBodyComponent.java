@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.components.physics;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -9,9 +10,12 @@ import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
+
+    protected ComponentMapper<TransformComponent> transformCM;
+    protected ComponentMapper<PolygonComponent> polygonCM;
+
     protected boolean needsRefresh = false;
 
     public int bodyType = 0;
@@ -104,10 +108,10 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     }
 
     protected void refresh(int entity) {
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        PolygonComponent polygonComponent = polygonCM.get(entity);
         if (polygonComponent == null || polygonComponent.vertices == null) return;
 
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = transformCM.get(entity);
 
         if (body != null) {
             world.destroyBody(body);

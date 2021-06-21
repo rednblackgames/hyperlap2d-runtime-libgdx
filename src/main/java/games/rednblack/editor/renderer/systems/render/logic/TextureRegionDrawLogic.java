@@ -9,23 +9,23 @@ import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
 public class TextureRegionDrawLogic implements Drawable {
 
-    protected ComponentMapper<TintComponent> tintComponentComponentMapper;
+    protected ComponentMapper<TintComponent> tintMapper;
     protected ComponentMapper<TextureRegionComponent> textureRegionMapper;
     protected ComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
     protected ComponentMapper<TransformComponent> transformMapper;
-    protected ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsMapper;
+    protected ComponentMapper<ShaderComponent> shaderMapper;
 
     private final Color batchColor = new Color();
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
-        ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
+        ShaderComponent shaderComponent = shaderMapper.get(entity);
 
         entityTextureRegionComponent.executeRefresh(entity);
 
@@ -43,10 +43,10 @@ public class TextureRegionDrawLogic implements Drawable {
     }
 
     public void drawRepeatablePolygonSprite(Batch batch, int entity, float parentAlpha) {
-        TintComponent tintComponent = tintComponentComponentMapper.get(entity);
+        TintComponent tintComponent = tintMapper.get(entity);
         TextureRegionComponent textureRegionComponent = textureRegionMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
-        DimensionsComponent dimensionsComponent = dimensionsComponentComponentMapper.get(entity);
+        DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
 
         RepeatablePolygonSprite repeatablePolygonSprite = textureRegionComponent.repeatablePolygonSprite;
         boolean isRepeat = textureRegionComponent.isRepeat;
@@ -66,10 +66,10 @@ public class TextureRegionDrawLogic implements Drawable {
     }
 
     public void drawSprite(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
-        TintComponent tintComponent = tintComponentComponentMapper.get(entity);
+        TintComponent tintComponent = tintMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
-        DimensionsComponent dimensionsComponent = dimensionsComponentComponentMapper.get(entity);
+        DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
 
         batch.setColor(tintComponent.color.r, tintComponent.color.g, tintComponent.color.b, tintComponent.color.a * parentAlpha);
 

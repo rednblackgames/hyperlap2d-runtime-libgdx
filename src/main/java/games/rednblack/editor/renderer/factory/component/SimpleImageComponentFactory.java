@@ -98,6 +98,7 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     protected void initializeTextureRegionComponent(TextureRegionComponent component, SimpleImageVO vo) {
+        engine.inject(component);
         component.regionName = vo.imageName;
         component.region = rm.getTextureRegion(vo.imageName);
         component.isRepeat = vo.isRepeat;

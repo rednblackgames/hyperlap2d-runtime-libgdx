@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.components.light;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.box2dLight.ChainLight;
@@ -9,10 +10,14 @@ import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 
 public class LightBodyComponent extends RefreshableComponent implements RemovableObject {
+
+    protected ComponentMapper<TransformComponent> transformCM;
+    protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
+    protected ComponentMapper<PolygonComponent> polygonCM;
+
 
     protected boolean needsRefresh = false;
 
@@ -86,9 +91,9 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
             lightObject = null;
         }
 
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
-        PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        PolygonComponent polygonComponent = polygonCM.get(entity);
+        PhysicsBodyComponent physicsComponent = physicsBodyCM.get(entity);
+        TransformComponent transformComponent = transformCM.get(entity);
 
         if (polygonComponent != null && physicsComponent != null && polygonComponent.vertices != null) {
             Vector2[] verticesArray = PolygonUtils.mergeTouchingPolygonsToOne(polygonComponent.vertices);

@@ -72,6 +72,7 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
     }
 
     protected void initializeTextureRegionComponent(TextureRegionComponent component) {
+        engine.inject(component);
         component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;
         component.isPolygon = true;

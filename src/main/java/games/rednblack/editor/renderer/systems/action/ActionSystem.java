@@ -16,6 +16,11 @@ public class ActionSystem extends IteratingSystem {
     protected ComponentMapper<ActionComponent> actionMapper;
 
     @Override
+    protected void initialize() {
+        super.initialize();
+    }
+
+    @Override
     protected void process(int entity) {
         ActionComponent actionComponent = actionMapper.get(entity);
         Array<ActionData> dataArray = actionComponent.dataArray;

@@ -200,6 +200,7 @@ public abstract class ComponentFactory {
     }
 
     protected void initializePhysicsBodyPropertiesComponent(PhysicsBodyComponent component, MainItemVO vo) {
+        engine.inject(component);
         component.allowSleep = vo.physics.allowSleep;
         component.sensor = vo.physics.sensor;
         component.awake = vo.physics.awake;
@@ -240,6 +241,7 @@ public abstract class ComponentFactory {
         }
 
         LightBodyComponent component = lightBodyCM.get(entity);
+        engine.inject(component);
         component.rays = vo.light.rays;
         component.color = vo.light.color;
         component.distance = vo.light.distance;
