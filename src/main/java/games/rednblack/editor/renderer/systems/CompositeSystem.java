@@ -1,22 +1,22 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.SnapshotArray;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
+@All(CompositeTransformComponent.class)
 public class CompositeSystem extends IteratingSystem {
 
-    private ComponentMapper<DimensionsComponent> dimensionsMapper;
-    private ComponentMapper<TransformComponent> transformMapper;
-    private ComponentMapper<NodeComponent> nodeMapper;
-    private ComponentMapper<CompositeTransformComponent> compositeMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsMapper;
+    protected ComponentMapper<TransformComponent> transformMapper;
+    protected ComponentMapper<NodeComponent> nodeMapper;
+    protected ComponentMapper<CompositeTransformComponent> compositeMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
 
     private DimensionsComponent dimensionsComponent;
     private NodeComponent nodeComponent;
@@ -30,12 +30,6 @@ public class CompositeSystem extends IteratingSystem {
     private final Vector2[] tmpVectorArray = new Vector2[5];
 
     public CompositeSystem() {
-        super(Family.all(CompositeTransformComponent.class).get());
-        dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
-        transformMapper = ComponentMapper.getFor(TransformComponent.class);
-        nodeMapper = ComponentMapper.getFor(NodeComponent.class);
-        compositeMapper = ComponentMapper.getFor(CompositeTransformComponent.class);
-
         tmpVectorArray[0] = p1;
         tmpVectorArray[1] = p2;
         tmpVectorArray[2] = p3;
@@ -44,13 +38,13 @@ public class CompositeSystem extends IteratingSystem {
     }
 
     @Override
-    public void processEntity(Entity entity, float deltaTime) {
+    public void process(int entity) {
         dimensionsComponent = dimensionsMapper.get(entity);
         nodeComponent = nodeMapper.get(entity);
         TransformComponent transformComponent = transformMapper.get(entity);
 
         CompositeTransformComponent compositeTransformComponent = compositeMapper.get(entity);
-        ViewPortComponent viewPortComponent = ComponentRetriever.get(entity, ViewPortComponent.class);
+        ViewPortComponent viewPortComponent = viewPortComponentMapper.get(entity);
         if (compositeTransformComponent != null) {
 
             if (compositeTransformComponent.automaticResize && viewPortComponent == null) {
@@ -66,8 +60,8 @@ public class CompositeSystem extends IteratingSystem {
         float lowerY = Float.MAX_VALUE;
         float upperX = Float.MIN_VALUE;
         float upperY = Float.MIN_VALUE;
-        SnapshotArray<Entity> entities = nodeComponent.children;
-        for (Entity entity : entities) {
+        SnapshotArray<Integer> entities = nodeComponent.children;
+        for (Integer entity : entities) {
             TransformComponent transformComponent = transformMapper.get(entity);
             DimensionsComponent childDimCom = dimensionsMapper.get(entity);
             float x = transformComponent.x;
@@ -95,7 +89,7 @@ public class CompositeSystem extends IteratingSystem {
             upperY = getY(MinMaxOp.MAX, tmpVectorArray);
         }
 
-        for (Entity entity : entities) {
+        for (Integer entity : entities) {
             if (lowerX == 0 && lowerY == 0) break;
             TransformComponent transformComponent = transformMapper.get(entity);
             transformComponent.x -= lowerX;

@@ -1,6 +1,8 @@
 package games.rednblack.editor.renderer.components;
 
-public class SpineDataComponent implements BaseComponent {
+import com.artemis.PooledComponent;
+
+public class SpineDataComponent extends PooledComponent {
     public String animationName = "";
     public String currentAnimationName = "";
 

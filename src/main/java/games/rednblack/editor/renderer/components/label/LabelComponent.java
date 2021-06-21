@@ -1,13 +1,13 @@
 package games.rednblack.editor.renderer.components.label;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.StringBuilder;
-import games.rednblack.editor.renderer.components.BaseComponent;
 
-public class LabelComponent implements BaseComponent {
+public class LabelComponent extends PooledComponent {
 	public  LabelStyle style;
 	public final GlyphLayout layout = new GlyphLayout();
 	public BitmapFontCache cache;

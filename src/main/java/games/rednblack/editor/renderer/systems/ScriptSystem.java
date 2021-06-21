@@ -1,27 +1,23 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.IScript;
 
 /**
  * Created by azakhary on 6/19/2015.
  */
+@All(ScriptComponent.class)
 public class ScriptSystem extends IteratingSystem {
 
-    private final ComponentMapper<ScriptComponent> scriptComponentComponentMapper = ComponentMapper.getFor(ScriptComponent.class);
-
-    public ScriptSystem() {
-        super(Family.all(ScriptComponent.class).get());
-    }
+    protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
-        for (IScript script : scriptComponentComponentMapper.get(entity).scripts) {
-            script.act(deltaTime);
+    protected void process(int entity) {
+        for (IScript script : scriptComponentMapper.get(entity).scripts) {
+            script.act(world.delta);
         }
     }
 }

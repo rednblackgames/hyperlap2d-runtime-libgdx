@@ -1,9 +1,10 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 
-public class TransformComponent implements BaseComponent {
+public class TransformComponent extends PooledComponent {
     public Affine2 worldTransform = new Affine2();
     public Matrix4 computedTransform = new Matrix4();
     public Matrix4 oldTransform = new Matrix4();

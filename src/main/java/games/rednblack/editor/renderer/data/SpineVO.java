@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.SpineDataComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class SpineVO extends MainItemVO {
 
@@ -19,10 +19,10 @@ public class SpineVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(Entity entity) {
+    public void loadFromEntity(int entity) {
         super.loadFromEntity(entity);
 
-        SpineDataComponent spineDataComponent = entity.getComponent(SpineDataComponent.class);
+        SpineDataComponent spineDataComponent = ComponentRetriever.get(entity, SpineDataComponent.class);
         animationName = spineDataComponent.animationName;
         currentAnimationName = spineDataComponent.currentAnimationName;
     }

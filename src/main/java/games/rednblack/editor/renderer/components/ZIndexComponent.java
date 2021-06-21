@@ -1,6 +1,8 @@
 package games.rednblack.editor.renderer.components;
 
-public class ZIndexComponent implements BaseComponent {
+import com.artemis.PooledComponent;
+
+public class ZIndexComponent  extends PooledComponent {
     private int zIndex = 0;
     public boolean needReOrder = false;
     public String layerName = "";
