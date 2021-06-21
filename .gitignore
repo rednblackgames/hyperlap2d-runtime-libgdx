@@ -16,7 +16,6 @@ assets/tiled.png
 gradlew
 gradlew.bat
 /gradle/
-gradle.properties
 settings.gradle
 /assets/
 /TestGame/
