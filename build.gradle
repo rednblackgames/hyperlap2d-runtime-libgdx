@@ -20,9 +20,17 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDirs)
-    from files(sourceSets.main.output.resourcesDir)
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    manifest {
+        attributes 'Implementation-Title': 'H2D Runtime',
+                'Implementation-Version': version
+    }
+    baseName = project.name + '-sourcesJar' // custom name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//    from files(sourceSets.main.output.classesDirs)
+//    from files(sourceSets.main.output.resourcesDir)
+    with jar
 }
 
 //tasks.withType(JavaCompile) {
