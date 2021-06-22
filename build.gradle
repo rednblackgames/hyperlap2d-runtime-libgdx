@@ -2,7 +2,9 @@ plugins {
     id 'java'
 }
 
-apply from : 'publish.gradle'
+//apply from : 'publish.gradle'
+group = 'games.rednblack.hyperlap2d'
+version = '0.0.8'
 
 repositories {
     mavenCentral()
@@ -26,10 +28,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
         attributes 'Implementation-Title': 'H2D Runtime',
                 'Implementation-Version': version
     }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     baseName = project.name + '-sourcesJar' // custom name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-//    from files(sourceSets.main.output.classesDirs)
-//    from files(sourceSets.main.output.resourcesDir)
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.main.output.resourcesDir)
     with jar
 }
 
