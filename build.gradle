@@ -26,12 +26,7 @@ dependencies {
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
-    manifest {
-        attributes 'Implementation-Title': 'H2D Runtime',
-                'Implementation-Version': version
-    }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    baseName = project.name + '-sourcesJar' // custom name
     from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
     with jar
