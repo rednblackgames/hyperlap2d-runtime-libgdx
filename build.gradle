@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'java-library'
+    id 'maven-publish'
 }
 
 //apply from : 'publish.gradle'
