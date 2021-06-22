@@ -2,11 +2,11 @@ package games.rednblack.editor.renderer.components.sprite;
 
 import java.util.HashMap;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import games.rednblack.editor.renderer.components.BaseComponent;
 import games.rednblack.editor.renderer.data.FrameRange;
 
-public class SpriteAnimationComponent implements BaseComponent {
+public class SpriteAnimationComponent  extends PooledComponent {
 	public String animationName = "";
 	public int fps = 24;
 	public HashMap<String, FrameRange> frameRangeMap = new HashMap<>();

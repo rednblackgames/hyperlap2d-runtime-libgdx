@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class ParticleEffectVO extends MainItemVO {
 	public String particleName = "";
@@ -18,10 +18,10 @@ public class ParticleEffectVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(Entity entity) {
+	public void loadFromEntity(int entity) {
 		super.loadFromEntity(entity);
 
-		ParticleComponent particleComponent = entity.getComponent(ParticleComponent.class);
+		ParticleComponent particleComponent = ComponentRetriever.get(entity, ParticleComponent.class);
 		particleName = particleComponent.particleName;
 		transform = particleComponent.transform;
 	}

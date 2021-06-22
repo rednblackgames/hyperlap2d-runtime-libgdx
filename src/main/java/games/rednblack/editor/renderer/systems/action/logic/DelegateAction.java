@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.data.DelegateData;
 
 /**
@@ -8,9 +7,9 @@ import games.rednblack.editor.renderer.systems.action.data.DelegateData;
  */
 public abstract class DelegateAction<T extends DelegateData> extends ActionLogic<T> {
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         return delegate(delta, entity, actionData);
     }
 
-    abstract protected boolean delegate (float delta, Entity entity, T actionData);
+    abstract protected boolean delegate (float delta, int entity, T actionData);
 }

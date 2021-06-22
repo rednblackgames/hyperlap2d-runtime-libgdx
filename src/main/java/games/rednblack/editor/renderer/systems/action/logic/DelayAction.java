@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.DelayData;
 
@@ -10,7 +9,7 @@ import games.rednblack.editor.renderer.systems.action.data.DelayData;
 public class DelayAction<T extends DelayData> extends DelegateAction<T> {
 
     @Override
-    protected boolean delegate(float delta, Entity entity, T actionData) {
+    protected boolean delegate(float delta, int entity, T actionData) {
         if (actionData.passedTime < actionData.duration) {
             actionData.passedTime += delta;
             if (actionData.passedTime < actionData.duration) return false;

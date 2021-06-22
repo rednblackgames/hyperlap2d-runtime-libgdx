@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.ParallelData;
@@ -10,7 +9,7 @@ import games.rednblack.editor.renderer.systems.action.data.ParallelData;
  */
 public class ParallelAction<T extends ParallelData> extends ActionLogic<T> {
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         actionData.complete = true;
         for (int i = 0; i < actionData.actionsData.size; i++) {
             ActionData data = actionData.actionsData.get(i);

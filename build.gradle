@@ -13,7 +13,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-    implementation "com.badlogicgames.ashley:ashley:$ashleyVersion"
+    implementation "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
 
     implementation "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
 

@@ -1,14 +1,19 @@
 package games.rednblack.editor.renderer.components;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import games.rednblack.editor.renderer.commons.RefreshableObject;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
-public class TextureRegionComponent extends RefreshableObject implements BaseComponent {
+public class TextureRegionComponent extends RefreshableComponent {
+
+    protected ComponentMapper<DimensionsComponent> dimensionsCM;
+    protected ComponentMapper<PolygonComponent> polygonCM;
+
+    protected boolean needsRefresh = false;
+
     public String regionName = "";
     public TextureRegion region = null;
     public boolean isRepeat = false;
@@ -43,11 +48,23 @@ public class TextureRegionComponent extends RefreshableObject implements BaseCom
     }
 
     @Override
-    protected void refresh(Entity entity) {
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+    public void scheduleRefresh() {
+        needsRefresh = true;
+    }
+
+    @Override
+    public void executeRefresh(int entity) {
+        if (needsRefresh) {
+            refresh(entity);
+            needsRefresh = false;
+        }
+    }
+
+    protected void refresh(int entity) {
+        PolygonComponent polygonComponent = polygonCM.get(entity);
 
         if (isPolygon && polygonComponent != null) {
-            DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+            DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
             dimensionsComponent.setPolygon(polygonComponent);
             setPolygonSprite(polygonComponent);
         }

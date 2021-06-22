@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.physics;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -41,7 +40,7 @@ public class PhysicsBodyLoader {
     private PhysicsBodyLoader() {
     }
 
-    public Body createBody(World world, Entity entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent) {
+    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent) {
         if (physicsComponent == null || ComponentRetriever.get(entity, MainItemComponent.class) == null) {
             return null;
         }

@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.systems.action.data.ColorData;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -10,7 +9,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
  */
 public class ColorAction<T extends ColorData> extends TemporalAction<T> {
     @Override
-    protected void update(float percent, Entity entity, T actionData) {
+    protected void update(float percent, int entity, T actionData) {
         TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
         float r = actionData.startR + (actionData.endColor.r - actionData.startR) * percent;
         float g = actionData.startG + (actionData.endColor.g - actionData.startG) * percent;
@@ -20,7 +19,7 @@ public class ColorAction<T extends ColorData> extends TemporalAction<T> {
     }
 
     @Override
-    public void begin(Entity entity, T actionData) {
+    public void begin(int entity, T actionData) {
         TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
         actionData.startR = tintComponent.color.r;
         actionData.startG = tintComponent.color.g;

@@ -1,12 +1,11 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.RepeatData;
 
 public class RepeatAction<T extends RepeatData> extends DelegateAction<T> {
     @Override
-    protected boolean delegate(float delta, Entity entity, T actionData) {
+    protected boolean delegate(float delta, int entity, T actionData) {
         if (actionData.repeatCount != RepeatData.FOREVER
                 && actionData.executedCount >= actionData.repeatCount)
             return true;

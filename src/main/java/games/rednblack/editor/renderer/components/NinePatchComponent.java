@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 
-public class NinePatchComponent implements BaseComponent {
+public class NinePatchComponent  extends PooledComponent {
 	public String textureRegionName;
 	public NinePatch ninePatch;
 

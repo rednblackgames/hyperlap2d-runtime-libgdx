@@ -1,21 +1,23 @@
 package games.rednblack.editor.renderer.components;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.utils.SnapshotArray;
 
-public class NodeComponent implements BaseComponent {
-	public SnapshotArray<Entity> children = new SnapshotArray<>(true, 1, Entity.class);
 
-	public void removeChild(Entity entity) {
-		children.removeValue(entity, false);
-	}
+// TODO: Check if i can change Entity to Integer
+public class NodeComponent extends PooledComponent {
+    public SnapshotArray<Integer> children = new SnapshotArray<>(true, 1, Integer.class);
 
-	public void addChild(Entity entity) {
-		children.add(entity);
-	}
+    public void removeChild(Integer entity) {
+        children.removeValue(entity, false);
+    }
 
-	@Override
-	public void reset() {
-		children.clear();
-	}
+    public void addChild(Integer entity) {
+        children.add(entity);
+    }
+
+    @Override
+    public void reset() {
+        children.clear();
+    }
 }

@@ -1,32 +1,24 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
+@All(BoundingBoxComponent.class)
 public class BoundingBoxSystem extends IteratingSystem {
 
-    final private ComponentMapper<DimensionsComponent> dimensionsMapper;
-    final private ComponentMapper<ParentNodeComponent> parentNodeMapper;
-    final private ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
-    final private ComponentMapper<MainItemComponent> mainItemMapper;
-    final private ComponentMapper<TransformComponent> transformMapper;
-
-    public BoundingBoxSystem() {
-        super(Family.all(BoundingBoxComponent.class).get());
-        dimensionsMapper = ComponentMapper.getFor(DimensionsComponent.class);
-        parentNodeMapper = ComponentMapper.getFor(ParentNodeComponent.class);
-        boundingBoxMapper = ComponentMapper.getFor(BoundingBoxComponent.class);
-        mainItemMapper = ComponentMapper.getFor(MainItemComponent.class);
-        transformMapper = ComponentMapper.getFor(TransformComponent.class);
-    }
+    protected ComponentMapper<DimensionsComponent> dimensionsMapper;
+    protected ComponentMapper<ParentNodeComponent> parentNodeMapper;
+    protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
+    protected ComponentMapper<MainItemComponent> mainItemMapper;
+    protected ComponentMapper<TransformComponent> transformMapper;
 
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
+    protected void process(int entity) {
         ParentNodeComponent parentNode = parentNodeMapper.get(entity);
         BoundingBoxComponent b = boundingBoxMapper.get(entity);
 
@@ -75,7 +67,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         }
     }
 
-    private float calcCheckSum(Entity entity) {
+    private float calcCheckSum(int entity) {
         ParentNodeComponent parentNode = parentNodeMapper.get(entity);
         TransformComponent t = transformMapper.get(entity);
         DimensionsComponent d = dimensionsMapper.get(entity);
@@ -83,8 +75,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);
 
-        float checksum = 0;
-        checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
+        float checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
         while (parentNode != null) {
             TransformComponent pt = transformMapper.get(parentNode.parentEntity);
             DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);

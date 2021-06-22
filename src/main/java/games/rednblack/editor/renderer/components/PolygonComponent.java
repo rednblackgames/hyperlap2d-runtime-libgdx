@@ -18,12 +18,13 @@
 
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Vector2;
 
 /**
  * Created by azakhary on 7/2/2015.
  */
-public class PolygonComponent implements BaseComponent {
+public class PolygonComponent  extends PooledComponent {
     public Vector2[][] vertices;
 
     public void makeRectangle(float width, float height) {

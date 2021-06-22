@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LabelVO extends MainItemVO {
 	
@@ -35,11 +35,11 @@ public class LabelVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(Entity entity) {
+	public void loadFromEntity(int entity) {
 		super.loadFromEntity(entity);
-		LabelComponent labelComponent = entity.getComponent(LabelComponent.class);
-		DimensionsComponent dimensionsComponent = entity.getComponent(DimensionsComponent.class);
-		TypingLabelComponent typingLabelComponent = entity.getComponent(TypingLabelComponent.class);
+		LabelComponent labelComponent = ComponentRetriever.get(entity, LabelComponent.class);
+		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity,DimensionsComponent.class);
+		TypingLabelComponent typingLabelComponent = ComponentRetriever.get(entity, TypingLabelComponent.class);
 
 		text = labelComponent.getText().toString();
 		style = labelComponent.fontName;

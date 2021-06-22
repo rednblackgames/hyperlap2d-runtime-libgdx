@@ -18,9 +18,10 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.BaseComponentMapper;
+import com.artemis.Component;
+import com.artemis.World;
+import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.components.MainItemComponent;
@@ -30,32 +31,34 @@ import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 
+import java.util.HashMap;
+
 /**
  * Created by azakhary on 7/8/2015.
  */
 public class ItemWrapper {
 
-    private Entity entity;
+    private int entity;
 
     private NodeComponent nodeComponent;
-    private final ObjectMap<String, Entity> childrenMap = new ObjectMap<>();
-    private final ObjectMap<String, ObjectSet<Entity>> childrenTagsMap = new ObjectMap<>();
+    private final ObjectMap<String, Integer> childrenMap = new ObjectMap<>();
+    private final ObjectMap<String, IntSet> childrenTagsMap = new ObjectMap<>();
 
     public ItemWrapper() {
         // empty wrapper is better then null pointer
     }
 
-    public ItemWrapper(Entity entity) {
+    public ItemWrapper(int entity) {
         this.entity = entity;
         nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
-        if(nodeComponent != null) {
-            for (Entity child : nodeComponent.children) {
+        if (nodeComponent != null) {
+            for (int child : nodeComponent.children) {
                 mapEntity(child);
             }
         }
     }
 
-    private void mapEntity(Entity entity) {
+    private void mapEntity(int entity) {
         MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
         childrenMap.put(mainItemComponent.itemIdentifier, entity);
 
@@ -64,16 +67,16 @@ public class ItemWrapper {
         }
     }
 
-    private void mapTagEntity(String tag, Entity entity) {
+    private void mapTagEntity(String tag, int entity) {
         if (childrenTagsMap.get(tag) == null)
-            childrenTagsMap.put(tag, new ObjectSet<Entity>());
+            childrenTagsMap.put(tag, new IntSet());
 
         childrenTagsMap.get(tag).add(entity);
     }
 
     public ItemWrapper getChild(String id) {
-        Entity entity = childrenMap.get(id);
-        if(entity == null) return new ItemWrapper();
+        int entity = childrenMap.get(id);
+        if (entity == -1) return new ItemWrapper();
 
         return new ItemWrapper(entity);
     }
@@ -82,9 +85,9 @@ public class ItemWrapper {
      * Get a child set from this composite using which contains a tag
      * @param tagName tag to find
      */
-    public ObjectSet<Entity> getChildrenByTag(String tagName) {
+    public IntSet getChildrenByTag(String tagName) {
         if (childrenTagsMap.get(tagName) == null)
-            childrenTagsMap.put(tagName, new ObjectSet<Entity>());
+            childrenTagsMap.put(tagName, new IntSet());
 
         return childrenTagsMap.get(tagName);
     }
@@ -104,10 +107,10 @@ public class ItemWrapper {
      * @param child Entity child
      * @return new {@link ItemWrapper} instance for the child param
      */
-    public ItemWrapper addChild(Entity child) {
-        if(nodeComponent != null) {
+    public ItemWrapper addChild(int child) {
+        if (nodeComponent != null) {
             ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class);
-            if (parentNodeComponent.parentEntity != null) {
+            if (parentNodeComponent.parentEntity != -1) {
                 //Remove child from its parent
                 NodeComponent parentNode = ComponentRetriever.get(parentNodeComponent.parentEntity, NodeComponent.class);
                 if (parentNode != null)
@@ -118,7 +121,7 @@ public class ItemWrapper {
 
             mapEntity(child);
 
-            return  new ItemWrapper(child);
+            return new ItemWrapper(child);
         }
 
         return new ItemWrapper();
@@ -133,7 +136,7 @@ public class ItemWrapper {
         return mainItemComponent.entityType;
     }
 
-    public Entity getEntity() {
+    public int getEntity() {
         return entity;
     }
 
@@ -143,11 +146,11 @@ public class ItemWrapper {
      * @param engine PooledEngine instance
      * @return same input script instance
      */
-    public IScript addScript(IScript script, PooledEngine engine) {
+    public IScript addScript(IScript script, World engine) {
         ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
-        if(component == null) {
-            component = engine.createComponent(ScriptComponent.class);
-            entity.add(component);
+        if (component == null) {
+            component = engine.edit(entity).create(ScriptComponent.class);
+            component.engine = engine;
         }
         component.addScript(script);
         script.init(entity);
@@ -163,11 +166,11 @@ public class ItemWrapper {
      * @param engine PooledEngine instance
      * @return instance of the script obtained
      */
-    public <T extends BasicScript> T addScript(Class<T> scriptClazz, PooledEngine engine) {
-        ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
+    public <T extends BasicScript> T addScript(Class<T> scriptClazz, World engine) {
+        BaseComponentMapper<ScriptComponent> mapper = ComponentRetriever.getMapper(ScriptComponent.class);
+        ScriptComponent component = mapper.get(entity);
         if(component == null) {
-            component = engine.createComponent(ScriptComponent.class);
-            entity.add(component);
+            component = mapper.create(entity);
         }
         T script = component.addScript(scriptClazz);
         script.init(entity);

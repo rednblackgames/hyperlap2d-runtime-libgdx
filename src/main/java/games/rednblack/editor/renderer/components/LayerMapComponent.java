@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import com.artemis.PooledComponent;
 import games.rednblack.editor.renderer.data.LayerItemVO;
 
-public class LayerMapComponent implements BaseComponent {
+public class LayerMapComponent  extends PooledComponent {
 	public boolean autoIndexing = true;
 	private ArrayList<LayerItemVO> layers = new ArrayList<>();
 

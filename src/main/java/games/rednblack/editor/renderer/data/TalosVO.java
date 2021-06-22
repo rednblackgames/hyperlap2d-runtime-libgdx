@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.components.particle.TalosDataComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class TalosVO extends MainItemVO {
     public String particleName = "";
@@ -18,10 +18,10 @@ public class TalosVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(Entity entity) {
+    public void loadFromEntity(int entity) {
         super.loadFromEntity(entity);
 
-        TalosDataComponent talosComponent = entity.getComponent(TalosDataComponent.class);
+        TalosDataComponent talosComponent = ComponentRetriever.get(entity, TalosDataComponent.class);
         particleName = talosComponent.particleName;
         transform = talosComponent.transform;
     }

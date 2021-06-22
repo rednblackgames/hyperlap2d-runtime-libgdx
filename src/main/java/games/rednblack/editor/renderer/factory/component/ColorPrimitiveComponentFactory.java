@@ -18,64 +18,63 @@
 
 package games.rednblack.editor.renderer.factory.component;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by azakhary on 10/21/2015.
  */
 public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
-    public ColorPrimitiveComponentFactory(PooledEngine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
+
+    private final EntityTransmuter transmuter;
+
+    public ColorPrimitiveComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
+        transmuter = new EntityTransmuterFactory(engine)
+                .add(ParentNodeComponent.class)
+                .add(TextureRegionComponent.class)
+                .build();
     }
 
     @Override
-    public void createComponents(Entity root, Entity entity, MainItemVO vo) {
-        createCommonComponents(entity, vo, EntityFactory.COLOR_PRIMITIVE);
-        createParentNodeComponent(root, entity);
-        createNodeComponent(root, entity);
+    public int createSpecialisedEntity(int root, MainItemVO vo) {
+        int entity = createGeneralEntity(vo, EntityFactory.COLOR_PRIMITIVE);
+        transmuter.transmute(entity);
 
-        createTextureRegionComponent(entity, vo);
+        adjustNodeHierarchy(root, entity);
 
-        TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
-        dimensionsComponent.setPolygon(polygonComponent);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
+        initializeTextureRegionComponent(textureRegionComponent);
+
+        PolygonComponent polygonComponent = polygonCM.get(entity);
+
         textureRegionComponent.setPolygonSprite(polygonComponent);
+
+        dimensionsCM.get(entity).setPolygon(polygonComponent);
+
+        return entity;
     }
 
-    @Override
-    protected DimensionsComponent createDimensionsComponent(Entity entity, MainItemVO vo) {
-        DimensionsComponent component = engine.createComponent(DimensionsComponent.class);
+    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
         component.setFromShape(vo.shape);
-
-        entity.add(component);
-
-        return component;
     }
 
-    protected TextureRegionComponent createTextureRegionComponent(Entity entity, MainItemVO vo) {
-        TextureRegionComponent component = engine.createComponent(TextureRegionComponent.class);
-
+    protected void initializeTextureRegionComponent(TextureRegionComponent component) {
+        engine.inject(component);
         component.region = rm.getTextureRegion("white-pixel");
         component.isRepeat = false;
         component.isPolygon = true;
-        entity.add(component);
-
-        return component;
     }
 }

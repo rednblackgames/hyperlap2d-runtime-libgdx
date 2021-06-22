@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.data.RunnableData;
 
 /**
@@ -8,7 +7,7 @@ import games.rednblack.editor.renderer.systems.action.data.RunnableData;
  */
 public class RunnableAction<T extends RunnableData> extends ActionLogic<T> {
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         if (!actionData.ran) {
             actionData.ran = true;
             run(entity, actionData);
@@ -16,7 +15,7 @@ public class RunnableAction<T extends RunnableData> extends ActionLogic<T> {
         return true;
     }
 
-    public void run(Entity entity, T actionData) {
+    public void run(int entity, T actionData) {
         if (actionData.runnable != null)
             actionData.runnable.run();
     }

@@ -1,15 +1,15 @@
 package games.rednblack.editor.renderer.components.light;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.Color;
 import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.components.BaseComponent;
 import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.data.LightVO.LightType;
 
-public class LightObjectComponent implements BaseComponent {
+public class LightObjectComponent extends PooledComponent {
 	private LightType type;
 
 	public int rays = 12;

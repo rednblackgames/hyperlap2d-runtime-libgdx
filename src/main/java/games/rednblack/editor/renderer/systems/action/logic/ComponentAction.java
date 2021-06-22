@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.Entity;
 import games.rednblack.editor.renderer.systems.action.data.ComponentData;
 
 /**
@@ -9,11 +8,10 @@ import games.rednblack.editor.renderer.systems.action.data.ComponentData;
 public abstract class ComponentAction<T extends ComponentData> extends DelegateAction<T> {
 
     @Override
-    public boolean act(float delta, Entity entity, T actionData) {
+    public boolean act(float delta, int entity, T actionData) {
         if (actionData.linkedComponentMapper == null || actionData.linkedComponentMapper.has(entity)) {
             return delegate(delta, entity, actionData);
-        }
-        else {
+        } else {
             return true;
         }
     }
