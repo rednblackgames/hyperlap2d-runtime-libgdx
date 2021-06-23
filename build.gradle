@@ -1,9 +1,16 @@
-plugins {
-    id 'java'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 group = 'games.rednblack.hyperlap2d'
 version = '0.0.8'
+
+sourceCompatibility = 1.8 // java 8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -21,15 +28,21 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-task install(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    from files(sourceSets.main.output.classesDirs)
-    from files(sourceSets.main.output.resourcesDir)
+    manifest {
+        attributes 'Implementation-Title': 'H2D Runtime',
+                'Implementation-Version': version
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
-//tasks.withType(JavaCompile) {
-//    sourceCompatibility = "1.7"
-//    targetCompatibility = "1.7"
-//}
+artifacts {
+    archives sourcesJar
+}
+
+wrapper {
+    gradleVersion = "6.1.1"
+    distributionType = Wrapper.DistributionType.ALL
+}
