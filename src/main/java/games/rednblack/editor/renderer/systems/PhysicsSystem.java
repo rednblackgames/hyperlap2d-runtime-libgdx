@@ -26,11 +26,11 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
     protected ComponentMapper<PolygonComponent> polygonComponentMapper;
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
-    private final World world;
+    private World world;
     private boolean isPhysicsOn = true;
     private float accumulator = 0;
 
-    public PhysicsSystem(World world) {
+    public void setBox2DWorld(World world) {
         this.world = world;
         world.setContactListener(this);
     }

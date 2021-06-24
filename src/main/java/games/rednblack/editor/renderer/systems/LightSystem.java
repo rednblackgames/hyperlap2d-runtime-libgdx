@@ -31,10 +31,6 @@ public class LightSystem extends IteratingSystem {
 
     private final Vector2 localCoord = new Vector2();
 
-    public LightSystem(RayHandler rayHandler) {
-        this.rayHandler = rayHandler;
-    }
-
     @Override
     protected void process(int entityId) {
 

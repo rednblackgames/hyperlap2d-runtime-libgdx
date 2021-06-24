@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.DirectionalLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.box2dLight.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
@@ -26,16 +25,13 @@ import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.ActionFactory;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
-import games.rednblack.editor.renderer.resources.ResourceManager;
 import games.rednblack.editor.renderer.scripts.IScript;
-import games.rednblack.editor.renderer.systems.*;
-import games.rednblack.editor.renderer.systems.action.ActionSystem;
+import games.rednblack.editor.renderer.systems.PhysicsSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
-import games.rednblack.editor.renderer.utils.CpuPolygonSpriteBatch;
 import games.rednblack.editor.renderer.utils.DefaultShaders;
 
 /**
@@ -58,7 +54,6 @@ public class SceneLoader {
     private World world;
     private RayHandler rayHandler;
     private IResourceRetriever rm;
-    private WorldConfigurationBuilder config;
     private HyperLap2dRenderer renderer;
     private EntityFactory entityFactory;
 
@@ -81,98 +76,50 @@ public class SceneLoader {
     private DirectionalLight sceneDirectionalLight;
     private ActionFactory actionFactory;
 
-    public SceneLoader() {
-        this(null, null, true);
-    }
+    public SceneLoader(SceneConfiguration configuration) {
 
-    public SceneLoader(World world, RayHandler rayHandler, boolean cullingEnabled) {
-        this.world = world;
-        this.rayHandler = rayHandler;
+        this.world = configuration.getWorld();
+        this.rayHandler = configuration.getRayHandler();
 
-        ResourceManager rm = new ResourceManager();
-        rm.initAllResources();
-        this.rm = rm;
+        this.rm = configuration.getiResourceRetriever();
 
-        initSceneLoader(cullingEnabled);
-    }
-
-    public SceneLoader(IResourceRetriever rm) {
-        this(rm, null, null, true);
-    }
-
-    public SceneLoader(IResourceRetriever rm, World world, RayHandler rayHandler, boolean cullingEnabled) {
-        this.world = world;
-        this.rayHandler = rayHandler;
-        this.rm = rm;
-
-        initSceneLoader(cullingEnabled);
+        initSceneLoader(configuration);
     }
 
     /**
      * this method is called when rm has loaded all data
      */
-    private void initSceneLoader(boolean cullingEnabled) {
-
-        if (world == null) {
-            world = new World(new Vector2(0, -10), true);
-        }
-
-        this.config = new WorldConfigurationBuilder();
-
-        if (rayHandler == null) {
-            RayHandlerOptions rayHandlerOptions = new RayHandlerOptions();
-            rayHandlerOptions.setGammaCorrection(false);
-            rayHandlerOptions.setDiffuse(true);
-
-            rayHandler = new RayHandler(world, rayHandlerOptions);
-            rayHandler.setAmbientLight(1f, 1f, 1f, 1f);
-            rayHandler.setCulling(true);
-            rayHandler.setBlur(true);
-            rayHandler.setBlurNum(3);
-            rayHandler.setShadows(true);
-        }
-
+    private void initSceneLoader(SceneConfiguration configuration) {
         entityFactory = new EntityFactory();
 
-        addInternalSystems(cullingEnabled);
-    }
+        renderer = configuration.getSystem(HyperLap2dRenderer.class);
 
-    private void addInternalSystems(boolean cullingEnabled) {
-        ParticleSystem particleSystem = new ParticleSystem();
-        LightSystem lightSystem = new LightSystem(rayHandler);
-        SpriteAnimationSystem animationSystem = new SpriteAnimationSystem();
-        LayerSystem layerSystem = new LayerSystem();
-        PhysicsSystem physicsSystem = new PhysicsSystem(world);
-        CompositeSystem compositeSystem = new CompositeSystem();
-        LabelSystem labelSystem = new LabelSystem();
-        TypingLabelSystem typingLabelSystem = new TypingLabelSystem();
-        ScriptSystem scriptSystem = new ScriptSystem();
-        ActionSystem actionSystem = new ActionSystem();
-        BoundingBoxSystem boundingBoxSystem = new BoundingBoxSystem();
-        CullingSystem cullingSystem = new CullingSystem();
-        renderer = new HyperLap2dRenderer(new CpuPolygonSpriteBatch(BATCH_VERTICES_SIZE, createDefaultShader()));
-        renderer.setRayHandler(rayHandler);
+        WorldConfigurationBuilder config = new WorldConfigurationBuilder();
 
-        config.with(animationSystem);
-        config.with(particleSystem);
-        config.with(layerSystem);
-        config.with(physicsSystem);
-        config.with(lightSystem);
-        config.with(typingLabelSystem);
-        config.with(compositeSystem);
-        config.with(labelSystem);
-        config.with(scriptSystem);
-        config.with(actionSystem);
-
-        if (cullingEnabled) {
-            config.with(boundingBoxSystem);
-            config.with(cullingSystem);
+        for (SceneConfiguration.SystemData<?> data : configuration.getSystems()) {
+            config.with(data.priority, data.system);
         }
 
-        config.with(renderer);
+        WorldConfiguration build = config.build();
+        build.expectedEntityCount(configuration.getExpectedEntityCount());
+        build.setAlwaysDelayComponentRemoval(configuration.isAlwaysDelayComponentRemoval());
 
-        // additional
-        config.with(new ButtonSystem());
+        this.engine = new com.artemis.World(build);
+
+        engine.inject(this);
+        renderer.injectMappers(engine);
+        ComponentRetriever.initialize(engine);
+
+        addEntityRemoveListener();
+
+        for (IExternalItemType itemType : configuration.getiExternalItemTypes()) {
+            itemType.injectMappers();
+            entityFactory.addExternalFactory(itemType);
+            renderer.addDrawableType(itemType);
+        }
+
+        entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
+
     }
 
     public void setResolution(String resolutionName) {
@@ -180,41 +127,6 @@ public class SceneLoader {
         if (resolution != null) {
             curResolution = resolutionName;
         }
-    }
-
-    public void injectExternalItemType(IExternalItemType itemType) {
-        itemType.injectMappers();
-        entityFactory.addExternalFactory(itemType);
-        addSystem(itemType.getSystem());
-        renderer.addDrawableType(itemType);
-    }
-
-    public void addSystem(BaseSystem system) {
-        assert config != null : "Add systems before createEngine";
-        config.with(system);
-    }
-
-    public com.artemis.World createEngine() {
-        return createEngine(128, false);
-    }
-
-    public com.artemis.World createEngine(int expectedEntityCount, boolean alwaysDelayComponentRemoval) {
-        WorldConfiguration build = config.build();
-        build.expectedEntityCount(expectedEntityCount);
-        build.setAlwaysDelayComponentRemoval(alwaysDelayComponentRemoval);
-
-        this.engine = new com.artemis.World(build);
-        engine.inject(this); // LMAO, it initialises the mappers in here
-        renderer.injectMappers(engine);
-
-        ComponentRetriever.initialize(engine);
-        addEntityRemoveListener();
-
-        entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
-
-        config = null;
-
-        return engine;
     }
 
     private void addEntityRemoveListener() {
@@ -508,9 +420,6 @@ public class SceneLoader {
         return engine;
     }
 
-    public WorldConfigurationBuilder getConfig() {
-        return config;
-    }
 
     public RayHandler getRayHandler() {
         return rayHandler;
