@@ -272,7 +272,7 @@ public class SceneLoader {
         CompositeItemVO compositeItemVO = projectInfoVO.libraryItems.get(libraryName);
 
         if (compositeItemVO != null) {
-            return entityFactory.initializeEntity(-1, compositeItemVO);
+            return entityFactory.createEntity(-1, compositeItemVO);
         }
 
         return -1;
