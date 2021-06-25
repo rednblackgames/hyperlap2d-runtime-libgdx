@@ -49,8 +49,6 @@ public class CompositeComponentFactory extends ComponentFactory {
             createParentNodeComponent(root, entity);
         }
         createNodeComponent(root, entity);
-        createPhysicsComponents(entity, vo);
-        createLightComponents(entity, vo);
         createCompositeComponents(entity, (CompositeItemVO) vo);
     }
 
