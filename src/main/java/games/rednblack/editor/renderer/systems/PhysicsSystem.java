@@ -11,6 +11,7 @@ import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
+import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -119,8 +120,7 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
     protected void processBody(Entity entity) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
-
-        physicsBodyComponent.setWorld(world);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
 
         if (polygonComponent == null && physicsBodyComponent.body != null) {
             world.destroyBody(physicsBodyComponent.body);
@@ -128,7 +128,11 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         }
 
         if (physicsBodyComponent.body == null && polygonComponent != null) {
-            physicsBodyComponent.scheduleRefresh();
+            physicsBodyComponent.centerX = transformComponent.originX;
+            physicsBodyComponent.centerY = transformComponent.originY;
+
+            physicsBodyComponent.body = PhysicsBodyLoader.getInstance().createBody(world, entity, physicsBodyComponent, polygonComponent.vertices, transformComponent);
+            physicsBodyComponent.body.setUserData(entity);
         }
 
         physicsBodyComponent.executeRefresh(entity);
