@@ -19,7 +19,10 @@ public abstract class BasicScript implements IScript, Pool.Poolable {
     }
 
     @Override
-    public void reset() { }
+    public void reset() {
+        pool = null;
+        entity = -1;
+    }
 
     public void setPool(Pool pool) {
         this.pool = pool;

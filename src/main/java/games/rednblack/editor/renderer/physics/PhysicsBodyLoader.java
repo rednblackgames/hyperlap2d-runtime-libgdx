@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
@@ -28,7 +29,10 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
 public class PhysicsBodyLoader {
 
     private static PhysicsBodyLoader instance;
+
     private final Vector2 tmp = new Vector2();
+    public final PolygonShape tmpShape = new PolygonShape();
+    private final ObjectMap<Integer, float[]> verticesCache = new ObjectMap<>();
 
     public static PhysicsBodyLoader getInstance() {
         if (instance == null) {
@@ -45,17 +49,7 @@ public class PhysicsBodyLoader {
             return null;
         }
 
-        FixtureDef fixtureDef = new FixtureDef();
-
-        fixtureDef.density = physicsComponent.density;
-        fixtureDef.friction = physicsComponent.friction;
-        fixtureDef.restitution = physicsComponent.restitution;
-
-        fixtureDef.isSensor = physicsComponent.sensor;
-
-        fixtureDef.filter.maskBits = physicsComponent.filter.maskBits;
-        fixtureDef.filter.groupIndex = physicsComponent.filter.groupIndex;
-        fixtureDef.filter.categoryBits = physicsComponent.filter.categoryBits;
+        FixtureDef fixtureDef = physicsComponent.createFixtureDef();
 
         BodyDef bodyDef = new BodyDef();
         tmp.set(transformComponent.originX, transformComponent.originY);
@@ -115,15 +109,14 @@ public class PhysicsBodyLoader {
      * @author Jan-Thierry Wegener
      */
     private void createSensors(Body body, SensorComponent sensorComponent, DimensionsComponent dimensionsComponent, TransformComponent transformComponent) {
-        PolygonShape ps = new PolygonShape();
         FixtureDef sensorFix = new FixtureDef();
         sensorFix.isSensor = true;
-        sensorFix.shape = ps;
+        sensorFix.shape = tmpShape;
 
         if (sensorComponent.bottom) {
             tmp.set(dimensionsComponent.width * 0.5f, 0);
 
-            ps.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            tmpShape.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
             body.createFixture(sensorFix).setUserData(SensorUserData.BOTTOM);
         }
@@ -131,7 +124,7 @@ public class PhysicsBodyLoader {
         if (sensorComponent.top) {
             tmp.set(dimensionsComponent.width * 0.5f, dimensionsComponent.height);
 
-            ps.setAsBox(tmp.x * sensorComponent.topSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            tmpShape.setAsBox(tmp.x * sensorComponent.topSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
             body.createFixture(sensorFix).setUserData(SensorUserData.TOP);
         }
@@ -139,7 +132,7 @@ public class PhysicsBodyLoader {
         if (sensorComponent.left) {
             tmp.set(0, dimensionsComponent.height * 0.5f);
 
-            ps.setAsBox(0.05f, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            tmpShape.setAsBox(0.05f, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
             body.createFixture(sensorFix).setUserData(SensorUserData.LEFT);
         }
@@ -147,12 +140,10 @@ public class PhysicsBodyLoader {
         if (sensorComponent.right) {
             tmp.set(dimensionsComponent.width, dimensionsComponent.height * 0.5f);
 
-            ps.setAsBox(0.05f, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            tmpShape.setAsBox(0.05f, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
             body.createFixture(sensorFix).setUserData(SensorUserData.RIGHT);
         }
-
-        ps.dispose();
     }
 
     private void createChainShape(Body body, FixtureDef fixtureDef, Vector2[][] minPolygonData) {
@@ -166,13 +157,11 @@ public class PhysicsBodyLoader {
     }
 
     private void createPolygonShape(Body body, FixtureDef fixtureDef, TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
-        PolygonShape polygonShape = new PolygonShape();
-
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
         for (Vector2[] minPolygonDatum : minPolygonData) {
-            float[] verts = new float[minPolygonDatum.length * 2];
+            float[] verts = getVerticesArray(minPolygonDatum.length * 2);
             for (int j = 0; j < verts.length; j += 2) {
                 float tempX = minPolygonDatum[j / 2].x;
                 float tempY = minPolygonDatum[j / 2].y;
@@ -190,11 +179,17 @@ public class PhysicsBodyLoader {
                 minPolygonDatum[j / 2].y = tempY;
 
             }
-            polygonShape.set(verts);
-            fixtureDef.shape = polygonShape;
+
+            fixtureDef.shape = tmpShape;
+            tmpShape.set(verts);
             body.createFixture(fixtureDef).setUserData(new LightData(physicsComponent.height));
         }
 
-        polygonShape.dispose();
+    }
+
+    public float[] getVerticesArray(int size) {
+        if (!verticesCache.containsKey(size))
+            verticesCache.put(size, new float[size]);
+        return verticesCache.get(size);
     }
 }
