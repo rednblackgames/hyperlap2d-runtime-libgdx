@@ -1,40 +1,35 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import com.artemis.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.box2dLight.LightData;
-import games.rednblack.editor.renderer.commons.RefreshableComponent;
+import games.rednblack.editor.renderer.commons.RefreshableObject;
 import games.rednblack.editor.renderer.components.PolygonComponent;
-import games.rednblack.editor.renderer.components.RemovableObject;
+import games.rednblack.editor.renderer.components.RemovableComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
+public class PhysicsBodyComponent extends RefreshableObject implements RemovableComponent {
+	public int bodyType = 0;
 
-    protected ComponentMapper<TransformComponent> transformCM;
-    protected ComponentMapper<PolygonComponent> polygonCM;
-
-    protected boolean needsRefresh = false;
-
-    public int bodyType = 0;
-
-    public float mass = 0;
-    public Vector2 centerOfMass = new Vector2(0, 0);
-    public float rotationalInertia = 1;
-    public float damping = 0;
+	public float mass = 0;
+	public Vector2 centerOfMass = new Vector2(0, 0);
+	public float rotationalInertia = 1;
+	public float damping = 0;
     public float angularDamping = 0;
-    public float gravityScale = 1;
+	public float gravityScale = 1;
 
-    public boolean allowSleep = true;
-    public boolean awake = true;
-    public boolean bullet = false;
+	public boolean allowSleep = true;
+	public boolean awake = true;
+	public boolean bullet = false;
     public boolean sensor = false;
     public boolean fixedRotation = false;
 
-    public float density = 1;
-    public float friction = 1;
-    public float restitution = 0;
+	public float density = 1;
+	public float friction = 1;
+	public float restitution = 0;
     public Filter filter = new Filter();
 
     public float height = 1;
@@ -106,23 +101,11 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     }
 
     @Override
-    public void scheduleRefresh() {
-        needsRefresh = true;
-    }
+    protected void refresh(Entity entity) {
+        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        if(polygonComponent == null || polygonComponent.vertices == null) return;
 
-    @Override
-    public void executeRefresh(int entity) {
-        if (needsRefresh) {
-            refresh(entity);
-            needsRefresh = false;
-        }
-    }
-
-    protected void refresh(int entity) {
-        PolygonComponent polygonComponent = polygonCM.get(entity);
-        if (polygonComponent == null || polygonComponent.vertices == null) return;
-
-        TransformComponent transformComponent = transformCM.get(entity);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 

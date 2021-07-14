@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.scripts;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Pool;
 
 /**
@@ -7,21 +8,21 @@ import com.badlogic.gdx.utils.Pool;
  */
 public abstract class BasicScript implements IScript, Pool.Poolable {
     private Pool pool;
-    protected int entity;
+    protected Entity entity;
 
     @Override
-    public void init(int item) {
+    public void init(Entity item) {
         entity = item;
     }
 
-    public int getEntity() {
+    public Entity getEntity() {
         return entity;
     }
 
     @Override
     public void reset() {
         pool = null;
-        entity = -1;
+        entity = null;
     }
 
     public void setPool(Pool pool) {
