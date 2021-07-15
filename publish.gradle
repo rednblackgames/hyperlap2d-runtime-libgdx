@@ -1,4 +1,4 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 group = 'games.rednblack.hyperlap2d'
@@ -58,7 +58,7 @@ artifacts {
 if(isReleaseBuild) {
     signing {
         useGpgCmd()
-        sign configurations.archives
+        sign publishing.publications.mavenJava
     }
 } else {
     task signArchives {
@@ -66,50 +66,55 @@ if(isReleaseBuild) {
     }
 }
 
-uploadArchives {
-    repositories {
-        if (isDevBuild) {
-            mavenLocal()
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            artifactId = artifact
+            pom {
+                name = "HyperLap2D libGDX runtime"
+                description = "HyperLap2D libGDX runtime to render exported scenes"
+                url = "https://github.com/rednblackgames/hyperlap2d-runtime-libgdx"
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "fgnm"
+                        name = "Francesco Marongiu"
+                        email = "fgnm.dev@gmail.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git"
+                    developerConnection = "scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git"
+                    url = "scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git"
+                }
+            }
         }
-        else {
-            mavenDeployer {
-                if(isReleaseBuild) {
-                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                }
+    }
 
-                repository(url: sonatypeRepositoryUrl) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-                }
+    repositories {
+        maven {
+            url = sonatypeRepositoryUrl
 
-                pom.version = version
-                pom.packaging = packaging
-
-                pom.project {
-                    artifactId = artifact
-                    name 'HyperLap2D libGDX runtime'
-                    description 'HyperLap2D libGDX runtime to render exported scenes'
-                    url 'https://github.com/rednblackgames/hyperlap2d-runtime-libgdx'
-
-                    scm {
-                        url 'scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git'
-                        connection 'scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git'
-                        developerConnection 'scm:git@github.com:rednblackgames/hyperlap2d-runtime-libgdx.git'
-                    }
-
-                    licenses {
-                        license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'fgnm'
-                            name 'Francesco Marongiu'
-                        }
-                    }
+            if (getRepositoryUsername() || getRepositoryPassword())
+            {
+                credentials {
+                    username = getRepositoryUsername()
+                    password = getRepositoryPassword()
                 }
             }
         }
