@@ -9,8 +9,11 @@ version = '0.0.8'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
+sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
+
 jar {
     archiveBaseName.set(projectName)
+
     manifest {
         attributes 'Implementation-Title': projectName, 'Implementation-Version': archiveVersion
     }
