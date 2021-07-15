@@ -122,12 +122,12 @@ public class PhysicsSystem extends IteratingSystem implements ContactListener {
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
 
-        if (polygonComponent == null && physicsBodyComponent.body != null) {
+        if ((polygonComponent == null || polygonComponent.vertices == null) && physicsBodyComponent.body != null) {
             world.destroyBody(physicsBodyComponent.body);
             physicsBodyComponent.body = null;
         }
 
-        if (physicsBodyComponent.body == null && polygonComponent != null) {
+        if (physicsBodyComponent.body == null && polygonComponent != null && polygonComponent.vertices != null) {
             physicsBodyComponent.centerX = transformComponent.originX;
             physicsBodyComponent.centerY = transformComponent.originY;
 
