@@ -1,20 +1,21 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'java-library'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 group = 'games.rednblack.hyperlap2d'
 version = '0.0.8'
 
-sourceCompatibility = 1.8 // java 8
-targetCompatibility = 1.8
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+configurations {
+    provided
+    implementation.extendsFrom(provided)
 }
 
 dependencies {
@@ -25,26 +26,95 @@ dependencies {
 
     implementation "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
 
-    compile fileTree(dir: 'libs', include: '*.jar')
-
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    manifest {
-        attributes 'Implementation-Title': 'H2D Runtime',
-                'Implementation-Version': version
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+
+configurations {
+    provided
+    implementation.extendsFrom(provided)
 }
 
+// TODO: Put dependencies block right below.
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+
+    // Add in the project name.
+    def projectName = "Hyperlap2D Runtime"
+    // Add in the name of the class with the main method. Set null if no main class.
+    def mainClassName = null
+    // Classifying it as sources for jitpack. Other values: [sources/javadoc]
+    def classifier = "sources"
+    // Name of the jar file. Add `System.currentTimeMillis()` to append current millis.
+    def jarName = projectName + "-jar"
+    // Assets folders
+    def assetsDir = ["src/main/java"]
+    // Additional sources folders.
+    def extraSourcesDirs = []
+    // Change if you want to place the jar file to another position.
+    def buildDestination = "build/libs"
+    // Add string values to copy the built jar file at different locations (relative)
+    def copyDirs = []
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////// CORE CODE, SUPPOSED TO BE HIDDEN, UNLESS DEBUGGING
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //<editor-fold defaultstate="collapsed" desc="CORE CODE, SUPPOSED TO BE HIDDEN, UNLESS DEBUGGING">
+
+    // Note that jar file name will have version and classifier appended by default
+    // Note that "/build/classes/java/main" is appended automatically to extraSourcesDirs
+
+    archiveClassifier.set(classifier)
+
+    for (i in 0..<extraSourcesDirs.size())
+        extraSourcesDirs[i] += "/build/classes/java/main"
+
+    from files(assetsDir)
+    from files(extraSourcesDirs)
+
+    // Add the files manually
+    // from files(sourceSets.main.output.classesDirs)
+    // from files(sourceSets.main.output.resourcesDir)
+    // Or let a simple command add everything.
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from configurations.provided.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        if (mainClassName == null) {
+            attributes 'Implementation-Title': projectName,
+                    'Implementation-Version': project.version
+        } else {
+            attributes 'Implementation-Title': projectName,
+                    'Implementation-Version': project.version,
+                    'Main-Class': "$project.group.$mainClassName"
+        }
+    }
+
+    setArchivesBaseName(jarName)
+
+    destinationDirectory = file(buildDestination)
+
+    doLast {
+        def jarToCopy = archiveFileName.get()
+
+        for (path in copyDirs) {
+            copy {
+                from "/$buildDestination/$jarToCopy"
+                into "/$path"
+            }
+        }
+    }
+
+    with jar
+
+    //</editor-fold>
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
+
+// Declaring artifacts for jitpack to recognise
 artifacts {
     archives sourcesJar
-}
-
-wrapper {
-    gradleVersion = "6.1.1"
-    distributionType = Wrapper.DistributionType.ALL
 }
