@@ -1,27 +1,22 @@
 apply plugin: 'java-library'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
-def projectName = 'Hyperlap2D Runtime'
 group = 'games.rednblack.hyperlap2d'
 version = '0.0.8'
+def projectName = "Hyperlap2D Runtime"
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
-
-sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
-
-jar {
-    archiveBaseName.set(projectName)
-
-    manifest {
-        attributes 'Implementation-Title': projectName, 'Implementation-Version': archiveVersion
-    }
-}
 
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+configurations {
+    provided
+    implementation.extendsFrom(provided)
 }
 
 dependencies {
@@ -33,4 +28,34 @@ dependencies {
     implementation "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+task libraryJar(type: Jar, dependsOn: classes) {
+
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.main.output.resourcesDir)
+    from configurations.provided.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        attributes 'Implementation-Title': projectName,
+                'Implementation-Version': project.version
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
+
+    manifest {
+        attributes 'Implementation-Title': projectName,
+                'Implementation-Version': project.version
+    }
+
+}
+
+// Declaring artifacts for jitpack to recognise
+artifacts {
+    archives sourcesJar
+    archives libraryJar
 }
