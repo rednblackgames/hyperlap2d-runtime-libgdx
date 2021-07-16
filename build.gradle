@@ -40,6 +40,16 @@ task libraryJar(type: Jar, dependsOn: classes) {
         attributes 'Implementation-Title': projectName,
                 'Implementation-Version': project.version
     }
+
+    def temp = destinationDirectory.get().toString()
+
+    doLast {
+        def jarToCopy = archiveFileName.get()
+        copy {
+            from "/$temp/$jarToCopy"
+            into "/WebTest/libs"
+        }
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -52,6 +62,20 @@ task sourcesJar(type: Jar, dependsOn: classes) {
                 'Implementation-Version': project.version
     }
 
+    def temp = destinationDirectory.get().toString()
+
+    doLast {
+        def jarToCopy = archiveFileName.get()
+        copy {
+            from "/$temp/$jarToCopy"
+            into "/WebTest/libs"
+        }
+    }
+
+}
+
+task jars {
+    dependsOn(libraryJar, sourcesJar)
 }
 
 // Declaring artifacts for jitpack to recognise
