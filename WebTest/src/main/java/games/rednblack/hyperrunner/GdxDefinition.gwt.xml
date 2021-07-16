@@ -5,9 +5,11 @@
 	<inherits name="com.badlogic.gdx.backends.gdx_backends_gwt" />
 
 	<extend-configuration-property name="gdx.reflect.include" value="com.badlogic.ashley" />
-	<inherits name="HyperLap2D" />
 
+	<inherits name="HyperLap2D" />
+	<inherits name="jsr305" />
 	<inherits name="games.rednblack.hyperrunner.HyperRunner" />
+
 	<entry-point class="games.rednblack.hyperrunner.gwt.GwtLauncher" />
 	<set-configuration-property name="gdx.assetpath" value="../assets" />
 	<set-configuration-property name="xsiframe.failIfScriptTag" value="FALSE"/>
