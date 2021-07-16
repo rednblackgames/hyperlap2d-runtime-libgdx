@@ -1,0 +1,4 @@
+include 'TestGame'
+include 'WebTest'
+include 'DesktopTest'
+
