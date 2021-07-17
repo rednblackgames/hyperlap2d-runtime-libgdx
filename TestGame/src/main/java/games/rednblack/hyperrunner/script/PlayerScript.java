@@ -37,7 +37,15 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
     private final Vector2 impulse = new Vector2(0, 0);
     private final Vector2 speed = new Vector2(0, 0);
 
-    private final World mEngine;
+    private World mEngine;
+
+    private World getmEngine() {
+        return mEngine;
+    }
+
+    private void setmEngine(World mEngine) {
+        this.mEngine = mEngine;
+    }
 
     public PlayerScript(World engine) {
         mEngine = engine;
