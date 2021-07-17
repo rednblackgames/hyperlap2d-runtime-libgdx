@@ -18,7 +18,7 @@ dependencies {
     api "com.badlogicgames.gdx:gdx:$gdxVersion"
     api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
     api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-    api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+    implementation "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
 
     //Optional - typing labels
     api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
@@ -39,10 +39,10 @@ dependencies {
 
 **Compatibility Table**
 
-| HyperLap2D         |      libGDX     | Ashley | Box2DLights  | TypingLabel |
-| ------------------ | --------------- | ------ | ------------ | ----------- |
-| 0.0.6              | 1.10.0          | 1.7.4  |   Included   |    1.2.0    |
-| 0.0.5              | 1.9.14          | 1.7.4  | 1.6-SNAPSHOT |    1.2.0    |
+| HyperLap2D         |      libGDX     | Artemis | Box2DLights  | TypingLabel |
+| ------------------ | --------------- | ------- | ------------ | ----------- |
+| 0.0.6              | 1.10.0          | 2.3.0   |   Included   |    1.2.0    |
+| 0.0.5              | 1.9.14          | 2.3.0   | 1.6-SNAPSHOT |    1.2.0    |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
 
