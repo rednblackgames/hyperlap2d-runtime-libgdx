@@ -1,85 +1,36 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java'
+}
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-group = 'games.rednblack.hyperlap2d'
-version = '0.0.8'
-def projectName = "Hyperlap2D Runtime"
-
-[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+apply from : 'publish.gradle'
 
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
-configurations {
-    provided
-    implementation.extendsFrom(provided)
-}
-
 dependencies {
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-    implementation "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+    implementation "com.badlogicgames.ashley:ashley:$ashleyVersion"
 
     implementation "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-task libraryJar(type: Jar, dependsOn: classes) {
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
+task dist(type: Jar) {
     from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
-    from configurations.provided.asFileTree.files.collect { zipTree(it) }
-
-    manifest {
-        attributes 'Implementation-Title': projectName,
-                'Implementation-Version': project.version
-    }
-
-    def temp = destinationDirectory.get().toString()
-
-    doLast {
-        def jarToCopy = archiveFileName.get()
-        copy {
-            from "/$temp/$jarToCopy"
-            into "/WebTest/libs"
-        }
-    }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-
-    archiveClassifier.set("sources")
-    from sourceSets.main.allSource
-
-    manifest {
-        attributes 'Implementation-Title': projectName,
-                'Implementation-Version': project.version
-    }
-
-    def temp = destinationDirectory.get().toString()
-
-    doLast {
-        def jarToCopy = archiveFileName.get()
-        copy {
-            from "/$temp/$jarToCopy"
-            into "/WebTest/libs"
-        }
-    }
-
-}
-
-task jars {
-    dependsOn(libraryJar, sourcesJar)
-}
-
-// Declaring artifacts for jitpack to recognise
-artifacts {
-    archives sourcesJar
-    archives libraryJar
+tasks.withType(JavaCompile) {
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
 }
