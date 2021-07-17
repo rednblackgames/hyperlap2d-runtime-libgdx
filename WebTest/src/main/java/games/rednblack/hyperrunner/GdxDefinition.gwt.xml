@@ -4,8 +4,7 @@
 	<source path="" />
 	<inherits name="com.badlogic.gdx.backends.gdx_backends_gwt" />
 
-	<extend-configuration-property name="gdx.reflect.include" value="com.badlogic.ashley" />
-
+	<inherits name='com.artemis.backends.artemis_backends_gwt' />
 	<inherits name="HyperLap2D" />
 	<inherits name="jsr305" />
 	<inherits name="games.rednblack.hyperrunner.HyperRunner" />

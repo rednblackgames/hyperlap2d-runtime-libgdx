@@ -9,6 +9,9 @@
     <inherits name="com.rafaskoberg.gdx.typinglabel.typinglabel" />
 
     <extend-configuration-property name="gdx.reflect.include" value="games.rednblack.editor.renderer"/>
+    <extend-configuration-property name="gdx.reflect.include" value="java.util.HashSet" />
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer"/>
 
     <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components" />
     <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.sprite" />
@@ -22,5 +25,7 @@
     <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems" />
     <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems.render" />
     <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems.action" />
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.data" />
 
 </module>
