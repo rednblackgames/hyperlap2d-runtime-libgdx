@@ -6,7 +6,7 @@ plugin-9patch/build/
 plugin-performance/build/
 plugin-tiled/build/
 plugin-skin-composer/build/
-/.gradle/**
+.gradle
 /build/
 /out/
 .idea/
