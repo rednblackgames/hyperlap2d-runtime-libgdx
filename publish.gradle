@@ -39,22 +39,6 @@ repositories {
     mavenCentral()
 }
 
-task artifactDocs(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
-}
-
-task artifactSources(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    archives jar
-    archives artifactDocs
-    archives artifactSources
-}
-
 if(isReleaseBuild) {
     signing {
         useGpgCmd()
