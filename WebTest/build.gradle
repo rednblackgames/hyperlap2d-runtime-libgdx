@@ -63,13 +63,9 @@ dependencies {
     compile "net.onedaybeard.artemis:artemis-odb-gwt:2.2.0:sources"
     compile "net.onedaybeard.artemis:artemis-odb:2.2.0:sources"
 
-//    implementation "games.rednblack.hyperlap2d:runtime-libgdx:$h2dVersion:sources"
-//    implementation project(':')
-//    implementation project(':sources')
-//    compile fileTree(dir: '../src/main/java', include: '*.java')
-//    implementation fileTree(dir: '../src/main/java', include: '**/*.java')
-//    implementation fileTree(dir: '../src/main/resources', include: '**/*.*')
-    compile fileTree(dir: 'libs', include: '*.jar')
+//    compile fileTree(dir: 'libs', include: '*.jar')
+    implementation 'com.github.Minecraftian14:hyperlap2d-runtime-libgdx:0.0.8.28'
+    implementation 'com.github.Minecraftian14:hyperlap2d-runtime-libgdx:0.0.8.28:sources'
 
     implementation "com.github.intrigus.gdx-freetype-gwt:gdx-freetype-gwt:$freefontTypeGwtVersion"
     implementation "com.github.intrigus.gdx-freetype-gwt:gdx-freetype-gwt:$freefontTypeGwtVersion:sources"
