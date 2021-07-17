@@ -14,12 +14,6 @@ apply plugin: "gwt"
 apply plugin: "war"
 apply plugin: "org.gretty"
 
-task a {
-    println fileTree(dir: 'libs', include: '*.jar').getDir()
-    println fileTree(dir: '../src/main/java', include: '**/*.java').getFiles()
-    println fileTree(dir: '../src/main/resources', include: '**/*.*').getFiles()
-}
-
 gwt {
     gwtVersion = "$gwtFrameworkVersion" // Should match the version used for building the GWT backend. See gradle.properties.
     maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
