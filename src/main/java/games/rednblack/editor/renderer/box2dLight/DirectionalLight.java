@@ -221,10 +221,10 @@ public class DirectionalLight extends Light {
 		//We never clear the affectedFixtures array except the lightsource moves.
 		//This prevents shadows from disappearing when fixture is out of sight but shadow should be still there
 		for (Fixture fixture : affectedFixtures) {
-			LightData data = (LightData) fixture.getUserData();
-			if (data == null) {
-				continue;
-			}
+			Object userData = fixture.getUserData();
+			if (!(userData instanceof LightData) || fixture.isSensor()) continue;
+
+			LightData data = (LightData) userData;
 
 			Shape fixtureShape = fixture.getShape();
 			Type type = fixtureShape.getType();

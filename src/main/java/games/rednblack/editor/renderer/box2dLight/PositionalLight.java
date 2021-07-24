@@ -300,8 +300,10 @@ public abstract class PositionalLight extends Light {
 		int meshInd = 0;
 		float colBits = rayHandler.ambientLight.toFloatBits();
 		for (Fixture fixture : affectedFixtures) {
-			LightData data = (LightData)fixture.getUserData();
-			if (data == null || fixture.isSensor()) continue;
+			Object userData = fixture.getUserData();
+			if (!(userData instanceof LightData) || fixture.isSensor()) continue;
+
+			LightData data = (LightData) userData;
 
 			int size = 0;
 			float l;
