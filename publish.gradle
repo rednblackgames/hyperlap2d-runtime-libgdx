@@ -44,12 +44,6 @@ if(isReleaseBuild) {
         useGpgCmd()
         sign publishing.publications
     }
-
-    gradle.taskGraph.whenReady {
-        tasks.withType(Sign) {
-            onlyIf { isReleaseBuild() }
-        }
-    }
 } else {
     task signArchives {
         // do nothing
