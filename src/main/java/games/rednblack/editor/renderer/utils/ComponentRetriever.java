@@ -50,7 +50,6 @@ import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
-import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
@@ -124,7 +123,6 @@ public class ComponentRetriever {
         mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class));
 
         mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class));
-        mappers.put(NormalTextureRegionComponent.class, ComponentMapper.getFor(NormalTextureRegionComponent.class));
     }
 
     /**

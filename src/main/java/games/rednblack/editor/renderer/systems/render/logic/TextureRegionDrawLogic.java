@@ -5,30 +5,32 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
+import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
+import games.rednblack.editor.renderer.utils.value.DynamicValue;
 
-public class TextureRegionDrawLogic implements Drawable {
+public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
 
     private final ComponentMapper<TintComponent> tintComponentComponentMapper;
     private final ComponentMapper<TextureRegionComponent> textureRegionMapper;
-    private final ComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
     private final ComponentMapper<TransformComponent> transformMapper;
     private final ComponentMapper<DimensionsComponent> dimensionsComponentComponentMapper;
+    private final ComponentMapper<NormalMapRendering> normalMapMapper;
 
     private final Color batchColor = new Color();
+
+    private RenderingType renderingType;
 
     public TextureRegionDrawLogic() {
         tintComponentComponentMapper = ComponentMapper.getFor(TintComponent.class);
         textureRegionMapper = ComponentMapper.getFor(TextureRegionComponent.class);
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
         dimensionsComponentComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-        normalTextureRegionMapper = ComponentMapper.getFor(NormalTextureRegionComponent.class);
+        normalMapMapper = ComponentMapper.getFor(NormalMapRendering.class);
     }
 
     @Override
@@ -75,6 +77,7 @@ public class TextureRegionDrawLogic implements Drawable {
     }
 
     public void drawSprite(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
+        this.renderingType = renderingType;
         TintComponent tintComponent = tintComponentComponentMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
@@ -85,18 +88,20 @@ public class TextureRegionDrawLogic implements Drawable {
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
 
-        TextureRegion region;
-        NormalTextureRegionComponent normalComponent = normalTextureRegionMapper.get(entity);
-        if (normalComponent != null && renderingType == RenderingType.NORMAL_MAP)
-            region = normalComponent.textureRegion;
-        else
-            region = entityTextureRegionComponent.region;
+        NormalMapRendering normalMapRendering = normalMapMapper.get(entity);
+        if (normalMapRendering != null && normalMapRendering.useNormalMap == null)
+            normalMapRendering.useNormalMap = this;
 
-        batch.draw(region,
+        batch.draw(entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 dimensionsComponent.width, dimensionsComponent.height,
                 scaleX, scaleY,
                 entityTransformComponent.rotation);
+    }
+
+    @Override
+    public Boolean get() {
+        return renderingType == RenderingType.NORMAL_MAP;
     }
 }
