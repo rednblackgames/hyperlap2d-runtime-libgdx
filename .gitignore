@@ -2,6 +2,7 @@
 .idea/
 /build/
 .gradle/
+gradle/
 h2d-libgdx-spine-extension/build/
 hyperlap2d-common-api/build/
 hyperlap2d-runtime-libgdx/build/
