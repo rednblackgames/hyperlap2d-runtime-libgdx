@@ -30,7 +30,7 @@ dependencies {
 <dependency>
   <groupId>games.rednblack.hyperlap2d</groupId>
   <artifactId>runtime-libgdx</artifactId>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
   <type>pom</type>
 </dependency>
 ```
@@ -39,10 +39,10 @@ dependencies {
 
 **Compatibility Table**
 
-| HyperLap2D         |      libGDX     | Artemis | Box2DLights  | TypingLabel |
-| ------------------ | --------------- | ------- | ------------ | ----------- |
-| 0.0.6              | 1.10.0          | 2.3.0   |   Included   |    1.2.0    |
-| 0.0.5              | 1.9.14          | 2.3.0   | 1.6-SNAPSHOT |    1.2.0    |
+| HyperLap2D         |      libGDX     | Artemis | TypingLabel |
+| ------------------ | --------------- | ------- | ----------- |
+| 0.0.7              | 1.10.0          | 2.3.0   |    1.2.0    |
+| 0.0.6              | 1.10.0          | 2.3.0   |    1.2.0    |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
 

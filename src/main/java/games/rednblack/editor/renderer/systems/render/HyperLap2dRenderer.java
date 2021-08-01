@@ -151,16 +151,6 @@ public class HyperLap2dRenderer extends IteratingSystem {
                 screenTexture.getWidth(), screenTexture.getHeight(),
                 false, true);
 
-		/*batch.draw(frameBufferManager.getColorBufferTexture("normalMap"),
-				viewport.getScreenX(), viewport.getScreenY(),
-				0, 0,
-				viewport.getScreenWidth(), viewport.getScreenHeight(),
-				1, 1,
-				0,
-				0, 0,
-				screenTexture.getWidth(), screenTexture.getHeight(),
-				false, false);*/
-
         //2. Screen Effects
         if (screenReadingEntities.size > 0) {
             batch.setProjectionMatrix(camera.combined);

@@ -7,20 +7,23 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
+import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
+import games.rednblack.editor.renderer.utils.value.DynamicValue;
 
-public class TextureRegionDrawLogic implements Drawable {
+public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
 
-    protected ComponentMapper<TintComponent> tintMapper;
-    protected ComponentMapper<TextureRegionComponent> textureRegionMapper;
-    protected ComponentMapper<NormalTextureRegionComponent> normalTextureRegionMapper;
-    protected ComponentMapper<TransformComponent> transformMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
+    protected ComponentMapper<NormalMapRendering> normalMapRenderingMapper;
     protected ComponentMapper<ShaderComponent> shaderMapper;
+    protected ComponentMapper<TextureRegionComponent> textureRegionMapper;
+    protected ComponentMapper<TintComponent> tintMapper;
+    protected ComponentMapper<TransformComponent> transformMapper;
 
     private final Color batchColor = new Color();
+
+    private RenderingType renderingType;
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
@@ -76,18 +79,20 @@ public class TextureRegionDrawLogic implements Drawable {
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
 
-        TextureRegion region;
-        NormalTextureRegionComponent normalComponent = normalTextureRegionMapper.get(entity);
-        if (normalComponent != null && renderingType == RenderingType.NORMAL_MAP)
-            region = normalComponent.textureRegion;
-        else
-            region = entityTextureRegionComponent.region;
+        NormalMapRendering normalMapRendering = normalMapRenderingMapper.get(entity);
+        if (normalMapRendering != null && normalMapRendering.useNormalMap == null)
+            normalMapRendering.useNormalMap = this;
 
-        batch.draw(region,
+        batch.draw(entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 dimensionsComponent.width, dimensionsComponent.height,
                 scaleX, scaleY,
                 entityTransformComponent.rotation);
+    }
+
+    @Override
+    public Boolean get() {
+        return renderingType == RenderingType.NORMAL_MAP;
     }
 }

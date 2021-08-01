@@ -21,6 +21,7 @@ package games.rednblack.editor.renderer.factory.component;
 import com.artemis.ComponentMapper;
 import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -28,13 +29,13 @@ import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
-import games.rednblack.editor.renderer.components.normal.NormalTextureRegionComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.data.ResolutionEntryVO;
 import games.rednblack.editor.renderer.data.SimpleImageVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.utils.ABAtlasRegion;
 
 /**
  * Created by azakhary on 5/22/2015.
@@ -42,7 +43,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 public class SimpleImageComponentFactory extends ComponentFactory {
 
     protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
-    protected static ComponentMapper<NormalTextureRegionComponent> normalTextureRegionCM;
+    protected static ComponentMapper<NormalMapRendering> normalMapRenderingCM;
 
     TextureRegionComponent textureRegionComponent;
 
@@ -62,8 +63,7 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         transmuter.transmute(entity);
 
         textureRegionComponent = textureRegionCM.get(entity);
-        initializeTextureRegionComponent(textureRegionComponent, (SimpleImageVO) vo);
-        checkNormalTextureRegionComponent(entity, (SimpleImageVO) vo);
+        initializeTextureRegionComponent(entity, textureRegionComponent, (SimpleImageVO) vo);
 
         // We need the dimension component created on basis of texture region component.
         // That's why we call it again, after creating a texture region component.
@@ -97,20 +97,20 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         component.height = (float) textureRegionComponent.region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
     }
 
-    protected void initializeTextureRegionComponent(TextureRegionComponent component, SimpleImageVO vo) {
+    // TODO: Confirm if the new changes work as expected
+    protected void initializeTextureRegionComponent(int entity, TextureRegionComponent component, SimpleImageVO vo) {
         engine.inject(component);
         component.regionName = vo.imageName;
-        component.region = rm.getTextureRegion(vo.imageName);
+        if (rm.hasTextureRegion(vo.imageName + ".normal")) {
+            TextureAtlas.AtlasRegion regionDiffuse = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName);
+            TextureAtlas.AtlasRegion normalRegion = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName + ".normal");
+            component.region = new ABAtlasRegion(regionDiffuse, normalRegion, normalMapRenderingCM.get(entity));
+        } else {
+            normalMapRenderingCM.remove(entity);
+            component.region = rm.getTextureRegion(vo.imageName);
+        }
         component.isRepeat = vo.isRepeat;
         component.isPolygon = vo.isPolygon;
     }
 
-    protected void checkNormalTextureRegionComponent(int entity, SimpleImageVO vo) {
-        if (rm.hasTextureRegion(vo.imageName + ".normal")) {
-            NormalTextureRegionComponent normalComponent = normalTextureRegionCM.get(entity);
-            normalComponent.textureRegion = rm.getTextureRegion(vo.imageName + ".normal");
-        } else {
-            normalTextureRegionCM.remove(entity);
-        }
-    }
 }
