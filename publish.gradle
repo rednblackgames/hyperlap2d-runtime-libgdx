@@ -42,13 +42,7 @@ repositories {
 if(isReleaseBuild) {
     signing {
         useGpgCmd()
-        sign publishing.publications.mavenJava
-    }
-
-    gradle.taskGraph.whenReady {
-        tasks.withType(Sign) {
-            onlyIf { isReleaseBuild() }
-        }
+        sign publishing.publications
     }
 } else {
     task signArchives {
