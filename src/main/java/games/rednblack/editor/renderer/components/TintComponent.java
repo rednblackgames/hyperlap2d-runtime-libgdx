@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.components;
 
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.Color;
 
-public class TintComponent implements BaseComponent {
+public class TintComponent  extends PooledComponent {
 	public Color color = new Color();
 
 	@Override

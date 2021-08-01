@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import games.rednblack.editor.renderer.components.CompositeTransformComponent;
@@ -55,7 +54,7 @@ public class CompositeItemVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(Entity entity) {
+	public void loadFromEntity(int entity) {
 		super.loadFromEntity(entity);
 
 		composite = new CompositeVO();

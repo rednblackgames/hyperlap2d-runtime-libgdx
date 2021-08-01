@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.components.normal;
 
-import games.rednblack.editor.renderer.components.BaseComponent;
+import com.artemis.PooledComponent;
 import games.rednblack.editor.renderer.utils.value.DynamicValue;
 
-public class NormalMapRendering implements BaseComponent, DynamicValue<Boolean> {
+public class NormalMapRendering extends PooledComponent implements DynamicValue<Boolean> {
     public DynamicValue<Boolean> useNormalMap;
 
     @Override

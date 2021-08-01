@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.data;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import com.badlogic.ashley.core.Entity;
 
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
@@ -14,6 +13,7 @@ import games.rednblack.editor.renderer.components.ZIndexComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class MainItemVO {
 	public enum RenderingLayer {SCREEN, SCREEN_READING}
@@ -91,19 +91,19 @@ public class MainItemVO {
 		renderingLayer = vo.renderingLayer;
     }
 
-	public void loadFromEntity(Entity entity) {
-		MainItemComponent mainItemComponent = entity.getComponent(MainItemComponent.class);
-		TransformComponent transformComponent = entity.getComponent(TransformComponent.class);
+	public void loadFromEntity(int entity) {
+		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
 		transformComponent = transformComponent.getRealComponent();
-		TintComponent tintComponent = entity.getComponent(TintComponent.class);
-		ZIndexComponent zindexComponent = entity.getComponent(ZIndexComponent.class);
+		TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
+		ZIndexComponent zindexComponent = ComponentRetriever.get(entity, ZIndexComponent.class);
 
 		uniqueId = mainItemComponent.uniqueId;
 		itemIdentifier = mainItemComponent.itemIdentifier;
 		itemName = mainItemComponent.libraryLink;
-        tags = new String[mainItemComponent.tags.size];
-        int i = 0;
-        for (String tag : mainItemComponent.tags) {
+		tags = new String[mainItemComponent.tags.size];
+		int i = 0;
+		for (String tag : mainItemComponent.tags) {
 			tags[i++] = tag;
 		}
 		customVars = mainItemComponent.getCustomVarString();
@@ -129,33 +129,31 @@ public class MainItemVO {
 
 		zIndex = zindexComponent.getZIndex();
 
-		/**
-		 * Secondary components
-		 */
-		PolygonComponent polygonComponent = entity.getComponent(PolygonComponent.class);
+		//Secondary components
+		PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
 		if(polygonComponent != null && polygonComponent.vertices != null) {
 			shape = new ShapeVO();
 			shape.polygons = polygonComponent.vertices;
 		}
-        PhysicsBodyComponent physicsComponent = entity.getComponent(PhysicsBodyComponent.class);
+        PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
         if(physicsComponent != null) {
             physics = new PhysicsBodyDataVO();
             physics.loadFromComponent(physicsComponent);
         }
 
-        SensorComponent sensorComponent = entity.getComponent(SensorComponent.class);
+        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class);
         if (sensorComponent != null) {
         	sensor = new SensorDataVO();
         	sensor.loadFromComponent(sensorComponent);
         }
 
-        LightBodyComponent lightBodyComponent = entity.getComponent(LightBodyComponent.class);
+        LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class);
         if (lightBodyComponent != null) {
         	light = new LightBodyDataVO();
         	light.loadFromComponent(lightBodyComponent);
 		}
 
-		ShaderComponent shaderComponent = entity.getComponent(ShaderComponent.class);
+		ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
 		if(shaderComponent != null && shaderComponent.shaderName != null) {
 			shaderName = shaderComponent.shaderName;
 			shaderUniforms.clear();

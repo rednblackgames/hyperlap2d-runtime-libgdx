@@ -5,8 +5,27 @@
 
     <inherits name="com.badlogic.gdx.graphics.g2d.freetype.freetype-gwt" />
     <inherits name='com.badlogic.gdx.physics.box2d.box2d-gwt' />
-    <inherits name='com.badlogic.ashley_gwt' />
+    <inherits name='com.artemis.backends.artemis_backends_gwt' />
     <inherits name="com.rafaskoberg.gdx.typinglabel.typinglabel" />
 
     <extend-configuration-property name="gdx.reflect.include" value="games.rednblack.editor.renderer"/>
+    <extend-configuration-property name="gdx.reflect.include" value="java.util.HashSet" />
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer"/>
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.sprite" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.physics" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.particle" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.normal" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.light" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.label" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.components.additional" />
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems.render" />
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.systems.action" />
+
+    <extend-configuration-property name="artemis.reflect.include" value="games.rednblack.editor.renderer.data" />
+
 </module>

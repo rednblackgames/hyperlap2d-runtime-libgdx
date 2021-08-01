@@ -18,32 +18,8 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-
-import games.rednblack.editor.renderer.components.ActionComponent;
-import games.rednblack.editor.renderer.components.BoundingBoxComponent;
-import games.rednblack.editor.renderer.components.CompositeTransformComponent;
-import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.LayerMapComponent;
-import games.rednblack.editor.renderer.components.MainItemComponent;
-import games.rednblack.editor.renderer.components.NinePatchComponent;
-import games.rednblack.editor.renderer.components.NodeComponent;
-import games.rednblack.editor.renderer.components.ParentNodeComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
-import games.rednblack.editor.renderer.components.ScriptComponent;
-import games.rednblack.editor.renderer.components.ShaderComponent;
-import games.rednblack.editor.renderer.components.TextureRegionComponent;
-import games.rednblack.editor.renderer.components.TintComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
-import games.rednblack.editor.renderer.components.ViewPortComponent;
-import games.rednblack.editor.renderer.components.ZIndexComponent;
+import com.artemis.*;
+import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
@@ -55,6 +31,11 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Component Retriever is a singleton single instance class that initialises list of
@@ -73,7 +54,12 @@ public class ComponentRetriever {
     /**
      * Unique map of mappers that can be accessed by component class
      */
-    private final Map<Class<? extends Component>, ComponentMapper<? extends Component>> mappers = new HashMap<>();
+    private final Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> mappers = new HashMap<>();
+
+    /**
+     * an instance to the current World saved here in case a new component is to be added via addMapper()
+     */
+    private World engine;
 
     /**
      * Private constructor
@@ -86,43 +72,54 @@ public class ComponentRetriever {
      * This is called only during first initialisation and populates map of mappers of all known Component mappers
      * it might be a good idea to use Reflections library later to create this list from all classes in components package of runtime, all in favour?
      */
-    private void init() {
-    	mappers.put(LightObjectComponent.class, ComponentMapper.getFor(LightObjectComponent.class));
-    	
-    	mappers.put(ParticleComponent.class, ComponentMapper.getFor(ParticleComponent.class));
+    private void init(World engine) {
+        this.engine = engine;
 
-        mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class));
-        mappers.put(TypingLabelComponent.class, ComponentMapper.getFor(TypingLabelComponent.class));
+        mappers.put(LightObjectComponent.class, ComponentMapper.getFor(LightObjectComponent.class, engine));
 
-    	mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class));
-    	mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class));
-    	mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class));
-        mappers.put(LightBodyComponent.class, ComponentMapper.getFor(LightBodyComponent.class));
+        mappers.put(ParticleComponent.class, ComponentMapper.getFor(ParticleComponent.class, engine));
 
-        mappers.put(SpriteAnimationComponent.class, ComponentMapper.getFor(SpriteAnimationComponent.class));
-        mappers.put(SpriteAnimationStateComponent.class, ComponentMapper.getFor(SpriteAnimationStateComponent.class));
+        mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class, engine));
+        mappers.put(TypingLabelComponent.class, ComponentMapper.getFor(TypingLabelComponent.class, engine));
 
-        mappers.put(BoundingBoxComponent.class, ComponentMapper.getFor(BoundingBoxComponent.class));
-        mappers.put(CompositeTransformComponent.class, ComponentMapper.getFor(CompositeTransformComponent.class));
-        mappers.put(DimensionsComponent.class, ComponentMapper.getFor(DimensionsComponent.class));
-        mappers.put(LayerMapComponent.class, ComponentMapper.getFor(LayerMapComponent.class));
-        mappers.put(MainItemComponent.class, ComponentMapper.getFor(MainItemComponent.class));
-        mappers.put(NinePatchComponent.class, ComponentMapper.getFor(NinePatchComponent.class));
-        mappers.put(NodeComponent.class, ComponentMapper.getFor(NodeComponent.class));
-        mappers.put(ParentNodeComponent.class, ComponentMapper.getFor(ParentNodeComponent.class));
-        mappers.put(TextureRegionComponent.class, ComponentMapper.getFor(TextureRegionComponent.class));
-        mappers.put(TintComponent.class, ComponentMapper.getFor(TintComponent.class));
-        mappers.put(TransformComponent.class, ComponentMapper.getFor(TransformComponent.class));
-        mappers.put(ViewPortComponent.class, ComponentMapper.getFor(ViewPortComponent.class));
-        mappers.put(ZIndexComponent.class, ComponentMapper.getFor(ZIndexComponent.class));
-        mappers.put(ScriptComponent.class, ComponentMapper.getFor(ScriptComponent.class));
+        mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class, engine));
+        mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class, engine));
+        mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class, engine));
+        mappers.put(LightBodyComponent.class, ComponentMapper.getFor(LightBodyComponent.class, engine));
 
-        mappers.put(ShaderComponent.class, ComponentMapper.getFor(ShaderComponent.class));
+        mappers.put(SpriteAnimationComponent.class, ComponentMapper.getFor(SpriteAnimationComponent.class, engine));
+        mappers.put(SpriteAnimationStateComponent.class, ComponentMapper.getFor(SpriteAnimationStateComponent.class, engine));
 
-        mappers.put(ActionComponent.class, ComponentMapper.getFor(ActionComponent.class));
-        mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class));
+        mappers.put(BoundingBoxComponent.class, ComponentMapper.getFor(BoundingBoxComponent.class, engine));
+        mappers.put(CompositeTransformComponent.class, ComponentMapper.getFor(CompositeTransformComponent.class, engine));
+        mappers.put(DimensionsComponent.class, ComponentMapper.getFor(DimensionsComponent.class, engine));
+        mappers.put(LayerMapComponent.class, ComponentMapper.getFor(LayerMapComponent.class, engine));
+        mappers.put(MainItemComponent.class, ComponentMapper.getFor(MainItemComponent.class, engine));
+        mappers.put(NinePatchComponent.class, ComponentMapper.getFor(NinePatchComponent.class, engine));
+        mappers.put(NodeComponent.class, ComponentMapper.getFor(NodeComponent.class, engine));
+        mappers.put(ParentNodeComponent.class, ComponentMapper.getFor(ParentNodeComponent.class, engine));
+        mappers.put(TextureRegionComponent.class, ComponentMapper.getFor(TextureRegionComponent.class, engine));
+        mappers.put(TintComponent.class, ComponentMapper.getFor(TintComponent.class, engine));
+        mappers.put(TransformComponent.class, ComponentMapper.getFor(TransformComponent.class, engine));
+        mappers.put(ViewPortComponent.class, ComponentMapper.getFor(ViewPortComponent.class, engine));
+        mappers.put(ZIndexComponent.class, ComponentMapper.getFor(ZIndexComponent.class, engine));
+        mappers.put(ScriptComponent.class, ComponentMapper.getFor(ScriptComponent.class, engine));
 
-        mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class));
+        mappers.put(ShaderComponent.class, ComponentMapper.getFor(ShaderComponent.class, engine));
+
+        mappers.put(ActionComponent.class, ComponentMapper.getFor(ActionComponent.class, engine));
+        mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class, engine));
+
+        mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class, engine));
+    }
+
+    public static void initialize(World engine) {
+        if (instance == null) {
+            instance = new ComponentRetriever();
+
+            // Important to initialize during first creation, to populate mappers map
+            instance.init(engine);
+        }
     }
 
     /**
@@ -132,41 +129,39 @@ public class ComponentRetriever {
      * @return ComponentRetriever only instance
      */
     private static synchronized ComponentRetriever self() {
-        if(instance == null) {
-            instance = new ComponentRetriever();
-
-            // Important to initialize during first creation, to populate mappers map
-            instance.init();
-        }
-
         return instance;
     }
 
     /**
      * @return returns Map of mappers, for internal use only
      */
-    private Map<Class<? extends Component>, ComponentMapper<? extends Component>> getMappers() {
+    private Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers() {
         return mappers;
     }
 
     /**
      * Retrieves Component of provided type from a provided entity
-     * @param entity of type Entity to retrieve component from
-     * @param type of the component
-     * @param <T>
      *
+     * @param entity of type Entity to retrieve component from
+     * @param type   of the component
+     * @param <T>
      * @return Component subclass instance
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Component> T get(Entity entity, Class<T> type) {
-        return (T)self().getMappers().get(type).get(entity);
+    public static <T extends Component> T get(int entity, Class<T> type) {
+        return getMapper(type).get(entity);
+//        return (T) self().getMappers().get(type).get(entity);
     }
 
+    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type) {
+        return self().engine.getMapper(type);
+//        return (BaseComponentMapper<T>) self().getMappers().get(type);
+    }
 
-    public static  Collection<Component> getComponents(Entity entity) {
+    public static Collection<Component> getComponents(Entity entity) {
         Collection<Component> components = new ArrayList<>();
-        for (ComponentMapper<? extends Component> mapper : self().getMappers().values()) {
-            if(mapper.get(entity) != null) components.add(mapper.get(entity));
+        for (BaseComponentMapper<? extends Component> mapper : self().getMappers().values()) {
+            if (mapper.get(entity) != null) components.add(mapper.get(entity));
         }
 
         return components;
@@ -179,6 +174,6 @@ public class ComponentRetriever {
      * @param type
      */
     public static void addMapper(Class<? extends Component> type) {
-        self().getMappers().put(type, ComponentMapper.getFor(type));
+        self().getMappers().put(type, ComponentMapper.getFor(type, instance.engine));
     }
 }

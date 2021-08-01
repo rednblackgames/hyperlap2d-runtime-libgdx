@@ -1,7 +1,6 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.systems.action.data.ForceData;
@@ -13,14 +12,14 @@ import games.rednblack.editor.renderer.utils.ForceUtils;
  */
 public class ForceAction extends ComponentAction<ForceData> {
 
-    private ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
+    private BaseComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
 
     public ForceAction() {
-        this.physicsBodyComponentMapper = ComponentMapper.getFor(PhysicsBodyComponent.class);
+        this.physicsBodyComponentMapper = ComponentRetriever.getMapper(PhysicsBodyComponent.class);
     }
 
     @Override
-    protected boolean delegate(float delta, Entity entity, ForceData actionData) {
+    protected boolean delegate(float delta, int entity, ForceData actionData) {
         if (physicsBodyComponentMapper.has(entity)) {
             PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
 

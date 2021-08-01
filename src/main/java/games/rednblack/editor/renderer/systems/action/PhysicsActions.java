@@ -1,13 +1,13 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.ComponentMapper;
+import com.artemis.Component;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.ForceData;
 import games.rednblack.editor.renderer.systems.action.logic.ActionLogic;
 import games.rednblack.editor.renderer.systems.action.logic.ForceAction;
+import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by aurel on 02/04/16.
@@ -65,7 +65,7 @@ public class PhysicsActions {
     public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent) {
         ForceData forceData = force(force, relativePoint);
 
-        forceData.linkedComponentMapper = ComponentMapper.getFor(linkedComponent);
+        forceData.linkedComponentMapper = ComponentRetriever.getMapper(linkedComponent);
         return forceData;
     }
 }

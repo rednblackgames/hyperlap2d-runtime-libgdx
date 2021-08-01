@@ -1,41 +1,32 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
+@All(ViewPortComponent.class)
 public class CullingSystem extends IteratingSystem {
 
     private boolean debug = false;
 
-    final private ComponentMapper<ViewPortComponent> viewPortMapper;
-    final private ComponentMapper<NodeComponent> nodeMapper;
-    final private ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
-    final private ComponentMapper<MainItemComponent> mainItemMapper;
-    final private ComponentMapper<PhysicsBodyComponent> physicsBodyMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortMapper;
+    protected ComponentMapper<NodeComponent> nodeMapper;
+    protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
+    protected ComponentMapper<MainItemComponent> mainItemMapper;
+    protected ComponentMapper<PhysicsBodyComponent> physicsBodyMapper;
 
     Rectangle view = new Rectangle();
     OrthographicCamera camera;
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-    public CullingSystem() {
-        super(Family.all(ViewPortComponent.class).get(), 2);
-        viewPortMapper = ComponentMapper.getFor(ViewPortComponent.class);
-        nodeMapper = ComponentMapper.getFor(NodeComponent.class);
-        boundingBoxMapper = ComponentMapper.getFor(BoundingBoxComponent.class);
-        mainItemMapper = ComponentMapper.getFor(MainItemComponent.class);
-        physicsBodyMapper = ComponentMapper.getFor(PhysicsBodyComponent.class);
-    }
-
     @Override
-    protected void processEntity(Entity entity, float deltaTime) {
+    protected void process(int entity) {
         ViewPortComponent viewPort = viewPortMapper.get(entity);
         this.camera = (OrthographicCamera) viewPort.viewPort.getCamera();
         view.width = (camera.viewportWidth * camera.zoom);
@@ -52,9 +43,9 @@ public class CullingSystem extends IteratingSystem {
         }
 
         NodeComponent node = nodeMapper.get(entity);
-        Entity[] children = node.children.begin();
+        Integer[] children = node.children.begin();
         for (int i = 0, n = node.children.size; i < n; i++) {
-            Entity child = children[i];
+            Integer child = children[i];
             cull(child);
         }
         node.children.end();
@@ -63,7 +54,7 @@ public class CullingSystem extends IteratingSystem {
             shapeRenderer.end();
     }
 
-    void cull(Entity entity) {
+    void cull(Integer entity) {
         BoundingBoxComponent b = boundingBoxMapper.get(entity);
         if (b==null) return;
         PhysicsBodyComponent p = physicsBodyMapper.get(entity);
@@ -80,9 +71,9 @@ public class CullingSystem extends IteratingSystem {
             NodeComponent node = nodeMapper.get(entity);
 
             if (node != null) {
-                Entity[] children = node.children.begin();
+                Integer[] children = node.children.begin();
                 for (int i = 0, n = node.children.size; i < n; i++) {
-                    Entity child = children[i];
+                    Integer child = children[i];
                     cull(child);
                 }
                 node.children.end();

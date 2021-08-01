@@ -1,36 +1,29 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.TintComponent;
+import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class LabelDrawableLogic implements Drawable {
 
-	private final ComponentMapper<LabelComponent> labelComponentMapper;
-	private final ComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
-	private final ComponentMapper<TintComponent> tintComponentMapper;
-	private final ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
-	private final ComponentMapper<TransformComponent> transformMapper;
-	private final ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
+	protected ComponentMapper<LabelComponent> labelComponentMapper;
+	protected ComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
+	protected ComponentMapper<TintComponent> tintComponentMapper;
+	protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
+	protected ComponentMapper<TransformComponent> transformMapper;
+	protected ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
 
 	private final Color tmpColor = new Color();
 
-	public LabelDrawableLogic() {
-		labelComponentMapper = ComponentMapper.getFor(LabelComponent.class);
-		tintComponentMapper = ComponentMapper.getFor(TintComponent.class);
-		dimensionsComponentMapper = ComponentMapper.getFor(DimensionsComponent.class);
-		transformMapper = ComponentMapper.getFor(TransformComponent.class);
-		parentNodeComponentComponentMapper = ComponentMapper.getFor(ParentNodeComponent.class);
-		typingLabelComponentMapper = ComponentMapper.getFor(TypingLabelComponent.class);
-	}
-	
 	@Override
-	public void draw(Batch batch, Entity entity, float parentAlpha, RenderingType renderingType) {
+	public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
 		TransformComponent entityTransformComponent = transformMapper.get(entity);
 		LabelComponent labelComponent = labelComponentMapper.get(entity);
 		DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
