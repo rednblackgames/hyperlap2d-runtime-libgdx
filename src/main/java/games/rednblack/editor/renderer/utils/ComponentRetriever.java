@@ -18,162 +18,160 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.*;
-import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.additional.ButtonComponent;
-import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
-import games.rednblack.editor.renderer.components.light.LightBodyComponent;
-import games.rednblack.editor.renderer.components.light.LightObjectComponent;
-import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
-import games.rednblack.editor.renderer.components.particle.ParticleComponent;
-import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
-import games.rednblack.editor.renderer.components.physics.SensorComponent;
-import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
-import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
+import com.artemis.Component;
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+import com.badlogic.gdx.utils.ObjectMap;
+import games.rednblack.editor.renderer.SceneLoader;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
- * Component Retriever is a singleton single instance class that initialises list of
- * all component mappers on first access, and provides a retrieval methods to get {@link Component}
- * with provided class from provided {@link Entity} object
+ * Component Retriever is a utility class that maintains access to registered {@link ComponentMapper}.
+ * <BR />
+ * All runtime's inbuilt {@link Component} are already registered by default.
+ * <BR />
+ * To register external components, call {@link ComponentRetriever#addComponentMappers(String, World)} after getting the World instance from {@link SceneLoader#getEngine()}.
+ * <BR />
  *
  * @author azakhary on 5/19/2015.
+ * @author Minecraftian14 on 8/2/2021. Ps. it's M/D/YY  xD
  */
 public class ComponentRetriever {
 
     /**
-     * single static instance of this class
+     * A simple Map object from {@link Component}'s Class to corresponding {@link ComponentMapper}.
+     * <p>
+     * {@link ComponentMapper} is not used with Type data, "Because it's not really fixated to a single type!"
+     * Well, it may still use "? extends Component" but why bother unnecessarily?
      */
-    private static ComponentRetriever instance;
+    @SuppressWarnings("rawtypes")
+    private static final ObjectMap<Class<? extends Component>, ComponentMapper> componentMappers = new ObjectMap<>();
 
     /**
-     * Unique map of mappers that can be accessed by component class
-     */
-    private final Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> mappers = new HashMap<>();
-
-    /**
-     * an instance to the current World saved here in case a new component is to be added via addMapper()
-     */
-    private World engine;
-
-    /**
-     * Private constructor
+     * Private constructor, dude, it's not even a singleton... Well, good ol' conventions.
      */
     private ComponentRetriever() {
-
     }
 
-    /**
-     * This is called only during first initialisation and populates map of mappers of all known Component mappers
-     * it might be a good idea to use Reflections library later to create this list from all classes in components package of runtime, all in favour?
-     */
-    private void init(World engine) {
-        this.engine = engine;
-
-        mappers.put(LightObjectComponent.class, ComponentMapper.getFor(LightObjectComponent.class, engine));
-
-        mappers.put(ParticleComponent.class, ComponentMapper.getFor(ParticleComponent.class, engine));
-
-        mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class, engine));
-        mappers.put(TypingLabelComponent.class, ComponentMapper.getFor(TypingLabelComponent.class, engine));
-
-        mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class, engine));
-        mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class, engine));
-        mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class, engine));
-        mappers.put(LightBodyComponent.class, ComponentMapper.getFor(LightBodyComponent.class, engine));
-
-        mappers.put(SpriteAnimationComponent.class, ComponentMapper.getFor(SpriteAnimationComponent.class, engine));
-        mappers.put(SpriteAnimationStateComponent.class, ComponentMapper.getFor(SpriteAnimationStateComponent.class, engine));
-
-        mappers.put(BoundingBoxComponent.class, ComponentMapper.getFor(BoundingBoxComponent.class, engine));
-        mappers.put(CompositeTransformComponent.class, ComponentMapper.getFor(CompositeTransformComponent.class, engine));
-        mappers.put(DimensionsComponent.class, ComponentMapper.getFor(DimensionsComponent.class, engine));
-        mappers.put(LayerMapComponent.class, ComponentMapper.getFor(LayerMapComponent.class, engine));
-        mappers.put(MainItemComponent.class, ComponentMapper.getFor(MainItemComponent.class, engine));
-        mappers.put(NinePatchComponent.class, ComponentMapper.getFor(NinePatchComponent.class, engine));
-        mappers.put(NodeComponent.class, ComponentMapper.getFor(NodeComponent.class, engine));
-        mappers.put(ParentNodeComponent.class, ComponentMapper.getFor(ParentNodeComponent.class, engine));
-        mappers.put(TextureRegionComponent.class, ComponentMapper.getFor(TextureRegionComponent.class, engine));
-        mappers.put(TintComponent.class, ComponentMapper.getFor(TintComponent.class, engine));
-        mappers.put(TransformComponent.class, ComponentMapper.getFor(TransformComponent.class, engine));
-        mappers.put(ViewPortComponent.class, ComponentMapper.getFor(ViewPortComponent.class, engine));
-        mappers.put(ZIndexComponent.class, ComponentMapper.getFor(ZIndexComponent.class, engine));
-        mappers.put(ScriptComponent.class, ComponentMapper.getFor(ScriptComponent.class, engine));
-
-        mappers.put(ShaderComponent.class, ComponentMapper.getFor(ShaderComponent.class, engine));
-
-        mappers.put(ActionComponent.class, ComponentMapper.getFor(ActionComponent.class, engine));
-        mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class, engine));
-
-        mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class, engine));
+    public static void addComponentMapper(Class<? extends Component> clazz, World engine) {
+        componentMappers.put(clazz, engine.getMapper(clazz));
     }
 
-    public static void initialize(World engine) {
-        if (instance == null) {
-            instance = new ComponentRetriever();
+    public static void addComponentMappers(String packageName, World engine) {
+        try {
+            for (Class<? extends Component> componentClass : getComponentClasses(packageName))
+                addComponentMapper(componentClass, engine);
 
-            // Important to initialize during first creation, to populate mappers map
-            instance.init(engine);
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
         }
     }
 
     /**
-     * Short version of getInstance singleton variation, but with private access,
-     * as there is no reason to get instance of this class, but only use it's public methods
+     * Retrieves a list of all the classes in a given package which might be instances of Component.
      *
-     * @return ComponentRetriever only instance
+     * @param packageName The lower most package which may contain Component classes.
+     * @return A list consisting of Class objects for all the Component classes found.
      */
-    private static synchronized ComponentRetriever self() {
-        return instance;
+    private static ArrayList<Class<? extends Component>> getComponentClasses(String packageName) throws ClassNotFoundException, IOException {
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        assert classLoader != null;
+
+        String path = packageName.replace('.', '/');
+        Enumeration<URL> resources = classLoader.getResources(path);
+
+        ArrayList<Class<? extends Component>> classes = new ArrayList<>();
+
+        while (resources.hasMoreElements()) {
+            List<Class<? extends Component>> classList = findComponentClasses(new File(resources.nextElement().getFile()), packageName);
+
+            if (classList != null) classes.addAll(classList);
+        }
+
+        return classes;
+    }
+
+    private static List<Class<? extends Component>> findComponentClasses(File directory, String packageName) throws ClassNotFoundException {
+        if (!directory.exists()) return null;
+
+        List<Class<? extends Component>> classes = new ArrayList<>();
+
+        File[] files = directory.listFiles();
+        assert files != null : "directory.listFiles() is null for directory = " + directory;
+
+        for (File file : files) {
+
+            if (file.isDirectory()) {
+
+                assert !file.getName().contains(".") : "That came as a surprise! Why does file.getName() has a '.' when it's supposed to be a directory!";
+
+                List<Class<? extends Component>> classList = findComponentClasses(file, packageName + "." + file.getName());
+                if (classList != null)
+                    classes.addAll(classList);
+
+            } else if (file.getName().endsWith(".class")) {
+
+                Class<?> clazz = Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
+                if (Component.class.isAssignableFrom(clazz)) {
+
+                    Class<? extends Component> componentClazz = clazz.asSubclass(Component.class);
+                    classes.add(componentClazz);
+
+                }
+            }
+        }
+        return classes;
     }
 
     /**
-     * @return returns Map of mappers, for internal use only
+     * Returns the {@link ComponentMapper} associated with the required {@link Component}.
      */
-    private Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers() {
-        return mappers;
+    public static <T extends Component> ComponentMapper<T> getMapper(Class<T> mapper) {
+        return componentMappers.get(mapper);
     }
 
     /**
-     * Retrieves Component of provided type from a provided entity
+     * Returns the specified {@link Component} associated with the given entity.
+     * Returns null if the component was not added before.
      *
-     * @param entity of type Entity to retrieve component from
-     * @param type   of the component
-     * @param <T>
-     * @return Component subclass instance
+     * @see ComponentMapper#get(int)
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Component> T get(int entity, Class<T> type) {
         return getMapper(type).get(entity);
-//        return (T) self().getMappers().get(type).get(entity);
-    }
-
-    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type) {
-        return self().engine.getMapper(type);
-//        return (BaseComponentMapper<T>) self().getMappers().get(type);
-    }
-
-    public static Collection<Component> getComponents(Entity entity) {
-        Collection<Component> components = new ArrayList<>();
-        for (BaseComponentMapper<? extends Component> mapper : self().getMappers().values()) {
-            if (mapper.get(entity) != null) components.add(mapper.get(entity));
-        }
-
-        return components;
     }
 
     /**
-     * This is to add a new mapper type externally, in case of for example implementing the plugin system,
-     * where components might be initialized on the fly
+     * Returns the specified {@link Component} associated with the given entity.
+     * If the {@link Component} is not present, creates a new {@link Component}.
      *
-     * @param type
+     * @see ComponentMapper#create(int)
      */
-    public static void addMapper(Class<? extends Component> type) {
-        self().getMappers().put(type, ComponentMapper.getFor(type, instance.engine));
+    public static <T extends Component> T create(int entity, Class<T> type) {
+        return getMapper(type).create(entity);
+    }
+
+    /**
+     * Removes the specified {@link Component} associated with the given entity.
+     *
+     * @see ComponentMapper#remove(int)
+     */
+    public static <T extends Component> void remove(int entity, Class<T> type) {
+        getMapper(type).remove(entity);
+    }
+
+    /**
+     * Checks if the specified {@link Component} is present in the given entity.
+     *
+     * @see ComponentMapper#has(int)
+     */
+    public static <T extends Component> boolean has(int entity, Class<T> type) {
+        return getMapper(type).has(entity);
     }
 }

@@ -108,7 +108,7 @@ public class SceneLoader {
 
         engine.inject(this);
         renderer.injectMappers(engine);
-        ComponentRetriever.initialize(engine);
+        ComponentRetriever.addComponentMappers("games.rednblack.editor.renderer.components", engine);
 
         addEntityRemoveListener();
 
