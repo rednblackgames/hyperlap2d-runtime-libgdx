@@ -98,6 +98,7 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     protected void initializeTextureRegionComponent(int entity, TextureRegionComponent component, SimpleImageVO vo) {
+        engine.inject(component);
         component.regionName = vo.imageName;
         if (rm.hasTextureRegion(vo.imageName + ".normal")) {
             TextureAtlas.AtlasRegion regionDiffuse = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName);
