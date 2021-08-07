@@ -10,13 +10,13 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class RotateToAction<T extends RotateToData> extends TemporalAction<T> {
     @Override
     protected void update(float percent, int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         transformComponent.rotation = (actionData.start + (actionData.end - actionData.start) * percent);
     }
 
     @Override
     public void begin(int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         actionData.start = transformComponent.rotation;
     }
 }

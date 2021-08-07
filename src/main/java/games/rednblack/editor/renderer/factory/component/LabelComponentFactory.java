@@ -19,13 +19,12 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public class LabelComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<LabelComponent> labelCM;
-    protected static ComponentMapper<TypingLabelComponent> typingLabelCM;
+    protected ComponentMapper<LabelComponent> labelCM;
+    protected ComponentMapper<TypingLabelComponent> typingLabelCM;
 
     private static int labelDefaultSize = 12;
 
     private final EntityTransmuter transmuter;
-
 
     public LabelComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
@@ -49,7 +48,7 @@ public class LabelComponentFactory extends ComponentFactory {
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         component.height = ((LabelVO) vo).height;
         component.width = ((LabelVO) vo).width;
     }

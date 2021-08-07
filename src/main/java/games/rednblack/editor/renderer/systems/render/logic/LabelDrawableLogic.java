@@ -20,6 +20,8 @@ public class LabelDrawableLogic implements Drawable {
 	protected ComponentMapper<TransformComponent> transformMapper;
 	protected ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
 
+	protected com.artemis.World engine;
+
 	private final Color tmpColor = new Color();
 
 	@Override
@@ -40,8 +42,8 @@ public class LabelDrawableLogic implements Drawable {
 		if(labelComponent.style.fontColor != null) tmpColor.mul(labelComponent.style.fontColor);
 		tmpColor.a *= tintComponentMapper.get(parentNodeComponentComponentMapper.get(entity).parentEntity).color.a;
 
-		TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
-		TransformMathUtils.applyTransform(entity, batch);
+		TransformMathUtils.computeTransform(entity, engine).mulLeft(batch.getTransformMatrix());
+		TransformMathUtils.applyTransform(entity, batch, engine);
 
 		if (typingLabelComponent == null) {
 			labelComponent.cache.tint(tmpColor);
@@ -51,7 +53,7 @@ public class LabelDrawableLogic implements Drawable {
 			typingLabelComponent.typingLabel.draw(batch, 1);
 		}
 
-		TransformMathUtils.resetTransform(entity, batch);
+		TransformMathUtils.resetTransform(entity, batch, engine);
 	}
 
 }

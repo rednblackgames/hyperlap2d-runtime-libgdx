@@ -20,10 +20,8 @@ package games.rednblack.editor.renderer.utils;
 
 import com.artemis.BaseComponentMapper;
 import com.artemis.Component;
-import com.artemis.World;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
@@ -38,7 +36,9 @@ import java.util.HashMap;
  */
 public class ItemWrapper {
 
-    private int entity;
+    private int entity = -1;
+
+    private com.artemis.World engine;
 
     private NodeComponent nodeComponent;
     private final ObjectMap<String, Integer> childrenMap = new ObjectMap<>();
@@ -48,9 +48,10 @@ public class ItemWrapper {
         // empty wrapper is better then null pointer
     }
 
-    public ItemWrapper(int entity) {
+    public ItemWrapper(int entity, com.artemis.World engine) {
         this.entity = entity;
-        nodeComponent = ComponentRetriever.get(entity, NodeComponent.class);
+        this.engine = engine;
+        nodeComponent = ComponentRetriever.get(entity, NodeComponent.class, engine);
         if (nodeComponent != null) {
             for (int child : nodeComponent.children) {
                 mapEntity(child);
@@ -59,7 +60,7 @@ public class ItemWrapper {
     }
 
     private void mapEntity(int entity) {
-        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
         childrenMap.put(mainItemComponent.itemIdentifier, entity);
 
         for (String tag : mainItemComponent.tags) {
@@ -75,10 +76,10 @@ public class ItemWrapper {
     }
 
     public ItemWrapper getChild(String id) {
-        int entity = childrenMap.get(id);
-        if (entity == -1) return new ItemWrapper();
+        Integer entity = childrenMap.get(id);
+        if (entity == null) return new ItemWrapper();
 
-        return new ItemWrapper(entity);
+        return new ItemWrapper(entity, engine);
     }
 
     /**
@@ -97,7 +98,7 @@ public class ItemWrapper {
      * @param clazz component class
      */
     public <T extends Component> T getComponent(Class<T> clazz) {
-        return ComponentRetriever.get(entity, clazz);
+        return ComponentRetriever.get(entity, clazz, engine);
     }
 
     /**
@@ -109,10 +110,10 @@ public class ItemWrapper {
      */
     public ItemWrapper addChild(int child) {
         if (nodeComponent != null) {
-            ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class);
+            ParentNodeComponent parentNodeComponent = ComponentRetriever.get(child, ParentNodeComponent.class, engine);
             if (parentNodeComponent.parentEntity != -1) {
                 //Remove child from its parent
-                NodeComponent parentNode = ComponentRetriever.get(parentNodeComponent.parentEntity, NodeComponent.class);
+                NodeComponent parentNode = ComponentRetriever.get(parentNodeComponent.parentEntity, NodeComponent.class, engine);
                 if (parentNode != null)
                     parentNode.removeChild(child);
             }
@@ -121,7 +122,7 @@ public class ItemWrapper {
 
             mapEntity(child);
 
-            return new ItemWrapper(child);
+            return new ItemWrapper(child, engine);
         }
 
         return new ItemWrapper();
@@ -132,7 +133,7 @@ public class ItemWrapper {
      * see {@link games.rednblack.editor.renderer.factory.EntityFactory} for possible values
      */
     public int getType() {
-        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+        MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
         return mainItemComponent.entityType;
     }
 
@@ -143,11 +144,10 @@ public class ItemWrapper {
     /**
      * Attach a script to the entity using {@link ScriptComponent}
      * @param script script instance
-     * @param engine PooledEngine instance
      * @return same input script instance
      */
-    public IScript addScript(IScript script, World engine) {
-        ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class);
+    public IScript addScript(IScript script) {
+        ScriptComponent component = ComponentRetriever.get(entity, ScriptComponent.class, engine);
         if (component == null) {
             component = engine.edit(entity).create(ScriptComponent.class);
             component.engine = engine;
@@ -163,11 +163,10 @@ public class ItemWrapper {
      * Scripts will be automatically pooled and must extends {@link BasicScript}
      *
      * @param scriptClazz script class definition
-     * @param engine PooledEngine instance
      * @return instance of the script obtained
      */
-    public <T extends BasicScript> T addScript(Class<T> scriptClazz, World engine) {
-        BaseComponentMapper<ScriptComponent> mapper = ComponentRetriever.getMapper(ScriptComponent.class);
+    public <T extends BasicScript> T addScript(Class<T> scriptClazz) {
+        BaseComponentMapper<ScriptComponent> mapper = ComponentRetriever.getMapper(ScriptComponent.class, engine);
         ScriptComponent component = mapper.get(entity);
         if(component == null) {
             component = mapper.create(entity);

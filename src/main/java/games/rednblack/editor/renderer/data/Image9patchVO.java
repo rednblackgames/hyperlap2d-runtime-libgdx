@@ -23,11 +23,11 @@ public class Image9patchVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity) {
-        super.loadFromEntity(entity);
+    public void loadFromEntity(int entity, com.artemis.World engine) {
+        super.loadFromEntity(entity, engine);
 
-        NinePatchComponent ninePatchComponent = ComponentRetriever.get(entity, NinePatchComponent.class);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        NinePatchComponent ninePatchComponent = ComponentRetriever.get(entity, NinePatchComponent.class, engine);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         imageName = ninePatchComponent.textureRegionName;
 
         width = dimensionsComponent.width;

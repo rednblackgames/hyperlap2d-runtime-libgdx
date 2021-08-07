@@ -35,11 +35,11 @@ public class LabelVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity) {
-		super.loadFromEntity(entity);
-		LabelComponent labelComponent = ComponentRetriever.get(entity, LabelComponent.class);
-		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity,DimensionsComponent.class);
-		TypingLabelComponent typingLabelComponent = ComponentRetriever.get(entity, TypingLabelComponent.class);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		super.loadFromEntity(entity, engine);
+		LabelComponent labelComponent = ComponentRetriever.get(entity, LabelComponent.class, engine);
+		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity,DimensionsComponent.class, engine);
+		TypingLabelComponent typingLabelComponent = ComponentRetriever.get(entity, TypingLabelComponent.class, engine);
 
 		text = labelComponent.getText().toString();
 		style = labelComponent.fontName;

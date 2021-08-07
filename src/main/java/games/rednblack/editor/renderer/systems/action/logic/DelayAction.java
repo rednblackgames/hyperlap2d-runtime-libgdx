@@ -17,7 +17,7 @@ public class DelayAction<T extends DelayData> extends DelegateAction<T> {
 
         if (actionData.delegatedData != null) {
             ActionLogic logic = Actions.actionLogicMap.get(actionData.delegatedData.logicClassName);
-
+            logic.setEngine(engine);
             return logic.act(delta, entity, actionData.delegatedData);
         }
         return true;

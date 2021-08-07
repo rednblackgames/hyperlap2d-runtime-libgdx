@@ -36,7 +36,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class ColorPrimitiveComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
+    protected ComponentMapper<TextureRegionComponent> textureRegionCM;
 
     private final EntityTransmuter transmuter;
 
@@ -67,7 +67,7 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         component.setFromShape(vo.shape);
     }
 

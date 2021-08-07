@@ -18,10 +18,10 @@ public class ParticleEffectVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity) {
-		super.loadFromEntity(entity);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		super.loadFromEntity(entity, engine);
 
-		ParticleComponent particleComponent = ComponentRetriever.get(entity, ParticleComponent.class);
+		ParticleComponent particleComponent = ComponentRetriever.get(entity, ParticleComponent.class, engine);
 		particleName = particleComponent.particleName;
 		transform = particleComponent.transform;
 	}

@@ -14,6 +14,7 @@ public class ParallelAction<T extends ParallelData> extends ActionLogic<T> {
         for (int i = 0; i < actionData.actionsData.size; i++) {
             ActionData data = actionData.actionsData.get(i);
             ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData.get(i).logicClassName);
+            logic.setEngine(engine);
             if (!data.detached) {
                 actionData.complete = false;
                 if (logic.act(delta, entity, data)) {

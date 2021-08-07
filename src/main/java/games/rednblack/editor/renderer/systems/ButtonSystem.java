@@ -70,7 +70,7 @@ public class ButtonSystem extends IteratingSystem {
             DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
             Vector2 localCoordinates = new Vector2(Gdx.input.getX(), Gdx.input.getY());
 
-            TransformMathUtils.globalToLocalCoordinates(entity, localCoordinates);
+            TransformMathUtils.globalToLocalCoordinates(entity, localCoordinates, getWorld());
 
             if (dimensionsComponent.hit(localCoordinates.x, localCoordinates.y)) {
                 buttonComponent.setTouchState(true);

@@ -42,10 +42,8 @@ import games.rednblack.editor.renderer.utils.ABAtlasRegion;
  */
 public class SimpleImageComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
-    protected static ComponentMapper<NormalMapRendering> normalMapRenderingCM;
-
-    TextureRegionComponent textureRegionComponent;
+    protected ComponentMapper<TextureRegionComponent> textureRegionCM;
+    protected ComponentMapper<NormalMapRendering> normalMapRenderingCM;
 
     private final EntityTransmuter transmuter;
 
@@ -62,12 +60,12 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         int entity = createGeneralEntity(vo, EntityFactory.IMAGE_TYPE);
         transmuter.transmute(entity);
 
-        textureRegionComponent = textureRegionCM.get(entity);
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         initializeTextureRegionComponent(entity, textureRegionComponent, (SimpleImageVO) vo);
 
         // We need the dimension component created on basis of texture region component.
         // That's why we call it again, after creating a texture region component.
-        initializeDimensionsComponent(dimensionsCM.get(entity), vo);
+        initializeDimensionsComponent(entity, dimensionsCM.get(entity), vo);
 
         adjustNodeHierarchy(root, entity);
         updatePolygons(entity);
@@ -79,6 +77,7 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
         PolygonComponent polygonComponent = polygonCM.get(entity);
 
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         if (textureRegionComponent.isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
             textureRegionComponent.setPolygonSprite(polygonComponent);
             dimensionsComponent.setPolygon(polygonComponent);
@@ -86,7 +85,8 @@ public class SimpleImageComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
+        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         if (textureRegionComponent == null) return;
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
@@ -97,9 +97,7 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         component.height = (float) textureRegionComponent.region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
     }
 
-    // TODO: Confirm if the new changes work as expected
     protected void initializeTextureRegionComponent(int entity, TextureRegionComponent component, SimpleImageVO vo) {
-        engine.inject(component);
         component.regionName = vo.imageName;
         if (rm.hasTextureRegion(vo.imageName + ".normal")) {
             TextureAtlas.AtlasRegion regionDiffuse = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName);

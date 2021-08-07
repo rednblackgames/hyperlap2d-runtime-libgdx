@@ -10,14 +10,14 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class SizeToAction <T extends SizeToData> extends TemporalAction<T>  {
     @Override
     protected void update(float percent, int entity, T actionData) {
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         dimensionsComponent.width = actionData.startWidth + (actionData.endHeight - actionData.startWidth) * percent;
         dimensionsComponent.height = actionData.startHeight + (actionData.endHeight - actionData.startHeight) * percent;
     }
 
     @Override
     public void begin(int entity, T actionData) {
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         actionData.startWidth = dimensionsComponent.width;
         actionData.startHeight = dimensionsComponent.height;
     }

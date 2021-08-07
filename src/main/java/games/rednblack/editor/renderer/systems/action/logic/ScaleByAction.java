@@ -10,7 +10,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class ScaleByAction<T extends ScaleByData> extends RelativeTemporalAction<T> {
     @Override
     protected void updateRelative(float percent, int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         transformComponent.scaleX += actionData.amountX * percent;
         transformComponent.scaleY += actionData.amountY * percent;
     }

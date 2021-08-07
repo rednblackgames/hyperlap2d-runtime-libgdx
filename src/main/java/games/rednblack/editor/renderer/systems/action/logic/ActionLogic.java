@@ -7,5 +7,11 @@ import games.rednblack.editor.renderer.systems.action.data.ActionData;
  */
 abstract public class ActionLogic<T extends ActionData> {
 
+    protected com.artemis.World engine;
+
     abstract public boolean act(float delta, int entity, T actionData);
+
+    public void setEngine(com.artemis.World engine) {
+        this.engine = engine;
+    }
 }

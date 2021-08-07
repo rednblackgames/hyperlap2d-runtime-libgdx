@@ -44,8 +44,8 @@ public class PhysicsBodyLoader {
     private PhysicsBodyLoader() {
     }
 
-    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent) {
-        if (physicsComponent == null || ComponentRetriever.get(entity, MainItemComponent.class) == null) {
+    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent, com.artemis.World engine) {
+        if (physicsComponent == null || ComponentRetriever.get(entity, MainItemComponent.class, engine) == null) {
             return null;
         }
 
@@ -53,7 +53,7 @@ public class PhysicsBodyLoader {
 
         BodyDef bodyDef = new BodyDef();
         tmp.set(transformComponent.originX, transformComponent.originY);
-        TransformMathUtils.localToSceneCoordinates(entity, tmp);
+        TransformMathUtils.localToSceneCoordinates(entity, tmp, engine);
         bodyDef.position.set(tmp.x, tmp.y);
         bodyDef.angle = transformComponent.rotation * MathUtils.degreesToRadians;
 
@@ -76,7 +76,7 @@ public class PhysicsBodyLoader {
 
         Body body = world.createBody(bodyDef);
 
-        if (ComponentRetriever.get(entity, LightBodyComponent.class) != null) {
+        if (ComponentRetriever.get(entity, LightBodyComponent.class, engine) != null) {
             //createChainShape(body, fixtureDef, minPolygonData);
         } else {
             createPolygonShape(body, fixtureDef, transformComponent, physicsComponent, minPolygonData);
@@ -91,8 +91,8 @@ public class PhysicsBodyLoader {
             body.setMassData(massData);
         }
 
-        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class, engine);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         if (sensorComponent != null && dimensionsComponent != null) {
             createSensors(body, sensorComponent, dimensionsComponent, transformComponent);
         }

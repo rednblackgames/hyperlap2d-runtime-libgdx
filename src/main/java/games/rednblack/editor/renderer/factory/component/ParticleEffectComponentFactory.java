@@ -27,7 +27,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -41,7 +40,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class ParticleEffectComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<ParticleComponent> particleCM;
+    protected ComponentMapper<ParticleComponent> particleCM;
 
     private final EntityTransmuter transmuter;
 
@@ -65,7 +64,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 70f;
         component.boundBox = new Rectangle((-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, (-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld);

@@ -32,7 +32,7 @@ public class EntityFactory {
     public static final int SPINE_TYPE = 9;
     public static final int TALOS_TYPE = 10;
 
-    protected static ComponentMapper<MainItemComponent> mapper;
+    protected ComponentMapper<MainItemComponent> mapper;
 
     protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
             simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
@@ -89,43 +89,60 @@ public class EntityFactory {
         externalFactories.put(itemType.getTypeId(), itemType.getComponentFactory());
     }
 
-    public void createEntity(int root, SimpleImageVO vo) {
-        postProcessEntity(simpleImageComponentFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, SimpleImageVO vo) {
+        int entity = simpleImageComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
-    public void createEntity(int root, Image9patchVO vo) {
-        postProcessEntity(ninePatchComponentFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, Image9patchVO vo) {
+        int entity = ninePatchComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
-    public void createEntity(int root, LabelVO vo) {
-        postProcessEntity(labelComponentFactory.createSpecialisedEntity(root, vo));
-
+    public int createEntity(int root, LabelVO vo) {
+        int entity = labelComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
-    public void createEntity(int root, ParticleEffectVO vo) {
-        postProcessEntity(particleEffectComponentFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, ParticleEffectVO vo) {
+        int entity = particleEffectComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
-    public void createEntity(int root, TalosVO vo) {
+    public int createEntity(int root, TalosVO vo) {
         ComponentFactory factory = externalFactories.get(TALOS_TYPE);
         if (factory != null) {
-            postProcessEntity(factory.createSpecialisedEntity(root, vo));
+            int entity = factory.createSpecialisedEntity(root, vo);
+            postProcessEntity(entity);
+            return entity;
         }
+        return -1;
     }
 
-    public void createEntity(int root, LightVO vo) {
-        postProcessEntity(lightComponentFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, LightVO vo) {
+        int entity = lightComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
-    public void createEntity(int root, SpineVO vo) {
+    public int createEntity(int root, SpineVO vo) {
         ComponentFactory factory = externalFactories.get(SPINE_TYPE);
         if (factory != null) {
-            postProcessEntity(factory.createSpecialisedEntity(root, vo));
+            int entity = factory.createSpecialisedEntity(root, vo);
+            postProcessEntity(entity);
+            return entity;
         }
+        return -1;
     }
 
-    public void createEntity(int root, SpriteAnimationVO vo) {
-        postProcessEntity(spriteComponentFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, SpriteAnimationVO vo) {
+        int entity = spriteComponentFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
     public int createEntity(int root, CompositeItemVO vo) {
@@ -134,8 +151,10 @@ public class EntityFactory {
         return entity;
     }
 
-    public void createEntity(int root, ColorPrimitiveVO vo) {
-        postProcessEntity(colorPrimitiveFactory.createSpecialisedEntity(root, vo));
+    public int createEntity(int root, ColorPrimitiveVO vo) {
+        int entity = colorPrimitiveFactory.createSpecialisedEntity(root, vo);
+        postProcessEntity(entity);
+        return entity;
     }
 
     public int createRootEntity(CompositeVO compositeVo, Viewport viewport) {

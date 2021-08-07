@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.box2dLight.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
-import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.resources.ResourceManager;
 import games.rednblack.editor.renderer.systems.*;
@@ -25,13 +24,12 @@ public class SceneConfiguration {
     private IResourceRetriever iResourceRetriever;
     private World world;
     private RayHandler rayHandler;
-    private boolean cullingEnabled;
-    private Array<IExternalItemType> iExternalItemTypes = new Array<>();
+    private boolean cullingEnabled = true;
+    private final Array<IExternalItemType> externalItemTypes = new Array<>();
 
     // Artemis World, our Engine - config
     private final Array<SystemData<?>> systems = new Array<>();
     private int expectedEntityCount = 128;
-    private boolean alwaysDelayComponentRemoval = false;
 
     public SceneConfiguration() {
 
@@ -55,7 +53,7 @@ public class SceneConfiguration {
     // For User's Use
 
 
-    public void setiResourceRetriever(IResourceRetriever iResourceRetriever) {
+    public void setResourceRetriever(IResourceRetriever iResourceRetriever) {
         this.iResourceRetriever = iResourceRetriever;
     }
 
@@ -84,7 +82,7 @@ public class SceneConfiguration {
     }
 
     public void addExternalItemType(IExternalItemType itemType) {
-        iExternalItemTypes.add(itemType);
+        externalItemTypes.add(itemType);
         addSystem(itemType.getSystem());
     }
 
@@ -137,17 +135,13 @@ public class SceneConfiguration {
         this.expectedEntityCount = expectedEntityCount;
     }
 
-    public void setAlwaysDelayComponentRemoval(boolean alwaysDelayComponentRemoval) {
-        this.alwaysDelayComponentRemoval = alwaysDelayComponentRemoval;
-    }
-
     // For SceneLoader's Use
 
     IResourceRetriever getiResourceRetriever() {
         if (iResourceRetriever == null) {
             ResourceManager resourceManager = new ResourceManager();
             resourceManager.initAllResources();
-            setiResourceRetriever(resourceManager);
+            setResourceRetriever(resourceManager);
         }
 
         return iResourceRetriever;
@@ -183,8 +177,8 @@ public class SceneConfiguration {
         return cullingEnabled;
     }
 
-    public Array<IExternalItemType> getiExternalItemTypes() {
-        return iExternalItemTypes;
+    public Array<IExternalItemType> getExternalItemTypes() {
+        return externalItemTypes;
     }
 
     Array<SystemData<?>> getSystems() {
@@ -197,10 +191,6 @@ public class SceneConfiguration {
 
     public int getExpectedEntityCount() {
         return expectedEntityCount;
-    }
-
-    public boolean isAlwaysDelayComponentRemoval() {
-        return alwaysDelayComponentRemoval;
     }
 
     // For SceneConfiguration's Use

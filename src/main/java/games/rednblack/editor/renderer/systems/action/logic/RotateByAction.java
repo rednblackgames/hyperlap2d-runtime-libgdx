@@ -10,7 +10,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class RotateByAction<T extends RotateByData> extends RelativeTemporalAction<T> {
     @Override
     protected void updateRelative(float percentDelta, int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         transformComponent.rotation += actionData.amount * percentDelta;
     }
 }

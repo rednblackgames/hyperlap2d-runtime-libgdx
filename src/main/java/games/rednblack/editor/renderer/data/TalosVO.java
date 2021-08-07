@@ -18,10 +18,10 @@ public class TalosVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity) {
-        super.loadFromEntity(entity);
+    public void loadFromEntity(int entity, com.artemis.World engine) {
+        super.loadFromEntity(entity, engine);
 
-        TalosDataComponent talosComponent = ComponentRetriever.get(entity, TalosDataComponent.class);
+        TalosDataComponent talosComponent = ComponentRetriever.get(entity, TalosDataComponent.class, engine);
         particleName = talosComponent.particleName;
         transform = talosComponent.transform;
     }

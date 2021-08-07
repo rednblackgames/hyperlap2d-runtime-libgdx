@@ -36,8 +36,8 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class CompositeComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<CompositeTransformComponent> compositeTransformCM;
-    protected static ComponentMapper<LayerMapComponent> layerMapCM;
+    protected ComponentMapper<CompositeTransformComponent> compositeTransformCM;
+    protected ComponentMapper<LayerMapComponent> layerMapCM;
 
     private final EntityTransmuter transmuter;
 
@@ -64,7 +64,7 @@ public class CompositeComponentFactory extends ComponentFactory {
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         component.width = ((CompositeItemVO) vo).width;
         component.height = ((CompositeItemVO) vo).height;
         component.boundBox = new Rectangle(0, 0, component.width, component.height);

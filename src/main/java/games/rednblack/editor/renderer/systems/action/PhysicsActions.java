@@ -14,7 +14,6 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
  */
 public class PhysicsActions {
 
-
     private static void initialize(Class<? extends ActionData> data, Class<? extends ActionLogic> type) {
         try {
             Actions.registerActionClass(data, type);
@@ -62,10 +61,10 @@ public class PhysicsActions {
      *                        has this component
      * @return The games.rednblack.editor.renderer.systems.action.data.ForceData object
      */
-    public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent) {
+    public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent, com.artemis.World engine) {
         ForceData forceData = force(force, relativePoint);
 
-        forceData.linkedComponentMapper = ComponentRetriever.getMapper(linkedComponent);
+        forceData.linkedComponentMapper = ComponentRetriever.getMapper(linkedComponent, engine);
         return forceData;
     }
 }

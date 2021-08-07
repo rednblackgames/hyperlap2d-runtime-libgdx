@@ -311,62 +311,62 @@ public class CompositeVO {
         return itemsList;
     }
 
-    public void loadFromEntity(int compositeEntity) {
-        NodeComponent nodeComponent = ComponentRetriever.get(compositeEntity, NodeComponent.class);
-        BaseComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentRetriever.getMapper(MainItemComponent.class);
-        BaseComponentMapper<LayerMapComponent> layerMainItemComponentComponentMapper = ComponentRetriever.getMapper(LayerMapComponent.class);
+    public void loadFromEntity(int compositeEntity, com.artemis.World engine) {
+        NodeComponent nodeComponent = ComponentRetriever.get(compositeEntity, NodeComponent.class, engine);
+        BaseComponentMapper<MainItemComponent> mainItemComponentMapper = ComponentRetriever.getMapper(MainItemComponent.class, engine);
+        BaseComponentMapper<LayerMapComponent> layerMainItemComponentComponentMapper = ComponentRetriever.getMapper(LayerMapComponent.class, engine);
 
         if (nodeComponent == null) return;
         for (int entity : nodeComponent.children) {
             int entityType = mainItemComponentMapper.get(entity).entityType;
             if (entityType == EntityFactory.COMPOSITE_TYPE) {
                 CompositeItemVO vo = new CompositeItemVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sComposites.add(vo);
             }
             if (entityType == EntityFactory.IMAGE_TYPE) {
                 SimpleImageVO vo = new SimpleImageVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sImages.add(vo);
             }
             if (entityType == EntityFactory.NINE_PATCH) {
                 Image9patchVO vo = new Image9patchVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sImage9patchs.add(vo);
             }
             if (entityType == EntityFactory.LABEL_TYPE) {
                 LabelVO vo = new LabelVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sLabels.add(vo);
             }
             if (entityType == EntityFactory.PARTICLE_TYPE) {
                 ParticleEffectVO vo = new ParticleEffectVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sParticleEffects.add(vo);
             }
             if (entityType == EntityFactory.TALOS_TYPE) {
                 TalosVO vo = new TalosVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sTalosVFX.add(vo);
             }
             if (entityType == EntityFactory.SPRITE_TYPE) {
                 SpriteAnimationVO vo = new SpriteAnimationVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sSpriteAnimations.add(vo);
             }
             if (entityType == EntityFactory.SPINE_TYPE) {
                 SpineVO vo = new SpineVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sSpineAnimations.add(vo);
             }
             if (entityType == EntityFactory.LIGHT_TYPE) {
                 LightVO vo = new LightVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sLights.add(vo);
             }
             if (entityType == EntityFactory.COLOR_PRIMITIVE) {
                 ColorPrimitiveVO vo = new ColorPrimitiveVO();
-                vo.loadFromEntity(entity);
+                vo.loadFromEntity(entity, engine);
                 sColorPrimitives.add(vo);
             }
         }

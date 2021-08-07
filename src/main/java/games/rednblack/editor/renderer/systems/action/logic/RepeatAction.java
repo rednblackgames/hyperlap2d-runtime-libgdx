@@ -11,6 +11,7 @@ public class RepeatAction<T extends RepeatData> extends DelegateAction<T> {
             return true;
 
         ActionLogic logic = Actions.actionLogicMap.get(actionData.delegatedData.logicClassName);
+        logic.setEngine(engine);
         boolean actionEnd = logic.act(delta, entity, actionData.delegatedData);
         if (actionEnd) {
             actionData.executedCount++;

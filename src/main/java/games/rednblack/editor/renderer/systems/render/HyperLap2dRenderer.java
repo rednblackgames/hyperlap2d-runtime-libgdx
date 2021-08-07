@@ -473,9 +473,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
                     batch.getShader().setUniformf("u_screen_coords", u, v, u2, v2);
                 }
 
-                for (Map.Entry<String, ShaderUniformVO> me : shaderComponent.customUniforms.entrySet()) {
-                    String key = me.getKey();
-                    ShaderUniformVO vo = me.getValue();
+                for (String key : shaderComponent.customUniforms.keys()) {
+                    ShaderUniformVO vo = shaderComponent.customUniforms.get(key);
 
                     switch (vo.getType()) {
                         case "int":

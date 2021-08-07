@@ -4,7 +4,7 @@ import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class BoundingBoxComponent  extends PooledComponent {
+public class BoundingBoxComponent extends PooledComponent {
 
     public Rectangle rectangle = new Rectangle();
 

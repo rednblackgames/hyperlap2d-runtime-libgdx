@@ -13,22 +13,22 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the scene's coordinates to the entity's local coordinate system.
      */
-    public static Vector2 sceneToLocalCoordinates(int entity, Vector2 sceneCoords) {
-        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
+    public static Vector2 sceneToLocalCoordinates(int entity, Vector2 sceneCoords, com.artemis.World engine) {
+        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
         int parentEntity = -1;
         if (parentNodeComponent != null) {
             parentEntity = parentNodeComponent.parentEntity;
         }
-        if (parentEntity != -1) sceneToLocalCoordinates(parentEntity, sceneCoords);
-        parentToLocalCoordinates(entity, sceneCoords);
+        if (parentEntity != -1) sceneToLocalCoordinates(parentEntity, sceneCoords, engine);
+        parentToLocalCoordinates(entity, sceneCoords, engine);
         return sceneCoords;
     }
 
-    public static Vector2 globalToLocalCoordinates(int entity, Vector2 sceneCoords) {
-        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class);
+    public static Vector2 globalToLocalCoordinates(int entity, Vector2 sceneCoords, com.artemis.World engine) {
+        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
         int parentEntity = -1;
         if (parentNodeComponent != null) {
-            ViewPortComponent viewPortComponent = ComponentRetriever.get(parentNodeComponent.parentEntity, ViewPortComponent.class);
+            ViewPortComponent viewPortComponent = ComponentRetriever.get(parentNodeComponent.parentEntity, ViewPortComponent.class, engine);
             if (viewPortComponent == null) {
                 parentEntity = parentNodeComponent.parentEntity;
             } else {
@@ -36,9 +36,9 @@ public class TransformMathUtils {
             }
         }
         if (parentEntity != -1) {
-            globalToLocalCoordinates(parentEntity, sceneCoords);
+            globalToLocalCoordinates(parentEntity, sceneCoords, engine);
         }
-        parentToLocalCoordinates(entity, sceneCoords);
+        parentToLocalCoordinates(entity, sceneCoords, engine);
         return sceneCoords;
     }
 
@@ -46,8 +46,8 @@ public class TransformMathUtils {
     /**
      * Converts the coordinates given in the parent's coordinate system to this entity's coordinate system.
      */
-    public static Vector2 parentToLocalCoordinates(int childEntity, Vector2 parentCoords) {
-        TransformComponent transform = ComponentRetriever.get(childEntity, TransformComponent.class);
+    public static Vector2 parentToLocalCoordinates(int childEntity, Vector2 parentCoords, com.artemis.World engine) {
+        TransformComponent transform = ComponentRetriever.get(childEntity, TransformComponent.class, engine);
 
         final float rotation = transform.rotation;
         final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
@@ -82,20 +82,20 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point array in the entity's coordinates to be in the scene's coordinates.
      */
-    public static Vector2[] localToSceneCoordinates(int entity, Vector2[] localCoords) {
-        return localToAscendantCoordinates(-1, entity, localCoords);
+    public static Vector2[] localToSceneCoordinates(int entity, Vector2[] localCoords, com.artemis.World engine) {
+        return localToAscendantCoordinates(-1, entity, localCoords, engine);
     }
 
     /**
      * Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent.
      */
-    public static Vector2[] localToAscendantCoordinates(int ascendant, int entity, Vector2[] localCoords) {
+    public static Vector2[] localToAscendantCoordinates(int ascendant, int entity, Vector2[] localCoords, com.artemis.World engine) {
         while (entity != -1) {
             for (Vector2 localCoord : localCoords) {
-                localToParentCoordinates(entity, localCoord);
+                localToParentCoordinates(entity, localCoord, engine);
             }
 
-            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class);
+            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
             if (parentNode == null) {
                 break;
             }
@@ -108,17 +108,17 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the entity's coordinates to be in the scene's coordinates.
      */
-    public static Vector2 localToSceneCoordinates(int entity, Vector2 localCoords) {
-        return localToAscendantCoordinates(-1, entity, localCoords);
+    public static Vector2 localToSceneCoordinates(int entity, Vector2 localCoords, com.artemis.World engine) {
+        return localToAscendantCoordinates(-1, entity, localCoords, engine);
     }
 
     /**
      * Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent.
      */
-    public static Vector2 localToAscendantCoordinates(int ascendant, int entity, Vector2 localCoords) {
+    public static Vector2 localToAscendantCoordinates(int ascendant, int entity, Vector2 localCoords, com.artemis.World engine) {
         while (entity != -1) {
-            localToParentCoordinates(entity, localCoords);
-            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class);
+            localToParentCoordinates(entity, localCoords, engine);
+            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
             if (parentNode == null) {
                 break;
             }
@@ -131,8 +131,8 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the actor's coordinates to be in the parent's coordinates.
      */
-    public static Vector2 localToParentCoordinates(int entity, Vector2 localCoords) {
-        TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class);
+    public static Vector2 localToParentCoordinates(int entity, Vector2 localCoords, com.artemis.World engine) {
+        TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class, engine);
 
         final float rotation = -transform.rotation;
         final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
@@ -177,8 +177,8 @@ public class TransformMathUtils {
 
     }
 
-    public static Matrix4 computeTransform(int entity) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+    public static Matrix4 computeTransform(int entity, com.artemis.World engine) {
+        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
 
         Affine2 worldTransform = curTransform.worldTransform;
 
@@ -198,14 +198,14 @@ public class TransformMathUtils {
         return curTransform.computedTransform;
     }
 
-    public static void applyTransform(int entity, Batch batch) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+    public static void applyTransform(int entity, Batch batch, com.artemis.World engine) {
+        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
         curTransform.oldTransform.set(batch.getTransformMatrix());
         batch.setTransformMatrix(curTransform.computedTransform);
     }
 
-    public static void resetTransform(int entity, Batch batch) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class);
+    public static void resetTransform(int entity, Batch batch, com.artemis.World engine) {
+        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
         batch.setTransformMatrix(curTransform.oldTransform);
     }
 }

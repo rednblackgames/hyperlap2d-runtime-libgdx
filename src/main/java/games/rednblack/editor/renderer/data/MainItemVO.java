@@ -1,9 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
-
+import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.ShaderComponent;
@@ -37,7 +36,7 @@ public class MainItemVO {
 	public boolean flipY = false;
 
 	public String shaderName = "";
-	public HashMap<String, ShaderUniformVO> shaderUniforms = new HashMap<>();
+	public ObjectMap<String, ShaderUniformVO> shaderUniforms = new ObjectMap<>();
 	public RenderingLayer renderingLayer = RenderingLayer.SCREEN;
 
 	public ShapeVO shape = null;
@@ -91,12 +90,12 @@ public class MainItemVO {
 		renderingLayer = vo.renderingLayer;
     }
 
-	public void loadFromEntity(int entity) {
-		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
-		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
+		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
 		transformComponent = transformComponent.getRealComponent();
-		TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
-		ZIndexComponent zindexComponent = ComponentRetriever.get(entity, ZIndexComponent.class);
+		TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class, engine);
+		ZIndexComponent zindexComponent = ComponentRetriever.get(entity, ZIndexComponent.class, engine);
 
 		uniqueId = mainItemComponent.uniqueId;
 		itemIdentifier = mainItemComponent.itemIdentifier;
@@ -130,30 +129,30 @@ public class MainItemVO {
 		zIndex = zindexComponent.getZIndex();
 
 		//Secondary components
-		PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+		PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
 		if(polygonComponent != null && polygonComponent.vertices != null) {
 			shape = new ShapeVO();
 			shape.polygons = polygonComponent.vertices;
 		}
-        PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
+        PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         if(physicsComponent != null) {
             physics = new PhysicsBodyDataVO();
             physics.loadFromComponent(physicsComponent);
         }
 
-        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class);
+        SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class, engine);
         if (sensorComponent != null) {
         	sensor = new SensorDataVO();
         	sensor.loadFromComponent(sensorComponent);
         }
 
-        LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class);
+        LightBodyComponent lightBodyComponent = ComponentRetriever.get(entity, LightBodyComponent.class, engine);
         if (lightBodyComponent != null) {
         	light = new LightBodyDataVO();
         	light.loadFromComponent(lightBodyComponent);
 		}
 
-		ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class);
+		ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class, engine);
 		if(shaderComponent != null && shaderComponent.shaderName != null) {
 			shaderName = shaderComponent.shaderName;
 			shaderUniforms.clear();

@@ -47,10 +47,10 @@ public class LightVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity) {
-		super.loadFromEntity(entity);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		super.loadFromEntity(entity, engine);
 
-		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class);
+		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class, engine);
 		type = lightObjectComponent.getType();
 		rays = lightObjectComponent.rays;
 		distance = lightObjectComponent.distance;

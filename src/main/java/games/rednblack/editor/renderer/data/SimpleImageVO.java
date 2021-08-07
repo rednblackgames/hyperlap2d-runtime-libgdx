@@ -20,10 +20,10 @@ public class SimpleImageVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity) {
-		super.loadFromEntity(entity);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		super.loadFromEntity(entity, engine);
 
-		TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+		TextureRegionComponent textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class, engine);
 		loadFromComponent(textureRegionComponent);
 	}
 

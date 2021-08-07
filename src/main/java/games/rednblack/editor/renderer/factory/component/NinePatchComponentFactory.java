@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
-import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.data.Image9patchVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
@@ -21,9 +19,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public class NinePatchComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<NinePatchComponent> ninePatchCM;
-
-    private NinePatchComponent ninePatchComponent;
+    protected ComponentMapper<NinePatchComponent> ninePatchCM;
 
     private final EntityTransmuter transmuter;
 
@@ -40,19 +36,20 @@ public class NinePatchComponentFactory extends ComponentFactory {
         int entity = createGeneralEntity(vo, EntityFactory.NINE_PATCH);
         transmuter.transmute(entity);
 
-        ninePatchComponent = ninePatchCM.get(entity);
+        NinePatchComponent ninePatchComponent = ninePatchCM.get(entity);
         createNinePatchComponent(ninePatchComponent, (Image9patchVO) vo);
 
         // We need the dimension component created on basis of texture region component.
         // That's why we call it again, after creating a texture region component.
-        initializeDimensionsComponent(dimensionsCM.get(entity), vo);
+        initializeDimensionsComponent(entity, dimensionsCM.get(entity), vo);
 
         adjustNodeHierarchy(root, entity);
 
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
+        NinePatchComponent ninePatchComponent = ninePatchCM.get(entity);
         if(ninePatchComponent == null) return;
 
         component.height = ((Image9patchVO) vo).height;

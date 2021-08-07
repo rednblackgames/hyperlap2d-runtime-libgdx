@@ -27,6 +27,7 @@ public class ActionSystem extends IteratingSystem {
         for (int i = 0; i < dataArray.size; i++) {
             ActionData data = dataArray.get(i);
             ActionLogic actionLogic = Actions.actionLogicMap.get(data.logicClassName);
+            actionLogic.setEngine(getWorld());
             if (actionLogic.act(world.getDelta(), entity, data)) {
                 dataArray.removeValue(data, true);
                 if (data.getPool() != null)

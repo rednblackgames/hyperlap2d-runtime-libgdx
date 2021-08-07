@@ -36,20 +36,20 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public abstract class ComponentFactory {
 
-    protected static ComponentMapper<BoundingBoxComponent> boundingBoxCM;
-    protected static ComponentMapper<DimensionsComponent> dimensionsCM;
-    protected static ComponentMapper<LightBodyComponent> lightBodyCM;
-    protected static ComponentMapper<MainItemComponent> mainItemCM;
-    protected static ComponentMapper<NodeComponent> nodeCM;
-    protected static ComponentMapper<ParentNodeComponent> parentNodeCM;
-    protected static ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
-    protected static ComponentMapper<PolygonComponent> polygonCM;
-    protected static ComponentMapper<ScriptComponent> scriptCM;
-    protected static ComponentMapper<SensorComponent> sensorCM;
-    protected static ComponentMapper<ShaderComponent> shaderCM;
-    protected static ComponentMapper<TintComponent> tintCM;
-    protected static ComponentMapper<TransformComponent> transformCM;
-    protected static ComponentMapper<ZIndexComponent> zIndexCM;
+    protected ComponentMapper<BoundingBoxComponent> boundingBoxCM;
+    protected ComponentMapper<DimensionsComponent> dimensionsCM;
+    protected ComponentMapper<LightBodyComponent> lightBodyCM;
+    protected ComponentMapper<MainItemComponent> mainItemCM;
+    protected ComponentMapper<NodeComponent> nodeCM;
+    protected ComponentMapper<ParentNodeComponent> parentNodeCM;
+    protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
+    protected ComponentMapper<PolygonComponent> polygonCM;
+    protected ComponentMapper<ScriptComponent> scriptCM;
+    protected ComponentMapper<SensorComponent> sensorCM;
+    protected ComponentMapper<ShaderComponent> shaderCM;
+    protected ComponentMapper<TintComponent> tintCM;
+    protected ComponentMapper<TransformComponent> transformCM;
+    protected ComponentMapper<ZIndexComponent> zIndexCM;
 
     protected IResourceRetriever rm;
     protected RayHandler rayHandler;
@@ -77,7 +77,6 @@ public abstract class ComponentFactory {
         this.rm = rm;
 
         this.entityArchetype = new ArchetypeBuilder()
-
                 .add(DimensionsComponent.class)
                 .add(BoundingBoxComponent.class)
                 .add(MainItemComponent.class)
@@ -86,8 +85,9 @@ public abstract class ComponentFactory {
                 .add(TintComponent.class)
                 .add(ZIndexComponent.class)
                 .add(ScriptComponent.class)
-                .add(PolygonComponent.class)
 
+                //Optional Components
+                .add(PolygonComponent.class)
                 .add(PhysicsBodyComponent.class)
                 .add(SensorComponent.class)
                 .add(LightBodyComponent.class)
@@ -106,7 +106,7 @@ public abstract class ComponentFactory {
 
         DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
 
-        initializeDimensionsComponent(dimensionsComponent, vo);
+        initializeDimensionsComponent(entity, dimensionsComponent, vo);
         initializeBoundingBoxComponent(boundingBoxCM.get(entity), vo);
         initializeMainItemComponent(mainItemCM.get(entity), vo, entityType);
         initializeTransformComponent(transformCM.get(entity), vo, dimensionsComponent);
@@ -114,17 +114,17 @@ public abstract class ComponentFactory {
         initializeTintComponent(tintCM.get(entity), vo);
         initializeZIndexComponent(zIndexCM.get(entity), vo);
         initializeScriptComponent(scriptCM.get(entity), vo);
-        initializeMeshComponent(entity, vo);
 
+        initializeMeshComponent(entity, vo);
         checkPhysicsBodyComponent(entity, vo);
-        initializeSensorComponent(sensorCM.get(entity), vo);
+        checkSensorComponent(entity, vo);
         checkLightBodyComponent(entity, vo);
         checkShaderComponent(entity, vo);
 
         return entity;
     }
 
-    protected abstract void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo);
+    protected abstract void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo);
 
     /**
      * No initialization required, just add the component.
@@ -220,8 +220,16 @@ public abstract class ComponentFactory {
         component.height = vo.physics.height;
     }
 
+    protected void checkSensorComponent(int entity, MainItemVO vo) {
+        if (vo.sensor == null) {
+            sensorCM.remove(entity);
+            return;
+        }
+        initializeSensorComponent(sensorCM.get(entity), vo);
+    }
+
     protected void initializeSensorComponent(SensorComponent component, MainItemVO vo) {
-        if (vo.sensor == null) return;
+        engine.inject(component);
 
         component.bottom = vo.sensor.bottom;
         component.left = vo.sensor.left;

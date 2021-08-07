@@ -102,24 +102,23 @@ public class SceneLoader {
 
         WorldConfiguration build = config.build();
         build.expectedEntityCount(configuration.getExpectedEntityCount());
-        build.setAlwaysDelayComponentRemoval(configuration.isAlwaysDelayComponentRemoval());
+        build.setAlwaysDelayComponentRemoval(true);
 
         this.engine = new com.artemis.World(build);
 
         engine.inject(this);
-        renderer.injectMappers(engine);
         ComponentRetriever.initialize(engine);
 
         addEntityRemoveListener();
 
-        for (IExternalItemType itemType : configuration.getiExternalItemTypes()) {
+        for (IExternalItemType itemType : configuration.getExternalItemTypes()) {
             itemType.injectMappers();
             entityFactory.addExternalFactory(itemType);
             renderer.addDrawableType(itemType);
         }
+        renderer.injectMappers(engine);
 
         entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
-
     }
 
     public void setResolution(String resolutionName) {
@@ -130,9 +129,6 @@ public class SceneLoader {
     }
 
     private void addEntityRemoveListener() {
-
-        // TODO: should we nat have a separate class extending SubscriptionListener?
-
         engine.getAspectSubscriptionManager()
                 .get(Aspect.all())
                 .addSubscriptionListener(new EntitySubscription.SubscriptionListener() {
@@ -152,12 +148,12 @@ public class SceneLoader {
 
                     @Override
                     public void removed(IntBag entities) {
-                        for (int i = 0, s = entities.size(); i < s; i++) {
+                        for (int i = 0; i < entities.size(); i++) {
                             int entity = entities.get(i);
                             ParentNodeComponent parentComponent = parentNodeCM.get(entity);
 
                             if (parentComponent == null) {
-                                return;
+                                continue;
                             }
 
                             int parentEntity = parentComponent.parentEntity;
@@ -170,7 +166,7 @@ public class SceneLoader {
                             if (nodeComponent != null) {
                                 // it is composite
                                 for (int node : nodeComponent.children) {
-                                    if (engine.getEntity(node).isActive())
+                                    if (engine.getEntityManager().isActive(node))
                                         engine.delete(node);
                                 }
                             }

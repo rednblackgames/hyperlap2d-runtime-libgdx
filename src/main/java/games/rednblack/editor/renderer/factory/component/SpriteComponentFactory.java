@@ -40,9 +40,9 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
  */
 public class SpriteComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<SpriteAnimationComponent> spriteAnimationCM;
-    protected static ComponentMapper<SpriteAnimationStateComponent> spriteAnimationStateCM;
-    protected static ComponentMapper<TextureRegionComponent> textureRegionCM;
+    protected ComponentMapper<SpriteAnimationComponent> spriteAnimationCM;
+    protected ComponentMapper<SpriteAnimationStateComponent> spriteAnimationStateCM;
+    protected ComponentMapper<TextureRegionComponent> textureRegionCM;
 
     private final EntityTransmuter transmuter;
 
@@ -68,7 +68,7 @@ public class SpriteComponentFactory extends ComponentFactory {
     }
 
     @Override
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         SpriteAnimationVO sVo = (SpriteAnimationVO) vo;
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(sVo.animationName);
 

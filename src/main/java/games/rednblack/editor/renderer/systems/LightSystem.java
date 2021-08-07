@@ -46,7 +46,7 @@ public class LightSystem extends IteratingSystem {
             light = lightObjectComponent.rebuildRays(rayHandler);
         }
 
-        TransformMathUtils.localToSceneCoordinates(entityId, localCoord.set(0, 0));
+        TransformMathUtils.localToSceneCoordinates(entityId, localCoord.set(0, 0), getWorld());
         ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entityId);
 
         TransformComponent transform = transformComponentMapper.get(entityId);

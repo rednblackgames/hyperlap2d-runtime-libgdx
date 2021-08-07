@@ -26,10 +26,10 @@ public class SpriteAnimationVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity) {
-        super.loadFromEntity(entity);
+    public void loadFromEntity(int entity, com.artemis.World engine) {
+        super.loadFromEntity(entity, engine);
 
-        SpriteAnimationComponent spriteAnimationComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class);
+        SpriteAnimationComponent spriteAnimationComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class, engine);
         animationName = spriteAnimationComponent.animationName;
         fps = spriteAnimationComponent.fps;
         frameRangeMap = new ArrayList<FrameRange>();

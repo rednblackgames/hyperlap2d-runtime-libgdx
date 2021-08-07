@@ -19,10 +19,10 @@ public class SpineVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity) {
-        super.loadFromEntity(entity);
+    public void loadFromEntity(int entity, com.artemis.World engine) {
+        super.loadFromEntity(entity, engine);
 
-        SpineDataComponent spineDataComponent = ComponentRetriever.get(entity, SpineDataComponent.class);
+        SpineDataComponent spineDataComponent = ComponentRetriever.get(entity, SpineDataComponent.class, engine);
         animationName = spineDataComponent.animationName;
         currentAnimationName = spineDataComponent.currentAnimationName;
     }

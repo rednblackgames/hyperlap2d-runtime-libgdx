@@ -53,7 +53,7 @@ public class BoundingBoxSystem extends IteratingSystem {
             b.points[2].set(d.width, d.height);
             b.points[3].set(0, d.height);
 
-            TransformMathUtils.localToSceneCoordinates(entity, b.points);
+            TransformMathUtils.localToSceneCoordinates(entity, b.points, getWorld());
 
             b.checksum = checksum;
             b.createBoundingRect();

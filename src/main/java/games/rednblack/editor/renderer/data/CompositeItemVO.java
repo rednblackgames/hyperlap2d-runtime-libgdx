@@ -54,14 +54,14 @@ public class CompositeItemVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity) {
-		super.loadFromEntity(entity);
+	public void loadFromEntity(int entity, com.artemis.World engine) {
+		super.loadFromEntity(entity, engine);
 
 		composite = new CompositeVO();
-		composite.loadFromEntity(entity);
+		composite.loadFromEntity(entity, engine);
 
-		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-		CompositeTransformComponent compositeTransformComponent = ComponentRetriever.get(entity, CompositeTransformComponent.class);
+		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
+		CompositeTransformComponent compositeTransformComponent = ComponentRetriever.get(entity, CompositeTransformComponent.class, engine);
 
 		width = dimensionsComponent.width;
 		height = dimensionsComponent.height;

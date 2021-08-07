@@ -10,7 +10,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class MoveToAction<T extends MoveToData> extends TemporalAction<T> {
     @Override
     public void update(float percent, int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
 
         float x = actionData.startX + (actionData.endX - actionData.startX) * percent;
         float y = actionData.startY + (actionData.endY - actionData.startY) * percent;
@@ -21,7 +21,7 @@ public class MoveToAction<T extends MoveToData> extends TemporalAction<T> {
 
     @Override
     public void begin(int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         actionData.startX = transformComponent.x;
         actionData.startY = transformComponent.y;
     }

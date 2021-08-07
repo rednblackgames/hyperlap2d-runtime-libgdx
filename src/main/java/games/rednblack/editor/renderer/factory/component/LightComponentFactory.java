@@ -40,7 +40,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public class LightComponentFactory extends ComponentFactory {
 
-    protected static ComponentMapper<LightObjectComponent> lightObjectCM;
+    protected ComponentMapper<LightObjectComponent> lightObjectCM;
 
     private final EntityTransmuter transmuter;
 
@@ -65,7 +65,7 @@ public class LightComponentFactory extends ComponentFactory {
         return entity;
     }
 
-    protected void initializeDimensionsComponent(DimensionsComponent component, MainItemVO vo) {
+    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float boundBoxSize = 50f;
         component.boundBox = new Rectangle((-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, (-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld);
@@ -75,6 +75,7 @@ public class LightComponentFactory extends ComponentFactory {
 
     @Override
     protected void initializeTransformComponent(TransformComponent component, MainItemVO vo, DimensionsComponent dimensionsComponent) {
+        super.initializeTransformComponent(component, vo, dimensionsComponent);
         component.originX = 0;
         component.originY = 0;
     }

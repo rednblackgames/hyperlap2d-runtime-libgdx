@@ -11,14 +11,16 @@ public class ParticleDrawableLogic implements Drawable {
     protected ComponentMapper<ParticleComponent> particleComponentMapper;
     protected ComponentMapper<TransformComponent> transformComponentMapper;
 
+    protected com.artemis.World engine;
+
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
 
         ParticleComponent particleComponent = particleComponentMapper.get(entity);
 
         if (particleComponent.transform) {
-            TransformMathUtils.computeTransform(entity).mulLeft(batch.getTransformMatrix());
-            TransformMathUtils.applyTransform(entity, batch);
+            TransformMathUtils.computeTransform(entity, engine).mulLeft(batch.getTransformMatrix());
+            TransformMathUtils.applyTransform(entity, batch, engine);
         } else {
             TransformComponent transformComponent = transformComponentMapper.get(entity);
             particleComponent.particleEffect.setPosition(transformComponent.x, transformComponent.y);
@@ -27,7 +29,7 @@ public class ParticleDrawableLogic implements Drawable {
         particleComponent.particleEffect.draw(batch);
 
         if (particleComponent.transform) {
-            TransformMathUtils.resetTransform(entity, batch);
+            TransformMathUtils.resetTransform(entity, batch, engine);
         }
     }
 }

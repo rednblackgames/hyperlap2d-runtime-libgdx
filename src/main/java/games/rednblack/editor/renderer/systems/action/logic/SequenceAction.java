@@ -11,6 +11,7 @@ public class SequenceAction<T extends SequenceData> extends ParallelAction<T> {
     public boolean act(float delta, int entity, T actionData) {
         if (actionData.index >= actionData.actionsData.size) return true;
         ActionLogic logic = Actions.actionLogicMap.get(actionData.actionsData.get(actionData.index).logicClassName);
+        logic.setEngine(engine);
         if (logic.act(delta, entity, actionData.actionsData.get(actionData.index))) {
             actionData.index++;
             if (actionData.index >= actionData.actionsData.size) return true;

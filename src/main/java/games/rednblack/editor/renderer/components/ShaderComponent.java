@@ -2,10 +2,10 @@ package games.rednblack.editor.renderer.components;
 
 import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,9 +17,9 @@ public class ShaderComponent  extends PooledComponent {
 	private final Pattern pattern = Pattern.compile("uniform +(int|float|vec2|vec3|vec4) +([^\\s]*) *(=.*)?;", Pattern.MULTILINE);
 
 	//Map that stores uniforms' name with their types
-	public final HashMap<String, String> uniforms = new HashMap<>();
+	public final ObjectMap<String, String> uniforms = new ObjectMap<>();
 
-	public final HashMap<String, ShaderUniformVO> customUniforms = new HashMap<>();
+	public final ObjectMap<String, ShaderUniformVO> customUniforms = new ObjectMap<>();
 
 	public void setShader(String name, ShaderProgram program) {
 		shaderName = name;

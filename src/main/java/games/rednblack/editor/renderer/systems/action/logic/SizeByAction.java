@@ -10,7 +10,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class SizeByAction<T extends SizeByData> extends RelativeTemporalAction<T> {
     @Override
     protected void updateRelative(float percentDelta, int entity, T actionData) {
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         dimensionsComponent.width += actionData.amountWidth * percentDelta;
         dimensionsComponent.height += actionData.amountHeight * percentDelta;
     }

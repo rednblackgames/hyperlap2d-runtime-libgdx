@@ -19,6 +19,8 @@
 package games.rednblack.editor.renderer.utils;
 
 import com.artemis.*;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
@@ -31,11 +33,6 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Component Retriever is a singleton single instance class that initialises list of
@@ -54,12 +51,7 @@ public class ComponentRetriever {
     /**
      * Unique map of mappers that can be accessed by component class
      */
-    private final Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> mappers = new HashMap<>();
-
-    /**
-     * an instance to the current World saved here in case a new component is to be added via addMapper()
-     */
-    private World engine;
+    private final ObjectMap<World, ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>>> engineMappers = new ObjectMap<>();
 
     /**
      * Private constructor
@@ -70,10 +62,13 @@ public class ComponentRetriever {
 
     /**
      * This is called only during first initialisation and populates map of mappers of all known Component mappers
-     * it might be a good idea to use Reflections library later to create this list from all classes in components package of runtime, all in favour?
      */
     private void init(World engine) {
-        this.engine = engine;
+        ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>> mappers = instance.engineMappers.get(engine);
+        if (mappers == null) {
+            mappers = new ObjectMap<>();
+            self().engineMappers.put(engine, mappers);
+        }
 
         mappers.put(LightObjectComponent.class, ComponentMapper.getFor(LightObjectComponent.class, engine));
 
@@ -116,10 +111,9 @@ public class ComponentRetriever {
     public static void initialize(World engine) {
         if (instance == null) {
             instance = new ComponentRetriever();
-
-            // Important to initialize during first creation, to populate mappers map
-            instance.init(engine);
         }
+
+        self().init(engine);
     }
 
     /**
@@ -135,35 +129,18 @@ public class ComponentRetriever {
     /**
      * @return returns Map of mappers, for internal use only
      */
-    private Map<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers() {
-        return mappers;
+    private ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers(World engine) {
+        return self().engineMappers.get(engine);
     }
 
-    /**
-     * Retrieves Component of provided type from a provided entity
-     *
-     * @param entity of type Entity to retrieve component from
-     * @param type   of the component
-     * @param <T>
-     * @return Component subclass instance
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends Component> T get(int entity, Class<T> type) {
-        return getMapper(type).get(entity);
-//        return (T) self().getMappers().get(type).get(entity);
+    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type, World engine) {
+        return (BaseComponentMapper<T>) self().getMappers(engine).get(type);
     }
 
-    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type) {
-        return self().engine.getMapper(type);
-//        return (BaseComponentMapper<T>) self().getMappers().get(type);
-    }
-
-    public static Collection<Component> getComponents(Entity entity) {
-        Collection<Component> components = new ArrayList<>();
-        for (BaseComponentMapper<? extends Component> mapper : self().getMappers().values()) {
+    public static Array<Component> getComponents(int entity, Array<Component> components, World engine) {
+        for (BaseComponentMapper<? extends Component> mapper : self().getMappers(engine).values()) {
             if (mapper.get(entity) != null) components.add(mapper.get(entity));
         }
-
         return components;
     }
 
@@ -174,6 +151,53 @@ public class ComponentRetriever {
      * @param type
      */
     public static void addMapper(Class<? extends Component> type) {
-        self().getMappers().put(type, ComponentMapper.getFor(type, instance.engine));
+        for (World engine : self().engineMappers.keys())
+            self().getMappers(engine).put(type, ComponentMapper.getFor(type, engine));
+    }
+
+    /**
+     * Returns the specified {@link Component} associated with the given entity.
+     * Returns null if the component was not added before.
+     *
+     * @see ComponentMapper#get(int)
+     */
+    public static <T extends Component> T get(int entity, Class<T> type, World engine) {
+        return getMapper(type, engine).get(entity);
+    }
+
+    /**
+     * Returns the specified {@link Component} associated with the given entity.
+     * If the {@link Component} is not present, creates a new {@link Component}.
+     *
+     * @see ComponentMapper#create(int)
+     */
+    public static <T extends Component> T create(int entity, Class<T> type, World engine) {
+        return getMapper(type, engine).create(entity);
+    }
+
+    /**
+     * Removes the specified {@link Component} associated with the given entity.
+     *
+     * @see ComponentMapper#remove(int)
+     */
+    public static <T extends Component> void remove(int entity, Class<T> type, World engine) {
+        getMapper(type, engine).remove(entity);
+    }
+
+    /**
+     * Checks if the specified {@link Component} is present in the given entity.
+     *
+     * @see ComponentMapper#has(int)
+     */
+    public static <T extends Component> boolean has(int entity, Class<T> type, World engine) {
+        return getMapper(type, engine).has(entity);
+    }
+
+    /**
+     * Checks if the specified entity is present in the engine.
+     *
+     */
+    public static boolean isActive(int entity, World engine) {
+        return engine.getEntityManager().isActive(entity);
     }
 }

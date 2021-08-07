@@ -10,13 +10,13 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class AlphaAction<T extends AlphaData> extends TemporalAction<T> {
     @Override
     protected void update(float percent, int entity, T actionData) {
-        TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
+        TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class, engine);
         tintComponent.color.a = actionData.start + (actionData.end - actionData.start) * percent;
     }
 
     @Override
     public void begin(int entity, T actionData) {
-        TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class);
+        TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class, engine);
         actionData.start = tintComponent.color.a;
     }
 }

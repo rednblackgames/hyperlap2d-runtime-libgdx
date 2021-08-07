@@ -324,7 +324,7 @@ public class Actions {
     public static void addAction(World engine, final int entity, ActionData data) {
         checkInit();
         ActionComponent actionComponent;
-        actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
+        actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
 
         if (actionComponent == null) {
             actionComponent = engine.edit(entity).create(ActionComponent.class);
@@ -333,15 +333,15 @@ public class Actions {
         actionComponent.dataArray.add(data);
     }
 
-    public static void removeActions(int entity) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
+    public static void removeActions(int entity, World engine) {
+        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
         if (actionComponent != null) {
             actionComponent.reset(); // action component with empty data array will be removed later by ActionSystem
         }
     }
 
-    public static void removeAction(int entity, ActionData data) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
+    public static void removeAction(int entity, ActionData data, World engine) {
+        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
         if (actionComponent != null) {
             if (actionComponent.dataArray.contains(data, true)) {
                 actionComponent.dataArray.removeValue(data, true);
@@ -351,8 +351,8 @@ public class Actions {
         }
     }
 
-    public static boolean hasActions(int entity) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class);
+    public static boolean hasActions(int entity, World engine) {
+        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
         return actionComponent != null && actionComponent.dataArray.size > 0;
     }
 }
