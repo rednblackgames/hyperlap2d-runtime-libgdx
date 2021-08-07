@@ -22,6 +22,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -63,10 +64,6 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
         initializeTextureRegionComponent(entity, textureRegionComponent, (SimpleImageVO) vo);
 
-        // We need the dimension component created on basis of texture region component.
-        // That's why we call it again, after creating a texture region component.
-        initializeDimensionsComponent(entity, dimensionsCM.get(entity), vo);
-
         adjustNodeHierarchy(root, entity);
         updatePolygons(entity);
 
@@ -86,15 +83,15 @@ public class SimpleImageComponentFactory extends ComponentFactory {
 
     @Override
     protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
-        TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
-        if (textureRegionComponent == null) return;
+        SimpleImageVO sVo = (SimpleImageVO) vo;
+        TextureRegion region = rm.getTextureRegion(sVo.imageName);
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
-        component.width = (float) textureRegionComponent.region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
-        component.height = (float) textureRegionComponent.region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
+        component.width = (float) region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
+        component.height = (float) region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
     }
 
     protected void initializeTextureRegionComponent(int entity, TextureRegionComponent component, SimpleImageVO vo) {

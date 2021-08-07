@@ -5,6 +5,7 @@ import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -39,27 +40,27 @@ public class NinePatchComponentFactory extends ComponentFactory {
         NinePatchComponent ninePatchComponent = ninePatchCM.get(entity);
         createNinePatchComponent(ninePatchComponent, (Image9patchVO) vo);
 
-        // We need the dimension component created on basis of texture region component.
-        // That's why we call it again, after creating a texture region component.
-        initializeDimensionsComponent(entity, dimensionsCM.get(entity), vo);
-
         adjustNodeHierarchy(root, entity);
 
         return entity;
     }
 
     protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
-        NinePatchComponent ninePatchComponent = ninePatchCM.get(entity);
-        if(ninePatchComponent == null) return;
+        Image9patchVO sVo = (Image9patchVO) vo;
+        TextureRegion region = rm.getTextureRegion(sVo.imageName);
+
+        ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
         component.height = ((Image9patchVO) vo).height;
         component.width = ((Image9patchVO) vo).width;
         if (component.width == 0) {
-            component.width = ninePatchComponent.ninePatch.getTotalWidth();
+            component.width = (float) region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
         }
 
         if (component.height == 0) {
-            component.height = ninePatchComponent.ninePatch.getTotalHeight();
+            component.height = (float) region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
         }
     }
 
