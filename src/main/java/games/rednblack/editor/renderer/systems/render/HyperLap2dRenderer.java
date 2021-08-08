@@ -51,7 +51,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
     public static float timeRunning = 0;
     public static Color clearColor = Color.CLEAR;
 
-    public Batch batch;
+    private final Batch batch;
 
     private final FrameBufferManager frameBufferManager;
     private final Camera screenCamera, tmpFboCamera;
