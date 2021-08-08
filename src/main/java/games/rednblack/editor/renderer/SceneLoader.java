@@ -107,7 +107,6 @@ public class SceneLoader {
         this.engine = new com.artemis.World(build);
 
         engine.inject(this);
-        ComponentRetriever.initialize(engine);
 
         addEntityRemoveListener();
 
@@ -119,6 +118,7 @@ public class SceneLoader {
         renderer.injectMappers(engine);
 
         entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
+        ComponentRetriever.initialize(engine);
     }
 
     public void setResolution(String resolutionName) {
