@@ -156,7 +156,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             batch.setProjectionMatrix(camera.combined);
             Integer[] children = screenReadingEntities.begin();
             for (int i = 0; i < screenReadingEntities.size; i++) {
-                Integer child = children[i];
+                int child = children[i];
                 if (mainItemComponentMapper.has(child))
                     drawEntity(batch, child, 1, Drawable.RenderingType.TEXTURE);
                 else
@@ -290,14 +290,14 @@ public class HyperLap2dRenderer extends IteratingSystem {
         }
     }
 
-    private void drawChildren(Integer rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
+    private void drawChildren(int rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
                               Drawable.RenderingType renderingType) {
         NodeComponent nodeComponent = nodeMapper.get(rootEntity);
         Integer[] children = nodeComponent.children.begin();
         TransformComponent transform = transformMapper.get(rootEntity);
         if (transform.shouldTransform() && !curCompositeTransformComponent.renderToFBO) {
             for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-                Integer child = children[i];
+                int child = children[i];
 
                 LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
                 ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
@@ -333,7 +333,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             }
 
             for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-                Integer child = children[i];
+                int child = children[i];
 
                 LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
                 ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
@@ -368,7 +368,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         nodeComponent.children.end();
     }
 
-    private void drawEntity(Batch batch, Integer child, float parentAlpha, Drawable.RenderingType renderingType) {
+    private void drawEntity(Batch batch, int child, float parentAlpha, Drawable.RenderingType renderingType) {
         if (renderingType == Drawable.RenderingType.NORMAL_MAP && !normalMapMapper.has(child)) {
             return;
         } else if (renderingType == Drawable.RenderingType.NORMAL_MAP && normalMapMapper.has(child))
@@ -386,7 +386,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
      *
      * @param rootEntity
      */
-    protected Matrix4 computeTransform(Integer rootEntity) {
+    protected Matrix4 computeTransform(int rootEntity) {
         ParentNodeComponent parentNodeComponent = parentNodeMapper.get(rootEntity);
         TransformComponent curTransform = transformMapper.get(rootEntity);
         Affine2 worldTransform = curTransform.worldTransform;
@@ -403,12 +403,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
         if (originX != 0 || originY != 0) worldTransform.translate(-originX, -originY);
 
         // Find the parent that transforms.
-        Integer parentEntity = null;
+        int parentEntity = -1;
         if (parentNodeComponent != null) {
             parentEntity = parentNodeComponent.parentEntity;
         }
 
-        if (parentEntity != null) {
+        if (parentEntity != -1) {
             TransformComponent transform = transformMapper.get(parentEntity);
             if (transform.shouldTransform())
                 worldTransform.preMul(transform.worldTransform);
@@ -418,18 +418,18 @@ public class HyperLap2dRenderer extends IteratingSystem {
         return curTransform.computedTransform;
     }
 
-    protected void applyTransform(Integer rootEntity, Batch batch) {
+    protected void applyTransform(int rootEntity, Batch batch) {
         TransformComponent curTransform = transformMapper.get(rootEntity);
         curTransform.oldTransform.set(batch.getTransformMatrix());
         batch.setTransformMatrix(curTransform.computedTransform);
     }
 
-    protected void resetTransform(Integer rootEntity, Batch batch) {
+    protected void resetTransform(int rootEntity, Batch batch) {
         TransformComponent curTransform = transformMapper.get(rootEntity);
         batch.setTransformMatrix(curTransform.oldTransform);
     }
 
-    protected void applyShader(Integer entity, Batch batch) {
+    protected void applyShader(int entity, Batch batch) {
         if (shaderComponentMapper.has(entity)) {
             ShaderComponent shaderComponent = shaderComponentMapper.get(entity);
             if (shaderComponent.getShader() != null && shaderComponent.getShader().isCompiled()) {
@@ -506,7 +506,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         }
     }
 
-    protected void resetShader(Integer entity, Batch batch) {
+    protected void resetShader(int entity, Batch batch) {
         if (shaderComponentMapper.has(entity)) {
             batch.setShader(null);
         }
@@ -518,7 +518,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
      * @param entity
      * @return false if the entity belongs to a different rendering layer
      */
-    protected boolean checkRenderingLayer(Integer entity) {
+    protected boolean checkRenderingLayer(int entity) {
         if (shaderComponentMapper.has(entity)) {
             ShaderComponent shaderComponent = shaderComponentMapper.get(entity);
 
@@ -537,7 +537,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         return true;
     }
 
-    public void removeSpecialEntity(Integer entity) {
+    public void removeSpecialEntity(int entity) {
         screenReadingEntities.removeValue(entity, true);
     }
 
