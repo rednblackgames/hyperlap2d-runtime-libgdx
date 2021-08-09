@@ -15,21 +15,20 @@ public class ParticleDrawableLogic implements Drawable {
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
-
+        TransformComponent transformComponent = transformComponentMapper.get(entity);
         ParticleComponent particleComponent = particleComponentMapper.get(entity);
 
         if (particleComponent.transform) {
-            TransformMathUtils.computeTransform(entity, engine).mulLeft(batch.getTransformMatrix());
-            TransformMathUtils.applyTransform(entity, batch, engine);
+            TransformMathUtils.computeTransform(transformComponent).mulLeft(batch.getTransformMatrix());
+            TransformMathUtils.applyTransform(batch, transformComponent);
         } else {
-            TransformComponent transformComponent = transformComponentMapper.get(entity);
             particleComponent.particleEffect.setPosition(transformComponent.x, transformComponent.y);
         }
 
         particleComponent.particleEffect.draw(batch);
 
         if (particleComponent.transform) {
-            TransformMathUtils.resetTransform(entity, batch, engine);
+            TransformMathUtils.resetTransform(batch, transformComponent);
         }
     }
 }

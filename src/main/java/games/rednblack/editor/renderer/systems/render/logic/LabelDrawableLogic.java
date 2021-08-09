@@ -42,8 +42,8 @@ public class LabelDrawableLogic implements Drawable {
 		if(labelComponent.style.fontColor != null) tmpColor.mul(labelComponent.style.fontColor);
 		tmpColor.a *= tintComponentMapper.get(parentNodeComponentComponentMapper.get(entity).parentEntity).color.a;
 
-		TransformMathUtils.computeTransform(entity, engine).mulLeft(batch.getTransformMatrix());
-		TransformMathUtils.applyTransform(entity, batch, engine);
+		TransformMathUtils.computeTransform(entityTransformComponent).mulLeft(batch.getTransformMatrix());
+		TransformMathUtils.applyTransform(batch, entityTransformComponent);
 
 		if (typingLabelComponent == null) {
 			labelComponent.cache.tint(tmpColor);
@@ -53,7 +53,7 @@ public class LabelDrawableLogic implements Drawable {
 			typingLabelComponent.typingLabel.draw(batch, 1);
 		}
 
-		TransformMathUtils.resetTransform(entity, batch, engine);
+		TransformMathUtils.resetTransform(batch, entityTransformComponent);
 	}
 
 }

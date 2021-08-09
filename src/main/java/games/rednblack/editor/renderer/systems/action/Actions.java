@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.artemis.BaseComponentMapper;
 import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.ActionComponent;
 import games.rednblack.editor.renderer.systems.action.data.*;
 import games.rednblack.editor.renderer.systems.action.logic.*;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.HashMap;
 
@@ -90,7 +88,6 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setEndX(x);
         actionData.setEndY(y);
-        actionData.logicClassName = MoveToAction.class.getName();
         return (actionData);
     }
 
@@ -108,14 +105,12 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setAmountX(x);
         actionData.setAmountY(y);
-        actionData.logicClassName = MoveByAction.class.getName();
         return actionData;
     }
 
     static public ActionData run(Runnable runnable) {
         RunnableData actionData = actionData(RunnableData.class);
         actionData.setRunnable(runnable);
-        actionData.logicClassName = RunnableAction.class.getName();
         return actionData;
     }
 
@@ -132,7 +127,6 @@ public class Actions {
         actionData.setDuration(duration);
         actionData.setInterpolation(interpolation);
         actionData.setEnd(end);
-        actionData.logicClassName = RotateToAction.class.getName();
         return actionData;
     }
 
@@ -149,7 +143,6 @@ public class Actions {
         actionData.setDuration(duration);
         actionData.setInterpolation(interpolation);
         actionData.setAmount(amount);
-        actionData.logicClassName = RotateByAction.class.getName();
         return actionData;
     }
 
@@ -167,7 +160,6 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setEndWidth(width);
         actionData.setEndHeight(height);
-        actionData.logicClassName = SizeToAction.class.getName();
         return actionData;
     }
 
@@ -185,7 +177,6 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setAmountWidth(width);
         actionData.setAmountHeight(height);
-        actionData.logicClassName = SizeByAction.class.getName();
         return actionData;
     }
 
@@ -203,7 +194,6 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setEndX(width);
         actionData.setEndY(height);
-        actionData.logicClassName = ScaleToAction.class.getName();
         return actionData;
     }
 
@@ -221,7 +211,6 @@ public class Actions {
         actionData.setInterpolation(interpolation);
         actionData.setAmountX(width);
         actionData.setAmountY(height);
-        actionData.logicClassName = ScaleByAction.class.getName();
         return actionData;
     }
 
@@ -238,7 +227,6 @@ public class Actions {
         actionData.setDuration(duration);
         actionData.setInterpolation(interpolation);
         actionData.setEndColor(color);
-        actionData.logicClassName = ColorAction.class.getName();
         return actionData;
     }
 
@@ -255,7 +243,6 @@ public class Actions {
         actionData.setDuration(duration);
         actionData.setInterpolation(interpolation);
         actionData.setEnd(alpha);
-        actionData.logicClassName = AlphaAction.class.getName();
         return actionData;
     }
 
@@ -279,7 +266,6 @@ public class Actions {
     public static DelayData delay(float duration) {
         DelayData actionData = actionData(DelayData.class);
         actionData.setDuration(duration);
-        actionData.logicClassName = DelayAction.class.getName();
         return actionData;
     }
 
@@ -287,21 +273,18 @@ public class Actions {
         DelayData actionData = actionData(DelayData.class);
         actionData.setDuration(duration);
         actionData.setDelegatedAction(delayedAction);
-        actionData.logicClassName = DelayAction.class.getName();
         return actionData;
     }
 
     static public ParallelData parallel(ActionData... actionsData) {
         ParallelData actionData = actionData(ParallelData.class);
         actionData.setActionsData(actionsData);
-        actionData.logicClassName = ParallelAction.class.getName();
         return actionData;
     }
 
     static public SequenceData sequence(ActionData... actionsData) {
         SequenceData actionData = actionData(SequenceData.class);
         actionData.setActionsData(actionsData);
-        actionData.logicClassName = SequenceAction.class.getName();
         return actionData;
     }
 
@@ -309,7 +292,6 @@ public class Actions {
         RepeatData actionData = actionData(RepeatData.class);
         actionData.setRepeatCount(count);
         actionData.setDelegatedAction(action);
-        actionData.logicClassName = RepeatAction.class.getName();
         return actionData;
     }
 
@@ -317,14 +299,12 @@ public class Actions {
         RepeatData actionData = actionData(RepeatData.class);
         actionData.setRepeatCount(RepeatData.FOREVER);
         actionData.setDelegatedAction(action);
-        actionData.logicClassName = RepeatAction.class.getName();
         return actionData;
     }
 
-    public static void addAction(World engine, final int entity, ActionData data) {
+    public static void addAction(final int entity, ActionData data, World engine) {
         checkInit();
-        ActionComponent actionComponent;
-        actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
+        ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
 
         if (actionComponent == null) {
             actionComponent = engine.edit(entity).create(ActionComponent.class);
@@ -334,14 +314,14 @@ public class Actions {
     }
 
     public static void removeActions(int entity, World engine) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
+        ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         if (actionComponent != null) {
             actionComponent.reset(); // action component with empty data array will be removed later by ActionSystem
         }
     }
 
     public static void removeAction(int entity, ActionData data, World engine) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
+        ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         if (actionComponent != null) {
             if (actionComponent.dataArray.contains(data, true)) {
                 actionComponent.dataArray.removeValue(data, true);
@@ -352,7 +332,7 @@ public class Actions {
     }
 
     public static boolean hasActions(int entity, World engine) {
-        ActionComponent actionComponent = ComponentRetriever.get(entity, ActionComponent.class, engine);
+        ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         return actionComponent != null && actionComponent.dataArray.size > 0;
     }
 }

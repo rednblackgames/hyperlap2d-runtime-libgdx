@@ -177,9 +177,7 @@ public class TransformMathUtils {
 
     }
 
-    public static Matrix4 computeTransform(int entity, com.artemis.World engine) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
-
+    public static Matrix4 computeTransform(TransformComponent curTransform) {
         Affine2 worldTransform = curTransform.worldTransform;
 
         float originX = curTransform.originX;
@@ -198,14 +196,12 @@ public class TransformMathUtils {
         return curTransform.computedTransform;
     }
 
-    public static void applyTransform(int entity, Batch batch, com.artemis.World engine) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
+    public static void applyTransform(Batch batch, TransformComponent curTransform) {
         curTransform.oldTransform.set(batch.getTransformMatrix());
         batch.setTransformMatrix(curTransform.computedTransform);
     }
 
-    public static void resetTransform(int entity, Batch batch, com.artemis.World engine) {
-        TransformComponent curTransform = ComponentRetriever.get(entity, TransformComponent.class, engine);
+    public static void resetTransform(Batch batch, TransformComponent curTransform) {
         batch.setTransformMatrix(curTransform.oldTransform);
     }
 }

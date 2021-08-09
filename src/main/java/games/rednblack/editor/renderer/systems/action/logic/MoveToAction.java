@@ -1,16 +1,18 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
+import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.systems.action.data.MoveToData;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by ZeppLondon on 10/13/2015.
  */
 public class MoveToAction<T extends MoveToData> extends TemporalAction<T> {
+    protected ComponentMapper<TransformComponent> transformMapper;
+
     @Override
     public void update(float percent, int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
+        TransformComponent transformComponent = transformMapper.get(entity);
 
         float x = actionData.startX + (actionData.endX - actionData.startX) * percent;
         float y = actionData.startY + (actionData.endY - actionData.startY) * percent;
@@ -21,7 +23,7 @@ public class MoveToAction<T extends MoveToData> extends TemporalAction<T> {
 
     @Override
     public void begin(int entity, T actionData) {
-        TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
+        TransformComponent transformComponent = transformMapper.get(entity);
         actionData.startX = transformComponent.x;
         actionData.startY = transformComponent.y;
     }

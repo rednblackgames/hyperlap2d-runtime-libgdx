@@ -7,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.ForceData;
 import games.rednblack.editor.renderer.systems.action.logic.ActionLogic;
 import games.rednblack.editor.renderer.systems.action.logic.ForceAction;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by aurel on 02/04/16.
@@ -64,7 +63,7 @@ public class PhysicsActions {
     public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent, com.artemis.World engine) {
         ForceData forceData = force(force, relativePoint);
 
-        forceData.linkedComponentMapper = ComponentRetriever.getMapper(linkedComponent, engine);
+        forceData.linkedComponentMapper = engine.getMapper(linkedComponent);
         return forceData;
     }
 }

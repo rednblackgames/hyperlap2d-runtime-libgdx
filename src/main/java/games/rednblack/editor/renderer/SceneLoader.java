@@ -318,7 +318,7 @@ public class SceneLoader {
             MainItemComponent mainItemComponent = mainItemCM.get(id);
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
-                    Actions.addAction(engine, id, loadActionFromLibrary(action));
+                    Actions.addAction(id, loadActionFromLibrary(action), engine);
                 }
             }
         }
@@ -338,7 +338,7 @@ public class SceneLoader {
             MainItemComponent mainItemComponent = mainItemCM.get(id);
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
-                    Actions.addAction(engine, id, action);
+                    Actions.addAction(id, action, engine);
                 }
             }
         }
