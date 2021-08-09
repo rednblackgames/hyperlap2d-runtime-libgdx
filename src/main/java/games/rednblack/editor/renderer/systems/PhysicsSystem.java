@@ -14,13 +14,14 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
+import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
 
+//TODO Fix interpolation in invocation strategy
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*, InterpolationSystem*/ {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
-    public static float TIME_STEP = 1f / 60f;
 
     protected ComponentMapper<TransformComponent> transformComponentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
@@ -29,7 +30,6 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
 
     private World world;
     private boolean isPhysicsOn = true;
-    private float accumulator = 0;
 
     public void setBox2DWorld(World world) {
         this.world = world;
@@ -38,37 +38,16 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
 
     @Override
     protected final void processSystem() {
-        fixedPhysicStep(getWorld().delta);
+        if (world != null && isPhysicsOn)
+            world.step(getWorld().getDelta(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
 
         IntBag actives = subscription.getEntities();
         int[] ids = actives.getData();
         for (int i = 0, s = actives.size(); s > i; i++) {
             process(ids[i]);
+            //TODO remove this once interpolation will works
+            interpolate(ids[i], 1f);
         }
-    }
-
-    /**
-     * WARN Physics world isn't updated with a fixed time step.
-     *
-     * @param deltaTime time step passed directly to {@link World#step}
-     */
-    public void manualUpdate(float deltaTime) {
-        physicStep(deltaTime);
-    }
-
-    private void fixedPhysicStep(float deltaTime) {
-        if (world != null && isPhysicsOn) {
-            float frameTime = Math.min(deltaTime, 0.25f); //avoid spiral of death
-            accumulator += frameTime;
-            while (accumulator >= TIME_STEP) {
-                physicStep(TIME_STEP);
-                accumulator -= TIME_STEP;
-            }
-        }
-    }
-
-    private void physicStep(float deltaTime) {
-        world.step(deltaTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
     }
 
     /**
@@ -77,6 +56,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
      *
      * @param alpha linear interpolation factor
      */
+    //@Override
     public void interpolate(float alpha) {
         IntBag bag = subscription.getEntities();
         for (int i = 0, s = bag.size(); i < s; ++i) {
@@ -116,12 +96,6 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener {
     }
 
     protected void process(int entity) {
-        processBody(entity);
-
-        interpolate(entity, 1f);
-    }
-
-    protected void processBody(int entity) {
         PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
         PolygonComponent polygonComponent = polygonComponentMapper.get(entity);
 

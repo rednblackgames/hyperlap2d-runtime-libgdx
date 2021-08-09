@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer;
 
 import com.artemis.BaseSystem;
+import com.artemis.SystemInvocationStrategy;
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -13,6 +14,7 @@ import games.rednblack.editor.renderer.resources.ResourceManager;
 import games.rednblack.editor.renderer.systems.*;
 import games.rednblack.editor.renderer.systems.action.ActionSystem;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
+import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.CpuPolygonSpriteBatch;
 
 import static games.rednblack.editor.renderer.SceneLoader.BATCH_VERTICES_SIZE;
@@ -24,6 +26,7 @@ public class SceneConfiguration {
     private IResourceRetriever iResourceRetriever;
     private World world;
     private RayHandler rayHandler;
+    private SystemInvocationStrategy invocationStrategy;
     private boolean cullingEnabled = true;
     private final Array<IExternalItemType> externalItemTypes = new Array<>();
 
@@ -32,7 +35,6 @@ public class SceneConfiguration {
     private int expectedEntityCount = 128;
 
     public SceneConfiguration() {
-
         addSystem(new ParticleSystem());
         addSystem(new LightSystem());
         addSystem(new SpriteAnimationSystem());
@@ -47,7 +49,6 @@ public class SceneConfiguration {
         addSystem(new CullingSystem());
         addSystem(new HyperLap2dRenderer(new CpuPolygonSpriteBatch(BATCH_VERTICES_SIZE, createDefaultShader())));
         addSystem(new ButtonSystem());
-
     }
 
     // For User's Use
@@ -135,6 +136,10 @@ public class SceneConfiguration {
         this.expectedEntityCount = expectedEntityCount;
     }
 
+    public void setInvocationStrategy(SystemInvocationStrategy invocationStrategy) {
+        this.invocationStrategy = invocationStrategy;
+    }
+
     // For SceneLoader's Use
 
     IResourceRetriever getiResourceRetriever() {
@@ -171,6 +176,13 @@ public class SceneConfiguration {
         }
 
         return rayHandler;
+    }
+
+    SystemInvocationStrategy getInvocationStrategy() {
+        if (invocationStrategy == null)
+            invocationStrategy = new HyperLap2dInvocationStrategy();
+
+        return invocationStrategy;
     }
 
     public boolean isCullingEnabled() {

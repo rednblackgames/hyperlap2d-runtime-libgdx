@@ -5,12 +5,13 @@ import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.IScript;
+import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
 
 /**
  * Created by azakhary on 6/19/2015.
  */
 @All(ScriptComponent.class)
-public class ScriptSystem extends IteratingSystem {
+public class ScriptSystem extends IteratingSystem implements RendererSystem {
 
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 

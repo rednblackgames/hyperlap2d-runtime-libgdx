@@ -99,7 +99,7 @@ public class SceneLoader {
         for (SceneConfiguration.SystemData<?> data : configuration.getSystems()) {
             config.with(data.priority, data.system);
         }
-
+        config.register(configuration.getInvocationStrategy());
         WorldConfiguration build = config.build();
         build.expectedEntityCount(configuration.getExpectedEntityCount());
         build.setAlwaysDelayComponentRemoval(true);
