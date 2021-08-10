@@ -109,9 +109,9 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         Class targetClass = target.getClass();
         for (int i = 0; i < checkSystems.size(); i++) {
             if (targetClass == checkSystems.get(i).getClass()) {
-                checkDisabled.set(i, value);
+                checkDisabled.set(i, !value);
                 if (target instanceof InterpolationSystem)
-                    disabledInterpolationSystems.set(i, value);
+                    disabledInterpolationSystems.set(i, !value);
                 return;
             }
         }
