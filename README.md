@@ -44,7 +44,7 @@ dependencies {
 
 | HyperLap2D         |      libGDX     | Ashley | Artemis | TypingLabel |
 | ------------------ | --------------- | ------ | ------- | ----------- |
-| 0.0.8-SNAPSHOT     | 1.10.0          |   --   |  2.3.0  |    1.2.0    |
+| 0.0.8-SNAPSHOT     | 1.10.1-SNAPSHOT |   --   |  2.3.0  |    1.2.0    |
 | 0.0.7              | 1.10.0          | 1.7.4  |   ---   |    1.2.0    |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)

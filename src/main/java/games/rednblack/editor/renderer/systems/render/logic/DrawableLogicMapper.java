@@ -1,16 +1,14 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
 import com.artemis.World;
+import com.badlogic.gdx.utils.IntMap;
 import games.rednblack.editor.renderer.factory.EntityFactory;
-
-import java.util.HashMap;
 
 public class DrawableLogicMapper {
 
-    private HashMap<Integer, Drawable> logicClassMap;
+    private final IntMap<Drawable> logicClassMap = new IntMap();
 
     public DrawableLogicMapper() {
-        logicClassMap = new HashMap<>();
         logicClassMap.put(EntityFactory.IMAGE_TYPE, new TextureRegionDrawLogic());
         logicClassMap.put(EntityFactory.LABEL_TYPE, new LabelDrawableLogic());
         logicClassMap.put(EntityFactory.NINE_PATCH, new NinePatchDrawableLogic());
