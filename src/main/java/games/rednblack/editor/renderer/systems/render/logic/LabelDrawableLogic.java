@@ -48,7 +48,7 @@ public class LabelDrawableLogic implements Drawable {
 		if (typingLabelComponent == null) {
 			labelComponent.cache.tint(tmpColor);
 			labelComponent.cache.draw(batch);
-		} else {
+		} else if (typingLabelComponent.typingLabel != null) {
 			typingLabelComponent.typingLabel.setColor(tmpColor);
 			typingLabelComponent.typingLabel.draw(batch, 1);
 		}

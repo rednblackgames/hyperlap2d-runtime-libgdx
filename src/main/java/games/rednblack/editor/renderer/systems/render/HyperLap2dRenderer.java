@@ -296,72 +296,52 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         NodeComponent nodeComponent = nodeMapper.get(rootEntity);
         Integer[] children = nodeComponent.children.begin();
         TransformComponent transform = transformMapper.get(rootEntity);
-        if (transform.shouldTransform() && !curCompositeTransformComponent.renderToFBO) {
-            for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-                int child = children[i];
+        LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
 
-                LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
-                ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
+        float offsetX = transform.x, offsetY = transform.y;
 
-                if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
-                    continue;
-                }
+        if (viewPortMapper.has(rootEntity) || curCompositeTransformComponent.renderToFBO) {
+            //Don't offset children in root composite or in FBOs
+            offsetX = 0;
+            offsetY = 0;
+        }
 
-                MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
-                if (!childMainItemComponent.visible || childMainItemComponent.culled) {
-                    continue;
-                }
+        for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
+            int child = children[i];
 
-                NodeComponent childNodeComponent = nodeMapper.get(child);
+            ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
 
-                if (childNodeComponent == null) {
-                    if (checkRenderingLayer(child))
-                        drawEntity(batch, child, parentAlpha, renderingType);
-                } else {
-                    //Step into Composite
-                    drawRecursively(child, parentAlpha, renderingType);
-                }
-            }
-        } else {
-            // No transform for this group, offset each child.
-            TransformComponent compositeTransform = transformMapper.get(rootEntity);
-
-            float offsetX = compositeTransform.x, offsetY = compositeTransform.y;
-
-            if (viewPortMapper.has(rootEntity) || curCompositeTransformComponent.renderToFBO) {
-                offsetX = 0;
-                offsetY = 0;
+            if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
+                //Skip if layer is not visible
+                continue;
             }
 
-            for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
-                int child = children[i];
+            MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
+            if (!childMainItemComponent.visible || childMainItemComponent.culled) {
+                //Skip if entity is culled or not visible
+                continue;
+            }
 
-                LayerMapComponent rootLayers = layerMapComponentMapper.get(rootEntity);
-                ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
+            TransformComponent childTransformComponent = transformMapper.get(child);
+            float cx = childTransformComponent.x, cy = childTransformComponent.y;
+            NodeComponent childNodeComponent = nodeMapper.get(child);
 
-                if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
-                    continue;
-                }
-
-                MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
-                if (!childMainItemComponent.visible || childMainItemComponent.culled) {
-                    continue;
-                }
-
-                TransformComponent childTransformComponent = transformMapper.get(child);
-                float cx = childTransformComponent.x, cy = childTransformComponent.y;
+            if (!transform.shouldTransform() || curCompositeTransformComponent.renderToFBO) {
+                // The group doesn't need matrix transformation. Just offset child in screen coordinates.
                 childTransformComponent.x = cx + offsetX;
                 childTransformComponent.y = cy + offsetY;
+            }
 
-                NodeComponent childNodeComponent = nodeMapper.get(child);
+            if (childNodeComponent == null) {
+                if (checkRenderingLayer(child))
+                    drawEntity(batch, child, parentAlpha, renderingType);
+            } else {
+                //Step into Composite
+                drawRecursively(child, parentAlpha, renderingType);
+            }
 
-                if (childNodeComponent == null) {
-                    if (checkRenderingLayer(child))
-                        drawEntity(batch, child, parentAlpha, renderingType);
-                } else {
-                    //Step into Composite
-                    drawRecursively(child, parentAlpha, renderingType);
-                }
+            if (!transform.shouldTransform() || curCompositeTransformComponent.renderToFBO) {
+                //Restore composite relative position.
                 childTransformComponent.x = cx;
                 childTransformComponent.y = cy;
             }
