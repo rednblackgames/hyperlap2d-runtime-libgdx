@@ -49,10 +49,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     private Camera camera;
     private Viewport viewport;
 
-    public static float timeRunning = 0;
-    public static Color clearColor = Color.CLEAR;
+    public static final Color clearColor = new Color(Color.CLEAR);
 
     private final Batch batch;
+    private float timeRunning = 0;
 
     private final FrameBufferManager frameBufferManager;
     private final Camera screenCamera, tmpFboCamera;
@@ -417,7 +417,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                 batch.setShader(shaderComponent.getShader());
 
                 batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
-                batch.getShader().setUniformf("u_time", HyperLap2dRenderer.timeRunning);
+                batch.getShader().setUniformf("u_time", timeRunning);
 
                 TextureRegionComponent entityTextureRegionComponent = textureRegionComponentMapper.get(entity);
                 if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
@@ -563,6 +563,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     public void injectMappers(World engine) {
         drawableLogicMapper.injectMappers(engine);
+    }
+
+    public float getTimeRunning() {
+        return timeRunning;
     }
 }
 
