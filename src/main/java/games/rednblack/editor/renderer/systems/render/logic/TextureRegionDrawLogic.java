@@ -27,6 +27,7 @@ public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+        this.renderingType = renderingType;
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = shaderMapper.get(entity);
 
