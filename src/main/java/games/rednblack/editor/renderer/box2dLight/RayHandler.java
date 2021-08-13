@@ -119,6 +119,7 @@ public class RayHandler implements Disposable {
 
 	/** camera matrix corners */
 	float x1, x2, y1, y2;
+	OrthographicCamera camera;
 
 	World world;
 	
@@ -200,6 +201,7 @@ public class RayHandler implements Disposable {
 	 * @see #setCombinedMatrix(Matrix4, float, float, float, float)
 	 */
 	public void setCombinedMatrix(OrthographicCamera camera) {
+		this.camera = camera;
 		this.setCombinedMatrix(
 				camera.combined,
 				camera.position.x,
@@ -335,6 +337,10 @@ public class RayHandler implements Disposable {
 				normalMapTexture.bind(0);
 				lightShader.setUniformi("u_normals", 0);
 				lightShader.setUniformf("u_resolution", viewportWidth, viewportHeight);
+				//TODO Falloff is not good, need to check out better theory..
+				FALLOFF.x = camera.zoom / 5f;
+				FALLOFF.y = camera.zoom;
+				FALLOFF.z = camera.zoom * 10f;
 				lightShader.setUniformf("u_falloff", FALLOFF);
 			}
 			lightShader.setUniformMatrix("u_projTrans", combined);
@@ -661,16 +667,13 @@ public class RayHandler implements Disposable {
 	 * <p>Note: you will be responsible for update of viewport via this method
 	 * in case of any changes (on resize)
 	 */
-	public void useCustomViewport(int x, int y, int width, int height) {
+	public void useCustomViewport(Viewport viewport, int x, int y, int width, int height) {
+		this.viewport = viewport;
 		customViewport = true;
 		viewportX = x;
 		viewportY = y;
 		viewportWidth = width;
 		viewportHeight = height;
-	}
-
-	public void setViewport(Viewport viewport) {
-		this.viewport = viewport;
 	}
 
 	/**

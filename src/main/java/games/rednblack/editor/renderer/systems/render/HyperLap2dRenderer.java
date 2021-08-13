@@ -179,8 +179,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             int screenWidth = viewport.getScreenWidth() * retinaScale;
             int screenHeight = viewport.getScreenHeight() * retinaScale;
 
-            rayHandler.setViewport(viewport);
-            rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(),
+            rayHandler.useCustomViewport(viewport, viewport.getScreenX(), viewport.getScreenY(),
                     screenWidth, screenHeight);
 
             if (hasNormals) {

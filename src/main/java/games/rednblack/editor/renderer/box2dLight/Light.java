@@ -470,9 +470,10 @@ public abstract class Light implements Disposable {
 
 	final RayCastCallback ray = new RayCastCallback() {
 		@Override
-		final public float reportRayFixture(Fixture fixture, Vector2 point,
-				Vector2 normal, float fraction) {
-			
+		final public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+			if (fixture.isSensor())
+				return -1;
+
 			if ((globalFilterA != null) && !globalContactFilter(fixture))
 				return -1;
 			
@@ -481,9 +482,7 @@ public abstract class Light implements Disposable {
 			
 			if (ignoreBody && fixture.getBody() == getBody())
 				return -1;
-			
-			// if (fixture.isSensor())
-			// return -1;
+
 			mx[m_index] = point.x;
 			my[m_index] = point.y;
 			f[m_index] = fraction;
