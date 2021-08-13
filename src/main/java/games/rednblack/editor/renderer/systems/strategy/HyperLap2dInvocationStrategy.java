@@ -4,12 +4,13 @@ import com.artemis.BaseSystem;
 import com.artemis.SystemInvocationStrategy;
 import com.artemis.utils.Bag;
 import com.artemis.utils.BitVector;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
-    private final Bag<BaseSystem> renderSystems = new Bag<>(BaseSystem.class);
-    private final Bag<BaseSystem> logicSystems = new Bag<>(BaseSystem.class);
-    private final Bag<InterpolationSystem> interpolationSystems = new Bag<>(InterpolationSystem.class);
+    private final Bag<BaseSystem> renderSystems = new Bag<BaseSystem>(BaseSystem.class);
+    private final Bag<BaseSystem> logicSystems = new Bag<BaseSystem>(BaseSystem.class);
+    private final Bag<InterpolationSystem> interpolationSystems = new Bag<InterpolationSystem>(InterpolationSystem.class);
 
     private final BitVector disabledRenderSystems = new BitVector();
     private final BitVector disabledLogicSystems = new BitVector();
@@ -25,14 +26,13 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         INV_TIME_STEP_NANO = 1f / TIME_STEP_NANO;
     }
 
-    private long currentTime = System.nanoTime();
+    private long currentTime = TimeUtils.nanoTime();
     private long accumulator = 0;
 
     @Override
     protected void initialize() {
-        BaseSystem[] rawSystems = systems.getData();
         for (int i = 0; i < systems.size(); i++) {
-            BaseSystem rawSystem = rawSystems[i];
+            BaseSystem rawSystem = systems.get(i);
             if (rawSystem instanceof RendererSystem)
                 renderSystems.add(rawSystem);
             else
@@ -44,7 +44,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
     @Override
     protected void process() {
-        long newTime = System.nanoTime();
+        long newTime = TimeUtils.nanoTime();
         long frameTime = newTime - currentTime;
         currentTime = newTime;
 
@@ -54,37 +54,34 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
         while (accumulator >= TIME_STEP_NANO) {
             //Process logic systems
-            BaseSystem[] systemsData = logicSystems.getData();
             for (int i = 0, s = logicSystems.size(); s > i; i++) {
                 if (disabledLogicSystems.get(i))
                     continue;
 
                 updateEntityStates();
-                systemsData[i].process();
+                logicSystems.get(i).process();
             }
 
             accumulator -= TIME_STEP_NANO;
         }
 
         //interpolate accumulator data
-        InterpolationSystem[] systems = interpolationSystems.getData();
         for (int i = 0, s = interpolationSystems.size(); s > i; i++) {
             if (disabledInterpolationSystems.get(i))
                 continue;
 
             updateEntityStates();
             float alpha = accumulator * INV_TIME_STEP_NANO;
-            systems[i].interpolate(alpha);
+            interpolationSystems.get(i).interpolate(alpha);
         }
 
         //process rendering systems
-        BaseSystem[] systemsData = renderSystems.getData();
         for (int i = 0, s = renderSystems.size(); s > i; i++) {
             if (disabledRenderSystems.get(i))
                 continue;
 
             updateEntityStates();
-            systemsData[i].process();
+            renderSystems.get(i).process();
         }
 
         updateEntityStates();
@@ -94,7 +91,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     public boolean isEnabled(BaseSystem target) {
         Bag<BaseSystem> checkSystems = (target instanceof RendererSystem) ? renderSystems : logicSystems;
         BitVector checkDisabled = (target instanceof RendererSystem) ? disabledRenderSystems : disabledLogicSystems;
-        Class targetClass = target.getClass();
+        Class<? extends BaseSystem> targetClass = target.getClass();
         for (int i = 0; i < checkSystems.size(); i++) {
             if (targetClass == checkSystems.get(i).getClass())
                 return !checkDisabled.get(i);
@@ -106,7 +103,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     public void setEnabled(BaseSystem target, boolean value) {
         Bag<BaseSystem> checkSystems = (target instanceof RendererSystem) ? renderSystems : logicSystems;
         BitVector checkDisabled = (target instanceof RendererSystem) ? disabledRenderSystems : disabledLogicSystems;
-        Class targetClass = target.getClass();
+        Class<? extends BaseSystem> targetClass = target.getClass();
         for (int i = 0; i < checkSystems.size(); i++) {
             if (targetClass == checkSystems.get(i).getClass()) {
                 checkDisabled.set(i, !value);
