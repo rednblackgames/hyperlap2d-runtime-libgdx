@@ -25,7 +25,6 @@ import games.rednblack.editor.renderer.systems.render.logic.Drawable;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
 
-import java.util.Map;
 import java.util.Stack;
 
 @All(ViewPortComponent.class)
@@ -480,7 +479,6 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                 if ((error = gl.glGetError()) != GL20.GL_NO_ERROR) {
                     Gdx.app.log("opengl", "Error: " + error);
                     Gdx.app.log("opengl", shaderComponent.getShader().getLog());
-                    //throw new RuntimeException( ": glError " + error);
                 }
             }
         }
@@ -502,10 +500,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         if (shaderComponentMapper.has(entity)) {
             ShaderComponent shaderComponent = shaderComponentMapper.get(entity);
 
-            boolean contains = screenReadingEntities.contains(entity, true);
+            boolean contains = screenReadingEntities.contains(entity, false);
             if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN) {
                 if (contains)
-                    screenReadingEntities.removeValue(entity, true);
+                    screenReadingEntities.removeValue(entity, false);
                 return true;
             } else if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
                 if (!contains)
@@ -518,7 +516,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     }
 
     public void removeSpecialEntity(int entity) {
-        screenReadingEntities.removeValue(entity, true);
+        screenReadingEntities.removeValue(entity, false);
     }
 
     public void setRayHandler(RayHandler rayHandler) {
