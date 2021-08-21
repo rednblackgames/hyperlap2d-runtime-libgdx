@@ -34,10 +34,7 @@ public class EntityFactory {
 
     protected ComponentMapper<MainItemComponent> mapper;
 
-    protected ComponentFactory compositeComponentFactory, lightComponentFactory, particleEffectComponentFactory,
-            simpleImageComponentFactory, spriteComponentFactory, labelComponentFactory,
-            ninePatchComponentFactory, colorPrimitiveFactory;
-
+    protected final HashMap<Integer, ComponentFactory> factoriesMap = new HashMap<>();
     private final HashMap<Integer, ComponentFactory> externalFactories = new HashMap<>();
 
     // TODO: Do we still need it? Like, in Artemis all enties are already identified by a Unique ID
@@ -63,26 +60,19 @@ public class EntityFactory {
         this.world = world;
         this.rm = rm;
 
-        compositeComponentFactory = new CompositeComponentFactory(engine, rayHandler, world, rm);
-        lightComponentFactory = new LightComponentFactory(engine, rayHandler, world, rm);
-        particleEffectComponentFactory = new ParticleEffectComponentFactory(engine, rayHandler, world, rm);
-        simpleImageComponentFactory = new SimpleImageComponentFactory(engine, rayHandler, world, rm);
-        spriteComponentFactory = new SpriteComponentFactory(engine, rayHandler, world, rm);
-        labelComponentFactory = new LabelComponentFactory(engine, rayHandler, world, rm);
-        ninePatchComponentFactory = new NinePatchComponentFactory(engine, rayHandler, world, rm);
-        colorPrimitiveFactory = new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm);
+        factoriesMap.put(COMPOSITE_TYPE, new CompositeComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(LIGHT_TYPE, new LightComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(PARTICLE_TYPE, new ParticleEffectComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(IMAGE_TYPE, new SimpleImageComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(SPRITE_TYPE, new SpriteComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(LABEL_TYPE, new LabelComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(NINE_PATCH, new NinePatchComponentFactory(engine, rayHandler, world, rm));
+        factoriesMap.put(COLOR_PRIMITIVE, new ColorPrimitiveComponentFactory(engine, rayHandler, world, rm));
 
         for (ComponentFactory factory : externalFactories.values()) {
             factory.injectDependencies(engine, rayHandler, world, rm);
         }
-    }
-
-    public ComponentFactory getCompositeComponentFactory() {
-        return compositeComponentFactory;
-    }
-
-    public SpriteComponentFactory getSpriteComponentFactory() {
-        return (SpriteComponentFactory) spriteComponentFactory;
+        factoriesMap.putAll(externalFactories);
     }
 
     public void addExternalFactory(IExternalItemType itemType) {
@@ -90,25 +80,25 @@ public class EntityFactory {
     }
 
     public int createEntity(int root, SimpleImageVO vo) {
-        int entity = simpleImageComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(IMAGE_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
 
     public int createEntity(int root, Image9patchVO vo) {
-        int entity = ninePatchComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(NINE_PATCH).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
 
     public int createEntity(int root, LabelVO vo) {
-        int entity = labelComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(LABEL_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
 
     public int createEntity(int root, ParticleEffectVO vo) {
-        int entity = particleEffectComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(PARTICLE_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
@@ -124,7 +114,7 @@ public class EntityFactory {
     }
 
     public int createEntity(int root, LightVO vo) {
-        int entity = lightComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(LIGHT_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
@@ -140,19 +130,19 @@ public class EntityFactory {
     }
 
     public int createEntity(int root, SpriteAnimationVO vo) {
-        int entity = spriteComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(SPRITE_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
 
     public int createEntity(int root, CompositeItemVO vo) {
-        int entity = compositeComponentFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(COMPOSITE_TYPE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
 
     public int createEntity(int root, ColorPrimitiveVO vo) {
-        int entity = colorPrimitiveFactory.createSpecialisedEntity(root, vo);
+        int entity = factoriesMap.get(COLOR_PRIMITIVE).createSpecialisedEntity(root, vo);
         postProcessEntity(entity);
         return entity;
     }
@@ -164,7 +154,7 @@ public class EntityFactory {
         vo.automaticResize = false;
 
 
-        int entity = compositeComponentFactory.createSpecialisedEntity(-1, vo);
+        int entity = factoriesMap.get(COMPOSITE_TYPE).createSpecialisedEntity(-1, vo);
 
         // TODO; remove this
         EntityEdit edit = engine.edit(entity);

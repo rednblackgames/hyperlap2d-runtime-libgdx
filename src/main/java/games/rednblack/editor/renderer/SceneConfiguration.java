@@ -42,7 +42,6 @@ public class SceneConfiguration {
         addSystem(new PhysicsSystem());
         addSystem(new CompositeSystem());
         addSystem(new LabelSystem());
-        addSystem(new TypingLabelSystem());
         addSystem(new ScriptSystem());
         addSystem(new ActionSystem());
         addSystem(new BoundingBoxSystem());

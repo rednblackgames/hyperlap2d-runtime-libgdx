@@ -8,19 +8,15 @@ import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class LabelDrawableLogic implements Drawable {
 
 	protected ComponentMapper<LabelComponent> labelComponentMapper;
-	protected ComponentMapper<TypingLabelComponent> typingLabelComponentMapper;
 	protected ComponentMapper<TintComponent> tintComponentMapper;
 	protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
 	protected ComponentMapper<TransformComponent> transformMapper;
 	protected ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
-
-	protected com.artemis.World engine;
 
 	private final Color tmpColor = new Color();
 
@@ -30,7 +26,6 @@ public class LabelDrawableLogic implements Drawable {
 		LabelComponent labelComponent = labelComponentMapper.get(entity);
 		DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
 		TintComponent tint = tintComponentMapper.get(entity);
-		TypingLabelComponent typingLabelComponent = typingLabelComponentMapper.get(entity);
 
 		tmpColor.set(tint.color);
 
@@ -45,13 +40,8 @@ public class LabelDrawableLogic implements Drawable {
 		TransformMathUtils.computeTransform(entityTransformComponent).mulLeft(batch.getTransformMatrix());
 		TransformMathUtils.applyTransform(batch, entityTransformComponent);
 
-		if (typingLabelComponent == null) {
-			labelComponent.cache.tint(tmpColor);
-			labelComponent.cache.draw(batch);
-		} else if (typingLabelComponent.typingLabel != null) {
-			typingLabelComponent.typingLabel.setColor(tmpColor);
-			typingLabelComponent.typingLabel.draw(batch, 1);
-		}
+		labelComponent.cache.tint(tmpColor);
+		labelComponent.cache.draw(batch);
 
 		TransformMathUtils.resetTransform(batch, entityTransformComponent);
 	}

@@ -2,7 +2,6 @@ package games.rednblack.editor.renderer.data;
 
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LabelVO extends MainItemVO {
@@ -39,7 +38,6 @@ public class LabelVO extends MainItemVO {
 		super.loadFromEntity(entity, engine);
 		LabelComponent labelComponent = ComponentRetriever.get(entity, LabelComponent.class, engine);
 		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity,DimensionsComponent.class, engine);
-		TypingLabelComponent typingLabelComponent = ComponentRetriever.get(entity, TypingLabelComponent.class, engine);
 
 		text = labelComponent.getText().toString();
 		style = labelComponent.fontName;
@@ -47,7 +45,7 @@ public class LabelVO extends MainItemVO {
 		align = labelComponent.labelAlign;
 		wrap = labelComponent.wrap;
 
-		isTyping = typingLabelComponent != null;
+		isTyping = labelComponent.typingEffect;
 
 		width = dimensionsComponent.width;
 		height = dimensionsComponent.height;

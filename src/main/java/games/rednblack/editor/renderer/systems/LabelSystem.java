@@ -2,18 +2,14 @@ package games.rednblack.editor.renderer.systems;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
-import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Align;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 
 @All(LabelComponent.class)
-@Exclude(TypingLabelComponent.class)
 public class LabelSystem extends IteratingSystem {
 	protected ComponentMapper<LabelComponent> labelComponentMapper;
 	protected ComponentMapper<DimensionsComponent> dimensionComponentMapper;
@@ -21,6 +17,8 @@ public class LabelSystem extends IteratingSystem {
 	@Override
 	protected void process(int entity) {
 		LabelComponent labelComponent = labelComponentMapper.get(entity);
+		if (labelComponent.typingEffect)
+			return;
 		DimensionsComponent dimensionsComponent = dimensionComponentMapper.get(entity);
 		
 		BitmapFont font = labelComponent.cache.getFont();

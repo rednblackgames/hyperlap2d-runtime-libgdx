@@ -6,7 +6,7 @@ import games.rednblack.editor.renderer.factory.EntityFactory;
 
 public class DrawableLogicMapper {
 
-    private final IntMap<Drawable> logicClassMap = new IntMap();
+    private final IntMap<Drawable> logicClassMap = new IntMap<>();
 
     public DrawableLogicMapper() {
         logicClassMap.put(EntityFactory.IMAGE_TYPE, new TextureRegionDrawLogic());

@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
@@ -75,7 +74,6 @@ public class ComponentRetriever {
         mappers.put(ParticleComponent.class, ComponentMapper.getFor(ParticleComponent.class, engine));
 
         mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class, engine));
-        mappers.put(TypingLabelComponent.class, ComponentMapper.getFor(TypingLabelComponent.class, engine));
 
         mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class, engine));
         mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class, engine));

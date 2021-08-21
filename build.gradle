@@ -15,8 +15,6 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
     implementation "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
 
-    implementation "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
-
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 

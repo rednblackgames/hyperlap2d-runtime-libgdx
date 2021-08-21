@@ -21,6 +21,8 @@ public class LabelComponent extends PooledComponent {
 	public float fontScaleX = 1f;
 	public float fontScaleY = 1f;
 
+	public boolean typingEffect = false;
+
 	public LabelComponent() {
 
 	}
@@ -139,5 +141,7 @@ public class LabelComponent extends PooledComponent {
 		wrap = false;
 		fontScaleX = 1f;
 		fontScaleY = 1f;
+
+		typingEffect = false;
 	}
 }

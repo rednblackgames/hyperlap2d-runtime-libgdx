@@ -9,7 +9,6 @@ import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
-import games.rednblack.editor.renderer.components.label.TypingLabelComponent;
 import games.rednblack.editor.renderer.data.LabelVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
@@ -20,7 +19,6 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 public class LabelComponentFactory extends ComponentFactory {
 
     protected ComponentMapper<LabelComponent> labelCM;
-    protected ComponentMapper<TypingLabelComponent> typingLabelCM;
 
     private static int labelDefaultSize = 12;
 
@@ -31,7 +29,6 @@ public class LabelComponentFactory extends ComponentFactory {
         transmuter = new EntityTransmuterFactory(engine)
                 .add(ParentNodeComponent.class)
                 .add(LabelComponent.class)
-                .add(TypingLabelComponent.class)
                 .build();
     }
 
@@ -43,7 +40,6 @@ public class LabelComponentFactory extends ComponentFactory {
         adjustNodeHierarchy(root, entity);
 
         initializeLabelComponent(labelCM.get(entity), (LabelVO) vo);
-        checkTypingLabelComponent(entity, (LabelVO) vo);
 
         return entity;
     }
@@ -68,10 +64,6 @@ public class LabelComponentFactory extends ComponentFactory {
         component.setFontScale(multiplier / projectInfoVO.pixelToWorld);
     }
 
-    protected void checkTypingLabelComponent(int entity, LabelVO vo) {
-        if (!vo.isTyping) typingLabelCM.remove(entity);
-    }
-
 
     public static LabelStyle generateStyle(IResourceRetriever rManager, String fontName, int size) {
 
@@ -80,5 +72,4 @@ public class LabelComponentFactory extends ComponentFactory {
         }
         return new LabelStyle(rManager.getBitmapFont(fontName, size), null);
     }
-
 }
