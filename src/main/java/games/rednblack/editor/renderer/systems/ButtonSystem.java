@@ -21,6 +21,10 @@ public class ButtonSystem extends IteratingSystem {
     protected ComponentMapper<MainItemComponent> mainItemComponentMapper;
     protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
     protected ComponentMapper<ZIndexComponent> zIndexComponentMapper;
+    protected ComponentMapper<TransformComponent> transformMapper;
+    protected ComponentMapper<ParentNodeComponent> parentMapper;
+
+    private final Vector2 tmp = new Vector2();
 
     @Override
     protected void process(int entity) {
@@ -68,11 +72,11 @@ public class ButtonSystem extends IteratingSystem {
         ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
         if (Gdx.input.isTouched()) {
             DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
-            Vector2 localCoordinates = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            tmp.set(Gdx.input.getX(), Gdx.input.getY());
 
-            TransformMathUtils.globalToLocalCoordinates(entity, localCoordinates, getWorld());
+            TransformMathUtils.globalToLocalCoordinates(entity, tmp, transformMapper, parentMapper, viewPortComponentMapper);
 
-            if (dimensionsComponent.hit(localCoordinates.x, localCoordinates.y)) {
+            if (dimensionsComponent.hit(tmp.x, tmp.y)) {
                 buttonComponent.setTouchState(true);
                 return true;
             }

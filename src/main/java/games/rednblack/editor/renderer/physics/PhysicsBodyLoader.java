@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.physics;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -53,7 +55,9 @@ public class PhysicsBodyLoader {
 
         BodyDef bodyDef = new BodyDef();
         tmp.set(transformComponent.originX, transformComponent.originY);
-        TransformMathUtils.localToSceneCoordinates(entity, tmp, engine);
+        ComponentMapper<TransformComponent> transformMapper = (ComponentMapper<TransformComponent>) ComponentMapper.getFor(TransformComponent.class, engine);
+        ComponentMapper<ParentNodeComponent> parentNodeMapper = (ComponentMapper<ParentNodeComponent>) ComponentMapper.getFor(ParentNodeComponent.class, engine);
+        TransformMathUtils.localToSceneCoordinates(entity, tmp, transformMapper, parentNodeMapper);
         bodyDef.position.set(tmp.x, tmp.y);
         bodyDef.angle = transformComponent.rotation * MathUtils.degreesToRadians;
 

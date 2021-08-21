@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.utils;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.*;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
@@ -13,22 +14,22 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the scene's coordinates to the entity's local coordinate system.
      */
-    public static Vector2 sceneToLocalCoordinates(int entity, Vector2 sceneCoords, com.artemis.World engine) {
-        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
+    public static Vector2 sceneToLocalCoordinates(int entity, Vector2 sceneCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        ParentNodeComponent parentNodeComponent = parentMapper.get(entity);
         int parentEntity = -1;
         if (parentNodeComponent != null) {
             parentEntity = parentNodeComponent.parentEntity;
         }
-        if (parentEntity != -1) sceneToLocalCoordinates(parentEntity, sceneCoords, engine);
-        parentToLocalCoordinates(entity, sceneCoords, engine);
+        if (parentEntity != -1) sceneToLocalCoordinates(parentEntity, sceneCoords, transformMapper, parentMapper);
+        parentToLocalCoordinates(entity, sceneCoords, transformMapper);
         return sceneCoords;
     }
 
-    public static Vector2 globalToLocalCoordinates(int entity, Vector2 sceneCoords, com.artemis.World engine) {
-        ParentNodeComponent parentNodeComponent = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
+    public static Vector2 globalToLocalCoordinates(int entity, Vector2 sceneCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper, ComponentMapper<ViewPortComponent> viewportMapper) {
+        ParentNodeComponent parentNodeComponent = parentMapper.get(entity);
         int parentEntity = -1;
         if (parentNodeComponent != null) {
-            ViewPortComponent viewPortComponent = ComponentRetriever.get(parentNodeComponent.parentEntity, ViewPortComponent.class, engine);
+            ViewPortComponent viewPortComponent = viewportMapper.get(parentNodeComponent.parentEntity);
             if (viewPortComponent == null) {
                 parentEntity = parentNodeComponent.parentEntity;
             } else {
@@ -36,9 +37,9 @@ public class TransformMathUtils {
             }
         }
         if (parentEntity != -1) {
-            globalToLocalCoordinates(parentEntity, sceneCoords, engine);
+            globalToLocalCoordinates(parentEntity, sceneCoords, transformMapper, parentMapper, viewportMapper);
         }
-        parentToLocalCoordinates(entity, sceneCoords, engine);
+        parentToLocalCoordinates(entity, sceneCoords, transformMapper);
         return sceneCoords;
     }
 
@@ -46,8 +47,8 @@ public class TransformMathUtils {
     /**
      * Converts the coordinates given in the parent's coordinate system to this entity's coordinate system.
      */
-    public static Vector2 parentToLocalCoordinates(int childEntity, Vector2 parentCoords, com.artemis.World engine) {
-        TransformComponent transform = ComponentRetriever.get(childEntity, TransformComponent.class, engine);
+    public static Vector2 parentToLocalCoordinates(int childEntity, Vector2 parentCoords, ComponentMapper<TransformComponent> transformMapper) {
+        TransformComponent transform = transformMapper.get(childEntity);
 
         final float rotation = transform.rotation;
         final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
@@ -82,20 +83,20 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point array in the entity's coordinates to be in the scene's coordinates.
      */
-    public static Vector2[] localToSceneCoordinates(int entity, Vector2[] localCoords, com.artemis.World engine) {
-        return localToAscendantCoordinates(-1, entity, localCoords, engine);
+    public static Vector2[] localToSceneCoordinates(int entity, Vector2[] localCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        return localToAscendantCoordinates(-1, entity, localCoords, transformMapper, parentMapper);
     }
 
     /**
      * Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent.
      */
-    public static Vector2[] localToAscendantCoordinates(int ascendant, int entity, Vector2[] localCoords, com.artemis.World engine) {
+    public static Vector2[] localToAscendantCoordinates(int ascendant, int entity, Vector2[] localCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
         while (entity != -1) {
             for (Vector2 localCoord : localCoords) {
-                localToParentCoordinates(entity, localCoord, engine);
+                localToParentCoordinates(entity, localCoord, transformMapper);
             }
 
-            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
+            ParentNodeComponent parentNode = parentMapper.get(entity);
             if (parentNode == null) {
                 break;
             }
@@ -108,17 +109,17 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the entity's coordinates to be in the scene's coordinates.
      */
-    public static Vector2 localToSceneCoordinates(int entity, Vector2 localCoords, com.artemis.World engine) {
-        return localToAscendantCoordinates(-1, entity, localCoords, engine);
+    public static Vector2 localToSceneCoordinates(int entity, Vector2 localCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        return localToAscendantCoordinates(-1, entity, localCoords, transformMapper, parentMapper);
     }
 
     /**
      * Converts coordinates for this entity to those of a parent entity. The ascendant does not need to be a direct parent.
      */
-    public static Vector2 localToAscendantCoordinates(int ascendant, int entity, Vector2 localCoords, com.artemis.World engine) {
+    public static Vector2 localToAscendantCoordinates(int ascendant, int entity, Vector2 localCoords, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
         while (entity != -1) {
-            localToParentCoordinates(entity, localCoords, engine);
-            ParentNodeComponent parentNode = ComponentRetriever.get(entity, ParentNodeComponent.class, engine);
+            localToParentCoordinates(entity, localCoords, transformMapper);
+            ParentNodeComponent parentNode = parentMapper.get(entity);
             if (parentNode == null) {
                 break;
             }
@@ -131,8 +132,8 @@ public class TransformMathUtils {
     /**
      * Transforms the specified point in the actor's coordinates to be in the parent's coordinates.
      */
-    public static Vector2 localToParentCoordinates(int entity, Vector2 localCoords, com.artemis.World engine) {
-        TransformComponent transform = ComponentRetriever.get(entity, TransformComponent.class, engine);
+    public static Vector2 localToParentCoordinates(int entity, Vector2 localCoords, ComponentMapper<TransformComponent> transformMapper) {
+        TransformComponent transform = transformMapper.get(entity);
 
         final float rotation = -transform.rotation;
         final float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);

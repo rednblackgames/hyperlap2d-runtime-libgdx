@@ -4,7 +4,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
@@ -53,7 +52,7 @@ public class BoundingBoxSystem extends IteratingSystem {
             b.points[2].set(d.width, d.height);
             b.points[3].set(0, d.height);
 
-            TransformMathUtils.localToSceneCoordinates(entity, b.points, getWorld());
+            TransformMathUtils.localToSceneCoordinates(entity, b.points, transformMapper, parentNodeMapper);
 
             b.checksum = checksum;
             b.createBoundingRect();
