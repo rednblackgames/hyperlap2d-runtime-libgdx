@@ -10,6 +10,7 @@ public class LightBodyDataVO {
     public int rays;
     public float distance;
     public float intensity = 1f;
+    public float height = 0;
     public int rayDirection;
     public float softnessLength;
     public boolean isStatic;
@@ -33,6 +34,7 @@ public class LightBodyDataVO {
         isSoft = vo.isSoft;
         isActive = vo.isActive;
         intensity = vo.intensity;
+        height = vo.height;
     }
 
     public void loadFromComponent(LightBodyComponent lightComponent) {
@@ -47,6 +49,7 @@ public class LightBodyDataVO {
         isSoft = lightComponent.isSoft;
         isActive = lightComponent.isActive;
         intensity = lightComponent.intensity;
+        height = lightComponent.height;
     }
 
     @Override
@@ -56,12 +59,13 @@ public class LightBodyDataVO {
         LightBodyDataVO that = (LightBodyDataVO) o;
         return rays == that.rays && Float.compare(that.distance, distance) == 0 &&
                 Float.compare(that.intensity, intensity) == 0 &&
+                Float.compare(that.height, height) == 0 &&
                 rayDirection == that.rayDirection && Float.compare(that.softnessLength, softnessLength) == 0 && isStatic == that.isStatic && isXRay == that.isXRay && isSoft == that.isSoft && isActive == that.isActive && Arrays.equals(color, that.color);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(rays, distance, rayDirection, softnessLength, isStatic, isXRay, isSoft, isActive, intensity);
+        int result = Objects.hash(rays, distance, rayDirection, softnessLength, height, isStatic, isXRay, isSoft, isActive, intensity);
         result = 31 * result + Arrays.hashCode(color);
         return result;
     }

@@ -26,6 +26,7 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
     public float distance = 30;
     public int rayDirection = 1;
     public float softnessLength = 1f;
+    public float height = 0f;
     public boolean isStatic = false;
     public boolean isXRay = false;
     public boolean isSoft = true;
@@ -58,6 +59,7 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
         distance = 30;
         rayDirection = 1;
         softnessLength = 1f;
+        height = 0f;
         isStatic = false;
         isXRay = false;
         isSoft = true;

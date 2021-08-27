@@ -35,11 +35,11 @@ public class SceneConfiguration {
     private int expectedEntityCount = 128;
 
     public SceneConfiguration() {
-        addSystem(new ParticleSystem());
-        addSystem(new LightSystem());
-        addSystem(new SpriteAnimationSystem());
         addSystem(new LayerSystem());
+        addSystem(new ParticleSystem());
+        addSystem(new SpriteAnimationSystem());
         addSystem(new PhysicsSystem());
+        addSystem(new LightSystem());
         addSystem(new CompositeSystem());
         addSystem(new LabelSystem());
         addSystem(new ScriptSystem());

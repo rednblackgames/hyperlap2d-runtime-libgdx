@@ -256,6 +256,7 @@ public abstract class ComponentFactory {
         component.intensity = vo.light.intensity;
         component.rayDirection = vo.light.rayDirection;
         component.softnessLength = vo.light.softnessLength;
+        component.height = vo.light.height;
         component.isXRay = vo.light.isXRay;
         component.isStatic = vo.light.isStatic;
         component.isSoft = vo.light.isSoft;

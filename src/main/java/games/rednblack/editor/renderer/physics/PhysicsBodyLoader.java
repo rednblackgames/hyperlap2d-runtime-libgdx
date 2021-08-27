@@ -81,7 +81,7 @@ public class PhysicsBodyLoader {
         Body body = world.createBody(bodyDef);
 
         if (ComponentRetriever.get(entity, LightBodyComponent.class, engine) != null) {
-            //createChainShape(body, fixtureDef, minPolygonData);
+            //createChainShape(body, fixtureDef, transformComponent, minPolygonData);
         } else {
             createPolygonShape(body, fixtureDef, transformComponent, physicsComponent, minPolygonData);
         }
@@ -150,8 +150,19 @@ public class PhysicsBodyLoader {
         }
     }
 
-    private void createChainShape(Body body, FixtureDef fixtureDef, Vector2[][] minPolygonData) {
+    private void createChainShape(Body body, FixtureDef fixtureDef, TransformComponent transformComponent, Vector2[][] minPolygonData) {
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
         Vector2[] vertices = PolygonUtils.mergeTouchingPolygonsToOne(minPolygonData);
+        for (int i = 0; i < vertices.length; i++) {
+            Vector2 point = vertices[i];
+
+            point.x -= transformComponent.originX;
+            point.y -= transformComponent.originY;
+            point.x *= scaleX;
+            point.y *= scaleY;
+        }
         ChainShape chainShape = new ChainShape();
         chainShape.createChain(vertices);
 
