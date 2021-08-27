@@ -244,7 +244,7 @@ public class CompositeVO {
     public FontSizePair[] getRecursiveFontList() {
         HashSet<FontSizePair> list = new HashSet<FontSizePair>();
         for (LabelVO sLabel : sLabels) {
-            list.add(new FontSizePair(sLabel.style.isEmpty() ? "arial" : sLabel.style, sLabel.size == 0 ? 12 : sLabel.size));
+            list.add(new FontSizePair(sLabel.style.isEmpty() ? "arial" : sLabel.style, sLabel.size == 0 ? 12 : sLabel.size, sLabel.monoSpace));
         }
         for (CompositeItemVO sComposite : sComposites) {
             FontSizePair[] additionalList = sComposite.composite.getRecursiveFontList();

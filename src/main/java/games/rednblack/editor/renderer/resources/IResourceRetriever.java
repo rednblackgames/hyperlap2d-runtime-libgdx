@@ -22,7 +22,7 @@ public interface IResourceRetriever {
     FileHandle getSkeletonJSON(String name);
     FileHandle getTalosVFX(String name);
     Array<TextureAtlas.AtlasRegion> getSpriteAnimation(String name);
-    BitmapFont getBitmapFont(String name, int size);
+    BitmapFont getBitmapFont(String name, int size, boolean mono);
 
     SceneVO getSceneVO(String sceneName);
     ProjectInfoVO getProjectVO();

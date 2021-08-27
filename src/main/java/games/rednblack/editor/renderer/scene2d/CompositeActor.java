@@ -139,7 +139,7 @@ public class CompositeActor extends Group {
 
     protected void buildLabels(ArrayList<LabelVO> labels, BuiltItemHandler itemHandler) {
         for(int i = 0; i < labels.size(); i++) {
-            Label.LabelStyle style = new Label.LabelStyle(ir.getBitmapFont(labels.get(i).style, labels.get(i).size), Color.WHITE);
+            Label.LabelStyle style = new Label.LabelStyle(ir.getBitmapFont(labels.get(i).style, labels.get(i).size, labels.get(i).monoSpace), Color.WHITE);
             Label label = new Label(labels.get(i).text, style);
             label.setAlignment(labels.get(i).align);
             label.setWidth(labels.get(i).width * pixelsPerWU / resMultiplier);

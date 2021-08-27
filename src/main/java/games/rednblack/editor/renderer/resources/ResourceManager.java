@@ -360,9 +360,12 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = Math.round(pair.fontSize * resMultiplier);
+        parameter.mono = pair.monoSpace;
         BitmapFont font = generator.generateFont(parameter);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font.setUseIntegerPositions(false);
+        if (pair.monoSpace)
+            font.setFixedWidthGlyphs(FreeTypeFontGenerator.DEFAULT_CHARS);
         bitmapFonts.put(pair, font);
     }
 
@@ -446,8 +449,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public BitmapFont getBitmapFont(String name, int size) {
-        return bitmapFonts.get(new FontSizePair(name, size));
+    public BitmapFont getBitmapFont(String name, int size, boolean mono) {
+        return bitmapFonts.get(new FontSizePair(name, size, mono));
     }
 
     @Override

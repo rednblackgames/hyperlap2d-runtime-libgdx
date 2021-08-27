@@ -18,6 +18,7 @@ public class LabelComponent extends PooledComponent {
 	public int labelAlign = Align.center;
 	public int lineAlign = Align.center;
 	public boolean wrap;
+	public boolean mono;
 	public float fontScaleX = 1f;
 	public float fontScaleY = 1f;
 
@@ -139,6 +140,7 @@ public class LabelComponent extends PooledComponent {
 		labelAlign = Align.center;
 		lineAlign = Align.center;
 		wrap = false;
+		mono = false;
 		fontScaleX = 1f;
 		fontScaleY = 1f;
 

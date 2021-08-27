@@ -16,6 +16,7 @@ public class LabelVO extends MainItemVO {
 
     public boolean wrap = false;
     public boolean isTyping = false;
+	public boolean monoSpace = false;
 	
 	public LabelVO() {
 		super();
@@ -23,14 +24,15 @@ public class LabelVO extends MainItemVO {
 	
 	public LabelVO(LabelVO vo) {
 		super(vo);
-		text 	 = new String(vo.text);
-		style 	 = new String(vo.style);
-		size 	 = vo.size;
-		align 	 = vo.align;
-        width 	 = vo.width;
-        height 	 = vo.height;
-        wrap     = vo.wrap;
-		isTyping = vo.isTyping;
+		text 	  = new String(vo.text);
+		style 	  = new String(vo.style);
+		size 	  = vo.size;
+		align 	  = vo.align;
+        width 	  = vo.width;
+        height 	  = vo.height;
+        wrap      = vo.wrap;
+		isTyping  = vo.isTyping;
+		monoSpace = vo.monoSpace;
 	}
 
 	@Override
@@ -44,6 +46,7 @@ public class LabelVO extends MainItemVO {
 		size = labelComponent.fontSize;
 		align = labelComponent.labelAlign;
 		wrap = labelComponent.wrap;
+		monoSpace = labelComponent.mono;
 
 		isTyping = labelComponent.typingEffect;
 
