@@ -26,6 +26,7 @@ import games.rednblack.editor.renderer.factory.ActionFactory;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.IScript;
+import games.rednblack.editor.renderer.systems.CullingSystem;
 import games.rednblack.editor.renderer.systems.PhysicsSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
@@ -237,6 +238,9 @@ public class SceneLoader {
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
         renderer.setPixelsPerWU(pixelsPerWU);
+        CullingSystem cullingSystem = engine.getSystem(CullingSystem.class);
+        if (cullingSystem != null)
+            cullingSystem.setPpwu(pixelsPerWU);
 
         sceneVO = rm.getSceneVO(sceneName);
         world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));

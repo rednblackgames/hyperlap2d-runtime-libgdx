@@ -24,6 +24,7 @@ public class CullingSystem extends IteratingSystem {
     OrthographicCamera camera;
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();
+    float ppwu = 1;
 
     @Override
     protected void process(int entity) {
@@ -64,8 +65,14 @@ public class CullingSystem extends IteratingSystem {
         MainItemComponent m = mainItemMapper.get(entity);
 
         m.culled = !view.overlaps(b.rectangle);
-        if (debug)
+        if (debug) {
             shapeRenderer.rect(b.rectangle.x, b.rectangle.y, b.rectangle.width, b.rectangle.height);
+
+            shapeRenderer.circle(b.points[0].x, b.points[0].y, 5 / ppwu, 10);
+            shapeRenderer.circle(b.points[1].x, b.points[1].y, 5 / ppwu, 10);
+            shapeRenderer.circle(b.points[2].x, b.points[2].y, 5 / ppwu, 10);
+            shapeRenderer.circle(b.points[3].x, b.points[3].y, 5 / ppwu, 10);
+        }
 
         if (!m.culled) {
             NodeComponent node = nodeMapper.get(entity);
@@ -83,5 +90,9 @@ public class CullingSystem extends IteratingSystem {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void setPpwu(float ppwu) {
+        this.ppwu = ppwu;
     }
 }
