@@ -265,12 +265,18 @@ public class SceneLoader {
         return sceneVO;
     }
 
-    public int loadFromLibrary(String libraryName) {
+    public int loadFromLibrary(String libraryName, String layerName, float x, float y) {
         ProjectInfoVO projectInfoVO = getRm().getProjectVO();
         CompositeItemVO compositeItemVO = projectInfoVO.libraryItems.get(libraryName);
 
         if (compositeItemVO != null) {
-            return entityFactory.createEntity(-1, compositeItemVO);
+            compositeItemVO.layerName = layerName;
+            compositeItemVO.x = x;
+            compositeItemVO.y = y;
+
+            int compositeEntity = entityFactory.createEntity(getRoot(), compositeItemVO);
+            getEntityFactory().initAllChildren(compositeEntity, compositeItemVO.composite);
+            return compositeEntity;
         }
 
         return -1;
