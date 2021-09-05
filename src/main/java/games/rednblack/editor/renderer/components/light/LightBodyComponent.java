@@ -18,7 +18,6 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
     protected ComponentMapper<PolygonComponent> polygonCM;
 
-
     protected boolean needsRefresh = false;
 
     public float[] color = new float[]{1f, 1f, 1f, 1f};

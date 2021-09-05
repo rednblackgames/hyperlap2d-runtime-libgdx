@@ -63,7 +63,7 @@ public class TextureRegionComponent extends RefreshableComponent {
     protected void refresh(int entity) {
         PolygonComponent polygonComponent = polygonCM.get(entity);
 
-        if (isPolygon && polygonComponent != null) {
+        if (isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
             DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
             dimensionsComponent.setPolygon(polygonComponent);
             setPolygonSprite(polygonComponent);

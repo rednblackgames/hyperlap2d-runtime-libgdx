@@ -87,7 +87,7 @@ public class PhysicsBodyLoader {
         }
 
         if (physicsComponent.mass != 0) {
-            MassData massData = new MassData();
+            MassData massData = body.getMassData();
             massData.mass = physicsComponent.mass;
             massData.center.set(physicsComponent.centerOfMass);
             massData.I = physicsComponent.rotationalInertia;

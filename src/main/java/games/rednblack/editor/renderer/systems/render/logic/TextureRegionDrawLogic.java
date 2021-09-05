@@ -4,15 +4,13 @@ import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
-import games.rednblack.editor.renderer.utils.value.DynamicValue;
 
-public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
+public class TextureRegionDrawLogic implements Drawable {
 
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
     protected ComponentMapper<NormalMapRendering> normalMapRenderingMapper;
@@ -23,11 +21,8 @@ public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
 
     private final Color batchColor = new Color();
 
-    private RenderingType renderingType;
-
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
-        this.renderingType = renderingType;
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = shaderMapper.get(entity);
 
@@ -81,8 +76,8 @@ public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
 
         NormalMapRendering normalMapRendering = normalMapRenderingMapper.get(entity);
-        if (normalMapRendering != null && normalMapRendering.useNormalMap == null)
-            normalMapRendering.useNormalMap = this;
+        if (normalMapRendering != null)
+            normalMapRendering.useNormalMap = renderingType == RenderingType.NORMAL_MAP;
 
         batch.draw(entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,
@@ -90,10 +85,5 @@ public class TextureRegionDrawLogic implements Drawable, DynamicValue<Boolean> {
                 dimensionsComponent.width, dimensionsComponent.height,
                 scaleX, scaleY,
                 entityTransformComponent.rotation);
-    }
-
-    @Override
-    public Boolean get() {
-        return renderingType == RenderingType.NORMAL_MAP;
     }
 }
