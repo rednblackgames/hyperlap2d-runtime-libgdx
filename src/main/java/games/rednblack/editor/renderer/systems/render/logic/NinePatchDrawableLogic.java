@@ -7,7 +7,7 @@ import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 
-public class NinePatchDrawableLogic implements Drawable {
+public class NinePatchDrawableLogic implements DrawableLogic {
 
     protected ComponentMapper<TintComponent> tintComponentComponentMapper;
     protected ComponentMapper<TransformComponent> transformMapper;

@@ -6,7 +6,7 @@ import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
-public class ParticleDrawableLogic implements Drawable {
+public class ParticleDrawableLogic implements DrawableLogic {
 
     protected ComponentMapper<ParticleComponent> particleComponentMapper;
     protected ComponentMapper<TransformComponent> transformComponentMapper;

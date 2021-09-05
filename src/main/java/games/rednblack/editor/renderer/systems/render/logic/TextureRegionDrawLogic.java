@@ -10,7 +10,7 @@ import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
-public class TextureRegionDrawLogic implements Drawable {
+public class TextureRegionDrawLogic implements DrawableLogic {
 
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
     protected ComponentMapper<NormalMapRendering> normalMapRenderingMapper;

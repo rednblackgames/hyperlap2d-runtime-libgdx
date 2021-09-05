@@ -20,7 +20,7 @@ package games.rednblack.editor.renderer.commons;
 
 import com.artemis.BaseSystem;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
-import games.rednblack.editor.renderer.systems.render.logic.Drawable;
+import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 
 /**
  * Created by azakhary on 7/20/2015.
@@ -28,7 +28,7 @@ import games.rednblack.editor.renderer.systems.render.logic.Drawable;
 public interface IExternalItemType {
     int getTypeId();
 
-    Drawable getDrawable();
+    DrawableLogic getDrawable();
 
     BaseSystem getSystem();
 

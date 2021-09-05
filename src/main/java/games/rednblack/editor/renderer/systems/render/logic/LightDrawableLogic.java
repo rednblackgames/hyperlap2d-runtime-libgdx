@@ -8,7 +8,7 @@ import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 
-public class LightDrawableLogic implements Drawable {
+public class LightDrawableLogic implements DrawableLogic {
 
     protected ComponentMapper<LightObjectComponent> lightComponentMapper;
     protected ComponentMapper<TintComponent> tintComponentMapper;

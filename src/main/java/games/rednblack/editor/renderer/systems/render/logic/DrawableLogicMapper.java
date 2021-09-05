@@ -6,7 +6,7 @@ import games.rednblack.editor.renderer.factory.EntityFactory;
 
 public class DrawableLogicMapper {
 
-    private final IntMap<Drawable> logicClassMap = new IntMap<>();
+    private final IntMap<DrawableLogic> logicClassMap = new IntMap<>();
 
     public DrawableLogicMapper() {
         logicClassMap.put(EntityFactory.IMAGE_TYPE, new TextureRegionDrawLogic());
@@ -18,15 +18,15 @@ public class DrawableLogicMapper {
         logicClassMap.put(EntityFactory.LIGHT_TYPE, new LightDrawableLogic());
     }
 
-    public void addDrawableToMap(int type, Drawable drawable) {
-        logicClassMap.put(type, drawable);
+    public void addDrawableToMap(int type, DrawableLogic drawableLogic) {
+        logicClassMap.put(type, drawableLogic);
     }
 
-    public Drawable getDrawable(int type) {
+    public DrawableLogic getDrawable(int type) {
         return logicClassMap.get(type);
     }
 
     public void injectMappers(World engine) {
-        for (Drawable value : logicClassMap.values()) engine.inject(value);
+        for (DrawableLogic value : logicClassMap.values()) engine.inject(value);
     }
 }

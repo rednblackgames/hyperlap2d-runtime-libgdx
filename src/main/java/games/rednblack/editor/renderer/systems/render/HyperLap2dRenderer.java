@@ -21,7 +21,7 @@ import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
-import games.rednblack.editor.renderer.systems.render.logic.Drawable;
+import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
 
@@ -116,7 +116,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        drawRecursively(entity, 1f, Drawable.RenderingType.TEXTURE);
+        drawRecursively(entity, 1f, DrawableLogic.RenderingType.TEXTURE);
         batch.end();
         frameBufferManager.endCurrent();
 
@@ -130,7 +130,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
             batch.begin();
             hasNormals = false;
-            drawRecursively(entity, 1f, Drawable.RenderingType.NORMAL_MAP);
+            drawRecursively(entity, 1f, DrawableLogic.RenderingType.NORMAL_MAP);
             batch.end();
             frameBufferManager.endCurrent();
         }
@@ -158,7 +158,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             for (int i = 0; i < screenReadingEntities.size; i++) {
                 int child = children[i];
                 if (mainItemComponentMapper.has(child))
-                    drawEntity(batch, child, 1, Drawable.RenderingType.TEXTURE);
+                    drawEntity(batch, child, 1, DrawableLogic.RenderingType.TEXTURE);
                 else
                     screenReadingEntities.removeIndex(i);
             }
@@ -193,7 +193,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         }
     }
 
-    private void drawRecursively(int rootEntity, float parentAlpha, Drawable.RenderingType renderingType) {
+    private void drawRecursively(int rootEntity, float parentAlpha, DrawableLogic.RenderingType renderingType) {
         CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
         TransformComponent transform = transformMapper.get(rootEntity);
         DimensionsComponent dimensions = dimensionsMapper.get(rootEntity);
@@ -290,7 +290,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     }
 
     private void drawChildren(int rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
-                              Drawable.RenderingType renderingType) {
+                              DrawableLogic.RenderingType renderingType) {
         NodeComponent nodeComponent = nodeMapper.get(rootEntity);
         Integer[] children = nodeComponent.children.begin();
         TransformComponent transform = transformMapper.get(rootEntity);
@@ -347,10 +347,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         nodeComponent.children.end();
     }
 
-    private void drawEntity(Batch batch, int child, float parentAlpha, Drawable.RenderingType renderingType) {
-        if (renderingType == Drawable.RenderingType.NORMAL_MAP && !normalMapMapper.has(child)) {
+    private void drawEntity(Batch batch, int child, float parentAlpha, DrawableLogic.RenderingType renderingType) {
+        if (renderingType == DrawableLogic.RenderingType.NORMAL_MAP && !normalMapMapper.has(child)) {
             return;
-        } else if (renderingType == Drawable.RenderingType.NORMAL_MAP && normalMapMapper.has(child))
+        } else if (renderingType == DrawableLogic.RenderingType.NORMAL_MAP && normalMapMapper.has(child))
             hasNormals = true;
         int entityType = mainItemComponentMapper.get(child).entityType;
 
