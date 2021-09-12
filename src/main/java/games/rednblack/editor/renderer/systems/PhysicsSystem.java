@@ -46,7 +46,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*
         for (int i = 0, s = actives.size(); s > i; i++) {
             process(ids[i]);
             //TODO remove this once interpolation will works
-            interpolate(ids[i], 1f);
+            if (isPhysicsOn)
+                interpolate(ids[i], 1f);
         }
     }
 

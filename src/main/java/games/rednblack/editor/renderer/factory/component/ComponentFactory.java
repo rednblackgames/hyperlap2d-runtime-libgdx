@@ -218,6 +218,7 @@ public abstract class ComponentFactory {
         component.fixedRotation = vo.physics.fixedRotation;
 
         component.height = vo.physics.height;
+        component.shapeType = vo.physics.shapeType;
     }
 
     protected void checkSensorComponent(int entity, MainItemVO vo) {

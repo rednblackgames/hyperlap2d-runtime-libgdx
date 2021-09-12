@@ -17,7 +17,6 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
-
 @One({LightObjectComponent.class, LightBodyComponent.class})
 public class LightSystem extends IteratingSystem {
     protected ComponentMapper<LightObjectComponent> lightObjectComponentMapper;

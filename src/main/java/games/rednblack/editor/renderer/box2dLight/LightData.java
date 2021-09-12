@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.box2dLight;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.utils.Pool;
 
-public class LightData {
+public class LightData implements Pool.Poolable {
 
 	public Object userData = null;
 
@@ -11,6 +12,10 @@ public class LightData {
 	public boolean roofShadow;
 
 	int shadowsDropped = 0;
+
+	public LightData () {
+		this(0);
+	}
 
 	public LightData (float h) {
 		height = h;
@@ -53,4 +58,11 @@ public class LightData {
 		}
 	}
 
+	@Override
+	public void reset() {
+		userData = null;
+		height = 0;
+		roofShadow = false;
+		shadowsDropped = 0;
+	}
 }

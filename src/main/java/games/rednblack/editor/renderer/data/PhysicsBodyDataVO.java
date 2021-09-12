@@ -6,8 +6,15 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import java.util.Objects;
 
 public class PhysicsBodyDataVO {
-
+    public enum ShapeType {
+        POLYGON,
+        CHAIN,
+        CHAIN_LOOP,
+        CIRCLE,
+        NONE
+    }
     public int bodyType = 0;
+    public ShapeType shapeType = ShapeType.POLYGON;
 
 	public float mass;
 	public Vector2 centerOfMass;
@@ -48,6 +55,7 @@ public class PhysicsBodyDataVO {
         restitution = vo.restitution;
         fixedRotation = vo.fixedRotation;
         height = vo.height;
+        shapeType = vo.shapeType;
     }
 
     public void loadFromComponent(PhysicsBodyComponent physicsComponent) {
@@ -67,6 +75,7 @@ public class PhysicsBodyDataVO {
         angularDamping = physicsComponent.angularDamping;
         fixedRotation = physicsComponent.fixedRotation;
         height = physicsComponent.height;
+        shapeType = physicsComponent.shapeType;
     }
 
     @Override
@@ -84,6 +93,7 @@ public class PhysicsBodyDataVO {
                 awake == that.awake &&
                 bullet == that.bullet &&
                 sensor == that.sensor &&
+                shapeType == that.shapeType &&
                 fixedRotation == that.fixedRotation &&
                 Float.compare(that.density, density) == 0 &&
                 Float.compare(that.friction, friction) == 0 &&
@@ -94,6 +104,6 @@ public class PhysicsBodyDataVO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(bodyType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, density, friction, restitution, height);
+        return Objects.hash(bodyType, shapeType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, density, friction, restitution, height);
     }
 }
