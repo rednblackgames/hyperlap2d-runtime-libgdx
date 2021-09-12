@@ -1,17 +1,13 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
 import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 
 public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
-
-    protected ComponentMapper<PolygonComponent> polygonCM;
     protected com.artemis.World engine;
 
     protected boolean needsRefresh = false;
@@ -101,9 +97,6 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     }
 
     protected void refresh(int entity) {
-        PolygonComponent polygonComponent = polygonCM.get(entity);
-        if (polygonComponent == null || polygonComponent.vertices == null) return;
-
         if (body != null) {
             PhysicsBodyLoader.getInstance().refreshShape(entity, body, engine);
         }

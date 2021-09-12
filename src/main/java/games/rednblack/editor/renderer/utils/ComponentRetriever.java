@@ -76,6 +76,7 @@ public class ComponentRetriever {
         mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class, engine));
 
         mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class, engine));
+        mappers.put(CircleShapeComponent.class, ComponentMapper.getFor(CircleShapeComponent.class, engine));
         mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class, engine));
         mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class, engine));
         mappers.put(LightBodyComponent.class, ComponentMapper.getFor(LightBodyComponent.class, engine));

@@ -44,6 +44,7 @@ public abstract class ComponentFactory {
     protected ComponentMapper<ParentNodeComponent> parentNodeCM;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
     protected ComponentMapper<PolygonComponent> polygonCM;
+    protected ComponentMapper<CircleShapeComponent> circleShapeCM;
     protected ComponentMapper<ScriptComponent> scriptCM;
     protected ComponentMapper<SensorComponent> sensorCM;
     protected ComponentMapper<ShaderComponent> shaderCM;
@@ -88,6 +89,7 @@ public abstract class ComponentFactory {
 
                 //Optional Components
                 .add(PolygonComponent.class)
+                .add(CircleShapeComponent.class)
                 .add(PhysicsBodyComponent.class)
                 .add(SensorComponent.class)
                 .add(LightBodyComponent.class)
@@ -116,6 +118,7 @@ public abstract class ComponentFactory {
         initializeScriptComponent(scriptCM.get(entity), vo);
 
         initializeMeshComponent(entity, vo);
+        initializeCircleShapeComponent(entity, vo);
         checkPhysicsBodyComponent(entity, vo);
         checkSensorComponent(entity, vo);
         checkLightBodyComponent(entity, vo);
@@ -189,6 +192,16 @@ public abstract class ComponentFactory {
             component.vertices[i] = new Vector2[vo.shape.polygons[i].length];
             System.arraycopy(vo.shape.polygons[i], 0, component.vertices[i], 0, vo.shape.polygons[i].length);
         }
+    }
+
+    protected void initializeCircleShapeComponent(int entity, MainItemVO vo) {
+        if (vo.circle == null) {
+            circleShapeCM.remove(entity);
+            return;
+        }
+
+        CircleShapeComponent component = circleShapeCM.get(entity);
+        component.radius = vo.circle.radius;
     }
 
     protected void checkPhysicsBodyComponent(int entity, MainItemVO vo) {

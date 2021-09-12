@@ -49,7 +49,7 @@ public class PhysicsBodyLoader {
         tmpCircleShape.dispose();
     }
 
-    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent, com.artemis.World engine) {
+    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, TransformComponent transformComponent, com.artemis.World engine) {
         if (physicsComponent == null || ComponentRetriever.get(entity, MainItemComponent.class, engine) == null) {
             return null;
         }
@@ -213,6 +213,26 @@ public class PhysicsBodyLoader {
         }
     }
 
+    private void createCircleShape(Body body, TransformComponent transformComponent, DimensionsComponent dimensionsComponent, PhysicsBodyComponent physicsComponent, CircleShapeComponent component) {
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
+        //TODO Fixtures should be reused if possible
+        clearFixtures(body);
+
+        float x = (dimensionsComponent.width / 2f - transformComponent.originX) * scaleX;
+        float y = (dimensionsComponent.height / 2f - transformComponent.originY) * scaleY;
+
+        FixtureDef fixtureDef = getFixtureDef(physicsComponent);
+        CircleShape shape = (CircleShape) fixtureDef.shape;
+        shape.setRadius(component.radius);
+        shape.setPosition(tmp.set(x, y));
+
+        LightData lightData = Pools.obtain(LightData.class);
+        lightData.height = physicsComponent.height;
+        body.createFixture(fixtureDef).setUserData(lightData);
+    }
+
     private float[] getTemporaryVerticesArray(int size) {
         if (!verticesCache.containsKey(size))
             verticesCache.put(size, new float[size]);
@@ -222,16 +242,22 @@ public class PhysicsBodyLoader {
     public void refreshShape(int entity, Body body, com.artemis.World engine) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
+        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
+        CircleShapeComponent circleShapeComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);
         switch (physicsBodyComponent.shapeType) {
             case POLYGON:
-                createPolygonShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                if (polygonComponent != null && polygonComponent.vertices != null)
+                    createPolygonShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
                 break;
             case CHAIN_LOOP:
             case CHAIN:
-                createChainShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                if (polygonComponent != null && polygonComponent.vertices != null)
+                    createChainShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
                 break;
             case CIRCLE:
+                if (circleShapeComponent != null)
+                    createCircleShape(body, transformComponent, dimensionsComponent, physicsBodyComponent, circleShapeComponent);
                 break;
             case NONE:
                 clearFixtures(body);
@@ -239,7 +265,6 @@ public class PhysicsBodyLoader {
         }
 
         SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class, engine);
-        DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         if (sensorComponent != null && dimensionsComponent != null) {
             createSensors(body, sensorComponent, dimensionsComponent, transformComponent);
         }

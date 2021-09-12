@@ -4,7 +4,7 @@ import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import games.rednblack.editor.renderer.data.ShapeVO;
+import games.rednblack.editor.renderer.data.PolygonShapeVO;
 import games.rednblack.editor.renderer.utils.PolygonUtils;
 
 public class DimensionsComponent  extends PooledComponent {
@@ -34,7 +34,7 @@ public class DimensionsComponent  extends PooledComponent {
         polygon = new Polygon(vertices);
     }
 
-    public void setFromShape(ShapeVO shape) {
+    public void setFromShape(PolygonShapeVO shape) {
         Vector2 minPoint = new Vector2();
         Vector2 maxPoint = new Vector2();
         if(shape.polygons != null) {

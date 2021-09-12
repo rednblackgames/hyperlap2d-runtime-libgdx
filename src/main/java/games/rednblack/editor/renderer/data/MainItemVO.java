@@ -2,13 +2,9 @@ package games.rednblack.editor.renderer.data;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.utils.ObjectMap;
-import games.rednblack.editor.renderer.components.MainItemComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
-import games.rednblack.editor.renderer.components.ShaderComponent;
-import games.rednblack.editor.renderer.components.TintComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
-import games.rednblack.editor.renderer.components.ZIndexComponent;
+import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
@@ -24,10 +20,10 @@ public class MainItemVO {
     public String customVars = "";
 	public float x; 
 	public float y;
-	public float scaleX	=	1f; 
-	public float scaleY	=	1f;
-	public float originX	=	Float.NaN;
-	public float originY	=	Float.NaN;
+	public float scaleX	= 1f;
+	public float scaleY	= 1f;
+	public float originX = Float.NaN;
+	public float originY = Float.NaN;
 	public float rotation;
 	public int zIndex = 0;
 	public String layerName = "";
@@ -39,10 +35,11 @@ public class MainItemVO {
 	public ObjectMap<String, ShaderUniformVO> shaderUniforms = new ObjectMap<>();
 	public RenderingLayer renderingLayer = RenderingLayer.SCREEN;
 
-	public ShapeVO shape = null;
+	public PolygonShapeVO shape = null;
 	public PhysicsBodyDataVO physics = null;
 	public LightBodyDataVO light = null;
 	public SensorDataVO sensor = null;
+	public Circle circle = null;
 	
 	public MainItemVO() {
 		
@@ -60,15 +57,19 @@ public class MainItemVO {
 		zIndex = vo.zIndex;
 		layerName = vo.layerName;
 		if(vo.tint != null) tint = Arrays.copyOf(vo.tint, vo.tint.length);
-		scaleX 		= vo.scaleX;
-		scaleY 		= vo.scaleY;
-		originX 	= vo.originX;
-		originY 	= vo.originY;
+		scaleX = vo.scaleX;
+		scaleY = vo.scaleY;
+		originX = vo.originX;
+		originY = vo.originY;
 		flipX = vo.flipX;
 		flipY = vo.flipY;
 
 		if(vo.shape != null) {
 			shape = vo.shape.clone();
+		}
+
+		if(vo.circle != null) {
+			circle = new Circle(vo.circle);
 		}
 
 		if(vo.physics != null){
@@ -131,9 +132,15 @@ public class MainItemVO {
 		//Secondary components
 		PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
 		if(polygonComponent != null && polygonComponent.vertices != null) {
-			shape = new ShapeVO();
+			shape = new PolygonShapeVO();
 			shape.polygons = polygonComponent.vertices;
 		}
+
+		CircleShapeComponent circleComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);
+		if(circleComponent != null) {
+			circle = new Circle(originX, originY, circleComponent.radius);
+		}
+
         PhysicsBodyComponent physicsComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         if(physicsComponent != null) {
             physics = new PhysicsBodyDataVO();
