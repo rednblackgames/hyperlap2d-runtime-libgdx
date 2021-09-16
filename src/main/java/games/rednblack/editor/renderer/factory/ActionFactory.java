@@ -266,8 +266,8 @@ public class ActionFactory {
             for (GraphConnectionVO connection : connections) {
                 switch (connection.toField) {
                     case "count":
-                        int count = (int) getValue(nodes.get(connection.fromNode), params);
-                        ((RepeatData) actionData).setRepeatCount(count);
+                        float count = (Float) getValue(nodes.get(connection.fromNode), params);
+                        ((RepeatData) actionData).setRepeatCount((int)count);
                         break;
                 }
             }
