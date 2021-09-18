@@ -5,7 +5,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.*;
@@ -28,9 +29,9 @@ public class PhysicsBodyLoader {
     private final PolygonShape tmpPolygonShape = new PolygonShape();
     private final ChainShape tmpChainShape = new ChainShape();
     private final CircleShape tmpCircleShape = new CircleShape();
-    private final ObjectMap<Integer, float[]> verticesCache = new ObjectMap<>();
+    private final IntMap<float[]> verticesCache = new IntMap<>();
     private final FixtureDef tmpFixtureDef = new FixtureDef();
-    private final FixtureDef sensorFix = new FixtureDef();
+    private final FixtureDef sensorFixtureDef = new FixtureDef();
 
     public static PhysicsBodyLoader getInstance() {
         if (instance == null) {
@@ -40,7 +41,8 @@ public class PhysicsBodyLoader {
     }
 
     private PhysicsBodyLoader() {
-        sensorFix.isSensor = true;
+        sensorFixtureDef.isSensor = true;
+        tmpPolygonShape.set(new float[]{0, 0, 0, 1, 1, 0});
     }
 
     public void dispose() {
@@ -79,69 +81,107 @@ public class PhysicsBodyLoader {
             bodyDef.type = BodyDef.BodyType.DynamicBody;
         }
 
-        Body body = world.createBody(bodyDef);
+        physicsComponent.body = world.createBody(bodyDef);
 
-        refreshShape(entity, body, engine);
+        refreshShape(entity, engine);
 
-        if (physicsComponent.mass != 0) {
-            MassData massData = body.getMassData();
+        if (physicsComponent.mass != 0 && bodyDef.type == BodyDef.BodyType.DynamicBody) {
+            MassData massData = physicsComponent.body.getMassData();
             massData.mass = physicsComponent.mass;
             massData.center.set(physicsComponent.centerOfMass);
             massData.I = physicsComponent.rotationalInertia;
 
-            body.setMassData(massData);
+            float mI = massData.I - massData.mass * tmp.set(massData.center).dot(massData.center);
+            if (mI > 0)
+                physicsComponent.body.setMassData(massData);
         }
 
-        return body;
+        return physicsComponent.body;
     }
 
     /**
      * Creates the sensors and attaches them to the body.
      *
-     * @param body                The body to attach the sensor to.
-     * @param sensorComponent     The sensor component.
-     * @param dimensionsComponent The dimension of the body. Used to compute the position and dimension of the sensors.
+     * @param physicsBodyComponent The body to attach the sensor to.
+     * @param sensorComponent      The sensor component.
+     * @param dimensionsComponent  The dimension of the body. Used to compute the position and dimension of the sensors.
      * @author Jan-Thierry Wegener
      */
-    private void createSensors(Body body, SensorComponent sensorComponent, DimensionsComponent dimensionsComponent, TransformComponent transformComponent) {
-        sensorFix.shape = tmpPolygonShape;
+    private void createSensors(PhysicsBodyComponent physicsBodyComponent, SensorComponent sensorComponent, DimensionsComponent dimensionsComponent, TransformComponent transformComponent) {
+        sensorFixtureDef.shape = tmpPolygonShape;
+        Array<Fixture> fixtures = physicsBodyComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS);
+        Fixture bottom = null, top = null, left = null, right = null;
+        if (fixtures != null) {
+            for (int i = 0; i < fixtures.size; i++) {
+                Fixture f = fixtures.get(i);
+                if (f.getUserData() == SensorUserData.BOTTOM)
+                    bottom = f;
+                else if (f.getUserData() == SensorUserData.TOP)
+                    top = f;
+                else if (f.getUserData() == SensorUserData.LEFT)
+                    left = f;
+                else if (f.getUserData() == SensorUserData.RIGHT)
+                    right = f;
+            }
+        }
+        PolygonShape p = tmpPolygonShape;
 
         if (sensorComponent.bottom) {
             tmp.set(dimensionsComponent.width * 0.5f, 0);
 
-            tmpPolygonShape.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            if (bottom != null) //Recycle previous fixture
+                p = (PolygonShape) bottom.getShape();
+            p.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
-            body.createFixture(sensorFix).setUserData(SensorUserData.BOTTOM);
+            if (bottom == null)
+                physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.BOTTOM);
+        } else {
+            physicsBodyComponent.destroyFixture(bottom);
         }
 
         if (sensorComponent.top) {
             tmp.set(dimensionsComponent.width * 0.5f, dimensionsComponent.height);
 
-            tmpPolygonShape.setAsBox(tmp.x * sensorComponent.topSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            if (top != null) //Recycle previous fixture
+                p = (PolygonShape) top.getShape();
+            p.setAsBox(tmp.x * sensorComponent.topSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
-            body.createFixture(sensorFix).setUserData(SensorUserData.TOP);
+            if (top == null)
+                physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.TOP);
+        } else {
+            physicsBodyComponent.destroyFixture(top);
         }
 
         if (sensorComponent.left) {
             tmp.set(0, dimensionsComponent.height * 0.5f);
 
-            tmpPolygonShape.setAsBox(0.05f, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            if (left != null) //Recycle previous fixture
+                p = (PolygonShape) left.getShape();
+            p.setAsBox(0.05f, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
-            body.createFixture(sensorFix).setUserData(SensorUserData.LEFT);
+            if (left == null)
+                physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.LEFT);
+        } else {
+            physicsBodyComponent.destroyFixture(left);
         }
 
         if (sensorComponent.right) {
             tmp.set(dimensionsComponent.width, dimensionsComponent.height * 0.5f);
 
-            tmpPolygonShape.setAsBox(0.05f, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            if (right != null) //Recycle previous fixture
+                p = (PolygonShape) right.getShape();
+            p.setAsBox(0.05f, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
 
-            body.createFixture(sensorFix).setUserData(SensorUserData.RIGHT);
+            if (right == null)
+                physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.RIGHT);
+        } else {
+            physicsBodyComponent.destroyFixture(right);
         }
     }
 
-    private void createChainShape(Body body, TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
-        //TODO Fixtures should be reused if possible
-        clearFixtures(body);
+    private void createChainShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
+        //FIXME Can't recycle shapes here, needs libGDX update :(
+        physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
 
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
@@ -160,10 +200,10 @@ public class PhysicsBodyLoader {
             verts[j + 1] = point.y;
         }
         FixtureDef fixtureDef = getFixtureDef(physicsComponent);
-        //TODO remove `new ChainShape()` and clear previous state instead, needs libGDX update :(
+        //FIXME remove `new ChainShape()` and clear previous state instead, needs libGDX update :(
         ChainShape chainShape = new ChainShape();
         fixtureDef.shape = chainShape;
-        //chainShape.clear();
+        //FIXME chainShape.clear();
         if (physicsComponent.shapeType == PhysicsBodyDataVO.ShapeType.CHAIN_LOOP)
             chainShape.createLoop(verts);
         else
@@ -171,66 +211,123 @@ public class PhysicsBodyLoader {
 
         LightData lightData = Pools.obtain(LightData.class);
         lightData.height = physicsComponent.height;
-        body.createFixture(fixtureDef).setUserData(lightData);
+        physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
         chainShape.dispose();
     }
 
-    private void createPolygonShape(Body body, TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
+    private void createPolygonShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
-        //TODO Fixtures should be reused if possible
-        clearFixtures(body);
+        LightData lightData = Pools.obtain(LightData.class);
+        lightData.height = physicsComponent.height;
 
-        for (int i = 0; i < minPolygonData.length; i++) {
-            FixtureDef fixtureDef = getFixtureDef(physicsComponent);
-            PolygonShape p = (PolygonShape) fixtureDef.shape;
+        FixtureDef fixtureDef = getFixtureDef(physicsComponent);
+        PolygonShape p = (PolygonShape) fixtureDef.shape;
 
-            Vector2[] minPolygonDatum = minPolygonData[i];
-            float[] verts = getTemporaryVerticesArray(minPolygonDatum.length * 2);
-            for (int j = 0; j < verts.length; j += 2) {
-                float tempX = minPolygonDatum[j / 2].x;
-                float tempY = minPolygonDatum[j / 2].y;
+        Array<Fixture> fixtures = physicsComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+        if (fixtures != null && fixtures.size > 0 && fixtures.get(0).getShape() instanceof PolygonShape) {
+            for (int i = 0; i < minPolygonData.length; i++) {
+                //Recycle as many fixtures as possible, create new one only when needed
+                if (i == fixtures.size) {
+                    physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
+                } else {
+                    Pools.free(fixtures.get(i).getUserData());
+                    fixtures.get(i).setUserData(lightData);
+                }
 
-                minPolygonDatum[j / 2].x -= transformComponent.originX;
-                minPolygonDatum[j / 2].y -= transformComponent.originY;
+                p = (PolygonShape) fixtures.get(i).getShape();
 
-                minPolygonDatum[j / 2].x *= scaleX;
-                minPolygonDatum[j / 2].y *= scaleY;
+                Vector2[] minPolygonDatum = minPolygonData[i];
+                float[] verts = getTemporaryVerticesArray(minPolygonDatum.length * 2);
+                for (int j = 0; j < verts.length; j += 2) {
+                    float tempX = minPolygonDatum[j / 2].x;
+                    float tempY = minPolygonDatum[j / 2].y;
 
-                verts[j] = minPolygonDatum[j / 2].x;
-                verts[j + 1] = minPolygonDatum[j / 2].y;
+                    minPolygonDatum[j / 2].x -= transformComponent.originX;
+                    minPolygonDatum[j / 2].y -= transformComponent.originY;
 
-                minPolygonDatum[j / 2].x = tempX;
-                minPolygonDatum[j / 2].y = tempY;
+                    minPolygonDatum[j / 2].x *= scaleX;
+                    minPolygonDatum[j / 2].y *= scaleY;
 
+                    verts[j] = minPolygonDatum[j / 2].x;
+                    verts[j + 1] = minPolygonDatum[j / 2].y;
+
+                    minPolygonDatum[j / 2].x = tempX;
+                    minPolygonDatum[j / 2].y = tempY;
+
+                }
+                p.set(verts);
             }
-            p.set(verts);
 
-            LightData lightData = Pools.obtain(LightData.class);
-            lightData.height = physicsComponent.height;
-            body.createFixture(fixtureDef).setUserData(lightData);
+            //Clear all unused fixtures
+            for (int i = minPolygonData.length; i < fixtures.size; i++) {
+                Fixture fixture = fixtures.get(i);
+                physicsComponent.destroyFixture(fixture);
+            }
+        } else {
+            //Can't recycle shapes, destroy all fixtures
+            physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+
+            for (int i = 0; i < minPolygonData.length; i++) {
+                Vector2[] minPolygonDatum = minPolygonData[i];
+                float[] verts = getTemporaryVerticesArray(minPolygonDatum.length * 2);
+                for (int j = 0; j < verts.length; j += 2) {
+                    float tempX = minPolygonDatum[j / 2].x;
+                    float tempY = minPolygonDatum[j / 2].y;
+
+                    minPolygonDatum[j / 2].x -= transformComponent.originX;
+                    minPolygonDatum[j / 2].y -= transformComponent.originY;
+
+                    minPolygonDatum[j / 2].x *= scaleX;
+                    minPolygonDatum[j / 2].y *= scaleY;
+
+                    verts[j] = minPolygonDatum[j / 2].x;
+                    verts[j + 1] = minPolygonDatum[j / 2].y;
+
+                    minPolygonDatum[j / 2].x = tempX;
+                    minPolygonDatum[j / 2].y = tempY;
+
+                }
+                p.set(verts);
+
+                physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
+            }
         }
     }
 
-    private void createCircleShape(Body body, TransformComponent transformComponent, DimensionsComponent dimensionsComponent, PhysicsBodyComponent physicsComponent, CircleShapeComponent component) {
+    private void createCircleShape(TransformComponent transformComponent, DimensionsComponent dimensionsComponent, PhysicsBodyComponent physicsComponent, CircleShapeComponent component) {
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
-
-        //TODO Fixtures should be reused if possible
-        clearFixtures(body);
 
         float x = (dimensionsComponent.width / 2f - transformComponent.originX) * scaleX;
         float y = (dimensionsComponent.height / 2f - transformComponent.originY) * scaleY;
 
-        FixtureDef fixtureDef = getFixtureDef(physicsComponent);
-        CircleShape shape = (CircleShape) fixtureDef.shape;
-        shape.setRadius(component.radius);
-        shape.setPosition(tmp.set(x, y));
-
         LightData lightData = Pools.obtain(LightData.class);
         lightData.height = physicsComponent.height;
-        body.createFixture(fixtureDef).setUserData(lightData);
+
+        Array<Fixture> fixtures = physicsComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+        CircleShape shape;
+        if (fixtures != null && fixtures.size == 1 && fixtures.get(0).getShape() instanceof CircleShape) {
+            //Recycle already created shape
+            shape = (CircleShape) fixtures.get(0).getShape();
+            Pools.free(fixtures.get(0).getUserData());
+            fixtures.get(0).setUserData(lightData);
+
+            shape.setRadius(component.radius);
+            shape.setPosition(tmp.set(x, y));
+        } else {
+            //Can't recycle shape, destroy all fixtures and create a new one
+            physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+
+            FixtureDef fixtureDef = getFixtureDef(physicsComponent);
+            shape = (CircleShape) fixtureDef.shape;
+
+            shape.setRadius(component.radius);
+            shape.setPosition(tmp.set(x, y));
+
+            physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
+        }
     }
 
     private float[] getTemporaryVerticesArray(int size) {
@@ -239,34 +336,35 @@ public class PhysicsBodyLoader {
         return verticesCache.get(size);
     }
 
-    public void refreshShape(int entity, Body body, com.artemis.World engine) {
+    public void refreshShape(int entity, com.artemis.World engine) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
         CircleShapeComponent circleShapeComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);
+
         switch (physicsBodyComponent.shapeType) {
             case POLYGON:
                 if (polygonComponent != null && polygonComponent.vertices != null)
-                    createPolygonShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                    createPolygonShape(transformComponent, physicsBodyComponent, polygonComponent.vertices);
                 break;
             case CHAIN_LOOP:
             case CHAIN:
                 if (polygonComponent != null && polygonComponent.vertices != null)
-                    createChainShape(body, transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                    createChainShape(transformComponent, physicsBodyComponent, polygonComponent.vertices);
                 break;
             case CIRCLE:
                 if (circleShapeComponent != null)
-                    createCircleShape(body, transformComponent, dimensionsComponent, physicsBodyComponent, circleShapeComponent);
+                    createCircleShape(transformComponent, dimensionsComponent, physicsBodyComponent, circleShapeComponent);
                 break;
             case NONE:
-                clearFixtures(body);
+                physicsBodyComponent.clearFixtures();
                 break;
         }
 
         SensorComponent sensorComponent = ComponentRetriever.get(entity, SensorComponent.class, engine);
         if (sensorComponent != null && dimensionsComponent != null) {
-            createSensors(body, sensorComponent, dimensionsComponent, transformComponent);
+            createSensors(physicsBodyComponent, sensorComponent, dimensionsComponent, transformComponent);
         }
     }
 
@@ -295,13 +393,5 @@ public class PhysicsBodyLoader {
         }
 
         return tmpFixtureDef;
-    }
-
-    private void clearFixtures(Body body) {
-        while (body.getFixtureList().size > 0) {
-            Fixture fixture = body.getFixtureList().get(0);
-            Pools.free(fixture.getUserData());
-            body.destroyFixture(fixture);
-        }
     }
 }

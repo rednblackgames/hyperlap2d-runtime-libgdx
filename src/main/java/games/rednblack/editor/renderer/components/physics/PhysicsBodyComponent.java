@@ -2,12 +2,20 @@ package games.rednblack.editor.renderer.components.physics;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 
 public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
+    public static final int FIXTURE_TYPE_SHAPE = 0;
+    public static final int FIXTURE_TYPE_SENSORS = 1;
+    public static final int FIXTURE_TYPE_USER_DEFINED = 2;
+
     protected com.artemis.World engine;
 
     protected boolean needsRefresh = false;
@@ -40,6 +48,9 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     public Body body;
     public PhysicsBodyDataVO.ShapeType shapeType = PhysicsBodyDataVO.ShapeType.POLYGON;
 
+    public final IntMap<Array<Fixture>> fixturesMap = new IntMap<>();
+    private final ObjectIntMap<Fixture> inverseFixtureMap = new ObjectIntMap<>();
+
     public PhysicsBodyComponent() {
 
     }
@@ -49,6 +60,9 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
         if (body != null && body.getWorld() != null) {
             body.getWorld().destroyBody(body);
             body = null;
+            for (Array<Fixture> array : fixturesMap.values())
+                array.clear();
+            inverseFixtureMap.clear();
         }
     }
 
@@ -81,6 +95,10 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
         needsRefresh = false;
         body = null;
+
+        for (Array<Fixture> array : fixturesMap.values())
+            array.clear();
+        inverseFixtureMap.clear();
     }
 
     @Override
@@ -98,7 +116,62 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
     protected void refresh(int entity) {
         if (body != null) {
-            PhysicsBodyLoader.getInstance().refreshShape(entity, body, engine);
+            PhysicsBodyLoader.getInstance().refreshShape(entity, engine);
+        }
+    }
+
+    public Fixture createFixture(int type, FixtureDef fixtureDef, Object userData) {
+        if (type < 0) throw new IllegalArgumentException("Fixture Type can't be < 0");
+        if (body == null) return null;
+
+        Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData(userData);
+
+        if (fixturesMap.get(type) == null)
+            fixturesMap.put(type, new Array<Fixture>());
+
+        fixturesMap.get(type).add(fixture);
+        inverseFixtureMap.put(fixture, type);
+
+        return fixture;
+    }
+
+    public void destroyFixture(Fixture fixture) {
+        if (body == null) return;
+        if (fixture == null) return;
+
+        int type = inverseFixtureMap.remove(fixture, -1);
+        if (type != -1)
+            fixturesMap.get(type).removeValue(fixture, true);
+
+        Pools.free(fixture.getUserData());
+        body.destroyFixture(fixture);
+    }
+
+    public void clearFixtures() {
+        if (body == null) return;
+
+        while (body.getFixtureList().size > 0) {
+            Fixture fixture = body.getFixtureList().get(0);
+            Pools.free(fixture.getUserData());
+            body.destroyFixture(fixture);
+        }
+
+        for (Array<Fixture> array : fixturesMap.values())
+            array.clear();
+        inverseFixtureMap.clear();
+    }
+
+    public void clearFixtures(int type) {
+        if (body == null) return;
+        Array<Fixture> fixtures = fixturesMap.get(type);
+        if (fixtures == null) return;
+
+        while (fixtures.size > 0) {
+            Fixture fixture = fixtures.removeIndex(0);
+            Pools.free(fixture.getUserData());
+            body.destroyFixture(fixture);
+            inverseFixtureMap.remove(fixture, -1);
         }
     }
 }

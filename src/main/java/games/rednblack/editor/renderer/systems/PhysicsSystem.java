@@ -116,7 +116,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*
             physicsBodyComponent.centerX = transformComponent.originX;
             physicsBodyComponent.centerY = transformComponent.originY;
 
-            physicsBodyComponent.body = PhysicsBodyLoader.getInstance().createBody(world, entity, physicsBodyComponent, transformComponent, getWorld());
+            PhysicsBodyLoader.getInstance().createBody(world, entity, physicsBodyComponent, transformComponent, getWorld());
             physicsBodyComponent.body.setUserData(entity);
         }
 
