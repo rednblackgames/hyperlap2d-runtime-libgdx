@@ -232,7 +232,8 @@ public class PhysicsBodyLoader {
                 if (i == fixtures.size) {
                     physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
                 } else {
-                    Pools.free(fixtures.get(i).getUserData());
+                    if (fixtures.get(i).getUserData() != null)
+                        Pools.free(fixtures.get(i).getUserData());
                     fixtures.get(i).setUserData(lightData);
                 }
 
@@ -311,7 +312,8 @@ public class PhysicsBodyLoader {
         if (fixtures != null && fixtures.size == 1 && fixtures.get(0).getShape() instanceof CircleShape) {
             //Recycle already created shape
             shape = (CircleShape) fixtures.get(0).getShape();
-            Pools.free(fixtures.get(0).getUserData());
+            if (fixtures.get(0).getUserData() != null)
+                Pools.free(fixtures.get(0).getUserData());
             fixtures.get(0).setUserData(lightData);
 
             shape.setRadius(component.radius);

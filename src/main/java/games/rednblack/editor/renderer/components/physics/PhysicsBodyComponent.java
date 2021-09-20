@@ -144,7 +144,8 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
         if (type != -1)
             fixturesMap.get(type).removeValue(fixture, true);
 
-        Pools.free(fixture.getUserData());
+        if (fixture.getUserData() != null)
+            Pools.free(fixture.getUserData());
         body.destroyFixture(fixture);
     }
 
@@ -153,7 +154,8 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
         while (body.getFixtureList().size > 0) {
             Fixture fixture = body.getFixtureList().get(0);
-            Pools.free(fixture.getUserData());
+            if (fixture.getUserData() != null)
+                Pools.free(fixture.getUserData());
             body.destroyFixture(fixture);
         }
 
@@ -169,7 +171,8 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
         while (fixtures.size > 0) {
             Fixture fixture = fixtures.removeIndex(0);
-            Pools.free(fixture.getUserData());
+            if (fixture.getUserData() != null)
+                Pools.free(fixture.getUserData());
             body.destroyFixture(fixture);
             inverseFixtureMap.remove(fixture, -1);
         }
