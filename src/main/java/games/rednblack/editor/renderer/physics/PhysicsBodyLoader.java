@@ -49,6 +49,7 @@ public class PhysicsBodyLoader {
         tmpPolygonShape.dispose();
         tmpChainShape.dispose();
         tmpCircleShape.dispose();
+        instance = null;
     }
 
     public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, TransformComponent transformComponent, com.artemis.World engine) {
