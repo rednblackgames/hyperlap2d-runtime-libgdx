@@ -9,12 +9,12 @@ import games.rednblack.editor.renderer.data.LayerItemVO;
 
 public class LayerMapComponent  extends PooledComponent {
 	public boolean autoIndexing = true;
-	private ArrayList<LayerItemVO> layers = new ArrayList<>();
+	private final ArrayList<LayerItemVO> layers = new ArrayList<>();
 
 	private final HashMap<String, LayerItemVO> layerMap = new HashMap<>();
 
-	public void setLayers(ArrayList<LayerItemVO> layers) {
-		this.layers = layers;
+	public void setLayers(ArrayList<LayerItemVO> layersToAdd) {
+		this.layers.addAll(layersToAdd);
 		layerMap.clear();
 		for (LayerItemVO vo : layers) {
 			layerMap.put(vo.layerName, vo);

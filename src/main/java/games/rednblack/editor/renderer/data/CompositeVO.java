@@ -372,6 +372,9 @@ public class CompositeVO {
         }
 
         LayerMapComponent layerMapComponent = layerMainItemComponentComponentMapper.get(compositeEntity);
-        layers = layerMapComponent.getLayers();
+        layers.clear();
+        for (int i = 0; i < layerMapComponent.getLayers().size(); i++) {
+            layers.add(new LayerItemVO(layerMapComponent.getLayers().get(i)));
+        }
     }
 }

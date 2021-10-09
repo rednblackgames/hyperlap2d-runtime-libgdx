@@ -1,7 +1,5 @@
 package games.rednblack.editor.renderer.data;
 
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonWriter;
 import games.rednblack.editor.renderer.components.CompositeTransformComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -29,6 +27,11 @@ public class CompositeItemVO extends MainItemVO {
 	public CompositeItemVO(CompositeItemVO vo) {
 		super(vo);
 		composite = new CompositeVO(vo.composite);
+		width = vo.width;
+		height = vo.height;
+		automaticResize = vo.automaticResize;
+		scissorsEnabled = vo.scissorsEnabled;
+		renderToFBO = vo.renderToFBO;
 	}
 	
 	public void update(CompositeItemVO vo) {
@@ -36,21 +39,7 @@ public class CompositeItemVO extends MainItemVO {
 	}
 	
 	public CompositeItemVO clone() {
-		/*CompositeItemVO tmp = new CompositeItemVO();
-		tmp.composite = composite;
-        tmp.itemName = itemName;
-        tmp.layerName = layerName;
-        tmp.rotation = rotation;
-        tmp.tint = tint;
-        tmp.x = x;
-        tmp.y = y;
-        tmp.zIndex = zIndex;
-
-		tmp.width = width;
-		tmp.height = height;*/
-		Json json = new Json(JsonWriter.OutputType.json);
-
-		return json.fromJson(CompositeItemVO.class, json.toJson(this));
+		return new CompositeItemVO(this);
 	}
 
 	@Override
