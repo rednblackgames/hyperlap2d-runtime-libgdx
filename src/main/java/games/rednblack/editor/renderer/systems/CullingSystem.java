@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
-import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
 @All(ViewPortComponent.class)
 public class CullingSystem extends IteratingSystem {
@@ -18,7 +17,6 @@ public class CullingSystem extends IteratingSystem {
     protected ComponentMapper<NodeComponent> nodeMapper;
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
-    protected ComponentMapper<PhysicsBodyComponent> physicsBodyMapper;
 
     Rectangle view = new Rectangle();
     OrthographicCamera camera;
@@ -58,9 +56,6 @@ public class CullingSystem extends IteratingSystem {
     void cull(Integer entity) {
         BoundingBoxComponent b = boundingBoxMapper.get(entity);
         if (b==null) return;
-        PhysicsBodyComponent p = physicsBodyMapper.get(entity);
-        if (p!= null)
-            if (p.bodyType > 1) return;
 
         MainItemComponent m = mainItemMapper.get(entity);
 
