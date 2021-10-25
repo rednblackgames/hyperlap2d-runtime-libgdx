@@ -366,7 +366,6 @@ public class SceneLoader {
      * Scripts will be automatically pooled and must extends {@link BasicScript}
      *
      * @param scriptClazz script class definition
-     * @return instance of the script obtained
      */
     public <T extends BasicScript> void addScriptByTagName(String tagName, Class<T> scriptClazz) {
         IntBag entities = engine.getAspectSubscriptionManager()
