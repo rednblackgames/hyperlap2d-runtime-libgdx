@@ -170,6 +170,7 @@ public class ItemWrapper {
         ScriptComponent component = mapper.get(entity);
         if(component == null) {
             component = mapper.create(entity);
+            component.engine = engine;
         }
         T script = component.addScript(scriptClazz);
         script.init(entity);

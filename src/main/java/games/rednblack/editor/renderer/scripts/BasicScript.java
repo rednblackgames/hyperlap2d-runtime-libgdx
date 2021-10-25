@@ -7,11 +7,15 @@ import com.badlogic.gdx.utils.Pool;
  */
 public abstract class BasicScript implements IScript, Pool.Poolable {
     private Pool pool;
+    private boolean isInit = false;
     protected int entity;
 
     @Override
     public void init(int item) {
+        if (isInit) return;
+
         entity = item;
+        isInit = true;
     }
 
     public int getEntity() {
@@ -22,6 +26,7 @@ public abstract class BasicScript implements IScript, Pool.Poolable {
     public void reset() {
         pool = null;
         entity = -1;
+        isInit = false;
     }
 
     public void setPool(Pool pool) {

@@ -25,6 +25,7 @@ import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.ActionFactory;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.CullingSystem;
 import games.rednblack.editor.renderer.systems.PhysicsSystem;
@@ -220,6 +221,10 @@ public class SceneLoader {
     }
 
     public SceneVO loadScene(String sceneName, Viewport viewport, boolean customLight) {
+        return loadScene(rm.getSceneVO(sceneName), viewport, customLight);
+    }
+
+    public SceneVO loadScene(SceneVO vo, Viewport viewport, boolean customLight) {
         assert engine != null : "You need to first create an engine by calling createEngine";
 
         IntBag entities = engine.getAspectSubscriptionManager()
@@ -242,7 +247,7 @@ public class SceneLoader {
         if (cullingSystem != null)
             cullingSystem.setPpwu(pixelsPerWU);
 
-        sceneVO = rm.getSceneVO(sceneName);
+        sceneVO = vo;
         world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));
         PhysicsSystem physicsSystem = engine.getSystem(PhysicsSystem.class);
         if (physicsSystem != null)
@@ -351,6 +356,61 @@ public class SceneLoader {
             for (String tag : mainItemComponent.tags) {
                 if (tag.equals(tagName)) {
                     Actions.addAction(id, action, engine);
+                }
+            }
+        }
+    }
+
+    /**
+     * Attach a script to the entity using {@link ScriptComponent},
+     * Scripts will be automatically pooled and must extends {@link BasicScript}
+     *
+     * @param scriptClazz script class definition
+     * @return instance of the script obtained
+     */
+    public <T extends BasicScript> void addScriptByTagName(String tagName, Class<T> scriptClazz) {
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all(MainItemComponent.class))
+                .getEntities();
+
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int id = entities.get(i);
+            MainItemComponent mainItemComponent = mainItemCM.get(id);
+            for (String tag : mainItemComponent.tags) {
+                if (tag.equals(tagName)) {
+                    ScriptComponent component = scriptCM.get(id);
+                    if(component == null) {
+                        component = scriptCM.create(id);
+                        component.engine = engine;
+                    }
+                    T script = component.addScript(scriptClazz);
+                    script.init(id);
+                }
+            }
+        }
+    }
+
+    /**
+     * Attach a script to the entity using {@link ScriptComponent}
+     * @param script script instance
+     */
+    public void addScriptByTagName(String tagName, IScript script) {
+        IntBag entities = engine.getAspectSubscriptionManager()
+                .get(Aspect.all(MainItemComponent.class))
+                .getEntities();
+
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int id = entities.get(i);
+            MainItemComponent mainItemComponent = mainItemCM.get(id);
+            for (String tag : mainItemComponent.tags) {
+                if (tag.equals(tagName)) {
+                    ScriptComponent component = scriptCM.get(id);
+                    if (component == null) {
+                        component = scriptCM.create(id);
+                        component.engine = engine;
+                    }
+                    component.addScript(script);
+                    script.init(id);
                 }
             }
         }
