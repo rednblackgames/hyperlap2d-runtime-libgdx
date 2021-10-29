@@ -49,8 +49,6 @@ import games.rednblack.editor.renderer.utils.DefaultShaders;
  * Fourth, load a scene using loadScene
  */
 public class SceneLoader {
-    public static final int BATCH_VERTICES_SIZE = 2000;
-
     // Initialised when a SceneLoader is instantiated
     private String curResolution = "orig";
     private World world;

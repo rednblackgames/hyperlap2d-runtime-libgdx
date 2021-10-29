@@ -3,6 +3,7 @@ package games.rednblack.editor.renderer;
 import com.artemis.BaseSystem;
 import com.artemis.SystemInvocationStrategy;
 import com.artemis.WorldConfigurationBuilder;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -17,7 +18,6 @@ import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.CpuPolygonSpriteBatch;
 
-import static games.rednblack.editor.renderer.SceneLoader.BATCH_VERTICES_SIZE;
 import static games.rednblack.editor.renderer.SceneLoader.createDefaultShader;
 
 public class SceneConfiguration {
@@ -35,6 +35,14 @@ public class SceneConfiguration {
     private int expectedEntityCount = 128;
 
     public SceneConfiguration() {
+        this(2000);
+    }
+
+    public SceneConfiguration(int batchSize) {
+        this(new CpuPolygonSpriteBatch(batchSize, createDefaultShader()));
+    }
+
+    public SceneConfiguration(Batch batch) {
         addSystem(new LayerSystem());
         addSystem(new ParticleSystem());
         addSystem(new SpriteAnimationSystem());
@@ -46,7 +54,7 @@ public class SceneConfiguration {
         addSystem(new ActionSystem());
         addSystem(new BoundingBoxSystem());
         addSystem(new CullingSystem());
-        addSystem(new HyperLap2dRenderer(new CpuPolygonSpriteBatch(BATCH_VERTICES_SIZE, createDefaultShader())));
+        addSystem(new HyperLap2dRenderer(batch));
         addSystem(new ButtonSystem());
     }
 
