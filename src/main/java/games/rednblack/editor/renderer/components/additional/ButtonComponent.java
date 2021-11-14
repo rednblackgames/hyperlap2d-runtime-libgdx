@@ -1,11 +1,13 @@
 package games.rednblack.editor.renderer.components.additional;
 
 import com.artemis.PooledComponent;
+import com.artemis.annotations.Transient;
 import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by azakhary on 8/1/2015.
  */
+@Transient
 public class ButtonComponent extends PooledComponent {
 
     public boolean isTouched = false;

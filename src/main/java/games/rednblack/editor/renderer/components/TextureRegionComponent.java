@@ -9,18 +9,18 @@ import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
 public class TextureRegionComponent extends RefreshableComponent {
 
-    protected ComponentMapper<DimensionsComponent> dimensionsCM;
-    protected ComponentMapper<PolygonComponent> polygonCM;
+    protected transient ComponentMapper<DimensionsComponent> dimensionsCM;
+    protected transient ComponentMapper<PolygonComponent> polygonCM;
 
     protected boolean needsRefresh = false;
 
     public String regionName = "";
-    public TextureRegion region = null;
+    public transient TextureRegion region = null;
     public boolean isRepeat = false;
     public boolean isPolygon = false;
 
     // optional
-    public RepeatablePolygonSprite repeatablePolygonSprite = null;
+    public transient RepeatablePolygonSprite repeatablePolygonSprite = null;
 
     public void setPolygonSprite(PolygonComponent polygonComponent) {
         Vector2[] verticesArray = PolygonUtils.mergeTouchingPolygonsToOne(polygonComponent.vertices);

@@ -1,15 +1,14 @@
 package games.rednblack.editor.renderer.data;
 
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
-import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Objects;
 
 public class LightVO extends MainItemVO {
 	//public int itemId = -1;
-	public enum LightType {POINT, CONE}
-	public LightType type;
+
+	public LightObjectComponent.LightType type;
 	public int rays = 12;
 	public float distance = 300;
 	public float directionDegree = 0;
@@ -51,7 +50,7 @@ public class LightVO extends MainItemVO {
 		super.loadFromEntity(entity, engine);
 
 		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class, engine);
-		type = lightObjectComponent.getType();
+		type = lightObjectComponent.type;
 		rays = lightObjectComponent.rays;
 		distance = lightObjectComponent.distance;
 		directionDegree = lightObjectComponent.directionDegree;

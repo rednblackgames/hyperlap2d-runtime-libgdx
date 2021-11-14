@@ -8,11 +8,11 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.StringBuilder;
 
 public class LabelComponent extends PooledComponent {
-	public  LabelStyle style;
-	public final GlyphLayout layout = new GlyphLayout();
-	public BitmapFontCache cache;
+	public transient LabelStyle style;
+	public transient final GlyphLayout layout = new GlyphLayout();
+	public transient BitmapFontCache cache;
 
-	public final StringBuilder text = new StringBuilder();
+	public StringBuilder text = new StringBuilder();
 	public String fontName;
 	public int fontSize;
 	public int labelAlign = Align.center;

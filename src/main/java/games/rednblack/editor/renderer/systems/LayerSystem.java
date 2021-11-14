@@ -23,6 +23,13 @@ public class LayerSystem extends IteratingSystem {
 	@Override
 	protected void process(int entityId) {
         NodeComponent nodeComponent = nodeMapper.get(entityId);
+        if (nodeComponent.children.size != nodeComponent.persistentChildren.size()) {
+            for(int i = 0; i < nodeComponent.persistentChildren.size(); i ++) {
+                int entityID = nodeComponent.persistentChildren.get(i);
+                if(!nodeComponent.children.contains(entityID, false))
+                    nodeComponent.children.add(entityID);
+            }
+        }
         LayerMapComponent layerMapComponent = layerMapper.get(entityId);
         updateLayers(nodeComponent.children, layerMapComponent);
 

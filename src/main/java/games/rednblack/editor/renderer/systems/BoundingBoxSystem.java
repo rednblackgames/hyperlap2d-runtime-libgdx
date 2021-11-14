@@ -22,7 +22,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         BoundingBoxComponent b = boundingBoxMapper.get(entity);
 
         MainItemComponent m = null;
-        if (parentNode != null){
+        if (parentNode != null && parentNode.parentEntity != -1){
             m = mainItemMapper.get(parentNode.parentEntity);
         }
 
@@ -75,7 +75,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);
 
         float checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
-        while (parentNode != null) {
+        while (parentNode != null && parentNode.parentEntity != -1) {
             TransformComponent pt = transformMapper.get(parentNode.parentEntity);
             DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);
             if (pt == null || dt == null)

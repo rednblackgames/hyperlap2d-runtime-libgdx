@@ -80,7 +80,7 @@ public class CompositeComponentFactory extends ComponentFactory {
 
         // Else, if it has a parent (root) we need to add it to the entity's parent reference and we need to add it to it's parent reference
         NodeComponent rootComponent = nodeCM.get(root);
-        rootComponent.children.add(entity);
+        rootComponent.addChild(entity);
 
         ParentNodeComponent entityComponent = parentNodeCM.get(entity);
         entityComponent.parentEntity = root;

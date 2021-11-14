@@ -85,7 +85,7 @@ public class LightComponentFactory extends ComponentFactory {
             vo.softnessLength = vo.distance * 0.1f;
         }
 
-        component.setType(vo.type);
+        component.type = vo.type;
         component.coneDegree = vo.coneDegree;
         component.directionDegree = vo.directionDegree;
         component.distance = vo.distance;
@@ -98,7 +98,7 @@ public class LightComponentFactory extends ComponentFactory {
         component.isActive = vo.isActive;
         component.isSoft = vo.isSoft;
 
-        if (component.getType() == LightVO.LightType.POINT) {
+        if (component.type == LightObjectComponent.LightType.POINT) {
             component.lightObject = new PointLight(rayHandler, component.rays);
         } else {
             component.lightObject = new ConeLight(rayHandler, component.rays, Color.WHITE, 1, 0, 0, 0, 0);

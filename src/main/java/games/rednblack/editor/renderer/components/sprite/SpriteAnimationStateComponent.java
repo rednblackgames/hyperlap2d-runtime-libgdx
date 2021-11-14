@@ -11,8 +11,8 @@ import java.util.Comparator;
 import java.util.Objects;
 
 public class SpriteAnimationStateComponent  extends PooledComponent {
-    public Array<TextureAtlas.AtlasRegion> allRegions;
-	public Animation<TextureRegion> currentAnimation;
+    public transient Array<TextureAtlas.AtlasRegion> allRegions;
+	public transient Animation<TextureRegion> currentAnimation;
 	public float time = 0.0f;
 
     public  boolean paused = false;
@@ -37,7 +37,7 @@ public class SpriteAnimationStateComponent  extends PooledComponent {
     }
 
     public void set(FrameRange range, int fps, Animation.PlayMode playMode) {
-        if (Objects.equals(range, lastFrameRange) && fps == lastFPS && Objects.equals(playMode, lastPlayMode))
+        if (Objects.equals(range, lastFrameRange) && fps == lastFPS && Objects.equals(playMode, lastPlayMode) && currentAnimation != null)
             return;
 
         Array<TextureAtlas.AtlasRegion> textureRegions = new Array<>(range.endFrame - range.startFrame + 1);

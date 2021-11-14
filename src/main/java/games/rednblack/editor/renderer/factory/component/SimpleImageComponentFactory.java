@@ -65,7 +65,8 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         initializeTextureRegionComponent(entity, textureRegionComponent, (SimpleImageVO) vo);
 
         adjustNodeHierarchy(root, entity);
-        updatePolygons(entity);
+
+        initializeSpecializedTransientComponents(entity);
 
         return entity;
     }
@@ -83,30 +84,37 @@ public class SimpleImageComponentFactory extends ComponentFactory {
 
     @Override
     protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
-        SimpleImageVO sVo = (SimpleImageVO) vo;
-        TextureRegion region = rm.getTextureRegion(sVo.imageName);
 
-        ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
-        ProjectInfoVO projectInfoVO = rm.getProjectVO();
-        float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
-
-        component.width = (float) region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
-        component.height = (float) region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
     }
 
     protected void initializeTextureRegionComponent(int entity, TextureRegionComponent component, SimpleImageVO vo) {
-        engine.inject(component);
         component.regionName = vo.imageName;
-        if (rm.hasTextureRegion(vo.imageName + ".normal")) {
-            TextureAtlas.AtlasRegion regionDiffuse = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName);
-            TextureAtlas.AtlasRegion normalRegion = (TextureAtlas.AtlasRegion) rm.getTextureRegion(vo.imageName + ".normal");
-            component.region = new ABAtlasRegion(regionDiffuse, normalRegion, normalMapRenderingCM.get(entity));
-        } else {
-            normalMapRenderingCM.remove(entity);
-            component.region = rm.getTextureRegion(vo.imageName);
-        }
         component.isRepeat = vo.isRepeat;
         component.isPolygon = vo.isPolygon;
     }
 
+    @Override
+    protected void initializeSpecializedTransientComponents(int entity) {
+        TextureRegionComponent component = textureRegionCM.get(entity);
+        engine.inject(component);
+
+        if (rm.hasTextureRegion(component.regionName + ".normal")) {
+            TextureAtlas.AtlasRegion regionDiffuse = (TextureAtlas.AtlasRegion) rm.getTextureRegion(component.regionName);
+            TextureAtlas.AtlasRegion normalRegion = (TextureAtlas.AtlasRegion) rm.getTextureRegion(component.regionName + ".normal");
+            component.region = new ABAtlasRegion(regionDiffuse, normalRegion, normalMapRenderingCM.get(entity));
+        } else {
+            normalMapRenderingCM.remove(entity);
+            component.region = rm.getTextureRegion(component.regionName);
+        }
+
+        DimensionsComponent dimension = dimensionsCM.get(entity);
+        ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
+
+        dimension.width = (float) component.region.getRegionWidth() * multiplier / projectInfoVO.pixelToWorld;
+        dimension.height = (float) component.region.getRegionHeight() * multiplier / projectInfoVO.pixelToWorld;
+
+        updatePolygons(entity);
+    }
 }

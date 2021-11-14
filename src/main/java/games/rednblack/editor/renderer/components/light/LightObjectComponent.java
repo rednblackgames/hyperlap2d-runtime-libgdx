@@ -6,18 +6,17 @@ import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.data.LightVO;
-import games.rednblack.editor.renderer.data.LightVO.LightType;
 
 public class LightObjectComponent extends PooledComponent {
-	private LightType type;
+	public enum LightType {POINT, CONE}
+	public LightType type;
 
 	public int rays = 12;
-	public float distance = 10;
+	public float distance = 300;
 	public float directionDegree = 0;
 	public float height = 0;
-	public float coneDegree = 30;
-	public float softnessLength = 1f;
+	public float coneDegree = 45;
+	public float softnessLength = -1f;
 	public float intensity = 1f;
 
 	public boolean isStatic = true;
@@ -25,17 +24,9 @@ public class LightObjectComponent extends PooledComponent {
 	public boolean isSoft = true;
 	public boolean isActive = true;
 
-	public Light lightObject = null;
+	public transient Light lightObject = null;
 
 	public LightObjectComponent() {
-	}
-
-	public void setType(LightType type) {
-		this.type = type;
-	}
-
-	public LightType getType(){
-		return type;
 	}
 
 	public Light rebuildRays(RayHandler rayHandler) {
@@ -44,7 +35,7 @@ public class LightObjectComponent extends PooledComponent {
 
 		lightObject.remove();
 
-		if (getType() == LightVO.LightType.POINT) {
+		if (type == LightType.POINT) {
 			lightObject = new PointLight(rayHandler, rays);
 		} else {
 			lightObject = new ConeLight(rayHandler, rays, Color.WHITE, 1, 0, 0, 0, 0);

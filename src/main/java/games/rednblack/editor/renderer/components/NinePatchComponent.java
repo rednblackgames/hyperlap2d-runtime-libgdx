@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 
 public class NinePatchComponent  extends PooledComponent {
 	public String textureRegionName;
-	public NinePatch ninePatch;
+	public transient NinePatch ninePatch;
 
 	@Override
 	public void reset() {

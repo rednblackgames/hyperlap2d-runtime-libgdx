@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 public class ShaderComponent  extends PooledComponent {
 	public MainItemVO.RenderingLayer renderingLayer;
 	public String shaderName = "";
-	private ShaderProgram shaderProgram = null;
+	private transient ShaderProgram shaderProgram = null;
 
-	private final Pattern pattern = Pattern.compile("uniform +(int|float|vec2|vec3|vec4) +([^\\s]*) *(=.*)?;", Pattern.MULTILINE);
+	private transient final Pattern pattern = Pattern.compile("uniform +(int|float|vec2|vec3|vec4) +([^\\s]*) *(=.*)?;", Pattern.MULTILINE);
 
 	//Map that stores uniforms' name with their types
 	public final ObjectMap<String, String> uniforms = new ObjectMap<>();

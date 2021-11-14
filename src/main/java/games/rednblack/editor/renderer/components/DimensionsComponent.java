@@ -35,21 +35,25 @@ public class DimensionsComponent  extends PooledComponent {
     }
 
     public void setFromShape(PolygonShapeVO shape) {
+        setFromShape(shape.polygons);
+    }
+
+    public void setFromShape(Vector2[][] polygons) {
         Vector2 minPoint = new Vector2();
         Vector2 maxPoint = new Vector2();
-        if(shape.polygons != null) {
-            for(int i = 0; i < shape.polygons.length; i++) {
-                for(int j = 0; j < shape.polygons[i].length; j++) {
+        if(polygons != null) {
+            for(int i = 0; i < polygons.length; i++) {
+                for(int j = 0; j < polygons[i].length; j++) {
                     if(i == 0 && j == 0) {
-                        minPoint.x = shape.polygons[i][j].x;
-                        minPoint.y = shape.polygons[i][j].y;
-                        maxPoint.x = shape.polygons[i][j].x;
-                        maxPoint.y = shape.polygons[i][j].y;
+                        minPoint.x = polygons[i][j].x;
+                        minPoint.y = polygons[i][j].y;
+                        maxPoint.x = polygons[i][j].x;
+                        maxPoint.y = polygons[i][j].y;
                     }
-                    if(minPoint.x > shape.polygons[i][j].x) minPoint.x = shape.polygons[i][j].x;
-                    if(minPoint.y > shape.polygons[i][j].y) minPoint.y = shape.polygons[i][j].y;
-                    if(maxPoint.x < shape.polygons[i][j].x) maxPoint.x = shape.polygons[i][j].x;
-                    if(maxPoint.y < shape.polygons[i][j].y) maxPoint.y = shape.polygons[i][j].y;
+                    if(minPoint.x > polygons[i][j].x) minPoint.x = polygons[i][j].x;
+                    if(minPoint.y > polygons[i][j].y) minPoint.y = polygons[i][j].y;
+                    if(maxPoint.x < polygons[i][j].x) maxPoint.x = polygons[i][j].x;
+                    if(maxPoint.y < polygons[i][j].y) maxPoint.y = polygons[i][j].y;
                 }
             }
             width = maxPoint.x - minPoint.x;

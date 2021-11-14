@@ -10,7 +10,7 @@ public class ParticleComponent extends PooledComponent {
     public float worldMultiplier = 1f;
     private float scaleFactor = 1f;
 
-    public ParticleEffect particleEffect;
+    public transient ParticleEffect particleEffect;
 
     public void scaleEffect(float scale) {
         scaleFactor = scale;

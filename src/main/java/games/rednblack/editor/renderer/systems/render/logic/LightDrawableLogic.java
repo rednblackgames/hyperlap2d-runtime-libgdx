@@ -24,7 +24,8 @@ public class LightDrawableLogic implements DrawableLogic {
         tmpColor.set(tint.color);
         tmpColor.a *= tintComponentMapper.get(parentNodeComponentComponentMapper.get(entity).parentEntity).color.a;
 
-        lightObjectComponent.lightObject.setColor(tmpColor);
+        if (lightObjectComponent.lightObject != null)
+            lightObjectComponent.lightObject.setColor(tmpColor);
     }
 
 }

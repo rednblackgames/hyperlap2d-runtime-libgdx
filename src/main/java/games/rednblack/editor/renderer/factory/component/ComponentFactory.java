@@ -124,6 +124,8 @@ public abstract class ComponentFactory {
         checkLightBodyComponent(entity, vo);
         checkShaderComponent(entity, vo);
 
+        initializeTransientComponents(entity);
+
         return entity;
     }
 
@@ -177,7 +179,7 @@ public abstract class ComponentFactory {
     }
 
     protected void initializeScriptComponent(ScriptComponent component, MainItemVO vo) {
-        component.engine = engine;
+
     }
 
     protected void initializeMeshComponent(int entity, MainItemVO vo) {
@@ -213,7 +215,6 @@ public abstract class ComponentFactory {
     }
 
     protected void initializePhysicsBodyPropertiesComponent(PhysicsBodyComponent component, MainItemVO vo) {
-        engine.inject(component);
         component.allowSleep = vo.physics.allowSleep;
         component.sensor = vo.physics.sensor;
         component.awake = vo.physics.awake;
@@ -243,8 +244,6 @@ public abstract class ComponentFactory {
     }
 
     protected void initializeSensorComponent(SensorComponent component, MainItemVO vo) {
-        engine.inject(component);
-
         component.bottom = vo.sensor.bottom;
         component.left = vo.sensor.left;
         component.right = vo.sensor.right;
@@ -263,7 +262,6 @@ public abstract class ComponentFactory {
         }
 
         LightBodyComponent component = lightBodyCM.get(entity);
-        engine.inject(component);
         component.rays = vo.light.rays;
         component.color = vo.light.color;
         component.distance = vo.light.distance;
@@ -283,24 +281,41 @@ public abstract class ComponentFactory {
             return;
         }
         ShaderComponent component = shaderCM.get(entity);
-        component.setShader(vo.shaderName, rm.getShaderProgram(vo.shaderName));
+        component.shaderName = vo.shaderName;
         component.customUniforms.putAll(vo.shaderUniforms);
         component.renderingLayer = vo.renderingLayer;
     }
 
-    protected void initializeParentNodeComponent(int root, int entity) {
-        ParentNodeComponent component = parentNodeCM.create(entity);
-        component.parentEntity = root;
+    protected void initializeTransientComponents(int entity) {
+        if (scriptCM.has(entity)) {
+            scriptCM.get(entity).engine = engine;
+        }
+
+        if (physicsBodyCM.has(entity)) {
+            engine.inject(physicsBodyCM.get(entity));
+        }
+
+        if (sensorCM.has(entity)) {
+            engine.inject(sensorCM.get(entity));
+        }
+
+        if (lightBodyCM.has(entity)) {
+            engine.inject(lightBodyCM.get(entity));
+        }
+
+        if (shaderCM.has(entity)) {
+            ShaderComponent component = shaderCM.get(entity);
+            component.setShader(component.shaderName, rm.getShaderProgram(component.shaderName));
+        }
     }
 
-    protected void createNodeComponent(int root, int entity) {
-        NodeComponent component = nodeCM.get(root);
-        component.children.add(entity);
+    protected void initializeSpecializedTransientComponents(int entity) {
+
     }
 
     protected void adjustNodeHierarchy(int root, int entity) {
         // Add this component to it's parents children references
-        nodeCM.get(root).children.add(entity);
+        nodeCM.get(root).addChild(entity);
         // Set the entity's parent reference to it's parent
         parentNodeCM.get(entity).parentEntity=root;
     }

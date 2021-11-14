@@ -24,6 +24,7 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.factory.ActionFactory;
 import games.rednblack.editor.renderer.factory.EntityFactory;
+import games.rednblack.editor.renderer.factory.v2.EntityFactoryV2;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
@@ -56,6 +57,7 @@ public class SceneLoader {
     private IResourceRetriever rm;
     private HyperLap2dRenderer renderer;
     private EntityFactory entityFactory;
+    private EntityFactoryV2 entityFactoryV2;
 
     // Initialised when injectExternalItemType is called
 
@@ -91,6 +93,7 @@ public class SceneLoader {
      */
     private void initSceneLoader(SceneConfiguration configuration) {
         entityFactory = new EntityFactory();
+        entityFactoryV2 = new EntityFactoryV2(entityFactory.entities);
 
         renderer = configuration.getSystem(HyperLap2dRenderer.class);
 
@@ -114,11 +117,13 @@ public class SceneLoader {
         for (IExternalItemType itemType : configuration.getExternalItemTypes()) {
             itemType.injectMappers();
             entityFactory.addExternalFactory(itemType);
+            entityFactoryV2.addExternalFactory(itemType);
             renderer.addDrawableType(itemType);
         }
         renderer.injectMappers(engine);
 
         entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
+        entityFactoryV2.injectExternalItemType(engine, rayHandler, world, rm);
     }
 
     public void setResolution(String resolutionName) {
@@ -157,9 +162,11 @@ public class SceneLoader {
                             }
 
                             int parentEntity = parentComponent.parentEntity;
-                            NodeComponent parentNodeComponent = nodeCM.get(parentEntity);
-                            if (parentNodeComponent != null)
-                                parentNodeComponent.removeChild(entity);
+                            if (parentEntity != -1) {
+                                NodeComponent parentNodeComponent = nodeCM.get(parentEntity);
+                                if (parentNodeComponent != null)
+                                    parentNodeComponent.removeChild(entity);
+                            }
 
                             // check if composite and remove all children
                             NodeComponent nodeComponent = nodeCM.get(entity);
@@ -235,6 +242,7 @@ public class SceneLoader {
         }
 
         entityFactory.clean();
+        entityFactoryV2.clean();
         //Update the engine to ensure that all pending operations are completed!!
         engine.setDelta(0);
         engine.process();
@@ -475,6 +483,10 @@ public class SceneLoader {
 
     public EntityFactory getEntityFactory() {
         return entityFactory;
+    }
+
+    public EntityFactoryV2 getEntityFactoryV2() {
+        return entityFactoryV2;
     }
 
     public IResourceRetriever getRm() {

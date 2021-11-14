@@ -39,7 +39,7 @@ public class EntityFactory {
 
     // TODO: Do we still need it? Like, in Artemis all enties are already identified by a Unique ID
 //    private final HashMap<Integer, Entitiy> entities = new HashMap<>();
-    private final IntIntMap entities = new IntIntMap();
+    public final IntIntMap entities = new IntIntMap();
 
     public RayHandler rayHandler;
     public World world;

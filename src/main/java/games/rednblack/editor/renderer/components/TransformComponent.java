@@ -14,8 +14,8 @@ public class TransformComponent extends PooledComponent {
     public float scaleX = 1f;
     public float scaleY = 1f;
     public float rotation;
-    public float originX;
-    public float originY;
+    public float originX = Float.NaN;
+    public float originY = Float.NaN;
     public boolean flipX = false;
     public boolean flipY = false;
 

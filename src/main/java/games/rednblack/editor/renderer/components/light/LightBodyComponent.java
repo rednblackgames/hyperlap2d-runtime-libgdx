@@ -14,9 +14,9 @@ import games.rednblack.editor.renderer.utils.PolygonUtils;
 
 public class LightBodyComponent extends RefreshableComponent implements RemovableObject {
 
-    protected ComponentMapper<TransformComponent> transformCM;
-    protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
-    protected ComponentMapper<PolygonComponent> polygonCM;
+    protected transient ComponentMapper<TransformComponent> transformCM;
+    protected transient ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
+    protected transient ComponentMapper<PolygonComponent> polygonCM;
 
     protected boolean needsRefresh = false;
 
@@ -32,8 +32,8 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
     public boolean isActive = true;
     public float intensity = 1f;
 
-    public ChainLight lightObject;
-    private RayHandler rayHandler;
+    public transient ChainLight lightObject;
+    private transient RayHandler rayHandler;
 
     public LightBodyComponent() {
 

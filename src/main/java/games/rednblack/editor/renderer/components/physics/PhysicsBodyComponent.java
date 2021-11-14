@@ -16,7 +16,7 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     public static final int FIXTURE_TYPE_SENSORS = 1;
     public static final int FIXTURE_TYPE_USER_DEFINED = 2;
 
-    protected com.artemis.World engine;
+    protected transient com.artemis.World engine;
 
     protected boolean needsRefresh = false;
 
@@ -45,11 +45,11 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     public float centerX;
     public float centerY;
 
-    public Body body;
+    public transient Body body;
     public PhysicsBodyDataVO.ShapeType shapeType = PhysicsBodyDataVO.ShapeType.POLYGON;
 
-    public final IntMap<Array<Fixture>> fixturesMap = new IntMap<>();
-    private final ObjectIntMap<Fixture> inverseFixtureMap = new ObjectIntMap<>();
+    public transient final IntMap<Array<Fixture>> fixturesMap = new IntMap<>();
+    private transient final ObjectIntMap<Fixture> inverseFixtureMap = new ObjectIntMap<>();
 
     public PhysicsBodyComponent() {
 

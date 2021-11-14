@@ -41,6 +41,8 @@ public class LightSystem extends IteratingSystem {
         LightObjectComponent lightObjectComponent = lightObjectComponentMapper.get(entityId);
 
         Light light = lightObjectComponent.lightObject;
+        if (light == null) return;
+
         if (light.getRayNum() != lightObjectComponent.rays) {
             light = lightObjectComponent.rebuildRays(rayHandler);
         }
@@ -64,16 +66,14 @@ public class LightSystem extends IteratingSystem {
             parentEntity = parentNodeComponent.parentEntity;
         }
 
-        if (light != null) {
-            light.setPosition(localCoord.x, localCoord.y);
-            light.setSoftnessLength(lightObjectComponent.softnessLength);
-            light.setActive(lightObjectComponent.isActive);
-            light.setSoft(lightObjectComponent.isSoft);
-            light.setHeight(lightObjectComponent.height);
-            light.setIntensity(lightObjectComponent.intensity);
-        }
+        light.setPosition(localCoord.x, localCoord.y);
+        light.setSoftnessLength(lightObjectComponent.softnessLength);
+        light.setActive(lightObjectComponent.isActive);
+        light.setSoft(lightObjectComponent.isSoft);
+        light.setHeight(lightObjectComponent.height);
+        light.setIntensity(lightObjectComponent.intensity);
 
-        if (lightObjectComponent.getType() == LightVO.LightType.POINT) {
+        if (lightObjectComponent.type == LightObjectComponent.LightType.POINT) {
             lightObjectComponent.lightObject.setColor(Color.CLEAR);
             lightObjectComponent.lightObject.setDistance(lightObjectComponent.distance);
             lightObjectComponent.lightObject.setStaticLight(lightObjectComponent.isStatic);
