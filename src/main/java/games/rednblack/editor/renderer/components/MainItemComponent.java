@@ -38,7 +38,7 @@ public class MainItemComponent  extends PooledComponent {
 
 	@Override
 	public void reset() {
-		uniqueId = 0;
+		uniqueId = -1;
 		itemIdentifier = "";
 		libraryLink = "";
 		tags.clear();
