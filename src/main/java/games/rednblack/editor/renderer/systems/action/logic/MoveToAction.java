@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.systems.action.data.MoveToData;
 
@@ -8,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.MoveToData;
  * Created by ZeppLondon on 10/13/2015.
  */
 public class MoveToAction<T extends MoveToData> extends TemporalAction<T> {
-    protected ComponentMapper<TransformComponent> transformMapper;
 
     @Override
     public void update(float percent, int entity, T actionData) {

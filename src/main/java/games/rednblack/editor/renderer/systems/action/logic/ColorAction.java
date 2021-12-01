@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.systems.action.data.ColorData;
 
@@ -8,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.ColorData;
  * Created by ZeppLondon on 10/28/15.
  */
 public class ColorAction<T extends ColorData> extends TemporalAction<T> {
-    protected ComponentMapper<TintComponent> tintMapper;
 
     @Override
     protected void update(float percent, int entity, T actionData) {

@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.systems.action.data.SizeByData;
 
@@ -8,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.SizeByData;
  * Created by ZeppLondon on 10/28/15.
  */
 public class SizeByAction<T extends SizeByData> extends RelativeTemporalAction<T> {
-    protected ComponentMapper<DimensionsComponent> dimensionsMapper;
 
     @Override
     protected void updateRelative(float percentDelta, int entity, T actionData) {

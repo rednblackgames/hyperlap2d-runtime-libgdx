@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.systems.action.data.ScaleToData;
 
@@ -8,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.ScaleToData;
  * Created by ZeppLondon on 10/28/15.
  */
 public class ScaleToAction<T extends ScaleToData> extends TemporalAction<T> {
-    protected ComponentMapper<TransformComponent> transformMapper;
 
     @Override
     protected void update(float percent, int entity, T actionData) {

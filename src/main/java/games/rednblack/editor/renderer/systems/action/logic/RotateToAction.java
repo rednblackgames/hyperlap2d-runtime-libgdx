@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.logic;
 
-import com.artemis.ComponentMapper;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.systems.action.data.RotateToData;
 
@@ -8,7 +7,6 @@ import games.rednblack.editor.renderer.systems.action.data.RotateToData;
  * Created by ZeppLondon on 10/16/2015.
  */
 public class RotateToAction<T extends RotateToData> extends TemporalAction<T> {
-    protected ComponentMapper<TransformComponent> transformMapper;
 
     @Override
     protected void update(float percent, int entity, T actionData) {
