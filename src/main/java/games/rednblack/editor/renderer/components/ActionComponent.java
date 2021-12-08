@@ -7,7 +7,7 @@ import games.rednblack.editor.renderer.systems.action.data.ActionData;
 /**
  * Created by ZeppLondon on 10/13/2015.
  */
-public class ActionComponent  extends PooledComponent {
+public class ActionComponent extends PooledComponent {
     public Array<ActionData> dataArray = new Array<>(true, 0);
 
     @Override
