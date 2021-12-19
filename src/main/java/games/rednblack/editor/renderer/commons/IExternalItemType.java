@@ -20,7 +20,6 @@ package games.rednblack.editor.renderer.commons;
 
 import com.artemis.BaseSystem;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
-import games.rednblack.editor.renderer.factory.v2.ComponentFactoryV2;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 
 /**
@@ -34,8 +33,6 @@ public interface IExternalItemType {
     BaseSystem getSystem();
 
     ComponentFactory getComponentFactory();
-
-    ComponentFactoryV2 getComponentFactoryV2();
 
     void injectMappers();
 }

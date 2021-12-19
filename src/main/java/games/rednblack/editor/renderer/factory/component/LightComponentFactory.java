@@ -1,21 +1,3 @@
-/*
- * ******************************************************************************
- *  * Copyright 2015 See AUTHORS file.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *   http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
- *  *****************************************************************************
- */
-
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
@@ -29,7 +11,6 @@ import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.data.LightVO;
@@ -47,56 +28,16 @@ public class LightComponentFactory extends ComponentFactory {
     public LightComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
         transmuter = new EntityTransmuterFactory(engine)
-                .add(ParentNodeComponent.class)
                 .add(LightObjectComponent.class)
                 .remove(BoundingBoxComponent.class)
                 .build();
     }
 
     @Override
-    public int createSpecialisedEntity(int root, MainItemVO vo) {
-        int entity = createGeneralEntity(vo, EntityFactory.LIGHT_TYPE);
-        transmuter.transmute(entity);
+    protected void initializeTransientComponents(int entity) {
+        super.initializeTransientComponents(entity);
 
-        adjustNodeHierarchy(root, entity);
-
-        initializeLightObjectComponent(lightObjectCM.get(entity), (LightVO) vo);
-
-        return entity;
-    }
-
-    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
-        ProjectInfoVO projectInfoVO = rm.getProjectVO();
-        float boundBoxSize = 50f;
-        component.boundBox = new Rectangle((-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, (-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld);
-        component.width = boundBoxSize / projectInfoVO.pixelToWorld;
-        component.height = boundBoxSize / projectInfoVO.pixelToWorld;
-    }
-
-    @Override
-    protected void initializeTransformComponent(TransformComponent component, MainItemVO vo, DimensionsComponent dimensionsComponent) {
-        super.initializeTransformComponent(component, vo, dimensionsComponent);
-        component.originX = 0;
-        component.originY = 0;
-    }
-
-    protected void initializeLightObjectComponent(LightObjectComponent component, LightVO vo) {
-        if (vo.softnessLength == -1f) {
-            vo.softnessLength = vo.distance * 0.1f;
-        }
-
-        component.type = vo.type;
-        component.coneDegree = vo.coneDegree;
-        component.directionDegree = vo.directionDegree;
-        component.distance = vo.distance;
-        component.height = vo.height;
-        component.intensity = vo.intensity;
-        component.softnessLength = vo.softnessLength;
-        component.isStatic = vo.isStatic;
-        component.isXRay = vo.isXRay;
-        component.rays = vo.rays;
-        component.isActive = vo.isActive;
-        component.isSoft = vo.isSoft;
+        LightObjectComponent component = lightObjectCM.get(entity);
 
         if (component.type == LightObjectComponent.LightType.POINT) {
             component.lightObject = new PointLight(rayHandler, component.rays);
@@ -104,6 +45,75 @@ public class LightComponentFactory extends ComponentFactory {
             component.lightObject = new ConeLight(rayHandler, component.rays, Color.WHITE, 1, 0, 0, 0, 0);
         }
 
+        if (component.softnessLength == -1f) {
+            component.softnessLength = component.distance * 0.1f;
+        }
         component.lightObject.setSoftnessLength(component.softnessLength);
+    }
+
+    @Override
+    protected void initializeDimensionsComponent(int entity) {
+        DimensionsComponent component = dimensionsCM.get(entity);
+
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        float boundBoxSize = 50f;
+        if (component.boundBox == null)
+            component.boundBox = new Rectangle((-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, (-boundBoxSize / 2f) / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld, boundBoxSize / projectInfoVO.pixelToWorld);
+        component.width = boundBoxSize / projectInfoVO.pixelToWorld;
+        component.height = boundBoxSize / projectInfoVO.pixelToWorld;
+    }
+
+    @Override
+    protected void postEntityInitialization(int entity) {
+        super.postEntityInitialization(entity);
+
+        TransformComponent component = transformCM.get(entity);
+        component.originX = 0;
+        component.originY = 0;
+    }
+
+    @Override
+    public void transmuteEntity(int entity) {
+        transmuter.transmute(entity);
+    }
+
+    @Override
+    public int getEntityType() {
+        return EntityFactory.LIGHT_TYPE;
+    }
+
+    @Override
+    public void setInitialData(int entity, Object data) {
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        LightObjectComponent component = lightObjectCM.get(entity);
+        component.type = (LightObjectComponent.LightType) data;
+        component.distance = component.distance / projectInfoVO.pixelToWorld;
+    }
+
+    @Override
+    public Class<LightVO> getVOType() {
+        return LightVO.class;
+    }
+
+    @Override
+    public void initializeSpecialComponentsFromVO(int entity, MainItemVO voG) {
+        LightVO vo = (LightVO) voG;
+        TransformComponent transformComponent = transformCM.get(entity);
+        transformComponent.originX = 0;
+        transformComponent.originY = 0;
+
+        LightObjectComponent lightObjectComponent = lightObjectCM.get(entity);
+        lightObjectComponent.type = vo.type;
+        lightObjectComponent.coneDegree = vo.coneDegree;
+        lightObjectComponent.directionDegree = vo.directionDegree;
+        lightObjectComponent.distance = vo.distance;
+        lightObjectComponent.height = vo.height;
+        lightObjectComponent.intensity = vo.intensity;
+        lightObjectComponent.softnessLength = vo.softnessLength;
+        lightObjectComponent.isStatic = vo.isStatic;
+        lightObjectComponent.isXRay = vo.isXRay;
+        lightObjectComponent.rays = vo.rays;
+        lightObjectComponent.isActive = vo.isActive;
+        lightObjectComponent.isSoft = vo.isSoft;
     }
 }

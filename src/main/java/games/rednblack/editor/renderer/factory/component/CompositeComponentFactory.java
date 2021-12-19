@@ -1,21 +1,3 @@
-/*
- * ******************************************************************************
- *  * Copyright 2015 See AUTHORS file.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *   http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
- *  *****************************************************************************
- */
-
 package games.rednblack.editor.renderer.factory.component;
 
 import com.artemis.ComponentMapper;
@@ -24,27 +6,26 @@ import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
-import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.CompositeTransformComponent;
+import games.rednblack.editor.renderer.components.DimensionsComponent;
+import games.rednblack.editor.renderer.components.LayerMapComponent;
+import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
 import games.rednblack.editor.renderer.data.LayerItemVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
-/**
- * Created by azakhary on 5/22/2015.
- */
 public class CompositeComponentFactory extends ComponentFactory {
 
-    protected ComponentMapper<CompositeTransformComponent> compositeTransformCM;
     protected ComponentMapper<LayerMapComponent> layerMapCM;
+    protected ComponentMapper<CompositeTransformComponent> compositeTransformCM;
 
     private final EntityTransmuter transmuter;
 
     public CompositeComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
         transmuter = new EntityTransmuterFactory(engine)
-                .add(ParentNodeComponent.class)
                 .add(NodeComponent.class)
                 .add(CompositeTransformComponent.class)
                 .add(LayerMapComponent.class)
@@ -52,50 +33,65 @@ public class CompositeComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public int createSpecialisedEntity(int root, MainItemVO vo) {
-        int entity = createGeneralEntity(vo, EntityFactory.COMPOSITE_TYPE);
-        transmuter.transmute(entity);
+    protected void initializeDimensionsComponent(int entity) {
 
-        adjustNodeHierarchy(root,entity);
-
-        initializeCompositeComponents(compositeTransformCM.get(entity), (CompositeItemVO) vo);
-        initializeLayerMapComponents(layerMapCM.get(entity), (CompositeItemVO) vo);
-
-        return entity;
-    }
-
-    protected void initializeDimensionsComponent(int entity, DimensionsComponent component, MainItemVO vo) {
-        component.width = ((CompositeItemVO) vo).width;
-        component.height = ((CompositeItemVO) vo).height;
-        component.boundBox = new Rectangle(0, 0, component.width, component.height);
     }
 
     @Override
-    protected void adjustNodeHierarchy(int root, int entity) {
-        // It it self is the rootEntity, we don't require a ParentNodeComponent in here and we only need a NodeComponent, no other initialization
-        if (root == -1) {
-            parentNodeCM.remove(entity);
-            return;
-        }
+    protected void postEntityInitialization(int entity) {
+        super.postEntityInitialization(entity);
 
-        // Else, if it has a parent (root) we need to add it to the entity's parent reference and we need to add it to it's parent reference
-        NodeComponent rootComponent = nodeCM.get(root);
-        rootComponent.addChild(entity);
-
-        ParentNodeComponent entityComponent = parentNodeCM.get(entity);
-        entityComponent.parentEntity = root;
+        DimensionsComponent dimensions = dimensionsCM.get(entity);
+        if (dimensions.boundBox == null)
+            dimensions.boundBox = new Rectangle(0, 0, dimensions.width, dimensions.height);
     }
 
-    protected void initializeCompositeComponents(CompositeTransformComponent component, CompositeItemVO vo) {
-        component.automaticResize = vo.automaticResize;
-        component.scissorsEnabled = vo.scissorsEnabled;
-        component.renderToFBO = vo.renderToFBO;
+    @Override
+    public void transmuteEntity(int entity) {
+        transmuter.transmute(entity);
     }
 
-    protected void initializeLayerMapComponents(LayerMapComponent component, CompositeItemVO vo) {
+    @Override
+    public int getEntityType() {
+        return EntityFactory.COMPOSITE_TYPE;
+    }
+
+    @Override
+    public void setInitialData(int entity, Object data) {
+        LayerMapComponent layerMap = layerMapCM.get(entity);
+        if (layerMap.getLayers().size() == 0)
+            layerMap.addLayer(createDefaultLayer());
+    }
+
+    @Override
+    public Class<CompositeItemVO> getVOType() {
+        return CompositeItemVO.class;
+    }
+
+    @Override
+    public void initializeSpecialComponentsFromVO(int entity, MainItemVO voG) {
+        CompositeItemVO vo = (CompositeItemVO) voG;
+        DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
+        dimensionsComponent.width = vo.width;
+        dimensionsComponent.height = vo.height;
+        dimensionsComponent.boundBox = new Rectangle(0, 0, dimensionsComponent.width, dimensionsComponent.height);
+
+        LayerMapComponent layerMapComponent = layerMapCM.get(entity);
         if (vo.composite.layers.size() == 0) {
             vo.composite.layers.add(LayerItemVO.createDefault());
         }
-        component.setLayers(vo.composite.layers);
+        layerMapComponent.setLayers(vo.composite.layers);
+
+        CompositeTransformComponent compositeTransformComponent = compositeTransformCM.get(entity);
+        compositeTransformComponent.automaticResize = vo.automaticResize;
+        compositeTransformComponent.scissorsEnabled = vo.scissorsEnabled;
+        compositeTransformComponent.renderToFBO = vo.renderToFBO;
+    }
+
+    public static LayerItemVO createDefaultLayer() {
+        LayerItemVO layerItemVO = new LayerItemVO();
+        layerItemVO.layerName = "Default";
+        layerItemVO.isVisible = true;
+        return layerItemVO;
     }
 }
