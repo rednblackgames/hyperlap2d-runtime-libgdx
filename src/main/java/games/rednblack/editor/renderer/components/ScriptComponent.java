@@ -15,7 +15,7 @@ import java.util.Iterator;
  * Created by azakhary on 6/19/2015.
  */
 @Transient
-public class ScriptComponent  extends PooledComponent {
+public class ScriptComponent extends PooledComponent {
     public static int SCRIPTS_POOL_SIZE = 100;
 
     public Array<IScript> scripts = new Array<>();
@@ -38,14 +38,16 @@ public class ScriptComponent  extends PooledComponent {
         Iterator<IScript> i = scripts.iterator();
         while (i.hasNext()) {
             IScript s = i.next();
-            //Free script into pool
-            if (s instanceof BasicScript) {
-                BasicScript b = (BasicScript) s;
-                if (b.getPool() != null)
-                    b.getPool().free(b);
-            }
             //Remove from scripts list
             if(s == script) {
+                s.dispose();
+                //Free script into pool
+                if (s instanceof BasicScript) {
+                    BasicScript b = (BasicScript) s;
+                    if (b.getPool() != null)
+                        b.getPool().free(b);
+                }
+
                 i.remove();
             }
         }
@@ -55,14 +57,16 @@ public class ScriptComponent  extends PooledComponent {
         Iterator<IScript> i = scripts.iterator();
         while (i.hasNext()) {
             IScript s = i.next();
-            //Free script into pool
-            if (s instanceof BasicScript) {
-                BasicScript b = (BasicScript) s;
-                if (b.getPool() != null)
-                    b.getPool().free(b);
-            }
             //Remove from scripts list
             if(s.getClass() == clazz) {
+                s.dispose();
+                //Free script into pool
+                if (s instanceof BasicScript) {
+                    BasicScript b = (BasicScript) s;
+                    if (b.getPool() != null)
+                        b.getPool().free(b);
+                }
+
                 i.remove();
             }
         }
@@ -71,6 +75,7 @@ public class ScriptComponent  extends PooledComponent {
     @Override
     public void reset() {
         for (IScript script : scripts) {
+            script.dispose();
             //Free script into pool
             if (script instanceof BasicScript) {
                 BasicScript b = (BasicScript) script;

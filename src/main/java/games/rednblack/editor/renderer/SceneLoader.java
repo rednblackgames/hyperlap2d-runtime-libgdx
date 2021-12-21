@@ -135,15 +135,6 @@ public class SceneLoader {
 
                     @Override
                     public void inserted(IntBag entities) {
-                        for (int i = 0, s = entities.size(); i < s; i++) {
-                            int entity = entities.get(i);
-                            ScriptComponent scriptComponent = scriptCM.get(entity);
-                            if (scriptComponent != null) {
-                                for (IScript script : scriptComponent.scripts) {
-                                    script.init(entity);
-                                }
-                            }
-                        }
                     }
 
                     @Override
@@ -191,13 +182,6 @@ public class SceneLoader {
                             if (lightBodyComponent != null && lightBodyComponent.lightObject != null) {
                                 lightBodyComponent.lightObject.remove(true);
                                 lightBodyComponent.lightObject = null;
-                            }
-
-                            ScriptComponent scriptComponent = scriptCM.get(entity);
-                            if (scriptComponent != null) {
-                                for (IScript script : scriptComponent.scripts) {
-                                    script.dispose();
-                                }
                             }
 
                             renderer.removeSpecialEntity(entity);
@@ -383,7 +367,6 @@ public class SceneLoader {
                         component.engine = engine;
                     }
                     T script = component.addScript(scriptClazz);
-                    script.init(id);
                 }
             }
         }
@@ -409,7 +392,6 @@ public class SceneLoader {
                         component.engine = engine;
                     }
                     component.addScript(script);
-                    script.init(id);
                 }
             }
         }

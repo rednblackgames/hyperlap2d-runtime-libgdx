@@ -8,12 +8,15 @@ import com.badlogic.gdx.utils.Pool;
 public abstract class BasicScript implements IScript, Pool.Poolable {
     private Pool pool;
     private boolean isInit = false;
-    protected int entity;
+    protected int entity = -1;
+
+    public final void doInit(int item) {
+        if (isInit) return;
+        init(item);
+    }
 
     @Override
     public void init(int item) {
-        if (isInit) return;
-
         entity = item;
         isInit = true;
     }

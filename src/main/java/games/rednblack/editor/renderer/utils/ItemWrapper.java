@@ -153,7 +153,6 @@ public class ItemWrapper {
             component.engine = engine;
         }
         component.addScript(script);
-        script.init(entity);
 
         return script;
     }
@@ -173,7 +172,6 @@ public class ItemWrapper {
             component.engine = engine;
         }
         T script = component.addScript(scriptClazz);
-        script.init(entity);
 
         return script;
     }
