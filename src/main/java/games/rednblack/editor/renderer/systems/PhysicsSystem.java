@@ -17,9 +17,8 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
 
-//TODO Fix interpolation in invocation strategy
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*, InterpolationSystem*/ {
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
@@ -40,16 +39,16 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*
 
     @Override
     protected final void processSystem() {
-        if (world != null && isPhysicsOn)
-            world.step(getWorld().getDelta(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
-
         IntBag actives = subscription.getEntities();
         int[] ids = actives.getData();
         for (int i = 0, s = actives.size(); s > i; i++) {
-            process(ids[i]);
-            //TODO remove this once interpolation will works
+            //Update previous state
             interpolate(ids[i], 1f);
+            process(ids[i]);
         }
+
+        if (world != null && isPhysicsOn)
+            world.step(getWorld().getDelta(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
     }
 
     /**
