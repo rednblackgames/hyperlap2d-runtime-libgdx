@@ -119,6 +119,7 @@ public class SceneLoader {
         renderer.injectMappers(engine);
 
         entityFactory.injectExternalItemType(engine, rayHandler, world, rm);
+        entityFactory.buildTagTransmuters(configuration.getTagTransmuters());
     }
 
     public void setResolution(String resolutionName) {

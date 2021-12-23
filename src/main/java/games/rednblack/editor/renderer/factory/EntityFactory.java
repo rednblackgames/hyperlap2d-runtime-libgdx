@@ -1,12 +1,16 @@
 package games.rednblack.editor.renderer.factory;
 
+import com.artemis.Component;
 import com.artemis.ComponentMapper;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -45,6 +49,8 @@ public class EntityFactory {
     private final IntMap<ComponentFactory> externalFactories = new IntMap<>();
     private final ObjectMap<Class<? extends MainItemVO>, ComponentFactory> factoriesVOMap = new ObjectMap<>();
 
+    private final ObjectMap<String, EntityTransmuter> tagTransmuter = new ObjectMap<>();
+
     // TODO: Do we still need it? Like, in Artemis all enties are already identified by a Unique ID
     private final IntIntMap entities = new IntIntMap();
 
@@ -82,6 +88,17 @@ public class EntityFactory {
 
         for (ComponentFactory factoryV2 : factoriesMap.values()) {
             factoriesVOMap.put(factoryV2.getVOType(), factoryV2);
+        }
+    }
+
+    public void buildTagTransmuters(ObjectMap<String, ObjectSet<Class<? extends Component>>> tags) {
+        for (String tag : tags.keys()) {
+            EntityTransmuterFactory factory = new EntityTransmuterFactory(engine);
+            ObjectSet<Class<? extends Component>> components = tags.get(tag);
+            for (Class<? extends Component> component : components) {
+                factory.add(component);
+            }
+            tagTransmuter.put(tag, factory.build());
         }
     }
 
@@ -181,6 +198,11 @@ public class EntityFactory {
 
         if (mainItemComponent.uniqueId == -1) mainItemComponent.uniqueId = getFreeId();
         entities.put(mainItemComponent.uniqueId, entity);
+
+        for (String tag : mainItemComponent.tags) {
+            EntityTransmuter transmuter = tagTransmuter.get(tag);
+            if (transmuter != null) transmuter.transmute(entity);
+        }
 
         return mainItemComponent.uniqueId;
     }

@@ -1,12 +1,12 @@
 package games.rednblack.editor.renderer;
 
-import com.artemis.BaseSystem;
-import com.artemis.SystemInvocationStrategy;
-import com.artemis.WorldConfigurationBuilder;
+import com.artemis.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.box2dLight.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -33,6 +33,8 @@ public class SceneConfiguration {
     // Artemis World, our Engine - config
     private final Array<SystemData<?>> systems = new Array<>();
     private int expectedEntityCount = 128;
+
+    private final ObjectMap<String, ObjectSet<Class<? extends Component>>> tagTransmuters = new ObjectMap<>();
 
     public SceneConfiguration() {
         this(2000);
@@ -210,6 +212,20 @@ public class SceneConfiguration {
 
     public int getExpectedEntityCount() {
         return expectedEntityCount;
+    }
+
+    public void addTagTransmuter(String tag, Class<? extends Component> component) {
+        ObjectSet<Class<? extends Component>> components = tagTransmuters.get(tag);
+        if (components == null) {
+            components = new ObjectSet<>();
+            tagTransmuters.put(tag, components);
+        }
+
+        components.add(component);
+    }
+
+    public ObjectMap<String, ObjectSet<Class<? extends Component>>> getTagTransmuters() {
+        return tagTransmuters;
     }
 
     // For SceneConfiguration's Use
