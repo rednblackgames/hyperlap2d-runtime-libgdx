@@ -7,10 +7,9 @@ import com.artemis.EntityTransmuterFactory;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.IntIntMap;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -19,13 +18,14 @@ import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ViewPortComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
-import games.rednblack.editor.renderer.data.CompositeVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.component.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.utils.HyperJson;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
 
 public class EntityFactory {
     public static final int UNKNOWN_TYPE = -1;
@@ -48,6 +48,7 @@ public class EntityFactory {
     private final IntMap<ComponentFactory> factoriesMap = new IntMap<>();
     private final IntMap<ComponentFactory> externalFactories = new IntMap<>();
     private final ObjectMap<Class<? extends MainItemVO>, ComponentFactory> factoriesVOMap = new ObjectMap<>();
+    private final IntMap<Class<? extends MainItemVO>> voMap = new IntMap<>();
 
     private final ObjectMap<String, EntityTransmuter> tagTransmuter = new ObjectMap<>();
 
@@ -86,8 +87,11 @@ public class EntityFactory {
         }
         factoriesMap.putAll(externalFactories);
 
-        for (ComponentFactory factoryV2 : factoriesMap.values()) {
-            factoriesVOMap.put(factoryV2.getVOType(), factoryV2);
+        for (ComponentFactory factory : factoriesMap.values()) {
+            Class<? extends MainItemVO> voType = factory.getVOType();
+            factoriesVOMap.put(voType, factory);
+            voMap.put(factory.getEntityType(), voType);
+            HyperJson.getJson().addClassTag(voType.getSimpleName(), voType);
         }
     }
 
@@ -134,9 +138,7 @@ public class EntityFactory {
         return entity;
     }
 
-    public int createRootEntity(CompositeVO compositeVo, Viewport viewport) {
-        CompositeItemVO vo = new CompositeItemVO();
-        vo.composite = compositeVo;
+    public int createRootEntity(CompositeItemVO vo, Viewport viewport) {
         vo.automaticResize = false;
 
         int entity = createEntity(-1, vo);
@@ -149,47 +151,23 @@ public class EntityFactory {
         return entity;
     }
 
-    public void initAllChildren(int root, CompositeVO vo) {
-        for (int i = 0; i < vo.sImages.size(); i++) {
-            createEntity(root, vo.sImages.get(i));
+    public void initAllChildren(int root, CompositeItemVO vo) {
+        for (String key : vo.content.keys()) {
+            if (key.equals(CompositeItemVO.class.getName())) continue;
+
+            Array<MainItemVO> vos = vo.content.get(key);
+            for (MainItemVO mainItemVO : vos) {
+                createEntity(root, mainItemVO);
+            }
         }
 
-        for (int i = 0; i < vo.sImage9patchs.size(); i++) {
-            createEntity(root, vo.sImage9patchs.get(i));
-        }
-
-        for (int i = 0; i < vo.sLabels.size(); i++) {
-            createEntity(root, vo.sLabels.get(i));
-        }
-
-        for (int i = 0; i < vo.sParticleEffects.size(); i++) {
-            createEntity(root, vo.sParticleEffects.get(i));
-        }
-
-        for (int i = 0; i < vo.sTalosVFX.size(); i++) {
-            createEntity(root, vo.sTalosVFX.get(i));
-        }
-
-        for (int i = 0; i < vo.sLights.size(); i++) {
-            createEntity(root, vo.sLights.get(i));
-        }
-
-        for (int i = 0; i < vo.sSpineAnimations.size(); i++) {
-            createEntity(root, vo.sSpineAnimations.get(i));
-        }
-
-        for (int i = 0; i < vo.sSpriteAnimations.size(); i++) {
-            createEntity(root, vo.sSpriteAnimations.get(i));
-        }
-
-        for (int i = 0; i < vo.sColorPrimitives.size(); i++) {
-            createEntity(root, vo.sColorPrimitives.get(i));
-        }
-
-        for (int i = 0; i < vo.sComposites.size(); i++) {
-            CompositeItemVO compositeItemVO = vo.sComposites.get(i);
-            int composite = createEntity(root, compositeItemVO);
-            initAllChildren(composite, compositeItemVO.composite);
+        Array<MainItemVO> compositeVOs = vo.content.get(CompositeItemVO.class.getName());
+        if (compositeVOs != null) {
+            for (MainItemVO mainItemVO : compositeVOs) {
+                CompositeItemVO compositeItemVO = (CompositeItemVO) mainItemVO;
+                int composite = createEntity(root, compositeItemVO);
+                initAllChildren(composite, compositeItemVO);
+            }
         }
     }
 
@@ -231,5 +209,13 @@ public class EntityFactory {
 
     public void clean() {
         entities.clear();
+    }
+
+    public MainItemVO instantiateEmptyVO(int entityType) throws ReflectionException {
+        return ClassReflection.newInstance(voMap.get(entityType));
+    }
+
+    public MainItemVO instantiateVOFromJson(String json, int entityType) {
+        return HyperJson.getJson().fromJson(voMap.get(entityType), json);
     }
 }

@@ -57,16 +57,16 @@ public class CompositeActor extends Group {
 
     private void makeLayerMap(CompositeItemVO vo) {
         layerMap.clear();
-        for(int i = 0; i < vo.composite.layers.size(); i++) {
-            layerMap.put(vo.composite.layers.get(i).layerName,vo.composite.layers.get(i));
+        for(int i = 0; i < vo.layers.size; i++) {
+            layerMap.put(vo.layers.get(i).layerName,vo.layers.get(i));
         }
     }
 
     protected void build(CompositeItemVO vo, BuiltItemHandler itemHandler, boolean isRoot) {
-        buildImages(vo.composite.sImages, itemHandler);
+        /*buildImages(vo.composite.sImages, itemHandler);
         build9PatchImages(vo.composite.sImage9patchs, itemHandler);
         buildLabels(vo.composite.sLabels, itemHandler);
-        buildComposites(vo.composite.sComposites, itemHandler);
+        buildComposites(vo.composite.sComposites, itemHandler);*/
         processZIndexes();
         recalculateSize();
 
@@ -202,7 +202,7 @@ public class CompositeActor extends Group {
     }
 
     public int getLayerIndex(String name) {
-        return vo.composite.layers.indexOf(layerMap.get(name));
+        return vo.layers.indexOf(layerMap.get(name), false);
     }
 
     public Actor getItem(String id) {

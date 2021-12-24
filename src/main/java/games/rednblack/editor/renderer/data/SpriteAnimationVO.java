@@ -1,7 +1,9 @@
 package games.rednblack.editor.renderer.data;
 
+import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.ArrayList;
@@ -26,8 +28,8 @@ public class SpriteAnimationVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity, com.artemis.World engine) {
-        super.loadFromEntity(entity, engine);
+    public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+        super.loadFromEntity(entity, engine, entityFactory);
 
         SpriteAnimationComponent spriteAnimationComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class, engine);
         animationName = spriteAnimationComponent.animationName;
@@ -44,5 +46,10 @@ public class SpriteAnimationVO extends MainItemVO {
         if(spriteAnimationComponent.playMode == Animation.PlayMode.LOOP_PINGPONG) playMode = 4;
         if(spriteAnimationComponent.playMode == Animation.PlayMode.LOOP_RANDOM) playMode = 5;
         if(spriteAnimationComponent.playMode == Animation.PlayMode.NORMAL) playMode = 6;
+    }
+
+    @Override
+    public String getResourceName() {
+        return animationName;
     }
 }

@@ -1,6 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
+import com.artemis.World;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 import java.util.Objects;
@@ -46,8 +48,8 @@ public class LightVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity, com.artemis.World engine) {
-		super.loadFromEntity(entity, engine);
+	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+		super.loadFromEntity(entity, engine, entityFactory);
 
 		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class, engine);
 		type = lightObjectComponent.type;
@@ -62,6 +64,11 @@ public class LightVO extends MainItemVO {
 		isSoft = lightObjectComponent.isSoft;
 		isActive = lightObjectComponent.isActive;
 		intensity = lightObjectComponent.intensity;
+	}
+
+	@Override
+	public String getResourceName() {
+		throw new RuntimeException("Light doesn't have resources to load.");
 	}
 
 	@Override

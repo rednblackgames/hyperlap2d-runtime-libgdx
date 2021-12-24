@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.data;
 
+import com.artemis.World;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
-import games.rednblack.editor.renderer.components.TextureRegionComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class Image9patchVO extends MainItemVO {
@@ -23,8 +24,8 @@ public class Image9patchVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity, com.artemis.World engine) {
-        super.loadFromEntity(entity, engine);
+    public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+        super.loadFromEntity(entity, engine, entityFactory);
 
         NinePatchComponent ninePatchComponent = ComponentRetriever.get(entity, NinePatchComponent.class, engine);
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
@@ -32,5 +33,10 @@ public class Image9patchVO extends MainItemVO {
 
         width = dimensionsComponent.width;
         height = dimensionsComponent.height;
+    }
+
+    @Override
+    public String getResourceName() {
+        return imageName;
     }
 }

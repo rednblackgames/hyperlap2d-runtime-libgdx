@@ -2,15 +2,17 @@ package games.rednblack.editor.renderer.data;
 
 import java.util.Arrays;
 
+import com.artemis.World;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
-public class MainItemVO {
+public abstract class MainItemVO {
 	public enum RenderingLayer {SCREEN, SCREEN_READING}
 
 	public int uniqueId = -1;
@@ -91,7 +93,7 @@ public class MainItemVO {
 		renderingLayer = vo.renderingLayer;
     }
 
-	public void loadFromEntity(int entity, com.artemis.World engine) {
+	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
 		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
 		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
 		transformComponent = transformComponent.getRealComponent();
@@ -167,4 +169,6 @@ public class MainItemVO {
 			renderingLayer = shaderComponent.renderingLayer;
 		}
 	}
+
+	public abstract String getResourceName();
 }
