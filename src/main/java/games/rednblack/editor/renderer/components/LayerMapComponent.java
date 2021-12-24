@@ -1,19 +1,18 @@
 package games.rednblack.editor.renderer.components;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import com.artemis.PooledComponent;
+import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.data.LayerItemVO;
 
 public class LayerMapComponent  extends PooledComponent {
 	public boolean autoIndexing = true;
-	private final ArrayList<LayerItemVO> layers = new ArrayList<>();
+	private final Array<LayerItemVO> layers = new Array<>();
 
 	private final HashMap<String, LayerItemVO> layerMap = new HashMap<>();
 
-	public void setLayers(ArrayList<LayerItemVO> layersToAdd) {
+	public void setLayers(Array<LayerItemVO> layersToAdd) {
 		this.layers.addAll(layersToAdd);
 		layerMap.clear();
 		for (LayerItemVO vo : layers) {
@@ -27,7 +26,7 @@ public class LayerMapComponent  extends PooledComponent {
 
 	public int getIndexByName(String name) {
 		if(layerMap.containsKey(name)) {
-			return layers.indexOf(layerMap.get(name));
+			return layers.indexOf(layerMap.get(name), false);
 		}
 
 		return 0;
@@ -43,7 +42,7 @@ public class LayerMapComponent  extends PooledComponent {
 	}
 
 	public void addLayer(int index, LayerItemVO layerVo) {
-		layers.add(index, layerVo);
+		layers.insert(index, layerVo);
 		layerMap.put(layerVo.layerName, layerVo);
 	}
 
@@ -52,12 +51,12 @@ public class LayerMapComponent  extends PooledComponent {
 		layerMap.put(layerVo.layerName, layerVo);
 	}
 
-	public ArrayList<LayerItemVO> getLayers() {
+	public Array<LayerItemVO> getLayers() {
 		return layers;
 	}
 
 	public void deleteLayer(String layerName) {
-		layers.remove(getIndexByName(layerName));
+		layers.removeIndex(getIndexByName(layerName));
 		layerMap.remove(layerName);
 	}
 
@@ -71,7 +70,7 @@ public class LayerMapComponent  extends PooledComponent {
 	public void swap(String source, String target) {
 		LayerItemVO sourceVO = getLayer(source);
 		LayerItemVO targetVO = getLayer(target);
-		Collections.swap(layers, layers.indexOf(sourceVO), layers.indexOf(targetVO));
+		layers.swap(layers.indexOf(sourceVO, false), layers.indexOf(targetVO, false));
 	}
 
 	@Override

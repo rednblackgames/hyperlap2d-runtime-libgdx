@@ -15,7 +15,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.data.*;
+import games.rednblack.editor.renderer.utils.HyperJson;
 
 /**
  * Default ResourceManager that you can reuse or extend
@@ -48,12 +50,12 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected ArrayList<String> preparedSceneNames = new ArrayList<String>();
     protected HashMap<String, SceneVO> loadedSceneVOs = new HashMap<String, SceneVO>();
 
-    protected HashSet<String> particleEffectNamesToLoad = new HashSet<String>();
-    protected HashSet<String> talosNamesToLoad = new HashSet<String>();
-    protected HashSet<String> spineAnimNamesToLoad = new HashSet<String>();
-    protected HashSet<String> spriteAnimNamesToLoad = new HashSet<String>();
-    protected HashSet<FontSizePair> fontsToLoad = new HashSet<FontSizePair>();
-    protected HashSet<String> shaderNamesToLoad = new HashSet<String>();
+    protected ObjectSet<String> particleEffectNamesToLoad = new ObjectSet<>();
+    protected ObjectSet<String> talosNamesToLoad = new ObjectSet<>();
+    protected ObjectSet<String> spineAnimNamesToLoad = new ObjectSet<>();
+    protected ObjectSet<String> spriteAnimNamesToLoad = new ObjectSet<>();
+    protected ObjectSet<FontSizePair> fontsToLoad = new ObjectSet<>();
+    protected ObjectSet<String> shaderNamesToLoad = new ObjectSet<>();
 
     protected HashMap<String, String> reverseAtlasMap = new HashMap<String, String>();
     protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<String, TextureAtlas>();
@@ -66,13 +68,22 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<FontSizePair, BitmapFont>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<String, ShaderProgram>();
-    
 
     /**
      * Constructor does nothing
      */
     public ResourceManager() {
+        HyperJson.getJson().addClassTag(CompositeItemVO.class.getSimpleName(), CompositeItemVO.class);
+        HyperJson.getJson().addClassTag(LightVO.class.getSimpleName(), LightVO.class);
+        HyperJson.getJson().addClassTag(ParticleEffectVO.class.getSimpleName(), ParticleEffectVO.class);
+        HyperJson.getJson().addClassTag(SimpleImageVO.class.getSimpleName(), SimpleImageVO.class);
+        HyperJson.getJson().addClassTag(SpriteAnimationVO.class.getSimpleName(), SpriteAnimationVO.class);
+        HyperJson.getJson().addClassTag(LabelVO.class.getSimpleName(), LabelVO.class);
+        HyperJson.getJson().addClassTag(Image9patchVO.class.getSimpleName(), Image9patchVO.class);
+        HyperJson.getJson().addClassTag(ColorPrimitiveVO.class.getSimpleName(), ColorPrimitiveVO.class);
 
+        HyperJson.getJson().addClassTag(SpineVO.class.getSimpleName(), SpineVO.class);
+        HyperJson.getJson().addClassTag(TalosVO.class.getSimpleName(), TalosVO.class);
     }
 
     /**
@@ -164,35 +175,41 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         shaderPrograms.clear();
 
         for (String preparedSceneName : preparedSceneNames) {
-            CompositeVO composite = loadedSceneVOs.get(preparedSceneName).composite;
+            CompositeItemVO composite = loadedSceneVOs.get(preparedSceneName).composite;
             if (composite == null) {
                 continue;
             }
             //
-            String[] particleEffects = composite.getRecursiveParticleEffectsList();
-            String[] talosVFXs = composite.getRecursiveTalosList();
-            String[] spineAnimations = composite.getRecursiveSpineAnimationList();
-            String[] spriteAnimations = composite.getRecursiveSpriteAnimationList();
-            String[] shaderNames = composite.getRecursiveShaderList();
-            FontSizePair[] fonts = composite.getRecursiveFontList();
+            Array<String> particleEffects = composite.getRecursiveTypeNamesList(ParticleEffectVO.class);
+            Array<String> talosVFXs = composite.getRecursiveTypeNamesList(TalosVO.class);
+            Array<String> spineAnimations = composite.getRecursiveTypeNamesList(SpineVO.class);
+            Array<String> spriteAnimations = composite.getRecursiveTypeNamesList(SpriteAnimationVO.class);
+            Array<String> shaderNames = composite.getRecursiveShaderList();
+            Array<FontSizePair> fonts = composite.getRecursiveFontList();
             for(CompositeItemVO library : projectVO.libraryItems.values()) {
-                FontSizePair[] libFonts = library.composite.getRecursiveFontList();
-                Collections.addAll(fontsToLoad, libFonts);
+                Array<FontSizePair> libFonts = library.getRecursiveFontList();
+                fontsToLoad.addAll(libFonts);
 
                 // loading particle effects used in library items
-                String[] libEffects = library.composite.getRecursiveParticleEffectsList();
-                String[] libTalosVFXs = library.composite.getRecursiveTalosList();
-                Collections.addAll(particleEffectNamesToLoad, libEffects);
-                Collections.addAll(talosNamesToLoad, libTalosVFXs);
+                Array<String> libEffects = library.getRecursiveTypeNamesList(ParticleEffectVO.class);
+                Array<String> libTalosVFXs = library.getRecursiveTypeNamesList(TalosVO.class);
+                Array<String> libShaderNames = library.getRecursiveShaderList();
+                Array<String> libSpineAnimations = library.getRecursiveTypeNamesList(SpineVO.class);
+                Array<String> libSpriteAnimations = library.getRecursiveTypeNamesList(SpriteAnimationVO.class);
+                shaderNamesToLoad.addAll(libShaderNames);
+                particleEffectNamesToLoad.addAll(libEffects);
+                talosNamesToLoad.addAll(libTalosVFXs);
+                spineAnimNamesToLoad.addAll(libSpineAnimations);
+                spriteAnimNamesToLoad.addAll(libSpriteAnimations);
             }
 
             //
-            Collections.addAll(particleEffectNamesToLoad, particleEffects);
-            Collections.addAll(talosNamesToLoad, talosVFXs);
-            Collections.addAll(spineAnimNamesToLoad, spineAnimations);
-            Collections.addAll(spriteAnimNamesToLoad, spriteAnimations);
-            Collections.addAll(fontsToLoad, fonts);
-            Collections.addAll(shaderNamesToLoad, shaderNames);
+            particleEffectNamesToLoad.addAll(particleEffects);
+            talosNamesToLoad.addAll(talosVFXs);
+            spineAnimNamesToLoad.addAll(spineAnimations);
+            spriteAnimNamesToLoad.addAll(spineAnimations);
+            fontsToLoad.addAll(fonts);
+            shaderNamesToLoad.addAll(shaderNames);
         }
     }
 
@@ -372,7 +389,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     @Override
     public SceneVO loadSceneVO(String sceneName) {
         FileHandle file = Gdx.files.internal(scenesPath + File.separator + sceneName + ".dt");
-        Json json = new Json();
+        Json json = HyperJson.getJson();
         SceneVO sceneVO = json.fromJson(SceneVO.class, file.readString());
 
         loadedSceneVOs.put(sceneName, sceneVO);
@@ -388,7 +405,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     public ProjectInfoVO loadProjectVO() {
 
         FileHandle file = Gdx.files.internal("project.dt");
-        Json json = new Json();
+        Json json = HyperJson.getJson();
         projectVO = json.fromJson(ProjectInfoVO.class, file.readString());
 
         return projectVO;

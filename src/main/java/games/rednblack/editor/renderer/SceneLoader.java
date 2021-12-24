@@ -239,7 +239,7 @@ public class SceneLoader {
             physicsSystem.setPhysicsOn(sceneVO.physicsPropertiesVO.enabled);
 
         if (sceneVO.composite == null) {
-            sceneVO.composite = new CompositeVO();
+            sceneVO.composite = new CompositeItemVO();
         }
         rootEntity = entityFactory.createRootEntity(sceneVO.composite, viewport);
 
@@ -269,7 +269,7 @@ public class SceneLoader {
             compositeItemVO.y = y;
 
             int compositeEntity = entityFactory.createEntity(getRoot(), compositeItemVO);
-            getEntityFactory().initAllChildren(compositeEntity, compositeItemVO.composite);
+            getEntityFactory().initAllChildren(compositeEntity, compositeItemVO);
             return compositeEntity;
         }
 

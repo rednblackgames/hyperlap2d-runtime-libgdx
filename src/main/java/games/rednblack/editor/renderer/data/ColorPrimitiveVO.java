@@ -27,6 +27,11 @@ public class ColorPrimitiveVO extends MainItemVO {
         super();
     }
 
+    @Override
+    public String getResourceName() {
+        throw new RuntimeException("Color Primitive doesn't have resources to load.");
+    }
+
     public ColorPrimitiveVO(ColorPrimitiveVO vo) {
         super(vo);
     }

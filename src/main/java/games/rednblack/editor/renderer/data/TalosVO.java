@@ -1,6 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
+import com.artemis.World;
 import games.rednblack.editor.renderer.components.particle.TalosDataComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class TalosVO extends MainItemVO {
@@ -18,11 +20,16 @@ public class TalosVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity, com.artemis.World engine) {
-        super.loadFromEntity(entity, engine);
+    public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+        super.loadFromEntity(entity, engine, entityFactory);
 
         TalosDataComponent talosComponent = ComponentRetriever.get(entity, TalosDataComponent.class, engine);
         particleName = talosComponent.particleName;
         transform = talosComponent.transform;
+    }
+
+    @Override
+    public String getResourceName() {
+        return particleName;
     }
 }

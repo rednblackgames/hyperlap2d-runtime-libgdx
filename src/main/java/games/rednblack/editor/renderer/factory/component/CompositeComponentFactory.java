@@ -59,7 +59,7 @@ public class CompositeComponentFactory extends ComponentFactory {
     @Override
     public void setInitialData(int entity, Object data) {
         LayerMapComponent layerMap = layerMapCM.get(entity);
-        if (layerMap.getLayers().size() == 0)
+        if (layerMap.getLayers().size == 0)
             layerMap.addLayer(createDefaultLayer());
     }
 
@@ -77,10 +77,10 @@ public class CompositeComponentFactory extends ComponentFactory {
         dimensionsComponent.boundBox = new Rectangle(0, 0, dimensionsComponent.width, dimensionsComponent.height);
 
         LayerMapComponent layerMapComponent = layerMapCM.get(entity);
-        if (vo.composite.layers.size() == 0) {
-            vo.composite.layers.add(LayerItemVO.createDefault());
+        if (vo.layers.size == 0) {
+            vo.layers.add(LayerItemVO.createDefault());
         }
-        layerMapComponent.setLayers(vo.composite.layers);
+        layerMapComponent.setLayers(vo.layers);
 
         CompositeTransformComponent compositeTransformComponent = compositeTransformCM.get(entity);
         compositeTransformComponent.automaticResize = vo.automaticResize;

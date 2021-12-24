@@ -1,7 +1,9 @@
 package games.rednblack.editor.renderer.data;
 
+import com.artemis.World;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
+import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public class LabelVO extends MainItemVO {
@@ -36,8 +38,8 @@ public class LabelVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity, com.artemis.World engine) {
-		super.loadFromEntity(entity, engine);
+	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+		super.loadFromEntity(entity, engine, entityFactory);
 		LabelComponent labelComponent = ComponentRetriever.get(entity, LabelComponent.class, engine);
 		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity,DimensionsComponent.class, engine);
 
@@ -52,5 +54,10 @@ public class LabelVO extends MainItemVO {
 
 		width = dimensionsComponent.width;
 		height = dimensionsComponent.height;
+	}
+
+	@Override
+	public String getResourceName() {
+		throw new RuntimeException("Label doesn't have resources to load.");
 	}
 }

@@ -2,14 +2,12 @@ package games.rednblack.editor.renderer.resources;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 
 import java.io.File;
-import java.util.HashSet;
 
 public class AsyncResourceManager extends ResourceManager {
 
@@ -22,7 +20,7 @@ public class AsyncResourceManager extends ResourceManager {
         this.projectVO = vo;
     }
 
-    public HashSet<String> getSpineAnimNamesToLoad() {
+    public ObjectSet<String> getSpineAnimNamesToLoad() {
         return this.spineAnimNamesToLoad;
     }
 

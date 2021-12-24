@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import games.rednblack.editor.renderer.utils.HyperJson;
 
 public class ProjectInfoVO {
 
@@ -24,8 +24,7 @@ public class ProjectInfoVO {
 
     public String constructJsonString() {
         String str = "";
-        Json json = new Json();
-        json.setOutputType(OutputType.json);
+        Json json = HyperJson.getJson();
         str = json.toJson(this);
         json.prettyPrint(str);
         return str;
