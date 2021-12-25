@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -37,11 +38,11 @@ public class CompositeItemVO extends MainItemVO {
 		content.clear();
 		try {
 			for (String type : vo.content.keys()) {
-				Array<MainItemVO> typeArray = new Array<>(Class.forName(type));
+				Array<MainItemVO> typeArray = new Array<>(ClassReflection.forName(type));
 				typeArray.addAll(vo.content.get(type));
 				content.put(type, typeArray);
 			}
-		} catch (ClassNotFoundException e) {
+		} catch (ReflectionException e) {
 			e.printStackTrace();
 		}
 
