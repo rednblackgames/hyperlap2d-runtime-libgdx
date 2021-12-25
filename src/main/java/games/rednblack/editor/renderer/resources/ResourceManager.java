@@ -207,7 +207,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
             particleEffectNamesToLoad.addAll(particleEffects);
             talosNamesToLoad.addAll(talosVFXs);
             spineAnimNamesToLoad.addAll(spineAnimations);
-            spriteAnimNamesToLoad.addAll(spineAnimations);
+            spriteAnimNamesToLoad.addAll(spriteAnimations);
             fontsToLoad.addAll(fonts);
             shaderNamesToLoad.addAll(shaderNames);
         }
