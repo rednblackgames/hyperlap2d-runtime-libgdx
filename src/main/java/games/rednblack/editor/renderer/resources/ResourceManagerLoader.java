@@ -29,10 +29,6 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
 
     @Override
     public void loadAsync(AssetManager manager, String fileName, FileHandle file, AsyncResourceManagerParam parameter) {
-    }
-
-    @Override
-    public AsyncResourceManager loadSync(AssetManager manager, String fileName, FileHandle file, AsyncResourceManagerParam parameter) {
         if (!fileName.equals("project.dt")) {
             throw new GdxRuntimeException("fileName must be project.dt");
         }
@@ -42,15 +38,26 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
             this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
         }
+
         for (String pack : projectInfoVO.animationsPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
             this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
         }
+
         this.asyncResourceManager.loadReverseAtlasMap();
-        this.asyncResourceManager.loadExternalTypes();
-        this.asyncResourceManager.loadParticleEffects();
         this.asyncResourceManager.loadSpriteAnimations();
+        this.asyncResourceManager.loadParticleEffects();
+
+        this.asyncResourceManager.loadExternalTypes();
+    }
+
+    @Override
+    public AsyncResourceManager loadSync(AssetManager manager, String fileName, FileHandle file, AsyncResourceManagerParam parameter) {
+        if (!fileName.equals("project.dt")) {
+            throw new GdxRuntimeException("fileName must be project.dt");
+        }
+
         this.asyncResourceManager.loadFonts();
         this.asyncResourceManager.loadShaders();
 
@@ -62,6 +69,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         if (!fileName.equals("project.dt")) {
             throw new GdxRuntimeException("fileName must be project.dt");
         }
+
         this.projectInfoVO = this.asyncResourceManager.loadProjectVO();
         for (int i = 0; i < this.projectInfoVO.scenes.size(); i++) {
             String sceneName = this.projectInfoVO.scenes.get(i).sceneName;
