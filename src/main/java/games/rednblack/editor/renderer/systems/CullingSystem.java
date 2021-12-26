@@ -18,15 +18,16 @@ public class CullingSystem extends IteratingSystem {
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
 
-    Rectangle view = new Rectangle();
-    OrthographicCamera camera;
+    private final Rectangle view = new Rectangle();
+    private OrthographicCamera camera;
 
-    ShapeRenderer shapeRenderer = new ShapeRenderer();
-    float ppwu = 1;
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private float ppwu = 1;
 
     @Override
     protected void process(int entity) {
         ViewPortComponent viewPort = viewPortMapper.get(entity);
+        ppwu = viewPort.pixelsPerWU;
         this.camera = (OrthographicCamera) viewPort.viewPort.getCamera();
         view.width = (camera.viewportWidth * camera.zoom);
         view.height = (camera.viewportHeight * camera.zoom);
@@ -85,9 +86,5 @@ public class CullingSystem extends IteratingSystem {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
-    }
-
-    public void setPpwu(float ppwu) {
-        this.ppwu = ppwu;
     }
 }

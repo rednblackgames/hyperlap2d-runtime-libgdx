@@ -138,13 +138,14 @@ public class EntityFactory {
         return entity;
     }
 
-    public int createRootEntity(CompositeItemVO vo, Viewport viewport) {
+    public int createRootEntity(CompositeItemVO vo, Viewport viewport, int ppwu) {
         vo.automaticResize = false;
 
         int entity = createEntity(-1, vo);
 
         ViewPortComponent viewPortComponent = viewportCM.create(entity);
         viewPortComponent.viewPort = viewport;
+        viewPortComponent.pixelsPerWU = ppwu;
         viewPortComponent.viewPort.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
         postProcessEntity(entity);
