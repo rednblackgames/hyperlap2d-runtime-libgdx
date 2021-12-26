@@ -35,4 +35,7 @@ public interface IExternalItemType {
     ComponentFactory getComponentFactory();
 
     void injectMappers();
+
+    boolean hasResources();
+    String formatResourcePath(String resName);
 }

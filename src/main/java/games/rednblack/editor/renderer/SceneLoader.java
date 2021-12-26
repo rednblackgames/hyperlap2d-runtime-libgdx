@@ -27,7 +27,6 @@ import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
-import games.rednblack.editor.renderer.systems.CullingSystem;
 import games.rednblack.editor.renderer.systems.PhysicsSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
@@ -81,7 +80,7 @@ public class SceneLoader {
         this.world = configuration.getWorld();
         this.rayHandler = configuration.getRayHandler();
 
-        this.rm = configuration.getiResourceRetriever();
+        this.rm = configuration.getResourceRetriever();
 
         initSceneLoader(configuration);
     }

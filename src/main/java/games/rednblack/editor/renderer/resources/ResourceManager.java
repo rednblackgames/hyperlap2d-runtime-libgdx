@@ -12,10 +12,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.*;
+import games.rednblack.editor.renderer.SceneConfiguration;
+import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.HyperJson;
 
@@ -24,22 +23,19 @@ import games.rednblack.editor.renderer.utils.HyperJson;
  * Generally is good to load all the assets that are exported from editor
  * using default settings (The paths and file structure should be exact)
  * If changed by you manually, please override this class methods in order to keep it working.
- *
+ * <p>
  * The main logic is to prepare list of resources that needs to be load for specified scenes, and then loaded.
- *
+ * <p>
  * Created by azakhary on 9/9/2014.
  */
 public class ResourceManager implements IResourceLoader, IResourceRetriever, Disposable {
 
     /**
-     *  Paths (please change if different) this is the default structure exported from editor
+     * Paths (please change if different) this is the default structure exported from editor
      */
     public String packResolutionName = "orig";
-
     public String scenesPath = "scenes";
     public String particleEffectsPath = "particles";
-    public String talosPath = "talos-vfx";
-    public String spineAnimationsPath = "spine_animations";
     public String fontsPath = "freetypefonts";
     public String shadersPath = "shaders";
 
@@ -51,48 +47,41 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashMap<String, SceneVO> loadedSceneVOs = new HashMap<String, SceneVO>();
 
     protected ObjectSet<String> particleEffectNamesToLoad = new ObjectSet<>();
-    protected ObjectSet<String> talosNamesToLoad = new ObjectSet<>();
-    protected ObjectSet<String> spineAnimNamesToLoad = new ObjectSet<>();
     protected ObjectSet<String> spriteAnimNamesToLoad = new ObjectSet<>();
     protected ObjectSet<FontSizePair> fontsToLoad = new ObjectSet<>();
     protected ObjectSet<String> shaderNamesToLoad = new ObjectSet<>();
+    protected ObjectMap<Integer, ObjectSet<String>> externalItemsToLoad = new ObjectMap<>();
 
-    protected HashMap<String, String> reverseAtlasMap = new HashMap<String, String>();
-    protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<String, TextureAtlas>();
-    protected HashMap<String, ParticleEffect> particleEffects = new HashMap<String, ParticleEffect>();
-    protected HashMap<String, FileHandle> talosVFXs = new HashMap<String, FileHandle>();
+    protected HashMap<String, String> reverseAtlasMap = new HashMap<>();
+    protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<>();
+    protected HashMap<String, ParticleEffect> particleEffects = new HashMap<>();
+    protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<>();
+    protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<>();
+    protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<>();
+    protected IntMap<HashMap<String, FileHandle>> externalItems = new IntMap<>();
 
-    protected HashMap<String, FileHandle> skeletonJSON = new HashMap<String, FileHandle>();
-
-    protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<String, Array<TextureAtlas.AtlasRegion>>();
-
-    protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<FontSizePair, BitmapFont>();
-    protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<String, ShaderProgram>();
+    protected IntMap<IExternalItemType> externalItemTypes = new IntMap<>();
 
     /**
-     * Constructor does nothing
+     * Initialize Resource Manager with {@link SceneConfiguration} to retrieve external item types
      */
-    public ResourceManager() {
-        HyperJson.getJson().addClassTag(CompositeItemVO.class.getSimpleName(), CompositeItemVO.class);
-        HyperJson.getJson().addClassTag(LightVO.class.getSimpleName(), LightVO.class);
-        HyperJson.getJson().addClassTag(ParticleEffectVO.class.getSimpleName(), ParticleEffectVO.class);
-        HyperJson.getJson().addClassTag(SimpleImageVO.class.getSimpleName(), SimpleImageVO.class);
-        HyperJson.getJson().addClassTag(SpriteAnimationVO.class.getSimpleName(), SpriteAnimationVO.class);
-        HyperJson.getJson().addClassTag(LabelVO.class.getSimpleName(), LabelVO.class);
-        HyperJson.getJson().addClassTag(Image9patchVO.class.getSimpleName(), Image9patchVO.class);
-        HyperJson.getJson().addClassTag(ColorPrimitiveVO.class.getSimpleName(), ColorPrimitiveVO.class);
-
-        HyperJson.getJson().addClassTag(SpineVO.class.getSimpleName(), SpineVO.class);
-        HyperJson.getJson().addClassTag(TalosVO.class.getSimpleName(), TalosVO.class);
+    public ResourceManager(SceneConfiguration sceneConfiguration) {
+        if (sceneConfiguration != null) {
+            for (IExternalItemType itemType : sceneConfiguration.getExternalItemTypes()) {
+                if (itemType.hasResources())
+                    externalItemTypes.put(itemType.getTypeId(), itemType);
+            }
+        }
     }
 
     /**
      * Sets working resolution, please set before doing any loading
+     *
      * @param resolution String resolution name, default is "orig" later use resolution names created in editor
      */
     public void setWorkingResolution(String resolution) {
         ResolutionEntryVO resolutionObject = getProjectVO().getResolution(resolution);
-        if(resolutionObject != null) {
+        if (resolutionObject != null) {
             packResolutionName = resolution;
         }
     }
@@ -115,6 +104,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     /**
      * Initializes scene by loading it's VO data object and loading all the assets needed for this particular scene only
+     *
      * @param sceneName - scene file name without ".dt" extension
      */
     public void initScene(String sceneName) {
@@ -150,7 +140,6 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     }
 
-
     /**
      * Unschedule scene from later loading
      *
@@ -164,12 +153,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     /**
      * Creates the list of uniqe assets used in all of the scheduled scenes,
      * removes all the duplicates, and makes list of assets that are only needed.
-     *
      */
     public void prepareAssetsToLoad() {
         particleEffectNamesToLoad.clear();
-        talosNamesToLoad.clear();
-        spineAnimNamesToLoad.clear();
+        externalItemsToLoad.clear();
         spriteAnimNamesToLoad.clear();
         fontsToLoad.clear();
         shaderPrograms.clear();
@@ -179,38 +166,67 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
             if (composite == null) {
                 continue;
             }
-            //
+            //Load assets from scenes
             Array<String> particleEffects = composite.getRecursiveTypeNamesList(ParticleEffectVO.class);
-            Array<String> talosVFXs = composite.getRecursiveTypeNamesList(TalosVO.class);
-            Array<String> spineAnimations = composite.getRecursiveTypeNamesList(SpineVO.class);
             Array<String> spriteAnimations = composite.getRecursiveTypeNamesList(SpriteAnimationVO.class);
             Array<String> shaderNames = composite.getRecursiveShaderList();
             Array<FontSizePair> fonts = composite.getRecursiveFontList();
-            for(CompositeItemVO library : projectVO.libraryItems.values()) {
-                Array<FontSizePair> libFonts = library.getRecursiveFontList();
-                fontsToLoad.addAll(libFonts);
 
-                // loading particle effects used in library items
-                Array<String> libEffects = library.getRecursiveTypeNamesList(ParticleEffectVO.class);
-                Array<String> libTalosVFXs = library.getRecursiveTypeNamesList(TalosVO.class);
-                Array<String> libShaderNames = library.getRecursiveShaderList();
-                Array<String> libSpineAnimations = library.getRecursiveTypeNamesList(SpineVO.class);
-                Array<String> libSpriteAnimations = library.getRecursiveTypeNamesList(SpriteAnimationVO.class);
-                shaderNamesToLoad.addAll(libShaderNames);
-                particleEffectNamesToLoad.addAll(libEffects);
-                talosNamesToLoad.addAll(libTalosVFXs);
-                spineAnimNamesToLoad.addAll(libSpineAnimations);
-                spriteAnimNamesToLoad.addAll(libSpriteAnimations);
-            }
-
-            //
             particleEffectNamesToLoad.addAll(particleEffects);
-            talosNamesToLoad.addAll(talosVFXs);
-            spineAnimNamesToLoad.addAll(spineAnimations);
             spriteAnimNamesToLoad.addAll(spriteAnimations);
             fontsToLoad.addAll(fonts);
             shaderNamesToLoad.addAll(shaderNames);
+
+            for (IExternalItemType itemType : externalItemTypes.values()) {
+                Array<String> assetsList = composite.getRecursiveTypeNamesList(itemType.getComponentFactory().getVOType());
+                addExternalTypeAssetToLoad(itemType.getTypeId(), assetsList);
+            }
+
+            //Load from composite items
+            for (CompositeItemVO library : projectVO.libraryItems.values()) {
+                Array<FontSizePair> libFonts = library.getRecursiveFontList();
+                Array<String> libEffects = library.getRecursiveTypeNamesList(ParticleEffectVO.class);
+                Array<String> libShaderNames = library.getRecursiveShaderList();
+                Array<String> libSpriteAnimations = library.getRecursiveTypeNamesList(SpriteAnimationVO.class);
+
+                fontsToLoad.addAll(libFonts);
+                shaderNamesToLoad.addAll(libShaderNames);
+                particleEffectNamesToLoad.addAll(libEffects);
+                spriteAnimNamesToLoad.addAll(libSpriteAnimations);
+
+                for (IExternalItemType itemType : externalItemTypes.values()) {
+                    Array<String> assetsList = library.getRecursiveTypeNamesList(itemType.getComponentFactory().getVOType());
+                    addExternalTypeAssetToLoad(itemType.getTypeId(), assetsList);
+                }
+            }
         }
+    }
+
+    protected void addExternalTypeAssetToLoad(int type, Array<String> names) {
+        ObjectSet<String> objectSet = externalItemsToLoad.get(type);
+        if (objectSet == null) {
+            objectSet = new ObjectSet<>();
+            externalItemsToLoad.put(type, objectSet);
+        }
+        objectSet.addAll(names);
+    }
+
+    protected void addExternalTypeAssetToLoad(int type, String name) {
+        ObjectSet<String> objectSet = externalItemsToLoad.get(type);
+        if (objectSet == null) {
+            objectSet = new ObjectSet<>();
+            externalItemsToLoad.put(type, objectSet);
+        }
+        objectSet.add(name);
+    }
+
+    protected HashMap<String, FileHandle> getExternalItems(int type) {
+        HashMap<String, FileHandle> items = externalItems.get(type);
+        if (items == null) {
+            items = new HashMap<>();
+            externalItems.put(type, items);
+        }
+        return items;
     }
 
     /*
@@ -220,12 +236,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         particleEffectNamesToLoad.add(name);
     }
 
-    public void prepareTalosVFX(String name) {
-        talosNamesToLoad.add(name);
-    }
-
-    public void prepareSpine(String name) {
-        spineAnimNamesToLoad.add(name);
+    public void prepareExternalType(int type, String name) {
+        addExternalTypeAssetToLoad(type, name);
     }
 
     public void prepareSprite(String name) {
@@ -245,16 +257,16 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
      * main atlas pack, particle effects, sprite animations, spine animations and fonts
      */
     public void loadAssets() {
-        loadAtlasPack();
+        loadAtlasPacks();
         loadParticleEffects();
-        loadSpineAnimations();
+        loadExternalTypes();
         loadSpriteAnimations();
         loadFonts();
         loadShaders();
     }
 
     @Override
-    public void loadAtlasPack() {
+    public void loadAtlasPacks() {
         for (String pack : projectVO.imagesPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(packResolutionName + File.separator + name);
@@ -301,21 +313,9 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
                     effect.loadEmitterImages(atlas, "");
                     particleEffects.put(name, effect);
                     break;
-                } catch (Exception ignore) { }
+                } catch (Exception ignore) {
+                }
             }
-        }
-
-        //Talos
-        // empty existing ones that are not scheduled to load
-        for (String key : talosVFXs.keySet()) {
-            if (!talosNamesToLoad.contains(key)) {
-                talosVFXs.remove(key);
-            }
-        }
-
-        // load scheduled
-        for (String name : talosNamesToLoad) {
-            talosVFXs.put(name, Gdx.files.internal(talosPath + File.separator + name));
         }
     }
 
@@ -334,31 +334,40 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
     }
 
-    public void loadSpineAnimation(String name) {
-        skeletonJSON.put(name, Gdx.files.internal("orig"+ File.separator + spineAnimationsPath + File.separator + name + File.separator + name + ".json"));
-    }
-  
-
     @Override
-    public void loadSpineAnimations() {
-        for (String name : spineAnimNamesToLoad) {
-        	loadSpineAnimation(name);
+    public void loadExternalTypes() {
+        for (int assetType : externalItemsToLoad.keys()) {
+            IExternalItemType externalItemType = externalItemTypes.get(assetType);
+            ObjectSet<String> assetsToLoad = externalItemsToLoad.get(assetType);
+            HashMap<String, FileHandle> assets = getExternalItems(assetType);
+
+            // empty existing ones that are not scheduled to load
+            for (String key : assets.keySet()) {
+                if (!assetsToLoad.contains(key)) {
+                    assets.remove(key);
+                }
+            }
+
+            // load scheduled
+            for (String name : assetsToLoad) {
+                assets.put(name, Gdx.files.internal(externalItemType.formatResourcePath(name)));
+            }
         }
     }
 
     @Override
     public void loadFonts() {
-    	//resolution related stuff
-    	ResolutionEntryVO curResolution = getProjectVO().getResolution(packResolutionName);
+        //resolution related stuff
+        ResolutionEntryVO curResolution = getProjectVO().getResolution(packResolutionName);
         resMultiplier = 1;
-    	if(!packResolutionName.equals("orig")) {
-    		if(curResolution.base == 0) {
+        if (!packResolutionName.equals("orig")) {
+            if (curResolution.base == 0) {
                 resMultiplier = (float) curResolution.width / (float) getProjectVO().originalResolution.width;
-    		} else{
+            } else {
                 resMultiplier = (float) curResolution.height / (float) getProjectVO().originalResolution.height;
-    		}
-    	}
-    	
+            }
+        }
+
         // empty existing ones that are not scheduled to load
         for (FontSizePair pair : bitmapFonts.keySet()) {
             if (!fontsToLoad.contains(pair)) {
@@ -410,14 +419,14 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
         return projectVO;
     }
-    
+
     @Override
-	public void loadShaders() {
-    	// empty existing ones that are not scheduled to load
+    public void loadShaders() {
+        // empty existing ones that are not scheduled to load
         for (String key : shaderPrograms.keySet()) {
             if (!shaderNamesToLoad.contains(key)) {
-            	shaderPrograms.get(key).dispose();
-            	shaderPrograms.remove(key);
+                shaderPrograms.get(key).dispose();
+                shaderPrograms.remove(key);
             }
         }
 
@@ -425,7 +434,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
             ShaderProgram shaderProgram = new ShaderProgram(Gdx.files.internal(shadersPath + File.separator + name + ".vert"), Gdx.files.internal(shadersPath + File.separator + name + ".frag"));
             shaderPrograms.put(name, shaderProgram);
         }
-	}
+    }
 
     /**
      * Following methods are for retriever interface, which is intended for runtime internal use
@@ -451,13 +460,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public FileHandle getSkeletonJSON(String name) {
-        return skeletonJSON.get(name);
-    }
-
-    @Override
-    public FileHandle getTalosVFX(String name) {
-        return talosVFXs.get(name);
+    public FileHandle getExternalItemType(int itemType, String name) {
+        return externalItems.get(itemType).get(name);
     }
 
     @Override
@@ -490,7 +494,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public ResolutionEntryVO getLoadedResolution() {
-        if(packResolutionName.equals("orig")) {
+        if (packResolutionName.equals("orig")) {
             return getProjectVO().originalResolution;
         }
         return getProjectVO().getResolution(packResolutionName);
@@ -506,8 +510,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
     }
 
-	@Override
-	public ShaderProgram getShaderProgram(String shaderName) {
+    @Override
+    public ShaderProgram getShaderProgram(String shaderName) {
         return shaderPrograms.get(shaderName);
-	}
+    }
 }
