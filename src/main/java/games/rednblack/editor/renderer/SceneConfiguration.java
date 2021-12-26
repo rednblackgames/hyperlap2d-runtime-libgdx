@@ -151,9 +151,9 @@ public class SceneConfiguration {
 
     // For SceneLoader's Use
 
-    IResourceRetriever getiResourceRetriever() {
+    IResourceRetriever getResourceRetriever() {
         if (iResourceRetriever == null) {
-            ResourceManager resourceManager = new ResourceManager();
+            ResourceManager resourceManager = new ResourceManager(null);
             resourceManager.initAllResources();
             setResourceRetriever(resourceManager);
         }

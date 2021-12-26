@@ -25,7 +25,6 @@ import games.rednblack.editor.renderer.utils.HyperJson;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Set;
 
 public class EntityFactory {
     public static final int UNKNOWN_TYPE = -1;
@@ -37,8 +36,6 @@ public class EntityFactory {
     public static final int PARTICLE_TYPE = 6;
     public static final int LIGHT_TYPE = 7;
     public static final int NINE_PATCH = 8;
-    public static final int SPINE_TYPE = 9;
-    public static final int TALOS_TYPE = 10;
 
     protected ComponentMapper<MainItemComponent> mapper;
     protected ComponentMapper<NodeComponent> node;
@@ -91,7 +88,6 @@ public class EntityFactory {
             Class<? extends MainItemVO> voType = factory.getVOType();
             factoriesVOMap.put(voType, factory);
             voMap.put(factory.getEntityType(), voType);
-            HyperJson.getJson().addClassTag(voType.getSimpleName(), voType);
         }
     }
 

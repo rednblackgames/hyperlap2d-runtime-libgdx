@@ -10,6 +10,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ObjectMap;
+import games.rednblack.editor.renderer.SceneConfiguration;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 
 import java.io.File;
@@ -20,9 +22,9 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
 
     private ProjectInfoVO projectInfoVO;
 
-    public ResourceManagerLoader(FileHandleResolver resolver) {
+    public ResourceManagerLoader(SceneConfiguration sceneConfiguration, FileHandleResolver resolver) {
         super(resolver);
-        this.asyncResourceManager = new AsyncResourceManager();
+        this.asyncResourceManager = new AsyncResourceManager(sceneConfiguration);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
         }
         this.asyncResourceManager.loadReverseAtlasMap();
-        this.asyncResourceManager.loadSpineAnimations(manager);
+        this.asyncResourceManager.loadExternalTypes();
         this.asyncResourceManager.loadParticleEffects();
         this.asyncResourceManager.loadSpriteAnimations();
         this.asyncResourceManager.loadFonts();
@@ -76,11 +78,9 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             for (String name : parameter.particleEffects) {
                 this.asyncResourceManager.prepareParticleEffect(name);
             }
-            for (String name : parameter.talosVFXs) {
-                this.asyncResourceManager.prepareTalosVFX(name);
-            }
-            for (String name : parameter.spineAnims) {
-                this.asyncResourceManager.prepareSpine(name);
+            for (int type : parameter.externals.keys()) {
+                for (String asset : parameter.externals.get(type))
+                    this.asyncResourceManager.prepareExternalType(type, asset);
             }
             for (String name : parameter.spriteAnims) {
                 this.asyncResourceManager.prepareSprite(name);
@@ -94,7 +94,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         }
 
         //Build dependency list
-        Array<AssetDescriptor> deps = new Array<AssetDescriptor>();
+        Array<AssetDescriptor> deps = new Array<>();
 
         for (String pack : projectInfoVO.imagesPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
@@ -116,15 +116,23 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
     }
 
     public static class AsyncResourceManagerParam extends AssetLoaderParameters<AsyncResourceManager> {
-        public final Array<String> spineAnims = new Array<String>();
-        public final Array<String> spriteAnims = new Array<String>();
-        public final Array<String> particleEffects = new Array<String>();
-        public final Array<String> talosVFXs = new Array<String>();
-        public final Array<FontSizePair> fonts = new Array<FontSizePair>();
-        public final Array<String> shaders = new Array<String>();
+        public final Array<String> spriteAnims = new Array<>();
+        public final Array<String> particleEffects = new Array<>();
+        public final Array<FontSizePair> fonts = new Array<>();
+        public final Array<String> shaders = new Array<>();
+        private final ObjectMap<Integer, Array<String>> externals = new ObjectMap<>();
 
         public boolean loadAllScenes = true;
-        public final Array<String> scenes = new Array<String>();
+        public final Array<String> scenes = new Array<>();
+
+        public void addExternalResType(int type, String name) {
+            Array<String> assets = externals.get(type);
+            if (assets == null) {
+                assets = new Array<>();
+                externals.put(type, assets);
+            }
+            assets.add(name);
+        }
     }
 }
 

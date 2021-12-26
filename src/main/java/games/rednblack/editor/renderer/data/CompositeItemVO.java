@@ -62,7 +62,11 @@ public class CompositeItemVO extends MainItemVO {
 		String clazz = vo.getClass().getName();
 		Array<MainItemVO> array = content.get(clazz);
 		if (array == null) {
-			array = new Array<>();
+			try {
+				array = new Array<>(ClassReflection.forName(clazz));
+			} catch (ReflectionException e) {
+				throw new RuntimeException(e);
+			}
 			content.put(clazz, array);
 		}
 		array.add(vo);
