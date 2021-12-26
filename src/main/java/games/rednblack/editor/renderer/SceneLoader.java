@@ -227,10 +227,6 @@ public class SceneLoader {
         engine.process();
 
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
-        renderer.setPixelsPerWU(pixelsPerWU);
-        CullingSystem cullingSystem = engine.getSystem(CullingSystem.class);
-        if (cullingSystem != null)
-            cullingSystem.setPpwu(pixelsPerWU);
 
         sceneVO = vo;
         world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));
@@ -241,7 +237,7 @@ public class SceneLoader {
         if (sceneVO.composite == null) {
             sceneVO.composite = new CompositeItemVO();
         }
-        rootEntity = entityFactory.createRootEntity(sceneVO.composite, viewport);
+        rootEntity = entityFactory.createRootEntity(sceneVO.composite, viewport, pixelsPerWU);
 
         if (sceneVO.composite != null) {
             entityFactory.initAllChildren(rootEntity, sceneVO.composite);

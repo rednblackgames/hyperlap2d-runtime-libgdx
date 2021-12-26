@@ -96,15 +96,12 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         drawableLogicMapper.addDrawableToMap(itemType.getTypeId(), itemType.getDrawable());
     }
 
-    public void setPixelsPerWU(int pixelsPerWU) {
-        this.pixelsPerWU = pixelsPerWU;
-    }
-
     @Override
     public void process(int entity) {
         timeRunning += getWorld().delta;
 
         ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
+        pixelsPerWU = ViewPortComponent.pixelsPerWU;
         viewport = ViewPortComponent.viewPort;
         camera = viewport.getCamera();
 
