@@ -49,7 +49,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         this.asyncResourceManager.loadSpriteAnimations();
         this.asyncResourceManager.loadParticleEffects();
 
-        this.asyncResourceManager.loadExternalTypes();
+        this.asyncResourceManager.loadExternalTypesAsync();
     }
 
     @Override
@@ -60,6 +60,8 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
 
         this.asyncResourceManager.loadFonts();
         this.asyncResourceManager.loadShaders();
+
+        this.asyncResourceManager.loadExternalTypesSync();
 
         return this.asyncResourceManager;
     }

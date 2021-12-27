@@ -153,7 +153,7 @@ public class SceneConfiguration {
 
     IResourceRetriever getResourceRetriever() {
         if (iResourceRetriever == null) {
-            ResourceManager resourceManager = new ResourceManager(null);
+            ResourceManager resourceManager = new ResourceManager(this);
             resourceManager.initAllResources();
             setResourceRetriever(resourceManager);
         }
