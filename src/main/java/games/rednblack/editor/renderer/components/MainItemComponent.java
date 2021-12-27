@@ -4,7 +4,7 @@ import com.artemis.PooledComponent;
 import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.utils.CustomVariables;
 
-public class MainItemComponent  extends PooledComponent {
+public class MainItemComponent extends PooledComponent {
     public transient int uniqueId = -1;
 	public String itemIdentifier = "";
 	public String libraryLink = "";
