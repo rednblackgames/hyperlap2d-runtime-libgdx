@@ -58,7 +58,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<>();
     protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<>();
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<>();
-    protected IntMap<HashMap<String, FileHandle>> externalItems = new IntMap<>();
+    protected IntMap<HashMap<String, Object>> externalItems = new IntMap<>();
 
     protected IntMap<IExternalItemType> externalItemTypes = new IntMap<>();
 
@@ -220,8 +220,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         objectSet.add(name);
     }
 
-    protected HashMap<String, FileHandle> getExternalItems(int type) {
-        HashMap<String, FileHandle> items = externalItems.get(type);
+    protected HashMap<String, Object> getExternalItems(int type) {
+        HashMap<String, Object> items = externalItems.get(type);
         if (items == null) {
             items = new HashMap<>();
             externalItems.put(type, items);
@@ -259,10 +259,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     public void loadAssets() {
         loadAtlasPacks();
         loadParticleEffects();
-        loadExternalTypes();
         loadSpriteAnimations();
         loadFonts();
         loadShaders();
+        loadExternalTypes();
     }
 
     @Override
@@ -339,19 +339,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         for (int assetType : externalItemsToLoad.keys()) {
             IExternalItemType externalItemType = externalItemTypes.get(assetType);
             ObjectSet<String> assetsToLoad = externalItemsToLoad.get(assetType);
-            HashMap<String, FileHandle> assets = getExternalItems(assetType);
+            HashMap<String, Object> assets = getExternalItems(assetType);
 
-            // empty existing ones that are not scheduled to load
-            for (String key : assets.keySet()) {
-                if (!assetsToLoad.contains(key)) {
-                    assets.remove(key);
-                }
-            }
-
-            // load scheduled
-            for (String name : assetsToLoad) {
-                assets.put(name, Gdx.files.internal(externalItemType.formatResourcePath(name)));
-            }
+            externalItemType.loadExternalTypesAsync(this, assetsToLoad, assets);
+            externalItemType.loadExternalTypesSync(this, assetsToLoad, assets);
         }
     }
 
@@ -460,7 +451,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public FileHandle getExternalItemType(int itemType, String name) {
+    public Object getExternalItemType(int itemType, String name) {
         return externalItems.get(itemType).get(name);
     }
 

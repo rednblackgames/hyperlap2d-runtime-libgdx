@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -55,6 +56,7 @@ public class SceneLoader {
     private IResourceRetriever rm;
     private HyperLap2dRenderer renderer;
     private EntityFactory entityFactory;
+    private final IntMap<IExternalItemType> externalItemTypes = new IntMap<>();
 
     // Initialised when injectExternalItemType is called
 
@@ -114,6 +116,7 @@ public class SceneLoader {
             itemType.injectMappers();
             entityFactory.addExternalFactory(itemType);
             renderer.addDrawableType(itemType);
+            externalItemTypes.put(itemType.getTypeId(), itemType);
         }
         renderer.injectMappers(engine);
 
@@ -500,5 +503,9 @@ public class SceneLoader {
 
     public FrameBufferManager getFrameBufferManager() {
         return renderer.getFrameBufferManager();
+    }
+
+    public IExternalItemType getExternalItemType(int type) {
+        return externalItemTypes.get(type);
     }
 }
