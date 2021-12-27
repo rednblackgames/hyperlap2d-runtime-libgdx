@@ -48,11 +48,38 @@ public class CompositeSystem extends IteratingSystem {
         if (compositeTransformComponent != null) {
 
             if (compositeTransformComponent.automaticResize && viewPortComponent == null) {
-                recalculateSize();
+                float checksum = calcCheckSum(entity);
+                if (checksum != compositeTransformComponent.checksum) {
+                    compositeTransformComponent.checksum = checksum;
+                    recalculateSize();
+                }
             }
 
             compositeTransformComponent.clipBounds.set(transformComponent.x, transformComponent.y, dimensionsComponent.width, dimensionsComponent.height);
         }
+    }
+
+    private float calcCheckSum(int entity) {
+        TransformComponent t = transformMapper.get(entity);
+        DimensionsComponent d = dimensionsMapper.get(entity);
+
+        float scaleX = t.scaleX * (t.flipX ? -1 : 1);
+        float scaleY = t.scaleY * (t.flipY ? -1 : 1);
+
+        float checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
+        Integer[] children = nodeComponent.children.begin();
+        for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
+            Integer child = children[i];
+            TransformComponent pt = transformMapper.get(child);
+            DimensionsComponent dt = dimensionsMapper.get(child);
+            if (pt == null || dt == null)
+                continue;
+            float pScaleX = pt.scaleX * (pt.flipX ? -1 : 1);
+            float pScaleY = pt.scaleY * (pt.flipY ? -1 : 1);
+            checksum += pt.rotation + pScaleX + pScaleY + pt.x + pt.y + pt.originX + pt.originY + dt.width + dt.height;
+        }
+        nodeComponent.children.end();
+        return checksum;
     }
 
     private void recalculateSize() {
