@@ -9,6 +9,8 @@ import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
@@ -132,10 +134,11 @@ public abstract class MainItemVO {
 		zIndex = zindexComponent.getZIndex();
 
 		//Secondary components
-		PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
-		if(polygonComponent != null && polygonComponent.vertices != null) {
+		PolygonShapeComponent polygonShapeComponent = ComponentRetriever.get(entity, PolygonShapeComponent.class, engine);
+		if(polygonShapeComponent != null && polygonShapeComponent.vertices != null) {
 			shape = new PolygonShapeVO();
-			shape.polygons = polygonComponent.vertices;
+			shape.vertices = polygonShapeComponent.vertices;
+			shape.polygonizedVertices = polygonShapeComponent.polygonizedVertices;
 		}
 
 		CircleShapeComponent circleComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);

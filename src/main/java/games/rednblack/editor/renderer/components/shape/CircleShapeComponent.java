@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.components;
+package games.rednblack.editor.renderer.components.shape;
 
 import com.artemis.PooledComponent;
 

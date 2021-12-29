@@ -9,12 +9,11 @@ import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
-import games.rednblack.editor.renderer.data.LightVO;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @One({LightObjectComponent.class, LightBodyComponent.class})
@@ -23,7 +22,7 @@ public class LightSystem extends IteratingSystem {
     protected ComponentMapper<TransformComponent> transformComponentMapper;
     protected ComponentMapper<ParentNodeComponent> parentNodeComponentMapper;
     protected ComponentMapper<LightBodyComponent> lightBodyComponentMapper;
-    protected ComponentMapper<PolygonComponent> polygonComponentMapper;
+    protected ComponentMapper<PolygonShapeComponent> polygonComponentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
 
     private RayHandler rayHandler;
@@ -90,18 +89,18 @@ public class LightSystem extends IteratingSystem {
 
     private void processLightBody(int entityId) {
         LightBodyComponent lightBodyComponent = lightBodyComponentMapper.get(entityId);
-        PolygonComponent polygonComponent = polygonComponentMapper.get(entityId);
+        PolygonShapeComponent polygonShapeComponent = polygonComponentMapper.get(entityId);
         PhysicsBodyComponent physicsComponent = physicsBodyComponentMapper.get(entityId);
 
         lightBodyComponent.setRayHandler(rayHandler);
 
-        if ((polygonComponent == null || physicsComponent == null) && lightBodyComponent.lightObject != null) {
+        if ((polygonShapeComponent == null || physicsComponent == null) && lightBodyComponent.lightObject != null) {
             lightBodyComponent.lightObject.remove();
             lightBodyComponent.lightObject = null;
             return;
         }
 
-        if (lightBodyComponent.lightObject == null && polygonComponent != null && physicsComponent != null) {
+        if (lightBodyComponent.lightObject == null && polygonShapeComponent != null && physicsComponent != null) {
             lightBodyComponent.scheduleRefresh();
         }
 

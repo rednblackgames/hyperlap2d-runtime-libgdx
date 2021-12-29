@@ -60,10 +60,9 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
         if (body != null && body.getWorld() != null) {
             body.getWorld().destroyBody(body);
             body = null;
-            for (Array<Fixture> array : fixturesMap.values())
-                array.clear();
-            inverseFixtureMap.clear();
         }
+
+        clearFixturesMap();
     }
 
     @Override
@@ -96,9 +95,7 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
         needsRefresh = false;
         body = null;
 
-        for (Array<Fixture> array : fixturesMap.values())
-            array.clear();
-        inverseFixtureMap.clear();
+        clearFixturesMap();
     }
 
     @Override
@@ -159,9 +156,7 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
             body.destroyFixture(fixture);
         }
 
-        for (Array<Fixture> array : fixturesMap.values())
-            array.clear();
-        inverseFixtureMap.clear();
+        clearFixturesMap();
     }
 
     public void clearFixtures(int type) {
@@ -176,5 +171,11 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
             body.destroyFixture(fixture);
             inverseFixtureMap.remove(fixture, -1);
         }
+    }
+
+    public void clearFixturesMap() {
+        for (Array<Fixture> array : fixturesMap.values())
+            array.clear();
+        inverseFixtureMap.clear();
     }
 }

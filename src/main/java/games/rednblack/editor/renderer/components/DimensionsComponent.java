@@ -4,61 +4,35 @@ import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import games.rednblack.editor.renderer.data.PolygonShapeVO;
-import games.rednblack.editor.renderer.utils.PolygonUtils;
+import com.badlogic.gdx.utils.Array;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 
-public class DimensionsComponent  extends PooledComponent {
-	public float width = 0;
-	public float height = 0;
+public class DimensionsComponent extends PooledComponent {
+    public float width = 0;
+    public float height = 0;
 
-	public Rectangle boundBox;
+    public Rectangle boundBox;
     public Polygon polygon;
 
-    public boolean hit(float x, float y){
-        if(polygon != null) {
+    public boolean hit(float x, float y) {
+        if (polygon != null) {
             return polygon.contains(x, y);
-        } else if(boundBox != null) {
-            return (x >= boundBox.x && x < boundBox.x+boundBox.width && y >= boundBox.y && y < boundBox.y+boundBox.height);
+        } else if (boundBox != null) {
+            return (x >= boundBox.x && x < boundBox.x + boundBox.width && y >= boundBox.y && y < boundBox.y + boundBox.height);
         } else {
             return (x >= 0 && x < width && y >= 0 && y < height);
         }
-	}
+    }
 
-    public void setPolygon(PolygonComponent polygonComponent) {
-        Vector2[] verticesArray = PolygonUtils.mergeTouchingPolygonsToOne(polygonComponent.vertices);
-        float[] vertices = new float[verticesArray.length*2];
-        for(int i  = 0; i < verticesArray.length; i++) {
-            vertices[i*2] = (verticesArray[i].x);
-            vertices[i*2+1] = (verticesArray[i].y);
+    public void setPolygon(PolygonShapeComponent polygonShapeComponent) {
+        Array<Vector2> verticesArray = polygonShapeComponent.vertices;
+        if (verticesArray == null) return;
+        float[] vertices = new float[verticesArray.size * 2];
+        for (int i = 0; i < verticesArray.size; i++) {
+            vertices[i * 2] = (verticesArray.get(i).x);
+            vertices[i * 2 + 1] = (verticesArray.get(i).y);
         }
         polygon = new Polygon(vertices);
-    }
-
-    public void setFromShape(PolygonShapeVO shape) {
-        setFromShape(shape.polygons);
-    }
-
-    public void setFromShape(Vector2[][] polygons) {
-        Vector2 minPoint = new Vector2();
-        Vector2 maxPoint = new Vector2();
-        if(polygons != null) {
-            for(int i = 0; i < polygons.length; i++) {
-                for(int j = 0; j < polygons[i].length; j++) {
-                    if(i == 0 && j == 0) {
-                        minPoint.x = polygons[i][j].x;
-                        minPoint.y = polygons[i][j].y;
-                        maxPoint.x = polygons[i][j].x;
-                        maxPoint.y = polygons[i][j].y;
-                    }
-                    if(minPoint.x > polygons[i][j].x) minPoint.x = polygons[i][j].x;
-                    if(minPoint.y > polygons[i][j].y) minPoint.y = polygons[i][j].y;
-                    if(maxPoint.x < polygons[i][j].x) maxPoint.x = polygons[i][j].x;
-                    if(maxPoint.y < polygons[i][j].y) maxPoint.y = polygons[i][j].y;
-                }
-            }
-            width = maxPoint.x - minPoint.x;
-            height = maxPoint.y - minPoint.y;
-        }
     }
 
     @Override

@@ -30,6 +30,8 @@ import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 
@@ -75,7 +77,7 @@ public class ComponentRetriever {
 
         mappers.put(LabelComponent.class, ComponentMapper.getFor(LabelComponent.class, engine));
 
-        mappers.put(PolygonComponent.class, ComponentMapper.getFor(PolygonComponent.class, engine));
+        mappers.put(PolygonShapeComponent.class, ComponentMapper.getFor(PolygonShapeComponent.class, engine));
         mappers.put(CircleShapeComponent.class, ComponentMapper.getFor(CircleShapeComponent.class, engine));
         mappers.put(PhysicsBodyComponent.class, ComponentMapper.getFor(PhysicsBodyComponent.class, engine));
         mappers.put(SensorComponent.class, ComponentMapper.getFor(SensorComponent.class, engine));

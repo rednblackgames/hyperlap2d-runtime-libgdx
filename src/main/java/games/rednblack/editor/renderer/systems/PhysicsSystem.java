@@ -7,8 +7,8 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import games.rednblack.editor.renderer.components.CircleShapeComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -25,7 +25,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
 
     protected ComponentMapper<TransformComponent> transformComponentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
-    protected ComponentMapper<PolygonComponent> polygonComponentMapper;
+    protected ComponentMapper<PolygonShapeComponent> polygonComponentMapper;
     protected ComponentMapper<CircleShapeComponent> circleShapeComponentMapper;
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
@@ -101,17 +101,18 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
 
     protected void process(int entity) {
         PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
-        PolygonComponent polygonComponent = polygonComponentMapper.get(entity);
+        PolygonShapeComponent polygonShapeComponent = polygonComponentMapper.get(entity);
         CircleShapeComponent circleShapeComponent = circleShapeComponentMapper.get(entity);
 
         TransformComponent transformComponent = transformComponentMapper.get(entity);
 
-        if ((polygonComponent == null || polygonComponent.vertices == null) && circleShapeComponent == null && physicsBodyComponent.body != null) {
+        if ((polygonShapeComponent == null || polygonShapeComponent.vertices == null) && circleShapeComponent == null && physicsBodyComponent.body != null) {
             world.destroyBody(physicsBodyComponent.body);
             physicsBodyComponent.body = null;
+            physicsBodyComponent.clearFixturesMap();
         }
 
-        if (physicsBodyComponent.body == null && ((polygonComponent != null && polygonComponent.vertices != null) || circleShapeComponent != null)) {
+        if (physicsBodyComponent.body == null && ((polygonShapeComponent != null && polygonShapeComponent.vertices != null) || circleShapeComponent != null)) {
             physicsBodyComponent.centerX = transformComponent.originX;
             physicsBodyComponent.centerY = transformComponent.originY;
 
