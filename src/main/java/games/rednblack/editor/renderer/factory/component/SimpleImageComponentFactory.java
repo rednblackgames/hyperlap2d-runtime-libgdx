@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -96,12 +96,12 @@ public class SimpleImageComponentFactory extends ComponentFactory {
 
     private void updatePolygons(int entity) {
         DimensionsComponent dimensionsComponent = dimensionsCM.get(entity);
-        PolygonComponent polygonComponent = polygonCM.get(entity);
+        PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
 
         TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
-        if (textureRegionComponent.isPolygon && polygonComponent != null && polygonComponent.vertices != null) {
-            textureRegionComponent.setPolygonSprite(polygonComponent);
-            dimensionsComponent.setPolygon(polygonComponent);
+        if (textureRegionComponent.isPolygon && polygonShapeComponent != null && polygonShapeComponent.vertices != null) {
+            textureRegionComponent.setPolygonSprite(polygonShapeComponent);
+            dimensionsComponent.setPolygon(polygonShapeComponent);
         }
     }
 }

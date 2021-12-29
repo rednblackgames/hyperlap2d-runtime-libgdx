@@ -5,12 +5,15 @@ import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
+import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
@@ -22,7 +25,7 @@ public abstract class ComponentFactory {
     protected ComponentMapper<NodeComponent> nodeCM;
     protected ComponentMapper<ParentNodeComponent> parentNodeCM;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
-    protected ComponentMapper<PolygonComponent> polygonCM;
+    protected ComponentMapper<PolygonShapeComponent> polygonCM;
     protected ComponentMapper<CircleShapeComponent> circleShapeCM;
     protected ComponentMapper<ScriptComponent> scriptCM;
     protected ComponentMapper<SensorComponent> sensorCM;
@@ -212,12 +215,14 @@ public abstract class ComponentFactory {
         zIndexComponent.needReOrder = false;
 
         if (vo.shape != null) {
-            PolygonComponent polygonComponent = polygonCM.create(entity);
-            polygonComponent.vertices = new Vector2[vo.shape.polygons.length][];
-            for (int i = 0; i < vo.shape.polygons.length; i++) {
-                polygonComponent.vertices[i] = new Vector2[vo.shape.polygons[i].length];
-                System.arraycopy(vo.shape.polygons[i], 0, polygonComponent.vertices[i], 0, vo.shape.polygons[i].length);
+            PolygonShapeComponent polygonShapeComponent = polygonCM.create(entity);
+            polygonShapeComponent.polygonizedVertices = new Vector2[vo.shape.polygonizedVertices.length][];
+            for (int i = 0; i < vo.shape.polygonizedVertices.length; i++) {
+                polygonShapeComponent.polygonizedVertices[i] = new Vector2[vo.shape.polygonizedVertices[i].length];
+                System.arraycopy(vo.shape.polygonizedVertices[i], 0, polygonShapeComponent.polygonizedVertices[i], 0, vo.shape.polygonizedVertices[i].length);
             }
+            polygonShapeComponent.vertices = new Array<>(true, vo.shape.vertices.size, Vector2.class);
+            polygonShapeComponent.vertices.addAll(vo.shape.vertices);
         }
 
         if (vo.circle != null) {

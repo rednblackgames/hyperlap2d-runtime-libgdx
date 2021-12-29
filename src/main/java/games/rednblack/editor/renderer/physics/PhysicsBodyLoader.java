@@ -13,14 +13,12 @@ import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.physics.SensorUserData;
+import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
-import games.rednblack.editor.renderer.utils.PolygonUtils;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
-/**
- * Created by azakhary on 9/28/2014.
- */
 public class PhysicsBodyLoader {
 
     private static PhysicsBodyLoader instance;
@@ -180,17 +178,17 @@ public class PhysicsBodyLoader {
         }
     }
 
-    private void createChainShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
+    private void createChainShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Array<Vector2> minPolygonData) {
         //FIXME Can't recycle shapes here, needs libGDX update :(
         physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
 
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
-        Vector2[] vertices = PolygonUtils.mergeTouchingPolygonsToOne(minPolygonData);
-        float[] verts = getTemporaryVerticesArray(vertices.length * 2);
+        float[] verts = getTemporaryVerticesArray(minPolygonData.size * 2);
+        Vector2 point = Pools.obtain(Vector2.class);
         for (int j = 0; j < verts.length; j += 2) {
-            Vector2 point = vertices[j / 2];
+            point.set(minPolygonData.get(j / 2));
 
             point.x -= transformComponent.originX;
             point.y -= transformComponent.originY;
@@ -200,6 +198,7 @@ public class PhysicsBodyLoader {
             verts[j] = point.x;
             verts[j + 1] = point.y;
         }
+        Pools.free(point);
         FixtureDef fixtureDef = getFixtureDef(physicsComponent);
         //FIXME remove `new ChainShape()` and clear previous state instead, needs libGDX update :(
         ChainShape chainShape = new ChainShape();
@@ -343,18 +342,18 @@ public class PhysicsBodyLoader {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
-        PolygonComponent polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class, engine);
+        PolygonShapeComponent polygonShapeComponent = ComponentRetriever.get(entity, PolygonShapeComponent.class, engine);
         CircleShapeComponent circleShapeComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);
 
         switch (physicsBodyComponent.shapeType) {
             case POLYGON:
-                if (polygonComponent != null && polygonComponent.vertices != null)
-                    createPolygonShape(transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                if (polygonShapeComponent != null && polygonShapeComponent.vertices != null)
+                    createPolygonShape(transformComponent, physicsBodyComponent, polygonShapeComponent.polygonizedVertices);
                 break;
             case CHAIN_LOOP:
             case CHAIN:
-                if (polygonComponent != null && polygonComponent.vertices != null)
-                    createChainShape(transformComponent, physicsBodyComponent, polygonComponent.vertices);
+                if (polygonShapeComponent != null && polygonShapeComponent.vertices != null)
+                    createChainShape(transformComponent, physicsBodyComponent, polygonShapeComponent.vertices);
                 break;
             case CIRCLE:
                 if (circleShapeComponent != null)

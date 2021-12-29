@@ -5,9 +5,10 @@ import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.PolygonComponent;
+import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.ColorPrimitiveVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -24,7 +25,7 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
         super(engine, rayHandler, world, rm);
         transmuter = new EntityTransmuterFactory(engine)
                 .add(TextureRegionComponent.class)
-                .add(PolygonComponent.class)
+                .add(PolygonShapeComponent.class)
                 .build();
     }
 
@@ -41,9 +42,11 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
     @Override
     public void setInitialData(int entity, Object data) {
         initializeSpecialComponentsFromVO(entity, null);
+        Object[] params = (Object[]) data;
 
-        PolygonComponent polygonComponent = polygonCM.get(entity);
-        polygonComponent.vertices = (Vector2[][]) data;
+        PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
+        polygonShapeComponent.vertices = (Array<Vector2>) params[0];
+        polygonShapeComponent.polygonizedVertices = (Vector2[][]) params[1];
     }
 
     @Override
@@ -68,16 +71,18 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
         engine.inject(component);
         component.region = rm.getTextureRegion(component.regionName);
 
-        PolygonComponent polygonComponent = polygonCM.get(entity);
-        component.setPolygonSprite(polygonComponent);
+        PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
+        component.setPolygonSprite(polygonShapeComponent);
     }
 
     @Override
     protected void initializeDimensionsComponent(int entity) {
         DimensionsComponent dimension = dimensionsCM.get(entity);
 
-        PolygonComponent polygonComponent = polygonCM.get(entity);
-        dimension.setFromShape(polygonComponent.vertices);
-        dimension.setPolygon(polygonComponent);
+        PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
+        if (polygonShapeComponent.vertices == null) return;
+        dimension.setPolygon(polygonShapeComponent);
+        dimension.width = dimension.polygon.getBoundingRectangle().width;
+        dimension.height = dimension.polygon.getBoundingRectangle().height;
     }
 }
