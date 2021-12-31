@@ -29,6 +29,8 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     private long currentTime = TimeUtils.nanoTime();
     private long accumulator = 0;
 
+    public static final Object updateEntities = new Object();
+
     @Override
     protected void initialize() {
         for (int i = 0; i < systems.size(); i++) {
@@ -58,7 +60,6 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
                 if (disabledLogicSystems.get(i))
                     continue;
 
-                updateEntityStates();
                 logicSystems.get(i).process();
             }
 
@@ -70,7 +71,6 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
             if (disabledInterpolationSystems.get(i))
                 continue;
 
-            updateEntityStates();
             float alpha = accumulator * INV_TIME_STEP_NANO;
             interpolationSystems.get(i).interpolate(alpha);
         }
@@ -80,11 +80,16 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
             if (disabledRenderSystems.get(i))
                 continue;
 
-            updateEntityStates();
             renderSystems.get(i).process();
         }
 
-        updateEntityStates();
+        updateEntitySateSync();
+    }
+
+    private void updateEntitySateSync() {
+        synchronized (updateEntities) {
+            updateEntityStates();
+        }
     }
 
     @Override

@@ -8,6 +8,8 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -21,6 +23,7 @@ import games.rednblack.editor.renderer.data.CompositeItemVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.component.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.HyperJson;
 
 import java.util.ArrayList;
@@ -56,6 +59,8 @@ public class EntityFactory {
     public World world;
     public IResourceRetriever rm = null;
     public com.artemis.World engine;
+
+    private final AsyncExecutor asyncExecutor = new AsyncExecutor(1);
 
     /**
      * Do call injectDependencies manually when using this constructor!
@@ -148,6 +153,42 @@ public class EntityFactory {
         return entity;
     }
 
+    public void initAllChildrenAsync(final int root, final CompositeItemVO vo) {
+        AsyncTask<Void> task = new AsyncTask<Void>() {
+            @Override
+            public Void call() throws Exception {
+                createAllChildrenAsync(root, vo);
+                return null;
+            }
+        };
+        asyncExecutor.submit(task);
+    }
+
+    private void createAllChildrenAsync(int root, CompositeItemVO vo) {
+        for (String key : new ObjectMap.Keys<>(vo.content)) {
+            if (key.equals(CompositeItemVO.class.getName())) continue;
+
+            Array<MainItemVO> vos = vo.content.get(key);
+            for (MainItemVO mainItemVO : new Array.ArrayIterator<>(vos, true)) {
+                synchronized (HyperLap2dInvocationStrategy.updateEntities) {
+                    createEntity(root, mainItemVO);
+                }
+            }
+        }
+
+        Array<MainItemVO> compositeVOs = vo.content.get(CompositeItemVO.class.getName());
+        if (compositeVOs != null) {
+            for (MainItemVO mainItemVO : new Array.ArrayIterator<>(compositeVOs, true)) {
+                CompositeItemVO compositeItemVO = (CompositeItemVO) mainItemVO;
+                int composite = -1;
+                synchronized (HyperLap2dInvocationStrategy.updateEntities) {
+                    composite = createEntity(root, compositeItemVO);
+                }
+                createAllChildrenAsync(composite, compositeItemVO);
+            }
+        }
+    }
+
     public void initAllChildren(int root, CompositeItemVO vo) {
         for (String key : vo.content.keys()) {
             if (key.equals(CompositeItemVO.class.getName())) continue;
@@ -214,5 +255,9 @@ public class EntityFactory {
 
     public MainItemVO instantiateVOFromJson(String json, int entityType) {
         return HyperJson.getJson().fromJson(voMap.get(entityType), json);
+    }
+
+    public void dispose() {
+        asyncExecutor.dispose();
     }
 }
