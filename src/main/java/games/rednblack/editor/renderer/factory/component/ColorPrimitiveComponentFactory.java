@@ -12,6 +12,7 @@ import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.data.ColorPrimitiveVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
+import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
@@ -70,6 +71,8 @@ public class ColorPrimitiveComponentFactory extends ComponentFactory {
         TextureRegionComponent component = textureRegionCM.get(entity);
         engine.inject(component);
         component.region = rm.getTextureRegion(component.regionName);
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        component.ppwu = projectInfoVO.pixelToWorld;
 
         PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
         component.setPolygonSprite(polygonShapeComponent);
