@@ -99,6 +99,8 @@ public class SimpleImageComponentFactory extends ComponentFactory {
         PolygonShapeComponent polygonShapeComponent = polygonCM.get(entity);
 
         TextureRegionComponent textureRegionComponent = textureRegionCM.get(entity);
+        ProjectInfoVO projectInfoVO = rm.getProjectVO();
+        textureRegionComponent.ppwu = projectInfoVO.pixelToWorld;
         if (textureRegionComponent.isPolygon && polygonShapeComponent != null && polygonShapeComponent.vertices != null) {
             textureRegionComponent.setPolygonSprite(polygonShapeComponent);
             dimensionsComponent.setPolygon(polygonShapeComponent);
