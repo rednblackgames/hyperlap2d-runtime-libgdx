@@ -8,6 +8,8 @@ public class PolygonShapeComponent extends PooledComponent {
     public Array<Vector2> vertices;
     public Vector2[][] polygonizedVertices;
 
+    public boolean openEnded = false;
+
     public void makeRectangle(float width, float height) {
         vertices = new Array<>(true, 4, Vector2.class);
         vertices.add(new Vector2(0, 0), new Vector2(0, height), new Vector2(width, height), new Vector2(width, 0));
@@ -28,5 +30,6 @@ public class PolygonShapeComponent extends PooledComponent {
     public void reset() {
         vertices = null;
         polygonizedVertices = null;
+        openEnded = false;
     }
 }

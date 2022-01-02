@@ -139,6 +139,7 @@ public abstract class MainItemVO {
 			shape = new PolygonShapeVO();
 			shape.vertices = polygonShapeComponent.vertices;
 			shape.polygonizedVertices = polygonShapeComponent.polygonizedVertices;
+			shape.openEnded = polygonShapeComponent.openEnded;
 		}
 
 		CircleShapeComponent circleComponent = ComponentRetriever.get(entity, CircleShapeComponent.class, engine);

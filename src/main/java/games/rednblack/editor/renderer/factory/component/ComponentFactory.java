@@ -223,6 +223,7 @@ public abstract class ComponentFactory {
             }
             polygonShapeComponent.vertices = new Array<>(true, vo.shape.vertices.size, Vector2.class);
             polygonShapeComponent.vertices.addAll(vo.shape.vertices);
+            polygonShapeComponent.openEnded = vo.shape.openEnded;
         }
 
         if (vo.circle != null) {
