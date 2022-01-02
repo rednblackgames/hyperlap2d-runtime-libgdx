@@ -36,6 +36,7 @@ public class RepeatablePolygonSprite implements Disposable {
     private float colorPacked = Color.WHITE_FLOAT_BITS;
 
     private TextureRegion textureRegion;
+    private float worldMultiplier = 1;
 
     private Vector2 textureOffset = new Vector2();
     private float textureWidth = 0;
@@ -486,6 +487,8 @@ public class RepeatablePolygonSprite implements Disposable {
      * Sets the origin in relation to the sprite's position for scaling and rotation.
      */
     public void setOrigin(float x, float y) {
+        x *= worldMultiplier;
+        y *= worldMultiplier;
         if (x == getOriginX() && y == getOriginY()) return;
         polygon.setOrigin(x, y);
         dirtyAttributes = true;
@@ -509,6 +512,8 @@ public class RepeatablePolygonSprite implements Disposable {
      * Sets the scale along both axises where 1 = normal Size
      */
     public void setScale(float scaleX, float scaleY) {
+        scaleX *= worldMultiplier;
+        scaleY *= worldMultiplier;
         if (scaleX == getScaleX() && scaleY == getScaleY()) return;
         polygon.setScale(scaleX, scaleY);
         dirtyAttributes = true;
@@ -695,5 +700,9 @@ public class RepeatablePolygonSprite implements Disposable {
 
     public Rectangle getBoundingRectangle() {
         return this.boundingRect;
+    }
+
+    public void setWorldMultiplier(float worldMultiplier) {
+        this.worldMultiplier = worldMultiplier;
     }
 }

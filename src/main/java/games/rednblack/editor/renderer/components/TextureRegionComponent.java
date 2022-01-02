@@ -38,6 +38,7 @@ public class TextureRegionComponent extends RefreshableComponent {
         if (repeatablePolygonSprite == null)
             repeatablePolygonSprite = new RepeatablePolygonSprite();
         repeatablePolygonSprite.clear();
+        repeatablePolygonSprite.setWorldMultiplier(1f / ppwu);
         repeatablePolygonSprite.setVertices(vertices);
         repeatablePolygonSprite.setTextureRegion(region);
     }
