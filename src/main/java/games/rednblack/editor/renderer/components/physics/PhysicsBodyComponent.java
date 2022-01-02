@@ -42,9 +42,6 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
     public float height = 1;
 
-    public float centerX;
-    public float centerY;
-
     public transient Body body;
     public PhysicsBodyDataVO.ShapeType shapeType = PhysicsBodyDataVO.ShapeType.POLYGON;
 
@@ -67,9 +64,6 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
 
     @Override
     public void reset() {
-        centerX = 0;
-        centerY = 0;
-
         bodyType = 0;
         mass = 0;
         centerOfMass.set(0, 0);
