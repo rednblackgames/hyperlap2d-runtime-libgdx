@@ -90,12 +90,12 @@ public class RepeatablePolygonSprite implements Disposable {
         if (wrapTypeX == WrapType.STRETCH || textureRegion == null) {
             gridWidth = bounds.getWidth();
         } else {
-            gridWidth = textureWidth;
+            gridWidth = textureWidth * worldMultiplier;
         }
         if (wrapTypeY == WrapType.STRETCH || textureRegion == null) {
             gridHeight = bounds.getHeight();
         } else {
-            gridHeight = textureHeight;
+            gridHeight = textureHeight * worldMultiplier;
         }
 
         polygon.setVertices(offset(vertices));
@@ -487,8 +487,6 @@ public class RepeatablePolygonSprite implements Disposable {
      * Sets the origin in relation to the sprite's position for scaling and rotation.
      */
     public void setOrigin(float x, float y) {
-        x *= worldMultiplier;
-        y *= worldMultiplier;
         if (x == getOriginX() && y == getOriginY()) return;
         polygon.setOrigin(x, y);
         dirtyAttributes = true;
@@ -512,8 +510,6 @@ public class RepeatablePolygonSprite implements Disposable {
      * Sets the scale along both axises where 1 = normal Size
      */
     public void setScale(float scaleX, float scaleY) {
-        scaleX *= worldMultiplier;
-        scaleY *= worldMultiplier;
         if (scaleX == getScaleX() && scaleY == getScaleY()) return;
         polygon.setScale(scaleX, scaleY);
         dirtyAttributes = true;

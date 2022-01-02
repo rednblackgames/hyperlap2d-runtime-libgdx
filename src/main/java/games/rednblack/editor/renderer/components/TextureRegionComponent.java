@@ -31,8 +31,8 @@ public class TextureRegionComponent extends RefreshableComponent {
         //TODO Another buddy that should be pooled
         float[] vertices = new float[verticesArray.size * 2];
         for (int i = 0; i < verticesArray.size; i++) {
-            vertices[i * 2] = verticesArray.get(i).x * ppwu;
-            vertices[i * 2 + 1] = verticesArray.get(i).y * ppwu;
+            vertices[i * 2] = verticesArray.get(i).x;
+            vertices[i * 2 + 1] = verticesArray.get(i).y;
         }
 
         if (repeatablePolygonSprite == null)

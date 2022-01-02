@@ -8,6 +8,8 @@ public class PolygonShapeVO {
     public Vector2[][] polygonizedVertices;
     @Deprecated public Vector2 [][] polygons;
 
+    public boolean openEnded = false;
+
     public PolygonShapeVO clone() {
         PolygonShapeVO newVo = new PolygonShapeVO();
         Vector2[][] target = new Vector2[polygonizedVertices.length][];
@@ -23,6 +25,7 @@ public class PolygonShapeVO {
         for (Vector2 vertex : vertices)
             targetVertices.add(vertex.cpy());
         newVo.vertices = targetVertices;
+        newVo.openEnded = openEnded;
 
         return newVo;
     }

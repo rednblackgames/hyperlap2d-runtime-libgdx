@@ -50,14 +50,14 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         RepeatablePolygonSprite repeatablePolygonSprite = textureRegionComponent.repeatablePolygonSprite;
         boolean isRepeat = textureRegionComponent.isRepeat;
 
-        repeatablePolygonSprite.setPosition(entityTransformComponent.x, entityTransformComponent.y);
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
         Rectangle b = dimensionsComponent.polygon.getBoundingRectangle();
-        repeatablePolygonSprite.setOrigin(entityTransformComponent.originX+ b.x * scaleX,
+        repeatablePolygonSprite.setOrigin(entityTransformComponent.originX + b.x * scaleX,
                 entityTransformComponent.originY + b.y * scaleY);
-        repeatablePolygonSprite.setScale(scaleX, scaleY);
+        repeatablePolygonSprite.setPosition(entityTransformComponent.x, entityTransformComponent.y);
         repeatablePolygonSprite.setRotation(entityTransformComponent.rotation);
+        repeatablePolygonSprite.setScale(scaleX, scaleY);
         repeatablePolygonSprite.setColor(tintComponent.color.r, tintComponent.color.g, tintComponent.color.b, tintComponent.color.a * parentAlpha);
         repeatablePolygonSprite.setWrapType(isRepeat ? RepeatablePolygonSprite.WrapType.REPEAT : RepeatablePolygonSprite.WrapType.STRETCH);
 
