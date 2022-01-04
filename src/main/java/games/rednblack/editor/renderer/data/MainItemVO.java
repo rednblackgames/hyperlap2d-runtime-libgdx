@@ -21,7 +21,7 @@ public abstract class MainItemVO {
 	public String itemIdentifier = "";
 	public String itemName = "";
     public String[] tags = null;
-    public String customVars = "";
+    public ObjectMap<String, String> customVariables = new ObjectMap<>();
 	public float x; 
 	public float y;
 	public float scaleX	= 1f;
@@ -54,7 +54,7 @@ public abstract class MainItemVO {
 		itemIdentifier = vo.itemIdentifier;
 		itemName = vo.itemName;
         if(vo.tags != null) tags = Arrays.copyOf(vo.tags, vo.tags.length);
-        customVars = vo.customVars;
+		customVariables.putAll(vo.customVariables);
 		x = vo.x; 
 		y = vo.y;
 		rotation = vo.rotation;
@@ -110,7 +110,7 @@ public abstract class MainItemVO {
 		for (String tag : mainItemComponent.tags) {
 			tags[i++] = tag;
 		}
-		customVars = mainItemComponent.getCustomVarString();
+		customVariables.putAll(mainItemComponent.customVariables);
 
 		x = transformComponent.x;
 		y = transformComponent.y;
