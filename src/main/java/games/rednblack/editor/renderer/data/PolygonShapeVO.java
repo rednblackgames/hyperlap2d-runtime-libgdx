@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.Array;
 public class PolygonShapeVO {
     public Array<Vector2> vertices;
     public Vector2[][] polygonizedVertices;
-    @Deprecated public Vector2 [][] polygons;
 
     public boolean openEnded = false;
 
