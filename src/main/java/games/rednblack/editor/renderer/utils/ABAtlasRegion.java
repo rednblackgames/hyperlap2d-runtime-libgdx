@@ -24,6 +24,14 @@ public class ABAtlasRegion extends TextureAtlas.AtlasRegion {
         this.useRegionB = useRegionB;
     }
 
+    public TextureAtlas.AtlasRegion getRegionB() {
+        return regionB;
+    }
+
+    public DynamicValue<Boolean> getUseRegionB() {
+        return useRegionB;
+    }
+
     @Override
     public float getRotatedPackedHeight() {
         if (useRegionB != null && useRegionB.get())
