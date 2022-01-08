@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 
 public class TransformComponent extends PooledComponent {
-    public Affine2 worldTransform = new Affine2();
-    public Matrix4 computedTransform = new Matrix4();
-    public Matrix4 oldTransform = new Matrix4();
+    public transient Affine2 worldTransform = new Affine2();
+    public transient Matrix4 computedTransform = new Matrix4();
+    public transient Matrix4 oldTransform = new Matrix4();
 
     public float x;
     public float y;
@@ -19,7 +19,7 @@ public class TransformComponent extends PooledComponent {
     public boolean flipX = false;
     public boolean flipY = false;
 
-    private TransformComponent backup = null;
+    private transient TransformComponent backup = null;
 
     public TransformComponent() {
 
@@ -86,8 +86,8 @@ public class TransformComponent extends PooledComponent {
         scaleX = 1f;
         scaleY = 1f;
         rotation = 0;
-        originX = 0;
-        originY = 0;
+        originX = Float.NaN;
+        originY = Float.NaN;
         flipX = false;
         flipY = false;
 
