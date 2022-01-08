@@ -12,11 +12,9 @@ public class ForceAction extends ComponentAction<ForceData> {
     @Override
     protected boolean delegate(float delta, int entity, ForceData actionData) {
         PhysicsBodyComponent physicsBodyComponent = physicsBodyMapper.get(entity);
-        if (physicsBodyComponent != null) {
-            ForceUtils.applyForce(actionData.force, physicsBodyComponent.body, actionData.relativePoint);
-            return false;
-        }
+        if (physicsBodyComponent == null) return true;
 
-        return true;
+        ForceUtils.applyForce(actionData.force, physicsBodyComponent.body, actionData.relativePoint);
+        return false;
     }
 }
