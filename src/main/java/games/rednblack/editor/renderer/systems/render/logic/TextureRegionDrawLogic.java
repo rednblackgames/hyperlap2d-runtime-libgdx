@@ -30,12 +30,16 @@ public class TextureRegionDrawLogic implements DrawableLogic {
 
         batchColor.set(batch.getColor());
 
+        NormalMapRendering normalMapRendering = normalMapRenderingMapper.get(entity);
+        if (normalMapRendering != null)
+            normalMapRendering.useNormalMap = renderingType == RenderingType.NORMAL_MAP;
+
         if (entityTextureRegionComponent.isPolygon &&
                 entityTextureRegionComponent.repeatablePolygonSprite != null &&
                 (shaderComponent == null || shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN)) {
             drawRepeatablePolygonSprite(batch, entity, parentAlpha);
         } else {
-            drawSprite(batch, entity, parentAlpha, renderingType);
+            drawSprite(batch, entity, parentAlpha);
         }
 
         batch.setColor(batchColor);
@@ -64,7 +68,7 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         repeatablePolygonSprite.draw((PolygonSpriteBatch) batch);
     }
 
-    public void drawSprite(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+    public void drawSprite(Batch batch, int entity, float parentAlpha) {
         TintComponent tintComponent = tintMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
@@ -74,10 +78,6 @@ public class TextureRegionDrawLogic implements DrawableLogic {
 
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
-
-        NormalMapRendering normalMapRendering = normalMapRenderingMapper.get(entity);
-        if (normalMapRendering != null)
-            normalMapRendering.useNormalMap = renderingType == RenderingType.NORMAL_MAP;
 
         batch.draw(entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,

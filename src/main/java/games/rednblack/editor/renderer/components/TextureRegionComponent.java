@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
+import games.rednblack.editor.renderer.utils.ABAtlasRegion;
+import games.rednblack.editor.renderer.utils.ABRepeatablePolygonSprite;
 import games.rednblack.editor.renderer.utils.RepeatablePolygonSprite;
 
 public class TextureRegionComponent extends RefreshableComponent {
@@ -35,8 +37,16 @@ public class TextureRegionComponent extends RefreshableComponent {
             vertices[i * 2 + 1] = verticesArray.get(i).y;
         }
 
-        if (repeatablePolygonSprite == null)
-            repeatablePolygonSprite = new RepeatablePolygonSprite();
+        if (repeatablePolygonSprite == null) {
+            if (region instanceof ABAtlasRegion) {
+                RepeatablePolygonSprite normalSprite = new RepeatablePolygonSprite();
+                ABAtlasRegion normalRegion = (ABAtlasRegion) region;
+                normalSprite.setTextureRegion(normalRegion.getRegionB());
+                repeatablePolygonSprite = new ABRepeatablePolygonSprite(normalSprite, normalRegion.getUseRegionB());
+            } else {
+                repeatablePolygonSprite = new RepeatablePolygonSprite();
+            }
+        }
         repeatablePolygonSprite.clear();
         repeatablePolygonSprite.setWorldMultiplier(1f / ppwu);
         repeatablePolygonSprite.setVertices(vertices);
