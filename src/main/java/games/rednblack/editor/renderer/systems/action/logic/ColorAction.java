@@ -11,6 +11,8 @@ public class ColorAction<T extends ColorData> extends TemporalAction<T> {
     @Override
     protected void update(float percent, int entity, T actionData) {
         TintComponent tintComponent = tintMapper.get(entity);
+        if (tintComponent == null) return;
+
         float r = actionData.startR + (actionData.endColor.r - actionData.startR) * percent;
         float g = actionData.startG + (actionData.endColor.g - actionData.startG) * percent;
         float b = actionData.startB + (actionData.endColor.b - actionData.startB) * percent;
@@ -21,6 +23,8 @@ public class ColorAction<T extends ColorData> extends TemporalAction<T> {
     @Override
     public void begin(int entity, T actionData) {
         TintComponent tintComponent = tintMapper.get(entity);
+        if (tintComponent == null) return;
+
         actionData.startR = tintComponent.color.r;
         actionData.startG = tintComponent.color.g;
         actionData.startB = tintComponent.color.b;

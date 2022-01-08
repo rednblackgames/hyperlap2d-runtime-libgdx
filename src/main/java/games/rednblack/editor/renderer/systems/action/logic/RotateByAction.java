@@ -11,6 +11,8 @@ public class RotateByAction<T extends RotateByData> extends RelativeTemporalActi
     @Override
     protected void updateRelative(float percentDelta, int entity, T actionData) {
         TransformComponent transformComponent = transformMapper.get(entity);
+        if (transformComponent == null) return;
+
         transformComponent.rotation += actionData.amount * percentDelta;
     }
 }

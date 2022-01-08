@@ -11,6 +11,8 @@ public class ScaleByAction<T extends ScaleByData> extends RelativeTemporalAction
     @Override
     protected void updateRelative(float percent, int entity, T actionData) {
         TransformComponent transformComponent = transformMapper.get(entity);
+        if (transformComponent == null) return;
+
         transformComponent.scaleX += actionData.amountX * percent;
         transformComponent.scaleY += actionData.amountY * percent;
     }
