@@ -3,6 +3,7 @@ package games.rednblack.editor.renderer.data;
 import com.artemis.BaseComponentMapper;
 import com.artemis.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -11,6 +12,7 @@ import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.FontSizePair;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.utils.HyperJson;
 
 public class CompositeItemVO extends MainItemVO {
 	public float width;
@@ -79,7 +81,8 @@ public class CompositeItemVO extends MainItemVO {
 	}
 	
 	public CompositeItemVO clone() {
-		return new CompositeItemVO(this);
+		Json json = HyperJson.getJson();
+		return json.fromJson(CompositeItemVO.class, json.toJson(this));
 	}
 
 	@Override
