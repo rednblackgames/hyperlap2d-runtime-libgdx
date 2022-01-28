@@ -112,9 +112,6 @@ public class LightSystem extends IteratingSystem {
         lightBodyComponent.executeRefresh(entityId);
 
         if (lightBodyComponent.lightObject != null) {
-            TransformMathUtils.localToSceneCoordinates(entityId, localCoord.set(0, 0), transformComponentMapper, parentNodeComponentMapper);
-
-            lightBodyComponent.lightObject.setPosition(localCoord.x, localCoord.y);
             lightBodyComponent.lightObject.setSoftnessLength(lightBodyComponent.softnessLength);
             lightBodyComponent.lightObject.setHeight(lightBodyComponent.height);
             lightBodyComponent.lightObject.setIntensity(lightBodyComponent.intensity);

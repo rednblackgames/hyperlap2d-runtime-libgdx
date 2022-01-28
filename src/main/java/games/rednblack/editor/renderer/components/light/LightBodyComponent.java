@@ -96,7 +96,7 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
         PhysicsBodyComponent physicsComponent = physicsBodyCM.get(entity);
         TransformComponent transformComponent = transformCM.get(entity);
 
-        if (polygonShapeComponent != null && physicsComponent != null && polygonShapeComponent.vertices != null) {
+        if (polygonShapeComponent != null && physicsComponent != null && physicsComponent.body != null && polygonShapeComponent.vertices != null) {
             Array<Vector2> verticesArray = polygonShapeComponent.vertices;
             //TODO Pool Vertices Array
             float[] chain = new float[verticesArray.size * 2];
