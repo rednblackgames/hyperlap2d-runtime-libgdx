@@ -1,21 +1,17 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import games.rednblack.editor.renderer.commons.RefreshableComponent;
-import games.rednblack.editor.renderer.components.RemovableObject;
+import com.artemis.PooledComponent;
 
 /**
  * The component for the sensors.
  *
  * @author Jan-Thierry Wegener
  */
-public class SensorComponent extends RefreshableComponent implements RemovableObject {
-
-    protected boolean needsRefresh = false;
-
-    public boolean bottom;
-    public boolean left;
-    public boolean right;
-    public boolean top;
+public class SensorComponent extends PooledComponent {
+    public boolean bottom = false;
+    public boolean left = false;
+    public boolean right = false;
+    public boolean top = false;
 
     /**
      * The width of the sensor in percents of the body.
@@ -38,10 +34,6 @@ public class SensorComponent extends RefreshableComponent implements RemovableOb
     }
 
     @Override
-    public void onRemove() {
-    }
-
-    @Override
     public void reset() {
         bottom = false;
         left = false;
@@ -52,25 +44,5 @@ public class SensorComponent extends RefreshableComponent implements RemovableOb
         leftSpanPercent = 1.0f;
         rightSpanPercent = 1.0f;
         topSpanPercent = 1.0f;
-
-        needsRefresh = false;
     }
-
-    @Override
-    public void scheduleRefresh() {
-        needsRefresh = true;
-    }
-
-    @Override
-    public void executeRefresh(int entity) {
-        if (needsRefresh) {
-            refresh(entity);
-            needsRefresh = false;
-        }
-    }
-
-    protected void refresh(int entity) {
-        // TODO create the sensors
-    }
-
 }

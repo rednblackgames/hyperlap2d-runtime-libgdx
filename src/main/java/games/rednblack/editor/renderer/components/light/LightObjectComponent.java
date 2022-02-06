@@ -1,13 +1,13 @@
 package games.rednblack.editor.renderer.components.light;
 
-import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.Color;
 import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
 import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.commons.RefreshableComponent;
 
-public class LightObjectComponent extends PooledComponent {
+public class LightObjectComponent extends RefreshableComponent {
 	public enum LightType {POINT, CONE}
 	public LightType type;
 
@@ -25,23 +25,13 @@ public class LightObjectComponent extends PooledComponent {
 	public boolean isActive = true;
 
 	public transient Light lightObject = null;
+	private transient RayHandler rayHandler;
 
 	public LightObjectComponent() {
 	}
 
-	public Light rebuildRays(RayHandler rayHandler) {
-		if (rayHandler == null)
-			return lightObject;
-
-		lightObject.remove();
-
-		if (type == LightType.POINT) {
-			lightObject = new PointLight(rayHandler, rays);
-		} else {
-			lightObject = new ConeLight(rayHandler, rays, Color.WHITE, 1, 0, 0, 0, 0);
-		}
-
-		return lightObject;
+	public void setRayHandler(RayHandler rayHandler) {
+		this.rayHandler = rayHandler;
 	}
 
 	@Override
@@ -60,6 +50,24 @@ public class LightObjectComponent extends PooledComponent {
 		isSoft = true;
 		isActive = true;
 
-		lightObject = null;
+		if (lightObject != null) {
+			lightObject.remove();
+			lightObject = null;
+		}
+	}
+
+	@Override
+	protected void refresh(int entity) {
+		if (rayHandler == null)
+			return;
+
+		if (lightObject != null)
+			lightObject.remove();
+
+		if (type == LightType.POINT) {
+			lightObject = new PointLight(rayHandler, rays);
+		} else {
+			lightObject = new ConeLight(rayHandler, rays, Color.WHITE, 1, 0, 0, 0, 0);
+		}
 	}
 }

@@ -7,11 +7,10 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
-import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 
-public class PhysicsBodyComponent extends RefreshableComponent implements RemovableObject {
+public class PhysicsBodyComponent extends RefreshableComponent {
     public static final int FIXTURE_TYPE_SHAPE = 0;
     public static final int FIXTURE_TYPE_SENSORS = 1;
     public static final int FIXTURE_TYPE_USER_DEFINED = 2;
@@ -53,16 +52,6 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
     }
 
     @Override
-    public void onRemove() {
-        if (body != null && body.getWorld() != null) {
-            body.getWorld().destroyBody(body);
-            body = null;
-        }
-
-        clearFixturesMap();
-    }
-
-    @Override
     public void reset() {
         bodyType = 0;
         mass = 0;
@@ -87,7 +76,11 @@ public class PhysicsBodyComponent extends RefreshableComponent implements Remova
         height = 1;
 
         needsRefresh = false;
-        body = null;
+
+        if (body != null && body.getWorld() != null) {
+            body.getWorld().destroyBody(body);
+            body = null;
+        }
 
         clearFixturesMap();
     }

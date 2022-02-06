@@ -145,6 +145,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         // get script comp
         ScriptComponent ic1 = scriptComponentMapper.get(et1);
         ScriptComponent ic2 = scriptComponentMapper.get(et2);
+        if (ic1 == null || ic2 == null) return;
 
         // cast script to contacts, if scripts implement contacts
         for (IScript sc : ic1.scripts) {

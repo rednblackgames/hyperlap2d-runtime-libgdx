@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;

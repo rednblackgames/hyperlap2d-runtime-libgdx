@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.One;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.box2dLight.ConeLight;
 import games.rednblack.editor.renderer.box2dLight.Light;
@@ -30,26 +29,31 @@ public class LightSystem extends IteratingSystem {
     private final Vector2 localCoord = new Vector2();
 
     @Override
-    protected void process(int entityId) {
-
-        if (lightBodyComponentMapper.get(entityId) != null) {
-            processLightBody(entityId);
+    protected void process(int entity) {
+        if (lightBodyComponentMapper.get(entity) != null) {
+            processLightBody(entity);
             return;
         }
 
-        LightObjectComponent lightObjectComponent = lightObjectComponentMapper.get(entityId);
+        LightObjectComponent lightObjectComponent = lightObjectComponentMapper.get(entity);
+        lightObjectComponent.setRayHandler(rayHandler);
 
         Light light = lightObjectComponent.lightObject;
-        if (light == null) return;
-
-        if (light.getRayNum() != lightObjectComponent.rays) {
-            light = lightObjectComponent.rebuildRays(rayHandler);
+        if (light == null) {
+            lightObjectComponent.scheduleRefresh();
         }
 
-        TransformMathUtils.localToSceneCoordinates(entityId, localCoord.set(0, 0), transformComponentMapper, parentNodeComponentMapper);
-        ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entityId);
+        if (light != null && light.getRayNum() != lightObjectComponent.rays) {
+            lightObjectComponent.scheduleRefresh();
+        }
 
-        TransformComponent transform = transformComponentMapper.get(entityId);
+        lightObjectComponent.executeRefresh(entity);
+        light = lightObjectComponent.lightObject;
+
+        TransformMathUtils.localToSceneCoordinates(entity, localCoord.set(0, 0), transformComponentMapper, parentNodeComponentMapper);
+        ParentNodeComponent parentNodeComponent = parentNodeComponentMapper.get(entity);
+
+        TransformComponent transform = transformComponentMapper.get(entity);
         float relativeRotation = transform.rotation;
 
         int parentEntity = parentNodeComponent.parentEntity;
@@ -73,12 +77,10 @@ public class LightSystem extends IteratingSystem {
         light.setIntensity(lightObjectComponent.intensity);
 
         if (lightObjectComponent.type == LightObjectComponent.LightType.POINT) {
-            lightObjectComponent.lightObject.setColor(Color.CLEAR);
             lightObjectComponent.lightObject.setDistance(lightObjectComponent.distance);
             lightObjectComponent.lightObject.setStaticLight(lightObjectComponent.isStatic);
             lightObjectComponent.lightObject.setXray(lightObjectComponent.isXRay);
         } else {
-            lightObjectComponent.lightObject.setColor(Color.CLEAR);
             lightObjectComponent.lightObject.setDistance(lightObjectComponent.distance);
             lightObjectComponent.lightObject.setStaticLight(lightObjectComponent.isStatic);
             lightObjectComponent.lightObject.setDirection(lightObjectComponent.directionDegree + relativeRotation);

@@ -3,11 +3,8 @@ package games.rednblack.editor.renderer.factory.component;
 import com.artemis.ComponentMapper;
 import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
-import games.rednblack.editor.renderer.box2dLight.ConeLight;
-import games.rednblack.editor.renderer.box2dLight.PointLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.BoundingBoxComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -39,16 +36,9 @@ public class LightComponentFactory extends ComponentFactory {
 
         LightObjectComponent component = lightObjectCM.get(entity);
 
-        if (component.type == LightObjectComponent.LightType.POINT) {
-            component.lightObject = new PointLight(rayHandler, component.rays);
-        } else {
-            component.lightObject = new ConeLight(rayHandler, component.rays, Color.WHITE, 1, 0, 0, 0, 0);
-        }
-
         if (component.softnessLength == -1f) {
             component.softnessLength = component.distance * 0.1f;
         }
-        component.lightObject.setSoftnessLength(component.softnessLength);
     }
 
     @Override

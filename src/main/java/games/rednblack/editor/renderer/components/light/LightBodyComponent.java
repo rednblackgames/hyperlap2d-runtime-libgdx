@@ -8,11 +8,10 @@ import games.rednblack.editor.renderer.box2dLight.ChainLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
-import games.rednblack.editor.renderer.components.RemovableObject;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
-public class LightBodyComponent extends RefreshableComponent implements RemovableObject {
+public class LightBodyComponent extends RefreshableComponent {
 
     protected transient ComponentMapper<TransformComponent> transformCM;
     protected transient ComponentMapper<PhysicsBodyComponent> physicsBodyCM;
@@ -40,14 +39,6 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
     }
 
     @Override
-    public void onRemove() {
-        if (lightObject != null) {
-            lightObject.remove();
-            lightObject = null;
-        }
-    }
-
-    @Override
     public void reset() {
         color[0] = 1f;
         color[1] = 1f;
@@ -66,7 +57,12 @@ public class LightBodyComponent extends RefreshableComponent implements Removabl
 
         needsRefresh = false;
 
-        lightObject = null;
+        if (lightObject != null) {
+            lightObject.remove(true);
+            lightObject = null;
+        }
+
+        rayHandler = null;
     }
 
     public void setRayHandler(RayHandler rayHandler) {

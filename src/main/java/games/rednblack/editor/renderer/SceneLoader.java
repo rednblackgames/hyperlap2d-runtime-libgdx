@@ -167,26 +167,6 @@ public class SceneLoader {
                                 }
                             }
 
-                            //check for physics
-                            PhysicsBodyComponent physicsBodyComponent = physicsBodyCM.get(entity);
-                            if (physicsBodyComponent != null && physicsBodyComponent.body != null) {
-                                world.destroyBody(physicsBodyComponent.body);
-                                physicsBodyComponent.body = null;
-                            }
-
-                            // check if it is light
-                            LightObjectComponent lightObjectComponent = lightObjectCM.get(entity);
-                            if (lightObjectComponent != null && lightObjectComponent.lightObject != null) {
-                                lightObjectComponent.lightObject.remove(true);
-                                lightObjectComponent.lightObject = null;
-                            }
-
-                            LightBodyComponent lightBodyComponent = lightBodyCM.get(entity);
-                            if (lightBodyComponent != null && lightBodyComponent.lightObject != null) {
-                                lightBodyComponent.lightObject.remove(true);
-                                lightBodyComponent.lightObject = null;
-                            }
-
                             renderer.removeSpecialEntity(entity);
                         }
                     }

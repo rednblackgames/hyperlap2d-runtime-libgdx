@@ -37,7 +37,7 @@ public class CullingSystem extends IteratingSystem {
         MainItemComponent m = mainItemMapper.get(entity);
         m.culled = false;
 
-        if(debug) {
+        if (debug) {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         }
@@ -56,9 +56,11 @@ public class CullingSystem extends IteratingSystem {
 
     void cull(Integer entity) {
         BoundingBoxComponent b = boundingBoxMapper.get(entity);
-        if (b==null) return;
-
         MainItemComponent m = mainItemMapper.get(entity);
+        if (b == null) {
+            m.culled = false;
+            return;
+        }
 
         m.culled = !view.overlaps(b.rectangle);
         if (debug) {
