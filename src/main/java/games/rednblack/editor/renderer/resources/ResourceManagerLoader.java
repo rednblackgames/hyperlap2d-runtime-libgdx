@@ -11,20 +11,24 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import games.rednblack.editor.renderer.SceneConfiguration;
+import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 
 import java.io.File;
 
 public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResourceManager, ResourceManagerLoader.AsyncResourceManagerParam> {
 
-    private AsyncResourceManager asyncResourceManager;
+    private final AsyncResourceManager asyncResourceManager;
 
     private ProjectInfoVO projectInfoVO;
 
-    public ResourceManagerLoader(SceneConfiguration sceneConfiguration, FileHandleResolver resolver) {
+    public ResourceManagerLoader(FileHandleResolver resolver) {
+        this(null, resolver);
+    }
+
+    public ResourceManagerLoader(ExternalTypesConfiguration externalTypesConfiguration, FileHandleResolver resolver) {
         super(resolver);
-        this.asyncResourceManager = new AsyncResourceManager(sceneConfiguration);
+        this.asyncResourceManager = new AsyncResourceManager(externalTypesConfiguration);
     }
 
     @Override

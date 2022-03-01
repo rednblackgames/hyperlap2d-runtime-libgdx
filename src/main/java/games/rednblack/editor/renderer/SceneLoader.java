@@ -112,11 +112,13 @@ public class SceneLoader {
 
         addEntityRemoveListener();
 
-        for (IExternalItemType itemType : configuration.getExternalItemTypes()) {
-            itemType.injectMappers();
-            entityFactory.addExternalFactory(itemType);
-            renderer.addDrawableType(itemType);
-            externalItemTypes.put(itemType.getTypeId(), itemType);
+        if (configuration.getExternalItemTypes() != null) {
+            for (IExternalItemType itemType : configuration.getExternalItemTypes()) {
+                itemType.injectMappers();
+                entityFactory.addExternalFactory(itemType);
+                renderer.addDrawableType(itemType);
+                externalItemTypes.put(itemType.getTypeId(), itemType);
+            }
         }
         renderer.injectMappers(engine);
 

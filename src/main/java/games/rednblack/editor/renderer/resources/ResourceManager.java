@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.*;
-import games.rednblack.editor.renderer.SceneConfiguration;
+import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.HyperJson;
@@ -62,12 +62,16 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     protected IntMap<IExternalItemType> externalItemTypes = new IntMap<>();
 
+    public ResourceManager() {
+        this(null);
+    }
+
     /**
-     * Initialize Resource Manager with {@link SceneConfiguration} to retrieve external item types
+     * Initialize Resource Manager with {@link ExternalTypesConfiguration} to retrieve external item types
      */
-    public ResourceManager(SceneConfiguration sceneConfiguration) {
-        if (sceneConfiguration != null) {
-            for (IExternalItemType itemType : sceneConfiguration.getExternalItemTypes()) {
+    public ResourceManager(ExternalTypesConfiguration externalTypesConfiguration) {
+        if (externalTypesConfiguration != null) {
+            for (IExternalItemType itemType : externalTypesConfiguration) {
                 if (itemType.hasResources())
                     externalItemTypes.put(itemType.getTypeId(), itemType);
             }

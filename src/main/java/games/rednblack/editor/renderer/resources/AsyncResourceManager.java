@@ -2,15 +2,19 @@ package games.rednblack.editor.renderer.resources;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.ObjectSet;
-import games.rednblack.editor.renderer.SceneConfiguration;
+import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 
 import java.util.HashMap;
 
 public class AsyncResourceManager extends ResourceManager {
 
-    public AsyncResourceManager(SceneConfiguration sceneConfiguration) {
-        super(sceneConfiguration);
+    public AsyncResourceManager() {
+        super();
+    }
+
+    public AsyncResourceManager(ExternalTypesConfiguration externalTypesConfiguration) {
+        super(externalTypesConfiguration);
     }
 
     public void addAtlasPack(String name, TextureAtlas pack) {

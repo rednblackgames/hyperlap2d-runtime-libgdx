@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -28,7 +29,7 @@ public class SceneConfiguration {
     private RayHandler rayHandler;
     private SystemInvocationStrategy invocationStrategy;
     private boolean cullingEnabled = true;
-    private final Array<IExternalItemType> externalItemTypes = new Array<>();
+    private ExternalTypesConfiguration externalItemTypes;
 
     // Artemis World, our Engine - config
     private final Array<SystemData<?>> systems = new Array<>();
@@ -91,9 +92,12 @@ public class SceneConfiguration {
         this.cullingEnabled = cullingEnabled;
     }
 
-    public void addExternalItemType(IExternalItemType itemType) {
-        externalItemTypes.add(itemType);
-        addSystem(itemType.getSystem());
+    public void setExternalItemTypes(ExternalTypesConfiguration externalTypesConfiguration) {
+        if (externalTypesConfiguration == null) return;
+
+        externalItemTypes = externalTypesConfiguration;
+        for (IExternalItemType externalItemType : externalItemTypes)
+            addSystem(externalItemType.getSystem());
     }
 
     public void addSystem(BaseSystem system) {
@@ -150,10 +154,9 @@ public class SceneConfiguration {
     }
 
     // For SceneLoader's Use
-
     IResourceRetriever getResourceRetriever() {
         if (iResourceRetriever == null) {
-            ResourceManager resourceManager = new ResourceManager(this);
+            ResourceManager resourceManager = new ResourceManager(externalItemTypes);
             resourceManager.initAllResources();
             setResourceRetriever(resourceManager);
         }
@@ -198,7 +201,8 @@ public class SceneConfiguration {
         return cullingEnabled;
     }
 
-    public Array<IExternalItemType> getExternalItemTypes() {
+    @Null
+    public ExternalTypesConfiguration getExternalItemTypes() {
         return externalItemTypes;
     }
 
