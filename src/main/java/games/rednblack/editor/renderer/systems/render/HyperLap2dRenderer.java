@@ -34,6 +34,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     protected ComponentMapper<NodeComponent> nodeMapper;
     protected ComponentMapper<ParentNodeComponent> parentNodeMapper;
     protected ComponentMapper<TransformComponent> transformMapper;
+    protected ComponentMapper<BoundingBoxComponent> boundingBoxesMapper;
     protected ComponentMapper<MainItemComponent> mainItemComponentMapper;
     protected ComponentMapper<ShaderComponent> shaderComponentMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
@@ -428,23 +429,22 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                         entityTextureRegionComponent.region = screenTextureRegion;
                     }
 
-                    TransformComponent transformComponent = transformMapper.get(entity);
-                    DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
+                    BoundingBoxComponent boundingBoxComponent = boundingBoxesMapper.get(entity);
 
-                    tmpVec3.set(transformComponent.x, transformComponent.y, 0);
+                    tmpVec3.set(boundingBoxComponent.points[3].x, boundingBoxComponent.points[3].y, 0);
                     viewport.project(tmpVec3);
                     float u = tmpVec3.x;
                     float v = tmpVec3.y;
 
-                    tmpVec3.set(transformComponent.x + dimensionsComponent.width, transformComponent.y + dimensionsComponent.height, 0);
+                    tmpVec3.set(boundingBoxComponent.points[1].x, boundingBoxComponent.points[1].y, 0);
                     viewport.project(tmpVec3);
                     float u2 = tmpVec3.x;
                     float v2 = tmpVec3.y;
 
-                    u = Math.max(0f, Math.min(1f, u * invScreenWidth));
-                    v = Math.max(0f, Math.min(1f, v * invScreenHeight));
-                    u2 = Math.max(0f, Math.min(1f, u2 * invScreenWidth));
-                    v2 = Math.max(0f, Math.min(1f, v2 * invScreenHeight));
+                    u = u * invScreenWidth;
+                    v = v * invScreenHeight;
+                    u2 = u2 * invScreenWidth;
+                    v2 = v2 * invScreenHeight;
 
                     batch.getShader().setUniformf("u_screen_coords", u, v, u2, v2);
                 }
