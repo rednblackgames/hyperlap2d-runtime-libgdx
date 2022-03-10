@@ -1268,8 +1268,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         return currentTextureLFUSize;
     }
 
-    /** @return The maximum number of textures that the LFU cache can hold. This limit is imposed by the driver.
-     * @see {@link #getMaxTextureUnits()} */
+    /** @return The maximum number of textures that the LFU cache can hold. This limit is imposed by the driver. */
     public int getTextureLFUCapacity () {
         return getMaxTextureUnits();
     }
@@ -1502,8 +1501,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     /** Queries the number of supported textures in a texture array by trying the create the default shader.<br>
      * The first call of this method is very expensive, after that it simply returns a cached value.
-     * @return the number of supported textures in a texture array or zero if this feature is unsupported on this device.
-     * @see {@link #setShader(ShaderProgram shader)} */
+     * @return the number of supported textures in a texture array or zero if this feature is unsupported on this device.*/
     public static int getMaxTextureUnits () {
         if (maxTextureUnits == -1) {
             // Query the number of available texture units and decide on a safe number of texture units to use
