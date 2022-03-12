@@ -34,6 +34,8 @@ import java.util.Arrays;
 
 public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch {
 
+    public static boolean FORCE_UNROLLED = false;
+
     static final int VERTEX_SIZE = 2 + 1 + 2 + 1; //Position + Color + Texture Coordinates + Texture Index
     static final int SPRITE_SIZE = 4 * VERTEX_SIZE; //A Sprite has 4 Vertices
 
@@ -1533,7 +1535,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     public static ShaderProgram createDefaultShader (int maxTextureUnits) {
         String version = Gdx.graphics.getGL20().glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-        if (version.contains("ES 3.20") || version.contains("4.6")) {
+        if (!FORCE_UNROLLED && (version.contains("ES 3.20") || version.contains("4.6"))) {
             return createArrayTextureShader(maxTextureUnits);
         }
         return createUnrolledArrayTextureShader(maxTextureUnits);
