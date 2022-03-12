@@ -304,7 +304,8 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        float vCount = (verticesCount / 5f) * 6.0f;
+        //Calculate how many vertices will be put in the batch
+        int vCount = (verticesCount / 5) * 6;
 
         if (triangleIndex + trianglesCount > triangles.length || vertexIndex + vCount > vertices.length) //
             flush();
@@ -743,6 +744,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
+        //Calculate how many vertices and triangles will be put in the batch
         int triangleCount = (count / 20) * 6;
         float verticesCount = ((float) (count / 5)) * 6;
         if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + verticesCount > vertices.length)
@@ -1370,7 +1372,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
         Mesh mesh = this.mesh;
         mesh.setVertices(vertices, 0, vertexIndex);
-        mesh.setIndices(triangles, 0, trianglesInBatch);
+        mesh.setIndices(triangles, 0, triangleIndex);
         if (blendingDisabled) {
             Gdx.gl.glDisable(GL20.GL_BLEND);
         } else {
@@ -1378,7 +1380,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
             if (blendSrcFunc != -1) Gdx.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha);
         }
 
-        mesh.render(customShader != null ? customShader : shader, GL20.GL_TRIANGLES, 0, trianglesInBatch);
+        mesh.render(customShader != null ? customShader : shader, GL20.GL_TRIANGLES, 0, triangleIndex);
 
         vertexIndex = 0;
         triangleIndex = 0;
@@ -1388,10 +1390,10 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         combinedMatrix.set(projectionMatrix).mul(transformMatrix);
         if (customShader != null) {
             customShader.setUniformMatrix("u_projTrans", combinedMatrix);
-            Gdx.gl20.glUniform1iv(customShader.fetchUniformLocation("u_textures", true), maxTextureUnits, textureUnitIndicesBuffer);
+            Gdx.gl20.glUniform1iv(customShader.fetchUniformLocation("u_textures", false), maxTextureUnits, textureUnitIndicesBuffer);
         } else {
             shader.setUniformMatrix("u_projTrans", combinedMatrix);
-            Gdx.gl20.glUniform1iv(shader.fetchUniformLocation("u_textures", true), maxTextureUnits, textureUnitIndicesBuffer);
+            Gdx.gl20.glUniform1iv(shader.fetchUniformLocation("u_textures", false), maxTextureUnits, textureUnitIndicesBuffer);
         }
     }
 
@@ -1603,10 +1605,11 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                 + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
                 + "}\n";
 
-        String funcConditional = "vec4 getTextureFromArray(int ndx, vec2 uv) {\n";
+        String funcConditional = "vec4 getTextureFromArray(vec2 uv) {\n";
+        funcConditional += "  int index = int(v_texture_index);"; //
         for (int i = 0; i < maxTextureUnits; i++) {
             if (i != 0) funcConditional += " else ";
-            funcConditional += "if (ndx == " + i + ") return texture2D(u_textures[" + i + "], uv);\n";
+            funcConditional += "if (index == " + i + ") return texture2D(u_textures[" + i + "], uv);\n";
         }
         funcConditional += "}\n";
 
@@ -1625,8 +1628,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                 + funcConditional
                 + "void main()\n"//
                 + "{\n" //
-                + "  int index = int(v_texture_index);" //
-                + "  gl_FragColor = v_color * getTextureFromArray(index, v_texCoords);\n" //
+                + "  gl_FragColor = v_color * getTextureFromArray(v_texCoords);\n" //
                 + "}";
 
         ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);

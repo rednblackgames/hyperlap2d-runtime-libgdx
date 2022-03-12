@@ -813,8 +813,8 @@ public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSprite
     }
 
     /**
-     * Draws the polygon using the given vertices and triangles. Each vertex must be made up of 6 elements in this order: x, y,
-     * color, u, v, texture index.
+     * Draws the polygon using the given vertices and triangles. Each vertex must be made up of 5 elements in this order: x, y,
+     * color, u, v.
      */
     @Override
     public void draw(Texture texture, float[] polygonVertices, int verticesOffset, int verticesCount,
@@ -823,12 +823,13 @@ public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSprite
             super.draw(texture, polygonVertices, verticesOffset, verticesCount, polygonTriangles, trianglesOffset,
                     trianglesCount);
         } else {
-            if (!drawing) throw new IllegalStateException("CpuPolygonSpriteBatch.begin must be called before draw.");
+            if (!drawing) throw new IllegalStateException("TextureArrayCpuPolygonSpriteBatch.begin must be called before draw.");
 
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
-            float vCount = (verticesCount / 5f) * 6.0f;
+            //Calculate how many vertices will be put in the batch
+            int vCount = (verticesCount / 5) * 6;
 
             if (triangleIndex + trianglesCount > triangles.length || vertexIndex + vCount > vertices.length) //
                 flush();
@@ -865,45 +866,46 @@ public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSprite
         if (!adjustNeeded) {
             super.draw(texture, spriteVertices, offset, count);
         } else {
-            if (!drawing) throw new IllegalStateException("CpuPolygonSpriteBatch.begin must be called before draw.");
+            if (!drawing) throw new IllegalStateException("TextureArrayCpuPolygonSpriteBatch.begin must be called before draw.");
 
             final short[] triangles = this.triangles;
             final float[] vertices = this.vertices;
 
+            //Calculate how many vertices and triangles will be put in the batch
             int triangleCount = (count / 20) * 6;
-            float verticesCount = ((float) (count / 5)) * 6;
+            int verticesCount = (count / 5) * 6;
             if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + verticesCount > vertices.length)
                 flush();
 
             float textureIndex = activateTexture(texture);
 
-            final int vertexIndex = this.vertexIndex;
             int triangleIndex = this.triangleIndex;
-            short vertex = (short)(vertexIndex / VERTEX_SIZE);
-            for (int n = triangleIndex + triangleCount; triangleIndex < n; triangleIndex += 6, vertex += 4) {
-                triangles[triangleIndex] = vertex;
-                triangles[triangleIndex + 1] = (short)(vertex + 1);
-                triangles[triangleIndex + 2] = (short)(vertex + 2);
-                triangles[triangleIndex + 3] = (short)(vertex + 2);
-                triangles[triangleIndex + 4] = (short)(vertex + 3);
-                triangles[triangleIndex + 5] = vertex;
+
+            int startVertex = vertexIndex / VERTEX_SIZE;
+            for (int n = triangleIndex + triangleCount; triangleIndex < n; startVertex += 4) {
+                triangles[triangleIndex++] = (short)startVertex;
+                triangles[triangleIndex++] = (short)(startVertex + 1);
+                triangles[triangleIndex++] = (short)(startVertex + 2);
+                triangles[triangleIndex++] = (short)(startVertex + 2);
+                triangles[triangleIndex++] = (short)(startVertex + 3);
+                triangles[triangleIndex++] = (short)startVertex;
             }
             this.triangleIndex = triangleIndex;
 
             Affine2 t = adjustAffine;
-            int vdin = vertexIndex;
-            for (int offsetin = offset; offsetin < count + offset; offsetin += 5, vdin += VERTEX_SIZE) {
+            int idx = vertexIndex;
+            for (int offsetin = offset; offsetin < count + offset; offsetin += 5) {
                 float x = spriteVertices[offsetin];
                 float y = spriteVertices[offsetin + 1];
 
-                vertices[vdin] = t.m00 * x + t.m01 * y + t.m02; // x
-                vertices[vdin + 1] = t.m10 * x + t.m11 * y + t.m12; // y
-                vertices[vdin + 2] = spriteVertices[offsetin + 2]; // color
-                vertices[vdin + 3] = spriteVertices[offsetin + 3]; // u
-                vertices[vdin + 4] = spriteVertices[offsetin + 4]; // v
-                vertices[vdin + 5] = textureIndex; // texture index
+                vertices[idx++] = t.m00 * x + t.m01 * y + t.m02; // x
+                vertices[idx++] = t.m10 * x + t.m11 * y + t.m12; // y
+                vertices[idx++] = spriteVertices[offsetin + 2]; // color
+                vertices[idx++] = spriteVertices[offsetin + 3]; // u
+                vertices[idx++] = spriteVertices[offsetin + 4]; // v
+                vertices[idx++] = textureIndex; // texture index
             }
-            this.vertexIndex = (int) (vertexIndex + verticesCount);
+            this.vertexIndex = idx;
         }
     }
 
