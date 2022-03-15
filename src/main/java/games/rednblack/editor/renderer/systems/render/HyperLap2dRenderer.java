@@ -99,7 +99,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     @Override
     public void process(int entity) {
-        timeRunning += getWorld().delta;
+        timeRunning += Gdx.graphics.getDeltaTime();
 
         ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
         pixelsPerWU = ViewPortComponent.pixelsPerWU;
@@ -151,6 +151,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
         //2. Screen Effects
         if (screenReadingEntities.size > 0) {
+            if (screenTextureRegion.getTexture() == null) screenTextureRegion.setRegion(screenTexture);
+
             batch.setProjectionMatrix(camera.combined);
             Integer[] children = screenReadingEntities.begin();
             for (int i = 0; i < screenReadingEntities.size; i++) {
@@ -424,9 +426,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                 }
 
                 if (shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING) {
-                    screenTextureRegion.setRegion(screenTexture);
                     if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
-                        entityTextureRegionComponent.region = screenTextureRegion;
+                        entityTextureRegionComponent.screenRegion = screenTextureRegion;
                     }
 
                     BoundingBoxComponent boundingBoxComponent = boundingBoxesMapper.get(entity);

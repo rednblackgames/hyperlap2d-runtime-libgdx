@@ -24,6 +24,8 @@ public class TextureRegionComponent extends RefreshableComponent {
 
     public float ppwu = 1;
 
+    public transient TextureRegion screenRegion = null;
+
     // optional
     public transient RepeatablePolygonSprite repeatablePolygonSprite = null;
 
@@ -61,6 +63,8 @@ public class TextureRegionComponent extends RefreshableComponent {
         isRepeat = false;
         isPolygon = false;
         needsRefresh = false;
+
+        screenRegion = null;
     }
 
     @Override

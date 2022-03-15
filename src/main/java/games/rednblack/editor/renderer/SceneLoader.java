@@ -491,4 +491,8 @@ public class SceneLoader {
     public IExternalItemType getExternalItemType(int type) {
         return externalItemTypes.get(type);
     }
+
+    public HyperLap2dRenderer getRenderer() {
+        return renderer;
+    }
 }

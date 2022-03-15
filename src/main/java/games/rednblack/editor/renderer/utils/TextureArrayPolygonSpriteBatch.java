@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch {
 
-    public static boolean FORCE_UNROLLED = false;
+    public static boolean FORCE_UNROLLED = true;
 
     static final int VERTEX_SIZE = 2 + 1 + 2 + 1; //Position + Color + Texture Coordinates + Texture Index
     static final int SPRITE_SIZE = 4 * VERTEX_SIZE; //A Sprite has 4 Vertices

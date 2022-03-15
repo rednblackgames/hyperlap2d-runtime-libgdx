@@ -73,13 +73,15 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         TransformComponent entityTransformComponent = transformMapper.get(entity);
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
+        ShaderComponent shaderComponent = shaderMapper.get(entity);
+        boolean screenReading = shaderComponent != null && shaderComponent.renderingLayer == MainItemVO.RenderingLayer.SCREEN_READING;
 
         batch.setColor(tintComponent.color.r, tintComponent.color.g, tintComponent.color.b, tintComponent.color.a * parentAlpha);
 
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
 
-        batch.draw(entityTextureRegionComponent.region,
+        batch.draw(screenReading ? entityTextureRegionComponent.screenRegion : entityTextureRegionComponent.region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 dimensionsComponent.width, dimensionsComponent.height,
