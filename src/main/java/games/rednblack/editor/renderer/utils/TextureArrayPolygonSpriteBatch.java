@@ -93,6 +93,8 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     private static String shaderErrorLog = null;
 
+    private boolean dirtyTextureArray = true;
+
     /** Constructs a TextureArrayPolygonSpriteBatch with the default shader, 2000 vertices, and 4000 triangles.
      * @see #TextureArrayPolygonSpriteBatch(int, int, ShaderProgram) */
     public TextureArrayPolygonSpriteBatch() {
@@ -1206,12 +1208,6 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         if (drawing) throw new IllegalStateException("TextureArrayPolygonSpriteBatch.end must be called before begin.");
         renderCalls = 0;
 
-        currentTextureLFUSize = 0;
-        currentTextureLFUSwaps = 0;
-
-        Arrays.fill(usedTextures, null);
-        Arrays.fill(usedTexturesLFU, 0);
-
         Gdx.gl.glDepthMask(false);
         if (customShader != null)
             customShader.bind();
@@ -1232,6 +1228,12 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         GL20 gl = Gdx.gl;
         gl.glDepthMask(true);
         if (isBlendingEnabled()) gl.glDisable(GL20.GL_BLEND);
+
+        currentTextureLFUSize = 0;
+        currentTextureLFUSwaps = 0;
+
+        Arrays.fill(usedTextures, null);
+        Arrays.fill(usedTexturesLFU, 0);
     }
 
     @Override
@@ -1364,9 +1366,13 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         int trianglesInBatch = triangleIndex;
         if (trianglesInBatch > maxTrianglesInBatch) maxTrianglesInBatch = trianglesInBatch;
 
-        // Bind the textures
-        for (int i = 0; i < currentTextureLFUSize; i++) {
-            usedTextures[i].bind(i);
+        if (dirtyTextureArray) {
+            // Bind the textures
+            for (int i = 0; i < currentTextureLFUSize; i++) {
+                usedTextures[i].bind(i);
+            }
+
+            dirtyTextureArray = false;
         }
 
         // Set TEXTURE0 as active again before drawing.
@@ -1425,6 +1431,9 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         if (currentTextureLFUSize < maxTextureUnits) {
             // Put the texture into the next free slot
             usedTextures[currentTextureLFUSize] = texture;
+
+            dirtyTextureArray = true;
+
             // Increase the access counter.
             usedTexturesLFU[currentTextureLFUSize]++;
             return currentTextureLFUSize++;
@@ -1463,6 +1472,8 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
             // Give the new texture a fair (average) chance of staying.
             usedTexturesLFU[slot] = average;
             usedTextures[slot] = texture;
+
+            dirtyTextureArray = true;
 
             // For statistics
             currentTextureLFUSwaps++;
