@@ -1,19 +1,18 @@
 package games.rednblack.editor.renderer.systems;
 
+import com.artemis.Aspect;
+import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
-/**
- * Created by azakhary on 8/1/2015.
- */
 @All(ButtonComponent.class)
-public class ButtonSystem extends IteratingSystem {
+public class ButtonSystem extends BaseEntitySystem {
 
     protected ComponentMapper<ButtonComponent> buttonComponentMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
@@ -26,30 +25,49 @@ public class ButtonSystem extends IteratingSystem {
 
     private final Vector2 tmp = new Vector2();
 
+    private int inputHoldEntity = -1;
+
+    public ButtonSystem(Aspect.Builder aspect) {
+        super(aspect);
+    }
+
+    public ButtonSystem() {
+    }
+
     @Override
+    protected final void processSystem() {
+        IntBag actives = subscription.getEntities();
+        int[] ids = actives.getData();
+        for (int i = actives.size() - 1; i >= 0; i--) {
+            process(ids[i]);
+        }
+    }
+
     protected void process(int entity) {
         NodeComponent nodeComponent = nodeComponentMapper.get(entity);
-
         if (nodeComponent == null) return;
-
-        for (int i = 0; i < nodeComponent.children.size; i++) {
-            Integer childEntity = nodeComponent.children.get(i);
-            MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
-            childMainItemComponent.visible = true;
-        }
 
         ViewPortComponent camera = viewPortComponentMapper.get(entity);
         if (camera != null) {
-            // if camera is on this entity, then it should not be processed
+            //Override visibility when editing the button
+            for (int i = 0; i < nodeComponent.children.size; i++) {
+                Integer childEntity = nodeComponent.children.get(i);
+                MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
+                childMainItemComponent.visible = true;
+            }
             return;
         }
 
+        //Check if another input has acquired click focus
+        if ((inputHoldEntity != entity && inputHoldEntity != -1)) return;
 
+        boolean isTouched = isTouched(entity);
         for (int i = 0; i < nodeComponent.children.size; i++) {
             Integer childEntity = nodeComponent.children.get(i);
             MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
             ZIndexComponent childZComponent = zIndexComponentMapper.get(childEntity);
-            if (isTouched(entity)) {
+            if (isTouched) {
+                inputHoldEntity = entity;
                 if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = false;
                 }
@@ -57,6 +75,8 @@ public class ButtonSystem extends IteratingSystem {
                     childMainItemComponent.visible = true;
                 }
             } else {
+                inputHoldEntity = -1;
+
                 if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = true;
                 }
@@ -65,10 +85,9 @@ public class ButtonSystem extends IteratingSystem {
                 }
             }
         }
-
     }
 
-    private boolean isTouched(Integer entity) {
+    private boolean isTouched(int entity) {
         ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
         if (Gdx.input.isTouched()) {
             DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
