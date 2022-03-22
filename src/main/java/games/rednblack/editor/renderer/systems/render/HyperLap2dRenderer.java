@@ -155,7 +155,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
             batch.setProjectionMatrix(camera.combined);
             Integer[] children = screenReadingEntities.begin();
-            for (int i = 0; i < screenReadingEntities.size; i++) {
+            for (int i = 0, n = screenReadingEntities.size; i < n; i++) {
                 int child = children[i];
                 if (mainItemComponentMapper.has(child))
                     drawEntity(batch, child, 1, DrawableLogic.RenderingType.TEXTURE);
