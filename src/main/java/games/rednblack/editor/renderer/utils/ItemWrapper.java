@@ -28,6 +28,8 @@ import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
+import games.rednblack.editor.renderer.systems.action.Actions;
+import games.rednblack.editor.renderer.systems.action.data.ActionData;
 
 import java.util.HashMap;
 
@@ -174,5 +176,9 @@ public class ItemWrapper {
         T script = component.addScript(scriptClazz);
 
         return script;
+    }
+
+    public void addAction(ActionData actionData) {
+        Actions.addAction(entity, actionData, engine);
     }
 }
