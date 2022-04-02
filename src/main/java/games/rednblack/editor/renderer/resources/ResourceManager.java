@@ -6,10 +6,7 @@ import java.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.*;
@@ -29,6 +26,8 @@ import games.rednblack.editor.renderer.utils.HyperJson;
  * Created by azakhary on 9/9/2014.
  */
 public class ResourceManager implements IResourceLoader, IResourceRetriever, Disposable {
+
+    public static int PARTICLE_POOL_SIZE = 100;
 
     /**
      * Paths (please change if different) this is the default structure exported from editor
@@ -54,7 +53,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     protected HashMap<String, String> reverseAtlasMap = new HashMap<>();
     protected HashMap<String, TextureAtlas> atlasesPack = new HashMap<>();
-    protected HashMap<String, ParticleEffect> particleEffects = new HashMap<>();
+    protected HashMap<String, ParticleEffectPool> particleEffects = new HashMap<>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<>();
     protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<>();
     protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<>();
@@ -315,7 +314,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
             for (TextureAtlas atlas : atlasesPack.values()) {
                 try {
                     effect.loadEmitterImages(atlas, "");
-                    particleEffects.put(name, effect);
+                    ParticleEffectPool effectPool = new ParticleEffectPool(effect, 1, PARTICLE_POOL_SIZE);
+                    particleEffects.put(name, effectPool);
                     break;
                 } catch (Exception ignore) {
                 }
@@ -451,7 +451,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
     @Override
     public ParticleEffect getParticleEffect(String name) {
-        return new ParticleEffect(particleEffects.get(name));
+        return particleEffects.get(name).obtain();
     }
 
     @Override

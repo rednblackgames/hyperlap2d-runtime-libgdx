@@ -47,7 +47,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
 
         ParticleComponent component = particleCM.get(entity);
 
-        ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(component.particleName));
+        ParticleEffect particleEffect = rm.getParticleEffect(component.particleName);
         if (component.autoStart)
             particleEffect.start();
         component.particleEffect = particleEffect;

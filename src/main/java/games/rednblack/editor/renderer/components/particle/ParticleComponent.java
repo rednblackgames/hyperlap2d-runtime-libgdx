@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.components.particle;
 
 import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 
 public class ParticleComponent extends PooledComponent {
     public String particleName = "";
@@ -30,6 +31,10 @@ public class ParticleComponent extends PooledComponent {
         worldMultiplier = 1f;
         scaleFactor = 1f;
 
-        particleEffect = null;
+        if (particleEffect instanceof ParticleEffectPool.PooledEffect) {
+            ParticleEffectPool.PooledEffect pooledEffect = (ParticleEffectPool.PooledEffect) particleEffect;
+            pooledEffect.free();
+            particleEffect = null;
+        }
     }
 }
