@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 public class ParticleComponent extends PooledComponent {
     public String particleName = "";
     public boolean transform = true;
+    public boolean autoStart = true;
 
     public float worldMultiplier = 1f;
     private float scaleFactor = 1f;
@@ -25,6 +26,7 @@ public class ParticleComponent extends PooledComponent {
     public void reset() {
         particleName = "";
         transform = true;
+        autoStart = true;
         worldMultiplier = 1f;
         scaleFactor = 1f;
 

@@ -8,6 +8,7 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public class ParticleEffectVO extends MainItemVO {
 	public String particleName = "";
 	public boolean transform = true;
+	public boolean autoStart = true;
 
 	public ParticleEffectVO() {
 		super();
@@ -17,6 +18,7 @@ public class ParticleEffectVO extends MainItemVO {
 		super(vo);
 		particleName = vo.particleName;
 		transform = vo.transform;
+		autoStart = vo.autoStart;
 	}
 
 	@Override
@@ -26,6 +28,7 @@ public class ParticleEffectVO extends MainItemVO {
 		ParticleComponent particleComponent = ComponentRetriever.get(entity, ParticleComponent.class, engine);
 		particleName = particleComponent.particleName;
 		transform = particleComponent.transform;
+		autoStart = particleComponent.autoStart;
 	}
 
 	@Override

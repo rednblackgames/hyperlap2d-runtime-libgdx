@@ -48,7 +48,8 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         ParticleComponent component = particleCM.get(entity);
 
         ParticleEffect particleEffect = new ParticleEffect(rm.getParticleEffect(component.particleName));
-        particleEffect.start();
+        if (component.autoStart)
+            particleEffect.start();
         component.particleEffect = particleEffect;
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         component.worldMultiplier = 1f / projectInfoVO.pixelToWorld;
@@ -82,5 +83,6 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         ParticleComponent particleComponent = particleCM.get(entity);
         particleComponent.particleName = vo.particleName;
         particleComponent.transform = vo.transform;
+        particleComponent.autoStart = vo.autoStart;
     }
 }
