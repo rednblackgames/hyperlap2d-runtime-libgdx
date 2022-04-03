@@ -1,9 +1,7 @@
 package games.rednblack.editor.renderer;
 
 import com.artemis.*;
-import com.artemis.injection.FieldResolver;
 import com.artemis.utils.IntBag;
-import com.artemis.utils.reflect.Field;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -37,6 +35,7 @@ import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.DefaultShaders;
+import games.rednblack.editor.renderer.utils.SceneLoaderFieldResolver;
 
 /**
  * SceneLoader is important part of runtime that utilizes provided
@@ -103,20 +102,7 @@ public class SceneLoader {
             config.with(data.priority, data.system);
         }
         config.register(configuration.getInvocationStrategy());
-        FieldResolver sceneLoaderResolver = new FieldResolver() {
-            @Override
-            public void initialize(com.artemis.World world) {
-
-            }
-
-            @Override
-            public Object resolve(Object target, Class<?> fieldType, Field field) {
-                if (fieldType == SceneLoader.class)
-                    return SceneLoader.this;
-                return null;
-            }
-        };
-        config.register(sceneLoaderResolver);
+        config.register(new SceneLoaderFieldResolver(this));
         WorldConfiguration build = config.build();
         build.expectedEntityCount(configuration.getExpectedEntityCount());
         build.setAlwaysDelayComponentRemoval(true);
