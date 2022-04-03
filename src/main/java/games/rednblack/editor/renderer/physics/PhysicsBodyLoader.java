@@ -179,7 +179,7 @@ public class PhysicsBodyLoader {
     }
 
     private void createChainShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Array<Vector2> minPolygonData) {
-        //FIXME Can't recycle shapes here, needs libGDX update :(
+        //TODO Remove when libgdx#6842 got merged
         physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
 
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
@@ -213,6 +213,60 @@ public class PhysicsBodyLoader {
         lightData.height = physicsComponent.height;
         physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
         chainShape.dispose();
+
+        /*
+        //TODO Uncomment when libgdx#6842 got merged
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
+        float[] verts = getTemporaryVerticesArray(minPolygonData.size * 2);
+        Vector2 point = Pools.obtain(Vector2.class);
+        for (int j = 0; j < verts.length; j += 2) {
+            point.set(minPolygonData.get(j / 2));
+
+            point.x -= transformComponent.originX;
+            point.y -= transformComponent.originY;
+            point.x *= scaleX;
+            point.y *= scaleY;
+
+            verts[j] = point.x;
+            verts[j + 1] = point.y;
+        }
+        Pools.free(point);
+
+        LightData lightData = Pools.obtain(LightData.class);
+        lightData.height = physicsComponent.height;
+
+        Array<Fixture> fixtures = physicsComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+        ChainShape shape;
+        if (fixtures != null && fixtures.size == 1 && fixtures.get(0).getShape() instanceof ChainShape) {
+            //Recycle already created shape
+            shape = (ChainShape) fixtures.get(0).getShape();
+            if (fixtures.get(0).getUserData() != null)
+                Pools.free(fixtures.get(0).getUserData());
+            fixtures.get(0).setUserData(lightData);
+
+            shape.clear();
+            if (physicsComponent.shapeType == PhysicsBodyDataVO.ShapeType.CHAIN_LOOP)
+                shape.createLoop(verts);
+            else
+                shape.createChain(verts);
+        } else {
+            //Can't recycle shape, destroy all fixtures and create a new one
+            physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
+
+            FixtureDef fixtureDef = getFixtureDef(physicsComponent);
+            shape = (ChainShape) fixtureDef.shape;
+
+            shape.clear();
+            if (physicsComponent.shapeType == PhysicsBodyDataVO.ShapeType.CHAIN_LOOP)
+                shape.createLoop(verts);
+            else
+                shape.createChain(verts);
+
+            physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
+        }
+         */
     }
 
     private void createPolygonShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
