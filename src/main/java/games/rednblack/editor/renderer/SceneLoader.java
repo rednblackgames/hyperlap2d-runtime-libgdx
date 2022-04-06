@@ -33,6 +33,7 @@ import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
+import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.DefaultShaders;
 import games.rednblack.editor.renderer.utils.SceneLoaderFieldResolver;
@@ -233,6 +234,9 @@ public class SceneLoader {
         }
 
         actionFactory = new ActionFactory(rm.getProjectVO().libraryActions);
+
+        HyperLap2dInvocationStrategy strategy = engine.getInvocationStrategy();
+        strategy.updateEntitySateSync();
 
         return sceneVO;
     }

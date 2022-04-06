@@ -86,7 +86,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         updateEntitySateSync();
     }
 
-    private void updateEntitySateSync() {
+    public void updateEntitySateSync() {
         synchronized (updateEntities) {
             updateEntityStates();
         }
