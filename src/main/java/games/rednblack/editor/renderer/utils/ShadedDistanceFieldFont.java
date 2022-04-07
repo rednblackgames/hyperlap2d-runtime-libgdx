@@ -134,7 +134,7 @@ public class ShadedDistanceFieldFont extends BitmapFont {
                 + "	gl_FragColor = vec4(v_color.rgb, alpha * v_color.a);\n" //
                 + "}\n";
 
-        ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
+        ShaderProgram shader = ShaderCompiler.compileShader(vertexShader, fragmentShader);
         if (!shader.isCompiled())
             throw new IllegalArgumentException("Error compiling distance field shader: " + shader.getLog());
         return shader;

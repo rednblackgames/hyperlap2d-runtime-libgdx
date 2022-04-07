@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch {
 
-    public static boolean FORCE_UNROLLED = true;
+    public static final String TEXTURE_INDEX_ATTRIBUTE = "a_texture_index";
 
     static final int VERTEX_SIZE = 2 + 1 + 2 + 1; //Position + Color + Texture Coordinates + Texture Index
     static final int SPRITE_SIZE = 4 * VERTEX_SIZE; //A Sprite has 4 Vertices
@@ -154,13 +154,13 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                 new VertexAttribute(VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
-                new VertexAttribute(VertexAttributes.Usage.Generic, 1, "texture_index"));
+                new VertexAttribute(VertexAttributes.Usage.Generic, 1, "a_texture_index"));
 
         vertices = new float[maxVertices * VERTEX_SIZE];
         triangles = new short[maxTriangles * 3];
 
         if (defaultShader == null) {
-            shader = createDefaultShader(maxTextureUnits);
+            shader = createDefaultShader();
             ownsShader = true;
         } else
             shader = defaultShader;
@@ -1529,8 +1529,9 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
             // so we take caution and test it first, reducing the number of slots if needed.
             // Will try to find the maximum amount of texture units supported.
             while (maxTextureUnitsLocal > 0) {
+                ShaderCompiler.MAX_TEXTURE_UNIT = maxTextureUnitsLocal;
                 try {
-                    ShaderProgram tempProg = createDefaultShader(maxTextureUnitsLocal);
+                    ShaderProgram tempProg = createDefaultShader();
                     tempProg.dispose();
                     break;
                 } catch (Exception e) {
@@ -1538,113 +1539,16 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                     shaderErrorLog = e.getMessage();
                 }
             }
+
+            ShaderCompiler.MAX_TEXTURE_UNIT = maxTextureUnitsLocal;
             maxTextureUnits = maxTextureUnitsLocal;
         }
 
         return maxTextureUnits;
     }
 
-    public static ShaderProgram createDefaultShader (int maxTextureUnits) {
-        String version = Gdx.graphics.getGL20().glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-        if (!FORCE_UNROLLED && (version.contains("ES 3.20") || version.contains("4.6"))) {
-            return createArrayTextureShader(maxTextureUnits);
-        }
-        return createUnrolledArrayTextureShader(maxTextureUnits);
-    }
-
-    public static ShaderProgram createArrayTextureShader (int maxTextureUnits) {
-        // The texture index is just passed to the fragment shader, maybe there's an more elegant way.
-        String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                + "attribute float texture_index;\n" //
-                + "uniform mat4 u_projTrans;\n" //
-                + "varying vec4 v_color;\n" //
-                + "varying vec2 v_texCoords;\n" //
-                + "varying float v_texture_index;\n" //
-                + "\n" //
-                + "void main()\n" //
-                + "{\n" //
-                + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                + "   v_color.a = v_color.a * (255.0/254.0);\n" //
-                + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                + "   v_texture_index = texture_index;\n" //
-                + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                + "}\n";
-
-        // The texture is simply selected from an array of textures
-        String fragmentShader = "#ifdef GL_ES\n" //
-                + "#define LOWP lowp\n" //
-                + "precision mediump float;\n" //
-                + "#else\n" //
-                + "#define LOWP\n" //
-                + "#endif\n" //
-                + "varying LOWP vec4 v_color;\n" //
-                + "varying vec2 v_texCoords;\n" //
-                + "varying float v_texture_index;\n" //
-                + "uniform sampler2D u_textures[" + maxTextureUnits + "];\n" //
-                + "void main()\n"//
-                + "{\n" //
-                + "  int index = int(v_texture_index);" //
-                + "  gl_FragColor = v_color * texture2D(u_textures[index], v_texCoords);\n" //
-                + "}";
-
-        ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
-
-        if (!shader.isCompiled()) {
-            throw new IllegalArgumentException("Error compiling shader: " + shader.getLog());
-        }
-
-        return shader;
-    }
-
-    public static ShaderProgram createUnrolledArrayTextureShader (int maxTextureUnits) {
-        // The texture index is just passed to the fragment shader, maybe there's an more elegant way.
-        String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                + "attribute float texture_index;\n" //
-                + "uniform mat4 u_projTrans;\n" //
-                + "varying vec4 v_color;\n" //
-                + "varying vec2 v_texCoords;\n" //
-                + "varying float v_texture_index;\n" //
-                + "\n" //
-                + "void main()\n" //
-                + "{\n" //
-                + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                + "   v_color.a = v_color.a * (255.0/254.0);\n" //
-                + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                + "   v_texture_index = texture_index;\n" //
-                + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                + "}\n";
-
-        String funcConditional = "vec4 getTextureFromArray(vec2 uv) {\n";
-        funcConditional += "  int index = int(v_texture_index);"; //
-        for (int i = 0; i < maxTextureUnits; i++) {
-            if (i != 0) funcConditional += " else ";
-            funcConditional += "if (index == " + i + ") return texture2D(u_textures[" + i + "], uv);\n";
-        }
-        funcConditional += "}\n";
-
-        // The texture is simply selected from an array of textures
-        String fragmentShader = "#define MAX_TEXTURE_UNITS " + maxTextureUnits + "\n" //
-                + "#ifdef GL_ES\n" //
-                + "#define LOWP lowp\n" //
-                + "precision mediump float;\n" //
-                + "#else\n" //
-                + "#define LOWP\n" //
-                + "#endif\n" //
-                + "varying LOWP vec4 v_color;\n" //
-                + "varying vec2 v_texCoords;\n" //
-                + "varying float v_texture_index;\n" //
-                + "uniform sampler2D u_textures[MAX_TEXTURE_UNITS];\n" //
-                + funcConditional
-                + "void main()\n"//
-                + "{\n" //
-                + "  gl_FragColor = v_color * getTextureFromArray(v_texCoords);\n" //
-                + "}";
-
-        ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
+    public static ShaderProgram createDefaultShader() {
+        ShaderProgram shader = ShaderCompiler.compileShader(DefaultShaders.DEFAULT_ARRAY_VERTEX_SHADER, DefaultShaders.DEFAULT_ARRAY_FRAGMENT_SHADER);
 
         if (!shader.isCompiled()) {
             throw new IllegalArgumentException("Error compiling shader: " + shader.getLog());

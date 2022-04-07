@@ -18,8 +18,8 @@ import games.rednblack.editor.renderer.systems.action.ActionSystem;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.CpuPolygonSpriteBatch;
-
-import static games.rednblack.editor.renderer.SceneLoader.createDefaultShader;
+import games.rednblack.editor.renderer.utils.DefaultShaders;
+import games.rednblack.editor.renderer.utils.ShaderCompiler;
 
 public class SceneConfiguration {
 
@@ -42,7 +42,8 @@ public class SceneConfiguration {
     }
 
     public SceneConfiguration(int batchSize) {
-        this(new CpuPolygonSpriteBatch(batchSize, createDefaultShader()));
+        this(new CpuPolygonSpriteBatch(batchSize,
+                ShaderCompiler.compileShader(DefaultShaders.DEFAULT_VERTEX_SHADER, DefaultShaders.DEFAULT_FRAGMENT_SHADER)));
     }
 
     public SceneConfiguration(Batch batch) {

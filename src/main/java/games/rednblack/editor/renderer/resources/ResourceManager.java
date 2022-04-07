@@ -14,6 +14,7 @@ import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.HyperJson;
+import games.rednblack.editor.renderer.utils.ShaderCompiler;
 
 /**
  * Default ResourceManager that you can reuse or extend
@@ -426,7 +427,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
 
         for (String name : shaderNamesToLoad) {
-            ShaderProgram shaderProgram = new ShaderProgram(Gdx.files.internal(shadersPath + File.separator + name + ".vert"), Gdx.files.internal(shadersPath + File.separator + name + ".frag"));
+            ShaderProgram shaderProgram = ShaderCompiler.compileShader(Gdx.files.internal(shadersPath + File.separator + name + ".vert"), Gdx.files.internal(shadersPath + File.separator + name + ".frag"));
             shaderPrograms.put(name, shaderProgram);
         }
     }

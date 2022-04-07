@@ -477,15 +477,6 @@ public class SceneLoader {
         return engine.getEntity(rootEntity);
     }
 
-    /**
-     * Returns a new instance of the default shader used by SpriteBatch for GL2 when no shader is specified.
-     */
-    static public ShaderProgram createDefaultShader() {
-        ShaderProgram shader = new ShaderProgram(DefaultShaders.DEFAULT_VERTEX_SHADER, DefaultShaders.DEFAULT_FRAGMENT_SHADER);
-        if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog());
-        return shader;
-    }
-
     public Batch getBatch() {
         return renderer.getBatch();
     }
