@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ShaderComponent  extends PooledComponent {
-	public MainItemVO.RenderingLayer renderingLayer;
+	public MainItemVO.RenderingLayer renderingLayer = MainItemVO.RenderingLayer.SCREEN;
 	public String shaderName = "";
 	private transient ShaderProgram shaderProgram = null;
 
@@ -44,6 +44,7 @@ public class ShaderComponent  extends PooledComponent {
 	public void clear() {
 		shaderName = "";
 		shaderProgram = null;
+		renderingLayer = MainItemVO.RenderingLayer.SCREEN;
 
 		uniforms.clear();
 		customUniforms.clear();
