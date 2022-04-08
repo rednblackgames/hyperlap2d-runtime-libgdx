@@ -373,6 +373,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         // load scheduled
         for (String name : bitmapFontsToLoad) {
             BitmapFont bitmapFont = new BitmapFont(Gdx.files.internal(bitmapFontsPath + File.separator + name + ".fnt"), getTextureRegion(name));
+            bitmapFont.setUseIntegerPositions(false);
             bitmapFonts.put(bitmapFont.getData().name, bitmapFont);
         }
     }
