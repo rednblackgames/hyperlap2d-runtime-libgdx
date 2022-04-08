@@ -52,6 +52,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         this.asyncResourceManager.loadReverseAtlasMap();
         this.asyncResourceManager.loadSpriteAnimations();
         this.asyncResourceManager.loadParticleEffects();
+        this.asyncResourceManager.loadBitmapFonts();
 
         this.asyncResourceManager.loadExternalTypesAsync();
     }

@@ -21,7 +21,8 @@ public interface IResourceRetriever {
     ParticleEffect getParticleEffect(String name);
     Array<TextureAtlas.AtlasRegion> getSpriteAnimation(String name);
 
-    BitmapFont getBitmapFont(String name, int size, boolean mono);
+    BitmapFont getBitmapFont(String name);
+    BitmapFont getFont(String name, int size, boolean mono);
     ShaderProgram getShaderProgram(String shaderName);
 
     SceneVO getSceneVO(String sceneName);

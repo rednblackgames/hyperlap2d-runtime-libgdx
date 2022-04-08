@@ -155,6 +155,7 @@ public class CompositeItemVO extends MainItemVO {
 		if (sLabels != null) {
 			for (MainItemVO elem : sLabels) {
 				LabelVO sLabel = (LabelVO) elem;
+				if (sLabel.bitmapFont != null) continue;
 				list.add(new FontSizePair(sLabel.style.isEmpty() ? "lsans" : sLabel.style, sLabel.size == 0 ? 12 : sLabel.size, sLabel.monoSpace));
 			}
 		}
@@ -181,7 +182,9 @@ public class CompositeItemVO extends MainItemVO {
 		Array<MainItemVO> sElements = content.get(type.getName());
 		if (sElements != null) {
 			for (MainItemVO elem : sElements) {
-				list.add(elem.getResourceName());
+				String resName = elem.getResourceName();
+				if (resName != null)
+					list.add(resName);
 			}
 		}
 

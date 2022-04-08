@@ -24,6 +24,8 @@ public class LabelComponent extends PooledComponent {
 
 	public boolean typingEffect = false;
 
+	public String bitmapFont = null;
+
 	public LabelComponent() {
 
 	}
@@ -145,5 +147,6 @@ public class LabelComponent extends PooledComponent {
 		fontScaleY = 1f;
 
 		typingEffect = false;
+		bitmapFont = null;
 	}
 }

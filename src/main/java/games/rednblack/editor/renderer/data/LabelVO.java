@@ -19,6 +19,8 @@ public class LabelVO extends MainItemVO {
     public boolean wrap = false;
     public boolean isTyping = false;
 	public boolean monoSpace = false;
+
+	public String bitmapFont = null;
 	
 	public LabelVO() {
 		super();
@@ -35,6 +37,7 @@ public class LabelVO extends MainItemVO {
         wrap      = vo.wrap;
 		isTyping  = vo.isTyping;
 		monoSpace = vo.monoSpace;
+		bitmapFont = vo.bitmapFont;
 	}
 
 	@Override
@@ -49,6 +52,7 @@ public class LabelVO extends MainItemVO {
 		align = labelComponent.labelAlign;
 		wrap = labelComponent.wrap;
 		monoSpace = labelComponent.mono;
+		bitmapFont = labelComponent.bitmapFont;
 
 		isTyping = labelComponent.typingEffect;
 
@@ -58,6 +62,6 @@ public class LabelVO extends MainItemVO {
 
 	@Override
 	public String getResourceName() {
-		throw new RuntimeException("Label doesn't have resources to load.");
+		return bitmapFont;
 	}
 }

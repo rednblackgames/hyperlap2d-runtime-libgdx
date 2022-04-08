@@ -67,7 +67,12 @@ public class LabelComponentFactory extends ComponentFactory {
 
         LabelComponent labelComponent = labelCM.get(entity);
         labelComponent.setText(vo.text);
-        labelComponent.setStyle(generateStyle(rm, vo.style, vo.size, vo.monoSpace));
+        labelComponent.bitmapFont = vo.bitmapFont;
+        if (vo.bitmapFont != null) {
+            labelComponent.setStyle(generateStyle(rm, vo.bitmapFont));
+        } else {
+            labelComponent.setStyle(generateStyle(rm, vo.style, vo.size, vo.monoSpace));
+        }
         labelComponent.fontName = vo.style;
         labelComponent.fontSize = vo.size;
         labelComponent.mono = vo.monoSpace;
@@ -86,7 +91,11 @@ public class LabelComponentFactory extends ComponentFactory {
         super.initializeTransientComponents(entity);
 
         LabelComponent component = labelCM.get(entity);
-        component.setStyle(generateStyle(rm, component.fontName, component.fontSize, component.mono));
+        if (component.bitmapFont != null) {
+            component.setStyle(generateStyle(rm, component.bitmapFont));
+        } else {
+            component.setStyle(generateStyle(rm, component.fontName, component.fontSize, component.mono));
+        }
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
@@ -99,7 +108,11 @@ public class LabelComponentFactory extends ComponentFactory {
         if (size == 0) {
             size = labelDefaultSize;
         }
-        return new Label.LabelStyle(rManager.getBitmapFont(fontName, size, mono), null);
+        return new Label.LabelStyle(rManager.getFont(fontName, size, mono), null);
+    }
+
+    public static Label.LabelStyle generateStyle(IResourceRetriever rManager, String fontName) {
+        return new Label.LabelStyle(rManager.getBitmapFont(fontName), null);
     }
 
     @Override

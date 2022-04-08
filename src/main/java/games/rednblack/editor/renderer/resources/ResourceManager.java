@@ -38,6 +38,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     public String particleEffectsPath = "particles";
     public String fontsPath = "freetypefonts";
     public String shadersPath = "shaders";
+    public String bitmapFontsPath = "bitmapfonts";
 
     protected float resMultiplier;
 
@@ -50,6 +51,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected ObjectSet<String> spriteAnimNamesToLoad = new ObjectSet<>();
     protected ObjectSet<FontSizePair> fontsToLoad = new ObjectSet<>();
     protected ObjectSet<String> shaderNamesToLoad = new ObjectSet<>();
+    protected ObjectSet<String> bitmapFontsToLoad = new ObjectSet<>();
     protected ObjectMap<Integer, ObjectSet<String>> externalItemsToLoad = new ObjectMap<>();
 
     protected HashMap<String, String> reverseAtlasMap = new HashMap<>();
@@ -57,7 +59,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     protected HashMap<String, ParticleEffectPool> particleEffects = new HashMap<>();
     protected HashMap<String, ShaderProgram> shaderPrograms = new HashMap<>();
     protected HashMap<String, Array<TextureAtlas.AtlasRegion>> spriteAnimations = new HashMap<>();
-    protected HashMap<FontSizePair, BitmapFont> bitmapFonts = new HashMap<>();
+    protected HashMap<FontSizePair, BitmapFont> fonts = new HashMap<>();
+    protected HashMap<String, BitmapFont> bitmapFonts = new HashMap<>();
     protected IntMap<HashMap<String, Object>> externalItems = new IntMap<>();
 
     protected IntMap<IExternalItemType> externalItemTypes = new IntMap<>();
@@ -162,8 +165,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         particleEffectNamesToLoad.clear();
         externalItemsToLoad.clear();
         spriteAnimNamesToLoad.clear();
+        bitmapFontsToLoad.clear();
         fontsToLoad.clear();
         shaderPrograms.clear();
+        bitmapFonts.clear();
 
         for (String preparedSceneName : preparedSceneNames) {
             CompositeItemVO composite = loadedSceneVOs.get(preparedSceneName).composite;
@@ -173,9 +178,11 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
             //Load assets from scenes
             Array<String> particleEffects = composite.getRecursiveTypeNamesList(ParticleEffectVO.class);
             Array<String> spriteAnimations = composite.getRecursiveTypeNamesList(SpriteAnimationVO.class);
+            Array<String> bitmapFonts = composite.getRecursiveTypeNamesList(LabelVO.class);
             Array<String> shaderNames = composite.getRecursiveShaderList();
             Array<FontSizePair> fonts = composite.getRecursiveFontList();
 
+            bitmapFontsToLoad.addAll(bitmapFonts);
             particleEffectNamesToLoad.addAll(particleEffects);
             spriteAnimNamesToLoad.addAll(spriteAnimations);
             fontsToLoad.addAll(fonts);
@@ -192,11 +199,13 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
                 Array<String> libEffects = library.getRecursiveTypeNamesList(ParticleEffectVO.class);
                 Array<String> libShaderNames = library.getRecursiveShaderList();
                 Array<String> libSpriteAnimations = library.getRecursiveTypeNamesList(SpriteAnimationVO.class);
+                Array<String> libBitmapFonts = library.getRecursiveTypeNamesList(LabelVO.class);
 
                 fontsToLoad.addAll(libFonts);
                 shaderNamesToLoad.addAll(libShaderNames);
                 particleEffectNamesToLoad.addAll(libEffects);
                 spriteAnimNamesToLoad.addAll(libSpriteAnimations);
+                bitmapFontsToLoad.addAll(libBitmapFonts);
 
                 for (IExternalItemType itemType : externalItemTypes.values()) {
                     Array<String> assetsList = library.getRecursiveTypeNamesList(itemType.getComponentFactory().getVOType());
@@ -265,6 +274,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         loadParticleEffects();
         loadSpriteAnimations();
         loadFonts();
+        loadBitmapFonts();
         loadShaders();
         loadExternalTypes();
     }
@@ -352,6 +362,22 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
+    public void loadBitmapFonts() {
+        // empty existing ones that are not scheduled to load
+        for (String key : bitmapFonts.keySet()) {
+            if (!bitmapFontsToLoad.contains(key)) {
+                bitmapFonts.remove(key);
+            }
+        }
+
+        // load scheduled
+        for (String name : bitmapFontsToLoad) {
+            BitmapFont bitmapFont = new BitmapFont(Gdx.files.internal(bitmapFontsPath + File.separator + name + ".fnt"), getTextureRegion(name));
+            bitmapFonts.put(bitmapFont.getData().name, bitmapFont);
+        }
+    }
+
+    @Override
     public void loadFonts() {
         //resolution related stuff
         ResolutionEntryVO curResolution = getProjectVO().getResolution(packResolutionName);
@@ -365,9 +391,9 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         }
 
         // empty existing ones that are not scheduled to load
-        for (FontSizePair pair : bitmapFonts.keySet()) {
+        for (FontSizePair pair : fonts.keySet()) {
             if (!fontsToLoad.contains(pair)) {
-                bitmapFonts.remove(pair);
+                fonts.remove(pair);
             }
         }
 
@@ -388,7 +414,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         font.setUseIntegerPositions(false);
         if (pair.monoSpace)
             font.setFixedWidthGlyphs(FreeTypeFontGenerator.DEFAULT_CHARS);
-        bitmapFonts.put(pair, font);
+        fonts.put(pair, font);
     }
 
     @Override
@@ -466,8 +492,8 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public BitmapFont getBitmapFont(String name, int size, boolean mono) {
-        return bitmapFonts.get(new FontSizePair(name, size, mono));
+    public BitmapFont getFont(String name, int size, boolean mono) {
+        return fonts.get(new FontSizePair(name, size, mono));
     }
 
     @Override
@@ -501,7 +527,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         for (TextureAtlas atlas : atlasesPack.values())
             atlas.dispose();
 
-        for (BitmapFont font : bitmapFonts.values()) {
+        for (BitmapFont font : fonts.values()) {
             font.dispose();
         }
     }
@@ -509,5 +535,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     @Override
     public ShaderProgram getShaderProgram(String shaderName) {
         return shaderPrograms.get(shaderName);
+    }
+
+    @Override
+    public BitmapFont getBitmapFont(String name) {
+        return bitmapFonts.get(name);
     }
 }
