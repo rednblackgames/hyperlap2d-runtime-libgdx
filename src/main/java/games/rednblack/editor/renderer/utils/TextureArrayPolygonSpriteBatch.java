@@ -154,7 +154,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                 new VertexAttribute(VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
-                new VertexAttribute(VertexAttributes.Usage.Generic, 1, "a_texture_index"));
+                new VertexAttribute(VertexAttributes.Usage.Generic, 1, TEXTURE_INDEX_ATTRIBUTE));
 
         vertices = new float[maxVertices * VERTEX_SIZE];
         triangles = new short[maxTriangles * 3];
