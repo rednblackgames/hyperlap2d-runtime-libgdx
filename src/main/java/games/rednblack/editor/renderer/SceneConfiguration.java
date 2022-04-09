@@ -102,6 +102,7 @@ public class SceneConfiguration {
     }
 
     public void addSystem(BaseSystem system) {
+        if (system == null) return;
         addSystem(WorldConfigurationBuilder.Priority.NORMAL, system);
     }
 

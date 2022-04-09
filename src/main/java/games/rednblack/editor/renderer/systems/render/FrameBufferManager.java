@@ -32,7 +32,7 @@ public class FrameBufferManager {
                 throw new IllegalArgumentException("FBO '" + tag + "' already exists.");
         }
 
-        FrameBuffer fbo = new FrameBuffer(format, width, height, hasDepth);
+        FrameBuffer fbo = new FrameBuffer(format, width, height, hasDepth, true);
         frameBuffers.put(tag, fbo);
     }
 
