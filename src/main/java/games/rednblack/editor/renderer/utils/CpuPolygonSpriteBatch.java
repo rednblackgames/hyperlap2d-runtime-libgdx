@@ -36,7 +36,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  * @see SpriteBatch#renderCalls
  * @see com.badlogic.gdx.scenes.scene2d.Group#setTransform(boolean) Group.setTransform()
  */
-public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
+public class CpuPolygonSpriteBatch extends PolygonSpriteBatch implements CpuBatch {
 
     private final Matrix4 virtualMatrix = new Matrix4();
     private final Affine2 adjustAffine = new Affine2();
@@ -84,6 +84,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
      *
      * @see SpriteBatch#flush()
      */
+    @Override
     public void flushAndSyncTransformMatrix() {
         flush();
 
@@ -143,6 +144,7 @@ public class CpuPolygonSpriteBatch extends PolygonSpriteBatch {
      * on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by
      * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()} or {@link #end()}.
      */
+    @Override
     public void setTransformMatrix(Affine2 transform) {
         Matrix4 realMatrix = super.getTransformMatrix();
 

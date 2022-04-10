@@ -30,7 +30,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  * @author VaTTeRGeR (TextureArray Extension)
  * @author fgnm (PolygonBatch Extension) */
 
-public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSpriteBatch {
+public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSpriteBatch implements CpuBatch {
     private final Matrix4 virtualMatrix = new Matrix4();
     private final Affine2 adjustAffine = new Affine2();
     private boolean adjustNeeded;
@@ -77,6 +77,7 @@ public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSprite
      *
      * @see SpriteBatch#flush()
      */
+    @Override
     public void flushAndSyncTransformMatrix() {
         flush();
 
@@ -136,6 +137,7 @@ public class TextureArrayCpuPolygonSpriteBatch extends TextureArrayPolygonSprite
      * on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by
      * restoring the original matrix, or by calling {@link #flushAndSyncTransformMatrix()} or {@link #end()}.
      */
+    @Override
     public void setTransformMatrix(Affine2 transform) {
         Matrix4 realMatrix = super.getTransformMatrix();
 
