@@ -401,6 +401,7 @@ public class SceneLoader {
         }
         boolean isDiffuse = !vo.lightsPropertiesVO.lightType.equals("BRIGHT");
         renderer.setUseLights(vo.lightsPropertiesVO.enabled);
+        renderer.setSceneShader(rm.getShaderProgram(vo.shaderVO.shaderName));
 
         if (override || !vo.lightsPropertiesVO.enabled) {
             isDiffuse = true;

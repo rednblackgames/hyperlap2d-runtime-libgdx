@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -62,6 +63,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     private float invScreenWidth, invScreenHeight;
     private int pixelsPerWU;
 
+    private ShaderProgram sceneShader = null;
     private boolean useLights = false;
     private boolean hasNormals = false;
 
@@ -138,6 +140,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         //1. Screen Layer
         batch.setProjectionMatrix(screenCamera.combined);
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        batch.setShader(sceneShader);
         batch.begin();
         batch.draw(screenTexture,
                 viewport.getScreenX(), viewport.getScreenY(),
@@ -148,6 +151,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                 0, 0,
                 screenTexture.getWidth(), screenTexture.getHeight(),
                 false, true);
+        batch.setShader(null);
 
         //2. Screen Effects
         if (screenReadingEntities.size > 0) {
@@ -554,6 +558,13 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     public void setUseLights(boolean useLights) {
         this.useLights = useLights;
+    }
+
+    public void setSceneShader(ShaderProgram shaderProgram) {
+        if (shaderProgram != null && shaderProgram.isCompiled())
+            sceneShader = shaderProgram;
+        else
+            sceneShader = null;
     }
 
     public void injectMappers(World engine) {

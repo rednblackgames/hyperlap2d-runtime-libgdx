@@ -35,8 +35,7 @@ public abstract class MainItemVO {
 	public boolean flipX = false;
 	public boolean flipY = false;
 
-	public String shaderName = "";
-	public ObjectMap<String, ShaderUniformVO> shaderUniforms = new ObjectMap<>();
+	public ShaderVO shader = new ShaderVO();
 	public RenderingLayer renderingLayer = RenderingLayer.SCREEN;
 
 	public PolygonShapeVO shape = null;
@@ -88,9 +87,7 @@ public abstract class MainItemVO {
 			light = new LightBodyDataVO(vo.light);
 		}
 
-		shaderName = vo.shaderName;
-		shaderUniforms.clear();
-		shaderUniforms.putAll(vo.shaderUniforms);
+		shader.set(vo.shader);
 
 		renderingLayer = vo.renderingLayer;
     }
@@ -167,9 +164,9 @@ public abstract class MainItemVO {
 
 		ShaderComponent shaderComponent = ComponentRetriever.get(entity, ShaderComponent.class, engine);
 		if(shaderComponent != null && shaderComponent.shaderName != null) {
-			shaderName = shaderComponent.shaderName;
-			shaderUniforms.clear();
-			shaderUniforms.putAll(shaderComponent.customUniforms);
+			shader.shaderName = shaderComponent.shaderName;
+			shader.shaderUniforms.clear();
+			shader.shaderUniforms.putAll(shaderComponent.customUniforms);
 			renderingLayer = shaderComponent.renderingLayer;
 		}
 	}

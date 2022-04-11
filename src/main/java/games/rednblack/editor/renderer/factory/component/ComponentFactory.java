@@ -280,10 +280,10 @@ public abstract class ComponentFactory {
             lightBodyComponent.isActive = vo.light.isActive;
         }
 
-        if (vo.shaderName != null && !vo.shaderName.isEmpty()) {
+        if (vo.shader.shaderName != null && !vo.shader.shaderName.isEmpty()) {
             ShaderComponent shaderComponent = shaderCM.create(entity);
-            shaderComponent.shaderName = vo.shaderName;
-            shaderComponent.customUniforms.putAll(vo.shaderUniforms);
+            shaderComponent.shaderName = vo.shader.shaderName;
+            shaderComponent.customUniforms.putAll(vo.shader.shaderUniforms);
             shaderComponent.renderingLayer = vo.renderingLayer;
         }
     }

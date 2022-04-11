@@ -15,6 +15,17 @@ public class ShaderUniformVO {
         type = null;
     }
 
+    public ShaderUniformVO(ShaderUniformVO vo) {
+        type = vo.type;
+
+        intValue = vo.intValue;
+
+        floatValue = vo.floatValue;
+        floatValue2 = vo.floatValue2;
+        floatValue3 = vo.floatValue3;
+        floatValue4 = vo.floatValue4;
+    }
+
     public void set(int intVal) {
         type = checkType("int");
         intValue = intVal;

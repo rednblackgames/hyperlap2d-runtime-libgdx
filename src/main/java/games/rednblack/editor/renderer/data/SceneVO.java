@@ -13,6 +13,7 @@ public class SceneVO {
 
     public PhysicsPropertiesVO physicsPropertiesVO = new PhysicsPropertiesVO();
     public LightsPropertiesVO lightsPropertiesVO = new LightsPropertiesVO();
+    public ShaderVO shaderVO = new ShaderVO();
 
     public ArrayList<Float> verticalGuides = new ArrayList<Float>();
     public ArrayList<Float> horizontalGuides = new ArrayList<Float>();
@@ -31,6 +32,7 @@ public class SceneVO {
         composite = new CompositeItemVO(vo.composite);
         physicsPropertiesVO = new PhysicsPropertiesVO(vo.physicsPropertiesVO);
         lightsPropertiesVO = vo.lightsPropertiesVO;
+        shaderVO.set(vo.shaderVO);
     }
 
     public String constructJsonString() {

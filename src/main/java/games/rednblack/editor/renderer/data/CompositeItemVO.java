@@ -206,8 +206,8 @@ public class CompositeItemVO extends MainItemVO {
 	public Array<String> getRecursiveShaderList() {
 		ObjectSet<String> list = new ObjectSet<>();
 		for (MainItemVO item : getAllItems()) {
-			if (item.shaderName != null && !item.shaderName.isEmpty()) {
-				list.add(item.shaderName);
+			if (item.shader.shaderName != null && !item.shader.shaderName.isEmpty()) {
+				list.add(item.shader.shaderName);
 			}
 		}
 		Array<String> finalList = new Array<>(list.size);
