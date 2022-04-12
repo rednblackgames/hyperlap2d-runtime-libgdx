@@ -15,6 +15,7 @@ import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.data.*;
 import games.rednblack.editor.renderer.utils.HyperJson;
 import games.rednblack.editor.renderer.utils.ShaderCompiler;
+import games.rednblack.editor.renderer.utils.StringUtils;
 
 /**
  * Default ResourceManager that you can reuse or extend
@@ -372,8 +373,12 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
 
         // load scheduled
         for (String name : bitmapFontsToLoad) {
-            BitmapFont bitmapFont = new BitmapFont(Gdx.files.internal(bitmapFontsPath + File.separator + name + ".fnt"), getTextureRegion(name));
-            bitmapFont.setUseIntegerPositions(false);
+            Array<TextureRegion> pages = new Array<>();
+            BitmapFont.BitmapFontData bitmapFontData = new BitmapFont.BitmapFontData(Gdx.files.internal(bitmapFontsPath + File.separator + name + ".fnt"), false);
+            for (String page : bitmapFontData.imagePaths) {
+                pages.add(getTextureRegion(StringUtils.getBaseName(page)));
+            }
+            BitmapFont bitmapFont = new BitmapFont(bitmapFontData, pages, false);
             bitmapFonts.put(bitmapFont.getData().name, bitmapFont);
         }
     }
