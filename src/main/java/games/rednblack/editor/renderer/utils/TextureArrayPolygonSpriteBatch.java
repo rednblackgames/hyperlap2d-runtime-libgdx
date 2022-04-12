@@ -1483,6 +1483,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     @Override
     public void setShader (ShaderProgram shader) {
+        if (shader == customShader) return;
         if (drawing) {
             flush();
         }
