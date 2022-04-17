@@ -66,6 +66,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     private ShaderProgram sceneShader = null;
     private boolean useLights = false;
     private boolean hasNormals = false;
+    private final boolean hasStencilBuffer;
 
     private final Vector3 tmpVec3 = new Vector3();
     private final Stack<Matrix4> fboM4Stack = new Stack<>();
@@ -78,13 +79,13 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     private final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer.class);
 
-    public HyperLap2dRenderer(Batch batch) {
+    public HyperLap2dRenderer(Batch batch, boolean hasStencilBuffer) {
         this.batch = batch;
+        this.hasStencilBuffer = hasStencilBuffer;
         drawableLogicMapper = new DrawableLogicMapper();
 
         frameBufferManager = new FrameBufferManager();
-        frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
-        frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+        createCoreFrameBuffers();
         screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         tmpFboCamera = new OrthographicCamera();
 
@@ -211,7 +212,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             //Active composite frame buffer
             batch.end();
 
-            frameBufferManager.createIfNotExists(fboTag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU);
+            frameBufferManager.createIfNotExists(fboTag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU, false, hasStencilBuffer);
 
             tmpFboCamera.viewportWidth = dimensions.width;
             tmpFboCamera.viewportHeight = dimensions.height;
@@ -475,13 +476,6 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                             break;
                     }
                 }
-
-                GL20 gl = Gdx.gl20;
-                int error;
-                if ((error = gl.glGetError()) != GL20.GL_NO_ERROR) {
-                    Gdx.app.log("opengl", "Error: " + error);
-                    Gdx.app.log("opengl", shaderComponent.getShader().getLog());
-                }
             }
         }
     }
@@ -542,9 +536,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     public void resize(int width, int height) {
         frameBufferManager.endCurrent();
         frameBufferManager.dispose("main");
-        frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
         frameBufferManager.dispose("normalMap");
-        frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+        createCoreFrameBuffers();
         screenCamera.viewportWidth = width;
         screenCamera.viewportHeight = height;
         screenCamera.position.set(0, 0, 0);
@@ -554,6 +547,11 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
         invScreenWidth = 1f / screenCamera.viewportWidth;
         invScreenHeight = 1f / screenCamera.viewportHeight;
+    }
+
+    private void createCoreFrameBuffers() {
+        frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), false, hasStencilBuffer, true);
+        frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), false, false, true);
     }
 
     public void setUseLights(boolean useLights) {

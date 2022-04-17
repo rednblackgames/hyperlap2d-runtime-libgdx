@@ -47,6 +47,10 @@ public class SceneConfiguration {
     }
 
     public SceneConfiguration(Batch batch) {
+        this(batch, false);
+    }
+
+    public SceneConfiguration(Batch batch, boolean hasStencil) {
         addSystem(new LayerSystem());
         addSystem(new ParticleSystem());
         addSystem(new SpriteAnimationSystem());
@@ -58,7 +62,7 @@ public class SceneConfiguration {
         addSystem(new ActionSystem());
         addSystem(new BoundingBoxSystem());
         addSystem(new CullingSystem());
-        addSystem(new HyperLap2dRenderer(batch));
+        addSystem(new HyperLap2dRenderer(batch, hasStencil));
         addSystem(new ButtonSystem());
     }
 

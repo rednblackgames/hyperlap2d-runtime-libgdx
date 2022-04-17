@@ -17,14 +17,18 @@ public class FrameBufferManager {
     }
 
     public void createFBO(String tag, int width, int height, boolean replace) {
-        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, replace);
+        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, false,replace);
     }
 
     public void createFBO(String tag, int width, int height) {
-        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, false);
+        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, false, false);
     }
 
-    public void createFBO(String tag, Pixmap.Format format, int width, int height, boolean hasDepth, boolean replace) {
+    public void createFBO(String tag, int width, int height, boolean hasDepth, boolean hasStencil, boolean replace) {
+        createFBO(tag, Pixmap.Format.RGBA8888, width, height, hasDepth, hasStencil, replace);
+    }
+
+    public void createFBO(String tag, Pixmap.Format format, int width, int height, boolean hasDepth, boolean hasStencil, boolean replace) {
         if (frameBuffers.get(tag) != null) {
             if (replace)
                 dispose(tag);
@@ -32,16 +36,16 @@ public class FrameBufferManager {
                 throw new IllegalArgumentException("FBO '" + tag + "' already exists.");
         }
 
-        FrameBuffer fbo = new FrameBuffer(format, width, height, hasDepth, true);
+        FrameBuffer fbo = new FrameBuffer(format, width, height, hasDepth, hasStencil);
         frameBuffers.put(tag, fbo);
     }
 
-    public void createIfNotExists(String tag, int width, int height) {
+    public void createIfNotExists(String tag, int width, int height, boolean hasDepth, boolean hasStencil) {
         FrameBuffer buffer = frameBuffers.get(tag);
         if (buffer == null) {
             createFBO(tag, width, height);
         } else if (buffer.getWidth() != width || buffer.getHeight() != height) {
-                createFBO(tag, width, height, true);
+                createFBO(tag, width, height, hasDepth, hasStencil, true);
         }
     }
 
