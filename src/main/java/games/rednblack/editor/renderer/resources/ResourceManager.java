@@ -421,6 +421,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         if (pair.monoSpace)
             font.setFixedWidthGlyphs(FreeTypeFontGenerator.DEFAULT_CHARS);
         fonts.put(pair, font);
+        generator.dispose();
     }
 
     @Override
