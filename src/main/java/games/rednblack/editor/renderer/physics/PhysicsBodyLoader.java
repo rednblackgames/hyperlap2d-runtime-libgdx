@@ -179,43 +179,6 @@ public class PhysicsBodyLoader {
     }
 
     private void createChainShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Array<Vector2> minPolygonData) {
-        //TODO Remove when libgdx#6842 got merged
-        physicsComponent.clearFixtures(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
-
-        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
-        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
-
-        float[] verts = getTemporaryVerticesArray(minPolygonData.size * 2);
-        Vector2 point = Pools.obtain(Vector2.class);
-        for (int j = 0; j < verts.length; j += 2) {
-            point.set(minPolygonData.get(j / 2));
-
-            point.x -= transformComponent.originX;
-            point.y -= transformComponent.originY;
-            point.x *= scaleX;
-            point.y *= scaleY;
-
-            verts[j] = point.x;
-            verts[j + 1] = point.y;
-        }
-        Pools.free(point);
-        FixtureDef fixtureDef = getFixtureDef(physicsComponent);
-        //FIXME remove `new ChainShape()` and clear previous state instead, needs libGDX update :(
-        ChainShape chainShape = new ChainShape();
-        fixtureDef.shape = chainShape;
-        //FIXME chainShape.clear();
-        if (physicsComponent.shapeType == PhysicsBodyDataVO.ShapeType.CHAIN_LOOP)
-            chainShape.createLoop(verts);
-        else
-            chainShape.createChain(verts);
-
-        LightData lightData = Pools.obtain(LightData.class);
-        lightData.height = physicsComponent.height;
-        physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
-        chainShape.dispose();
-
-        /*
-        //TODO Uncomment when libgdx#6842 got merged
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
@@ -266,7 +229,6 @@ public class PhysicsBodyLoader {
 
             physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
         }
-         */
     }
 
     private void createPolygonShape(TransformComponent transformComponent, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData) {
