@@ -1,13 +1,15 @@
 package games.rednblack.editor.renderer.systems.action.data;
 
+import games.rednblack.editor.renderer.systems.action.ActionRunnable;
+
 /**
  * Created by ZeppLondon on 10/15/2015.
  */
 public class RunnableData extends ActionData {
-    public Runnable runnable;
+    public ActionRunnable runnable;
     public boolean ran;
 
-    public void setRunnable(Runnable runnable) {
+    public void setRunnable(ActionRunnable runnable) {
         this.runnable = runnable;
     }
 

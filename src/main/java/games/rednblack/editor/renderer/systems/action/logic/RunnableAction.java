@@ -17,6 +17,6 @@ public class RunnableAction<T extends RunnableData> extends ActionLogic<T> {
 
     public void run(int entity, T actionData) {
         if (actionData.runnable != null)
-            actionData.runnable.run();
+            actionData.runnable.run(entity);
     }
 }

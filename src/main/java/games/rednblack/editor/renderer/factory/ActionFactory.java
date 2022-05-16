@@ -8,6 +8,7 @@ import games.rednblack.editor.renderer.data.GraphConnectionVO;
 import games.rednblack.editor.renderer.data.GraphNodeVO;
 import games.rednblack.editor.renderer.data.GraphVO;
 import games.rednblack.editor.renderer.systems.action.ActionEventListener;
+import games.rednblack.editor.renderer.systems.action.ActionRunnable;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.*;
 import games.rednblack.editor.renderer.utils.InterpolationMap;
@@ -278,10 +279,10 @@ public class ActionFactory {
         if (actionData instanceof RunnableData) {
             final String eventName = (String) node.data.get("v");
             if (listener != null) {
-                ((RunnableData) actionData).setRunnable(new Runnable() {
+                ((RunnableData) actionData).setRunnable(new ActionRunnable() {
                     @Override
-                    public void run() {
-                        listener.onActionEvent(eventName);
+                    public void run(int entity) {
+                        listener.onActionEvent(entity, eventName);
                     }
                 });
             }

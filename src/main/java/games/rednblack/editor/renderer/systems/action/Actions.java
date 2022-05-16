@@ -108,7 +108,7 @@ public class Actions {
         return actionData;
     }
 
-    static public ActionData run(Runnable runnable) {
+    static public ActionData run(ActionRunnable runnable) {
         RunnableData actionData = actionData(RunnableData.class);
         actionData.setRunnable(runnable);
         return actionData;
