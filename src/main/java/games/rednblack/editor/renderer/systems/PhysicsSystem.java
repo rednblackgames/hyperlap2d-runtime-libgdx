@@ -14,6 +14,7 @@ import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
+import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
 
@@ -150,6 +151,10 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         // cast script to contacts, if scripts implement contacts
         for (IScript sc : ic1.scripts) {
             if (sc instanceof PhysicsContact) {
+                if (sc instanceof BasicScript) {
+                    ((BasicScript) sc).doInit(et1);
+                }
+
                 PhysicsContact ct = (PhysicsContact) sc;
                 if (preSolve) {
                     ct.preSolve(et2, f2, f1, contact);
@@ -165,6 +170,10 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
 
         for (IScript sc : ic2.scripts) {
             if (sc instanceof PhysicsContact) {
+                if (sc instanceof BasicScript) {
+                    ((BasicScript) sc).doInit(et2);
+                }
+
                 PhysicsContact ct = (PhysicsContact) sc;
                 if (preSolve) {
                     ct.preSolve(et1, f1, f2, contact);
