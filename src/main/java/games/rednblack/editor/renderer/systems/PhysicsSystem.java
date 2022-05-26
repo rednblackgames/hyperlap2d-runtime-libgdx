@@ -7,6 +7,8 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.ViewPortComponent;
 import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
@@ -17,6 +19,7 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
+import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(PhysicsBodyComponent.class)
 public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
@@ -29,6 +32,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
     protected ComponentMapper<PolygonShapeComponent> polygonComponentMapper;
     protected ComponentMapper<CircleShapeComponent> circleShapeComponentMapper;
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
+    protected ComponentMapper<ParentNodeComponent> parentNodeComponentMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
 
     private World world;
     private boolean isPhysicsOn = true;
@@ -88,6 +93,11 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         Transform transform = body.getTransform();
         Vector2 bodyPosition = transform.getPosition();
         bodyPosition.sub(transformComponent.originX, transformComponent.originY);
+
+        int parentEntity = parentNodeComponentMapper.get(entity).parentEntity;
+        ParentNodeComponent rootParentNode = parentNodeComponentMapper.get(parentEntity);
+        if (rootParentNode != null) //if parent entity is not the root
+            TransformMathUtils.sceneToLocalCoordinates(parentEntity, bodyPosition, transformComponentMapper, parentNodeComponentMapper);
         float angle = transformComponent.rotation;
         float bodyAngle = transform.getRotation();
 
