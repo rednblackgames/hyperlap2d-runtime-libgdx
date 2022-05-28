@@ -43,7 +43,7 @@ public class RayHandler implements Disposable {
 
 	static float dynamicShadowColorReduction = 1;
 
-	static int MAX_SHADOW_VERTICES = 64;
+	static int MAX_SHADOW_VERTICES = 128;
 
 	static boolean isDiffuse = false;
 

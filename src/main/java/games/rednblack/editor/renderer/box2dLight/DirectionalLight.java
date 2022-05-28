@@ -407,7 +407,7 @@ public class DirectionalLight extends Light {
 					vertexDataType = VertexDataType.VertexBufferObjectWithVAO;
 				}
 				shadowMesh = new Mesh(
-						vertexDataType, false, 128, 0,
+						vertexDataType, false, RayHandler.MAX_SHADOW_VERTICES, 0,
 						new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 						new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 						new VertexAttribute(Usage.Generic, 1, "s"));
