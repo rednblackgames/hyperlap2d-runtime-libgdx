@@ -93,21 +93,30 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         Transform transform = body.getTransform();
         Vector2 bodyPosition = transform.getPosition();
         bodyPosition.sub(transformComponent.originX, transformComponent.originY);
+        float bodyAngle = transform.getRotation();
+
+        float angle = transformComponent.rotation;
 
         int parentEntity = parentNodeComponentMapper.get(entity).parentEntity;
         ParentNodeComponent rootParentNode = parentNodeComponentMapper.get(parentEntity);
-        if (rootParentNode != null) //if parent entity is not the root
+        if (rootParentNode != null) {//if parent entity is not the root
+            //TODO origin doesn't get properly applied when composite is rotated
             TransformMathUtils.sceneToLocalCoordinates(parentEntity, bodyPosition, transformComponentMapper, parentNodeComponentMapper);
-        float angle = transformComponent.rotation;
-        float bodyAngle = transform.getRotation();
+
+            float ba = bodyAngle * MathUtils.radiansToDegrees;
+            angle = TransformMathUtils.sceneToLocalRotation(parentEntity, ba, transformComponentMapper, parentNodeComponentMapper);
+
+            //TODO angle interpolation doesn't work, madness floating point
+            transformComponent.rotation = angle;
+        } else {
+            float cs = (1.0f - alpha) * MathUtils.cosDeg(angle) + alpha * MathUtils.cos(bodyAngle);
+            float sn = (1.0f - alpha) * MathUtils.sinDeg(angle) + alpha * MathUtils.sin(bodyAngle);
+
+            transformComponent.rotation = MathUtils.atan2(sn, cs) * MathUtils.radiansToDegrees;
+        }
 
         transformComponent.x = bodyPosition.x * alpha + transformComponent.x * (1.0f - alpha);
         transformComponent.y = bodyPosition.y * alpha + transformComponent.y * (1.0f - alpha);
-
-        float cs = (1.0f - alpha) * MathUtils.cosDeg(angle) + alpha * MathUtils.cos(bodyAngle);
-        float sn = (1.0f - alpha) * MathUtils.sinDeg(angle) + alpha * MathUtils.sin(bodyAngle);
-
-        transformComponent.rotation = MathUtils.atan2(sn, cs) * MathUtils.radiansToDegrees;
     }
 
     protected void process(int entity) {

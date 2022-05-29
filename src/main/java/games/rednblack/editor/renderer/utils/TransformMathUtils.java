@@ -11,6 +11,20 @@ public class TransformMathUtils {
 
     private static final Matrix3 tmpMat = new Matrix3();
 
+    public static float sceneToLocalRotation(int entity, float rotation, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        while (entity != -1) {
+            TransformComponent transform = transformMapper.get(entity);
+            rotation = transform.rotation - rotation;
+            ParentNodeComponent parentNodeComponent = parentMapper.get(entity);
+            if (parentNodeComponent != null) {
+                entity = parentNodeComponent.parentEntity;
+            } else {
+                entity = -1;
+            }
+        }
+        return rotation;
+    }
+
     /**
      * Transforms the specified point in the scene's coordinates to the entity's local coordinate system.
      */
