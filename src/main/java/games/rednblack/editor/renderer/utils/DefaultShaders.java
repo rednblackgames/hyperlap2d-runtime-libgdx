@@ -121,7 +121,7 @@ public class DefaultShaders {
             + "varying LOWP vec4 v_color;\n" //
             + "varying vec2 v_texCoords;\n" //
             + "uniform sampler2D u_texture;\n" //
-            + "uniform sampler2D u_screen_coords;\n" //
+            + "uniform vec4 u_screen_coords;\n" //
             + "\n" //
             + "//A function that interpolate two vec2 using another vec2\n" //
             + "vec2 lerp2(vec2 a, vec2 b, vec2 t) {\n" //

@@ -4,6 +4,7 @@ import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
@@ -81,7 +82,10 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
 
-        batch.draw(screenReading ? entityTextureRegionComponent.screenRegion : entityTextureRegionComponent.region,
+        TextureRegion region = entityTextureRegionComponent.region;
+        if (screenReading && entityTextureRegionComponent.screenRegion != null)
+            region = entityTextureRegionComponent.screenRegion;
+        batch.draw(region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 dimensionsComponent.width, dimensionsComponent.height,
