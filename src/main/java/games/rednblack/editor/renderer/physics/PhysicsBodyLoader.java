@@ -61,7 +61,7 @@ public class PhysicsBodyLoader {
         ComponentMapper<ParentNodeComponent> parentNodeMapper = (ComponentMapper<ParentNodeComponent>) ComponentMapper.getFor(ParentNodeComponent.class, engine);
         TransformMathUtils.localToSceneCoordinates(entity, tmp, transformMapper, parentNodeMapper);
         bodyDef.position.set(tmp.x, tmp.y);
-        bodyDef.angle = transformComponent.rotation * MathUtils.degreesToRadians;
+        bodyDef.angle = TransformMathUtils.localToSceneRotation(entity, transformMapper, parentNodeMapper) * MathUtils.degreesToRadians;
 
         bodyDef.gravityScale = physicsComponent.gravityScale;
         bodyDef.linearDamping = physicsComponent.damping < 0 ? 0 : physicsComponent.damping;

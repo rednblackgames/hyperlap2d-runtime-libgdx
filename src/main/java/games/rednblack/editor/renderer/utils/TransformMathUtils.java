@@ -163,6 +163,30 @@ public class TransformMathUtils {
         return localCoords;
     }
 
+    /**
+     * Transforms entity's rotation to be in the scene's coordinates.
+     */
+    public static float localToSceneRotation(int entity, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        return localToAscendantRotation(-1, entity, 0, transformMapper, parentMapper);
+    }
+
+    /**
+     * Converts local rotation for this entity to those of a parent entity. The ascendant does not need to be a direct parent.
+     */
+    public static float localToAscendantRotation(int ascendant, int entity, float rotation, ComponentMapper<TransformComponent> transformMapper, ComponentMapper<ParentNodeComponent> parentMapper) {
+        while (entity != -1) {
+            TransformComponent transform = transformMapper.get(entity);
+            rotation += transform.rotation;
+            ParentNodeComponent parentNode = parentMapper.get(entity);
+            if (parentNode == null) {
+                break;
+            }
+            entity = parentNode.parentEntity;
+            if (entity == ascendant) break;
+        }
+        return rotation;
+    }
+
     public static Matrix3 transform(TransformComponent transformComponent) {
         float translationX = transformComponent.x + transformComponent.originX;
         float translationY = transformComponent.y + transformComponent.originY;
