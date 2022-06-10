@@ -23,6 +23,7 @@ if(hasProperty("RELEASE")) {
     sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
     println "Performing snapshot build"
 } else {
+    version += "-LOCAL"
     isDevBuild = true
     println "Performing local build"
 }
