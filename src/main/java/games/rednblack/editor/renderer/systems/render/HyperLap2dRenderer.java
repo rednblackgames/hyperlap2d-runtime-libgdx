@@ -103,6 +103,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     @Override
     public void process(int entity) {
         timeRunning += Gdx.graphics.getDeltaTime();
+        batch.setColor(Color.WHITE);
 
         ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
         pixelsPerWU = ViewPortComponent.pixelsPerWU;
