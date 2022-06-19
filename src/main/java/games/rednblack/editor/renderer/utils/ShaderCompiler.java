@@ -28,7 +28,7 @@ public class ShaderCompiler {
     public static ShaderProgram compileArrayTextureShader(String vertex, String fragment) {
         String funcConditional = "vec4 getTextureFromArray(vec2 uv) {\n"
                 + "  int index = int(v_texture_index);\n"
-                + "  return texture2D(u_textures[index], v_texCoords);\n"
+                + "  return texture2D(u_textures[index], uv);\n"
                 + "}";
 
         fragment = "#define MAX_TEXTURE_UNITS " + MAX_TEXTURE_UNIT + "\n" + fragment;
