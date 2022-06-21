@@ -30,6 +30,10 @@ public class ShaderComponent  extends PooledComponent {
 		while (matcher.find()) {
 			uniforms.put(matcher.group(2), matcher.group(1));
 		}
+		matcher = pattern.matcher(shaderProgram.getVertexShaderSource());
+		while (matcher.find()) {
+			uniforms.put(matcher.group(2), matcher.group(1));
+		}
 
 		for (String uniformName : customUniforms.keys()) {
 			if (!uniforms.containsKey(uniformName))
