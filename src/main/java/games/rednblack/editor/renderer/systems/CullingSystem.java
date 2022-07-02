@@ -5,6 +5,8 @@ import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Frustum;
+import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 
@@ -18,7 +20,6 @@ public class CullingSystem extends IteratingSystem {
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
 
-    private final Rectangle view = new Rectangle();
     private OrthographicCamera camera;
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -29,10 +30,6 @@ public class CullingSystem extends IteratingSystem {
         ViewPortComponent viewPort = viewPortMapper.get(entity);
         ppwu = viewPort.pixelsPerWU;
         this.camera = (OrthographicCamera) viewPort.viewPort.getCamera();
-        view.width = (camera.viewportWidth * camera.zoom);
-        view.height = (camera.viewportHeight * camera.zoom);
-        view.x = camera.position.x - (view.width * 0.5f);
-        view.y = camera.position.y - (view.height * 0.5f);
 
         MainItemComponent m = mainItemMapper.get(entity);
         m.culled = false;
@@ -62,7 +59,8 @@ public class CullingSystem extends IteratingSystem {
             return;
         }
 
-        m.culled = !view.overlaps(b.rectangle);
+        Frustum frustum = camera.frustum;
+        m.culled = !boundsInFrustum(frustum, b.rectangle);
         if (debug) {
             shapeRenderer.rect(b.rectangle.x, b.rectangle.y, b.rectangle.width, b.rectangle.height);
 
@@ -84,6 +82,18 @@ public class CullingSystem extends IteratingSystem {
                 node.children.end();
             }
         }
+    }
+
+    public boolean boundsInFrustum(Frustum frustum, Rectangle b) {
+        for (int i = 0, len2 = frustum.planes.length; i < len2; i++) {
+            if (frustum.planes[i].testPoint(b.x, b.y, 0) != Plane.PlaneSide.Back) continue;
+            if (frustum.planes[i].testPoint(b.x + b.width, b.y, 0) != Plane.PlaneSide.Back) continue;
+            if (frustum.planes[i].testPoint(b.x + b.width, b.y + b.height, 0) != Plane.PlaneSide.Back) continue;
+            if (frustum.planes[i].testPoint(b.x, b.y + b.height, 0) != Plane.PlaneSide.Back) continue;
+            return false;
+        }
+
+        return true;
     }
 
     public void setDebug(boolean debug) {
