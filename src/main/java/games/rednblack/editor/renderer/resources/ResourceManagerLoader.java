@@ -19,7 +19,7 @@ import java.io.File;
 public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResourceManager, ResourceManagerLoader.AsyncResourceManagerParam> {
 
     private final AsyncResourceManager asyncResourceManager;
-
+    private AsyncResourceManager result = null;
     private ProjectInfoVO projectInfoVO;
 
     public ResourceManagerLoader(FileHandleResolver resolver) {
@@ -33,6 +33,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
 
     @Override
     public void loadAsync(AssetManager manager, String fileName, FileHandle file, AsyncResourceManagerParam parameter) {
+        result = null;
         if (!fileName.equals("project.dt")) {
             throw new GdxRuntimeException("fileName must be project.dt");
         }
@@ -55,6 +56,8 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         this.asyncResourceManager.loadBitmapFonts();
 
         this.asyncResourceManager.loadExternalTypesAsync();
+
+        result = this.asyncResourceManager;
     }
 
     @Override
@@ -63,12 +66,14 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             throw new GdxRuntimeException("fileName must be project.dt");
         }
 
-        this.asyncResourceManager.loadFonts();
-        this.asyncResourceManager.loadShaders();
+        if (result != null) {
+            this.asyncResourceManager.loadFonts();
+            this.asyncResourceManager.loadShaders();
 
-        this.asyncResourceManager.loadExternalTypesSync();
+            this.asyncResourceManager.loadExternalTypesSync();
+        }
 
-        return this.asyncResourceManager;
+        return result;
     }
 
     @Override
