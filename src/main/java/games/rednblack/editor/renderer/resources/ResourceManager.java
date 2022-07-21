@@ -172,7 +172,11 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         bitmapFonts.clear();
 
         for (String preparedSceneName : preparedSceneNames) {
-            CompositeItemVO composite = loadedSceneVOs.get(preparedSceneName).composite;
+            SceneVO sceneVO = loadedSceneVOs.get(preparedSceneName);
+            if (sceneVO.shaderVO != null && !sceneVO.shaderVO.shaderName.equals("")) {
+                shaderNamesToLoad.add(sceneVO.shaderVO.shaderName);
+            }
+            CompositeItemVO composite = sceneVO.composite;
             if (composite == null) {
                 continue;
             }
