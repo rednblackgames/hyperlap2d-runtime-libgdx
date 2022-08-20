@@ -3,6 +3,7 @@ package games.rednblack.editor.renderer.components.light;
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.box2dLight.ChainLight;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
@@ -25,6 +26,7 @@ public class LightBodyComponent extends RefreshableComponent {
     public int rayDirection = 1;
     public float softnessLength = 1f;
     public float height = 0f;
+    public Vector3 falloff = new Vector3(0, 1, 0);
     public boolean isStatic = false;
     public boolean isXRay = false;
     public boolean isSoft = true;
@@ -50,6 +52,7 @@ public class LightBodyComponent extends RefreshableComponent {
         rayDirection = 1;
         softnessLength = 1f;
         height = 0f;
+        falloff.set(0, 1, 0);
         isStatic = false;
         isXRay = false;
         isSoft = true;

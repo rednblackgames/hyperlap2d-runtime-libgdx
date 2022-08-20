@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
 import com.artemis.World;
+import com.badlogic.gdx.math.Vector3;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
@@ -15,6 +16,7 @@ public class LightVO extends MainItemVO {
 	public float distance = 300;
 	public float directionDegree = 0;
 	public float height = 0;
+	public Vector3 falloff = new Vector3(0, 1, 0);
 	public float coneDegree = 30;
 	public float softnessLength = -1f;
 	public float intensity = 1f;
@@ -45,6 +47,7 @@ public class LightVO extends MainItemVO {
 		softnessLength = vo.softnessLength;
 		isActive = vo.isActive;
 		isSoft = vo.isSoft;
+		falloff.set(vo.falloff);
 	}
 
 	@Override
@@ -64,6 +67,7 @@ public class LightVO extends MainItemVO {
 		isSoft = lightObjectComponent.isSoft;
 		isActive = lightObjectComponent.isActive;
 		intensity = lightObjectComponent.intensity;
+		falloff.set(lightObjectComponent.falloff);
 	}
 
 	@Override
@@ -76,22 +80,11 @@ public class LightVO extends MainItemVO {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		LightVO lightVO = (LightVO) o;
-		return rays == lightVO.rays &&
-				Float.compare(lightVO.distance, distance) == 0 &&
-				Float.compare(lightVO.directionDegree, directionDegree) == 0 &&
-				Float.compare(lightVO.height, height) == 0 &&
-				Float.compare(lightVO.intensity, intensity) == 0 &&
-				Float.compare(lightVO.coneDegree, coneDegree) == 0 &&
-				Float.compare(lightVO.softnessLength, softnessLength) == 0 &&
-				isStatic == lightVO.isStatic &&
-				isXRay == lightVO.isXRay &&
-				isSoft == lightVO.isSoft &&
-				isActive == lightVO.isActive &&
-				type == lightVO.type;
+		return rays == lightVO.rays && Float.compare(lightVO.distance, distance) == 0 && Float.compare(lightVO.directionDegree, directionDegree) == 0 && Float.compare(lightVO.height, height) == 0 && Float.compare(lightVO.coneDegree, coneDegree) == 0 && Float.compare(lightVO.softnessLength, softnessLength) == 0 && Float.compare(lightVO.intensity, intensity) == 0 && isStatic == lightVO.isStatic && isXRay == lightVO.isXRay && isSoft == lightVO.isSoft && isActive == lightVO.isActive && type == lightVO.type && falloff.equals(lightVO.falloff);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, rays, distance, directionDegree, height, coneDegree, softnessLength, isStatic, isXRay, isSoft, isActive, intensity);
+		return Objects.hash(type, rays, distance, directionDegree, height, falloff, coneDegree, softnessLength, intensity, isStatic, isXRay, isSoft, isActive);
 	}
 }

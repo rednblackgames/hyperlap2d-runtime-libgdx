@@ -99,6 +99,7 @@ public class LightComponentFactory extends ComponentFactory {
         lightObjectComponent.distance = vo.distance;
         lightObjectComponent.height = vo.height;
         lightObjectComponent.intensity = vo.intensity;
+        lightObjectComponent.falloff = vo.falloff;
         lightObjectComponent.softnessLength = vo.softnessLength;
         lightObjectComponent.isStatic = vo.isStatic;
         lightObjectComponent.isXRay = vo.isXRay;

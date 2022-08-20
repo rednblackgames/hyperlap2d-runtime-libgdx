@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -65,6 +66,8 @@ public abstract class Light implements Disposable {
 	 * Dynamic shadows variables/pseudo3d effects
 	 */
 	protected float pseudo3dHeight = 0f;
+	//Constant-Linear-Quadratic Falloff coefficients ratio
+	protected Vector3 falloff = new Vector3();
 
 	protected final Array<Mesh> dynamicShadowMeshes = new Array<Mesh>();
 	//Should never be cleared except when the light changes position (not direction). Prevents shadows from disappearing when fixture is out of sight.
@@ -437,6 +440,14 @@ public abstract class Light implements Disposable {
 
 	public void setHeight(float height) {
 		this.pseudo3dHeight = height;
+	}
+
+	public void setFalloff(float constant, float linear, float quadratic) {
+		this.falloff.set(constant, linear, quadratic);
+	}
+
+	public void setFalloff(Vector3 coefficients) {
+		setFalloff(coefficients.x, coefficients.y, coefficients.z);
 	}
 
 	/**

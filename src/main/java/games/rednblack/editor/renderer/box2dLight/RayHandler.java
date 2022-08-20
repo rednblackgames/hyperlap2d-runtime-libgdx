@@ -46,8 +46,6 @@ public class RayHandler implements Disposable {
 	static int MAX_SHADOW_VERTICES = 128;
 
 	static boolean isDiffuse = false;
-
-	public static final Vector3 FALLOFF = new Vector3(.4f, 3f, 20f);
 	/**
 	 * Blend function for lights rendering with both shadows and diffusion
 	 * <p>Default: (GL20.GL_DST_COLOR, GL20.GL_ZERO)
@@ -337,11 +335,6 @@ public class RayHandler implements Disposable {
 				normalMapTexture.bind(0);
 				lightShader.setUniformi("u_normals", 0);
 				lightShader.setUniformf("u_resolution", viewportWidth, viewportHeight);
-				//TODO Falloff is not good, need to check out better theory..
-				FALLOFF.x = camera.zoom / 5f;
-				FALLOFF.y = camera.zoom;
-				FALLOFF.z = camera.zoom * 10f;
-				lightShader.setUniformf("u_falloff", FALLOFF);
 			}
 			lightShader.setUniformMatrix("u_projTrans", combined);
 
@@ -358,6 +351,7 @@ public class RayHandler implements Disposable {
 					float x = (tmp.x) / viewportWidth;
 					float y = (tmp.y) / viewportHeight;
 					lightShader.setUniformf("u_lightpos", x, y, light.pseudo3dHeight * 0.01f);
+					lightShader.setUniformf("u_falloff", light.falloff);
 				}
 				lightShader.setUniformf("u_intensity", light.intensity);
 
