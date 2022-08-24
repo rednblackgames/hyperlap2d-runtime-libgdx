@@ -27,7 +27,7 @@ public final class ShadowShader {
 				+ "{\n" //
 				+ "vec4 c = texture2D(u_texture, v_texCoords);\n"//
 				+ "gl_FragColor.rgb = c.rgb * c.a + ambient.rgb;\n"//
-				+ "gl_FragColor.a = ambient.a - c.a;\n"//				
+				+ "gl_FragColor.a = ambient.a - c.a;\n"//
 				+ "}\n";
 		ShaderProgram.pedantic = false;
 		ShaderProgram shadowShader = new ShaderProgram(vertexShader,

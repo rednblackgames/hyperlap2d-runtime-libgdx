@@ -460,7 +460,8 @@ public abstract class Light implements Disposable {
 		rayNum = rays;
 		vertexNum = rays + 1;
 
-		segments = new float[vertexNum * 8];
+		int size = rayHandler.pseudo3d ? vertexNum * 8 * 4 : vertexNum * 8;
+		segments = new float[size];
 		mx = new float[vertexNum];
 		my = new float[vertexNum];
 		f = new float[vertexNum];

@@ -35,6 +35,7 @@ public class DynamicShadowShader {
 				+ "vec4 c = texture2D(u_texture, v_texCoords);\n"//
 				+ "vec4 sh = texture2D(u_shadows, v_texCoords);\n"//
 				+ "gl_FragColor.rgb = (ambient.rgb + c.rgb * c.a) - sh.rgb;\n"//
+//				+ "gl_FragColor.rgb = (ambient.rgb + c.rgb * c.a) - (sh.rgb * (1.0 - c.rgb));\n"//
 				+ "gl_FragColor.a = ambient.a - c.a;\n"//
 				+ "}\n"//
 				+ "else\n"//
@@ -42,6 +43,7 @@ public class DynamicShadowShader {
 				+ "    vec4 c = texture2D(u_texture, v_texCoords);\n"//
 				+ "    vec4 sh = texture2D(u_shadows, v_texCoords);\n"//
 				+ "    gl_FragColor.rgb = (ambient.rgb + (" + RayHandler.getDynamicShadowColorReduction() + " * c.rgb)) - sh.rgb;\n"
+//				+ "    gl_FragColor.rgb = (ambient.rgb + (" + RayHandler.getDynamicShadowColorReduction() + " * c.rgb)) - (sh.rgb * (1.0 - c.rgb));\n"
 				+ "    gl_FragColor.a = 1.0;\n"//
 				+ "}\n"//
 				+ "}\n";
