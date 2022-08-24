@@ -26,7 +26,7 @@ public class LightBodyComponent extends RefreshableComponent {
     public int rayDirection = 1;
     public float softnessLength = 1f;
     public float height = 0f;
-    public Vector3 falloff = new Vector3(0, 1, 0);
+    public Vector3 falloff = new Vector3(1, 0, 0);
     public boolean isStatic = false;
     public boolean isXRay = false;
     public boolean isSoft = true;
@@ -52,7 +52,7 @@ public class LightBodyComponent extends RefreshableComponent {
         rayDirection = 1;
         softnessLength = 1f;
         height = 0f;
-        falloff.set(0, 1, 0);
+        falloff.set(1, 0, 0);
         isStatic = false;
         isXRay = false;
         isSoft = true;

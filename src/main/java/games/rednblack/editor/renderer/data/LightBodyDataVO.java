@@ -12,7 +12,7 @@ public class LightBodyDataVO {
     public float distance;
     public float intensity = 1f;
     public float height = 0;
-    public Vector3 falloff = new Vector3();
+    public Vector3 falloff = new Vector3(1, 0, 0);
     public int rayDirection;
     public float softnessLength;
     public boolean isStatic;

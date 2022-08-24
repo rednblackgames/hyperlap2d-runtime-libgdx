@@ -19,7 +19,7 @@ public class LightObjectComponent extends RefreshableComponent {
 	public float coneDegree = 45;
 	public float softnessLength = -1f;
 	public float intensity = 1f;
-	public Vector3 falloff = new Vector3(0, 1, 0);
+	public Vector3 falloff = new Vector3(1, 0, 0);
 
 	public boolean isStatic = true;
 	public boolean isXRay = true;
@@ -51,6 +51,8 @@ public class LightObjectComponent extends RefreshableComponent {
 		isXRay = true;
 		isSoft = true;
 		isActive = true;
+
+		falloff.set(1, 0, 0);
 
 		if (lightObject != null) {
 			lightObject.remove();

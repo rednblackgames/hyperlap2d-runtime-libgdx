@@ -15,10 +15,12 @@ public final class LightShader {
 				+ "attribute vec4 quad_colors;\n" //
 				+ "attribute float s;\n"
 				+ "uniform mat4 u_projTrans;\n" //
-				+ "varying vec4 v_color;\n" //				
+				+ "varying vec4 v_color;\n" //
+				+ "varying float D;\n" //
 				+ "void main()\n" //
 				+ "{\n" //
-				+ "   v_color = s * quad_colors;\n" //				
+				+ "   v_color = s * quad_colors;\n" //
+				+ "   D = s;\n" //
 				+ "   gl_Position =  u_projTrans * vertex_positions;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
@@ -28,10 +30,13 @@ public final class LightShader {
 			+ "#define MED \n"
 			+ "#endif\n" //
 				+ "varying vec4 v_color;\n" //
+				+ "varying float D;\n" //
 				+ "uniform float u_intensity;\n" //
+				+ "uniform vec3 u_falloff;"
 				+ "void main()\n"//
 				+ "{\n" //
-				+ "  gl_FragColor = "+gamma+"(v_color * u_intensity);\n" //
+				+ "  float Attenuation = 1.0 / (u_falloff.x + (u_falloff.y*D) + (u_falloff.z*D*D));\n"
+				+ "  gl_FragColor = "+gamma+"(v_color * u_intensity) * Attenuation;\n" //
 				+ "}";
 
 		ShaderProgram.pedantic = false;

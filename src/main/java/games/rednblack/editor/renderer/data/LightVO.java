@@ -16,7 +16,7 @@ public class LightVO extends MainItemVO {
 	public float distance = 300;
 	public float directionDegree = 0;
 	public float height = 0;
-	public Vector3 falloff = new Vector3(0, 1, 0);
+	public Vector3 falloff = new Vector3(1, 0, 0);
 	public float coneDegree = 30;
 	public float softnessLength = -1f;
 	public float intensity = 1f;

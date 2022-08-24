@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -351,8 +350,8 @@ public class RayHandler implements Disposable {
 					float x = (tmp.x) / viewportWidth;
 					float y = (tmp.y) / viewportHeight;
 					lightShader.setUniformf("u_lightpos", x, y, light.pseudo3dHeight * 0.01f);
-					lightShader.setUniformf("u_falloff", light.falloff);
 				}
+				lightShader.setUniformf("u_falloff", light.falloff);
 				lightShader.setUniformf("u_intensity", light.intensity);
 
 				light.render();
