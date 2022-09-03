@@ -19,6 +19,7 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
+import games.rednblack.editor.renderer.utils.MathUtilsFix;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(PhysicsBodyComponent.class)

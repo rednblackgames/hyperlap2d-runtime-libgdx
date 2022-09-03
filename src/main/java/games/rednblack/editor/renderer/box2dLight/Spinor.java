@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.box2dLight;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.StringBuilder;
+import games.rednblack.editor.renderer.utils.MathUtilsFix;
 
 public class Spinor {
   float real;
@@ -27,7 +28,7 @@ public class Spinor {
 
   public Spinor set(float angle) {
     angle /= 2;
-    set((float) Math.cos(angle), (float) Math.sin(angle));
+    set(MathUtils.cos(angle), MathUtils.sin(angle));
     return this;
   }
 
@@ -63,8 +64,8 @@ public class Spinor {
   
   public Spinor add(float angle) {
     angle /= 2;
-    real += Math.cos(angle);
-    complex += Math.sin(angle);
+    real += MathUtils.cos(angle);
+    complex += MathUtils.sin(angle);
     return this;
   }
 
@@ -76,8 +77,8 @@ public class Spinor {
   
   public Spinor sub(float angle) {
     angle /= 2;
-    real -= Math.cos(angle);
-    complex -= Math.sin(angle);
+    real -= MathUtils.cos(angle);
+    complex -= MathUtils.sin(angle);
     return this;
   }
 
@@ -103,7 +104,7 @@ public class Spinor {
   }
 
   public float angle() {
-    return (float) Math.atan2(complex, real) * 2;
+    return MathUtilsFix.atan2(complex, real) * 2;
   }
 
   public Spinor lerp(Spinor end, float alpha, Spinor tmp) {
@@ -132,10 +133,10 @@ public class Spinor {
 
     // coefficients
     if (1f - cosom > COSINE_THRESHOLD) {
-      omega = (float) Math.acos(cosom);
-      sinom = (float) Math.sin(omega);
-      scale0 = (float) Math.sin((1f - t) * omega) / sinom;
-      scale1 = (float) Math.sin(t * omega) / sinom;
+      omega = MathUtils.acos(cosom);
+      sinom = MathUtils.sin(omega);
+      scale0 = MathUtils.sin((1f - t) * omega) / sinom;
+      scale1 = MathUtils.sin(t * omega) / sinom;
     } else {
       scale0 = 1f - t;
       scale1 = t;
