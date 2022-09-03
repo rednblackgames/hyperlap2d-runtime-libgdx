@@ -19,11 +19,10 @@ public class ShaderCompiler {
     }
 
     public static ShaderProgram compileUnrolledArrayTextureShader(String vertex, String fragment) {
-        String funcConditional = "vec4 getTextureFromArray(vec2 uv) {\n" +
-                "  int index = int(v_texture_index);";
+        String funcConditional = "vec4 getTextureFromArray(vec2 uv) {\n";
         for (int i = 0; i < MAX_TEXTURE_UNIT; i++) {
             if (i != 0) funcConditional += " else ";
-            funcConditional += "if (index == " + i + ") return texture2D(u_textures[" + i + "], uv);\n";
+            funcConditional += "if (v_texture_index < " + i + ".5) return texture2D(u_textures[" + i + "], uv);\n";
         }
         funcConditional += "}\n";
 
