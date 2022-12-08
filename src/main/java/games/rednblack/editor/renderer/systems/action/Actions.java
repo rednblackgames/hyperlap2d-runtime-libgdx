@@ -23,6 +23,12 @@ public class Actions {
     public static HashMap<String, String> actionDataLogicMap = new HashMap<>();
     private static boolean initialized;
 
+    public static void dispose() {
+        initialized = false;
+        actionLogicMap.clear();
+        actionDataLogicMap.clear();
+    }
+
     private static void initialize() throws ReflectionException {
         registerActionClass(MoveToData.class, MoveToAction.class);
         registerActionClass(MoveByData.class, MoveByAction.class);
