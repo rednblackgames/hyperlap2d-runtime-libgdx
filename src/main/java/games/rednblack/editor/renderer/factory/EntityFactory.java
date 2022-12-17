@@ -24,6 +24,7 @@ import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.component.*;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
+import games.rednblack.editor.renderer.utils.AsyncEntityFactoryCallback;
 import games.rednblack.editor.renderer.utils.HyperJson;
 
 import java.util.ArrayList;
@@ -151,6 +152,23 @@ public class EntityFactory {
 
         postProcessEntity(entity);
         return entity;
+    }
+
+    public void createEntitiesAsync(final int root, final int entityType, final Array<ComponentFactory.InitialData> initialData, final AsyncEntityFactoryCallback callback) {
+        AsyncTask<Void> task = new AsyncTask<Void>() {
+            @Override
+            public Void call() throws Exception {
+                for (int i = 0; i < initialData.size; i++) {
+                    ComponentFactory.InitialData data = initialData.get(i);
+                    synchronized (HyperLap2dInvocationStrategy.updateEntities) {
+                        int e = createEntity(root, entityType, data);
+                        if (callback != null) callback.onEntityCreated(e, data);
+                    }
+                }
+                return null;
+            }
+        };
+        asyncExecutor.submit(task);
     }
 
     public void initAllChildrenAsync(final int root, final CompositeItemVO vo) {
