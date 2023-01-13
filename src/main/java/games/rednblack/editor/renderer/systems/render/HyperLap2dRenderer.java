@@ -548,6 +548,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
         invScreenWidth = 1f / screenCamera.viewportWidth;
         invScreenHeight = 1f / screenCamera.viewportHeight;
+
+        screenTextureRegion.setTexture(null);
     }
 
     private void createCoreFrameBuffers() {
