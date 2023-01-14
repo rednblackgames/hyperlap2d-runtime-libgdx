@@ -49,6 +49,7 @@ public abstract class MainItemVO {
 	}
 	
 	public MainItemVO(MainItemVO vo) {
+		if (vo == null) return;
 		uniqueId = vo.uniqueId;
 		itemIdentifier = vo.itemIdentifier;
 		itemName = vo.itemName;

@@ -31,6 +31,7 @@ public class CompositeItemVO extends MainItemVO {
 	
 	public CompositeItemVO(CompositeItemVO vo) {
 		super(vo);
+		if (vo == null) return;
 		width = vo.width;
 		height = vo.height;
 		automaticResize = vo.automaticResize;
