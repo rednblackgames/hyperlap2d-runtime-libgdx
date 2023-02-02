@@ -23,7 +23,7 @@ import games.rednblack.editor.renderer.utils.MathUtilsFix;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*, InterpolationSystem*/ {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;

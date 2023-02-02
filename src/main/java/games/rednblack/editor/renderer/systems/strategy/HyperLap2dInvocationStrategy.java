@@ -47,7 +47,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     @Override
     protected void process() {
         long newTime = TimeUtils.nanoTime();
-        long frameTime = Math.min(newTime - currentTime, 18000000);
+        long frameTime = Math.min(newTime - currentTime, 250000000);
         currentTime = newTime;
 
         accumulator += frameTime;

@@ -235,8 +235,9 @@ public class SceneLoader {
 
         actionFactory = new ActionFactory(rm.getProjectVO().libraryActions);
 
-        HyperLap2dInvocationStrategy strategy = engine.getInvocationStrategy();
-        strategy.updateEntitySateSync();
+        SystemInvocationStrategy strategy = engine.getInvocationStrategy();
+        if (strategy instanceof HyperLap2dInvocationStrategy)
+            ((HyperLap2dInvocationStrategy) strategy).updateEntitySateSync();
 
         return sceneVO;
     }
