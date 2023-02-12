@@ -422,6 +422,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
                 batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
                 batch.getShader().setUniformf("u_time", timeRunning);
+                batch.getShader().setUniformf("u_viewportInverse", invScreenWidth, invScreenHeight);
 
                 TextureRegionComponent entityTextureRegionComponent = textureRegionComponentMapper.get(entity);
                 if (entityTextureRegionComponent != null && entityTextureRegionComponent.region != null) {
