@@ -46,6 +46,16 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         batch.setColor(batchColor);
     }
 
+    @Override
+    public void beginPipeline() {
+
+    }
+
+    @Override
+    public void endPipeline() {
+
+    }
+
     public void drawRepeatablePolygonSprite(Batch batch, int entity, float parentAlpha) {
         TintComponent tintComponent = tintMapper.get(entity);
         TextureRegionComponent textureRegionComponent = textureRegionMapper.get(entity);

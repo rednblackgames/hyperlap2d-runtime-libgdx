@@ -29,4 +29,12 @@ public class DrawableLogicMapper {
     public void injectMappers(World engine) {
         for (DrawableLogic value : logicClassMap.values()) engine.inject(value);
     }
+
+    public void beginPipeline() {
+        for (DrawableLogic value : logicClassMap.values()) value.beginPipeline();
+    }
+
+    public void endPipeline() {
+        for (DrawableLogic value : logicClassMap.values()) value.endPipeline();
+    }
 }

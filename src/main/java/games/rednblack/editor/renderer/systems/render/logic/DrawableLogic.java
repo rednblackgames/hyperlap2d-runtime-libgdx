@@ -6,4 +6,7 @@ public interface DrawableLogic {
     enum RenderingType {TEXTURE, NORMAL_MAP}
 
     void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType);
+
+    void beginPipeline();
+    void endPipeline();
 }

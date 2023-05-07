@@ -100,6 +100,7 @@ public class ComponentRetriever {
         mappers.put(ViewPortComponent.class, ComponentMapper.getFor(ViewPortComponent.class, engine));
         mappers.put(ZIndexComponent.class, ComponentMapper.getFor(ZIndexComponent.class, engine));
         mappers.put(ScriptComponent.class, ComponentMapper.getFor(ScriptComponent.class, engine));
+        mappers.put(ChainedEntitiesComponent.class, ComponentMapper.getFor(ChainedEntitiesComponent.class, engine));
 
         mappers.put(ShaderComponent.class, ComponentMapper.getFor(ShaderComponent.class, engine));
 

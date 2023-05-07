@@ -28,4 +28,14 @@ public class NinePatchDrawableLogic implements DrawableLogic {
                 entityTransformComponent.scaleX, entityTransformComponent.scaleY, entityTransformComponent.rotation);
     }
 
+    @Override
+    public void beginPipeline() {
+
+    }
+
+    @Override
+    public void endPipeline() {
+
+    }
+
 }

@@ -44,6 +44,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     protected ComponentMapper<LayerMapComponent> layerMapComponentMapper;
     protected ComponentMapper<ZIndexComponent> zIndexComponentMapper;
     protected ComponentMapper<TextureRegionComponent> textureRegionComponentMapper;
+    protected ComponentMapper<ChainedEntitiesComponent> chainedEntitiesMapper;
 
     protected DrawableLogicMapper drawableLogicMapper;
     private RayHandler rayHandler;
@@ -102,6 +103,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     @Override
     public void process(int entity) {
+        drawableLogicMapper.beginPipeline();
+
         timeRunning += Gdx.graphics.getDeltaTime();
         batch.setColor(Color.WHITE);
 
@@ -197,6 +200,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             rayHandler.setCombinedMatrix(orthoCamera);
             rayHandler.updateAndRender();
         }
+
+        drawableLogicMapper.endPipeline();
     }
 
     private void drawRecursively(int rootEntity, float parentAlpha, DrawableLogic.RenderingType renderingType) {
@@ -364,6 +369,14 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         //Find the logic from mapper and draw it
         drawableLogicMapper.getDrawable(entityType).draw(batch, child, parentAlpha, renderingType);
         resetShader(child, batch);
+
+        ChainedEntitiesComponent chainedEntitiesComponent = chainedEntitiesMapper.get(child);
+        if (chainedEntitiesComponent != null && chainedEntitiesComponent.chainedEntities.size != 0) {
+            for (int i = 0; i < chainedEntitiesComponent.chainedEntities.size; i++) {
+                int chainedEntity = chainedEntitiesComponent.chainedEntities.get(i);
+                drawEntity(batch, chainedEntity, parentAlpha, renderingType);
+            }
+        }
     }
 
     /**

@@ -27,4 +27,14 @@ public class LightDrawableLogic implements DrawableLogic {
             lightObjectComponent.lightObject.setColor(tmpColor);
     }
 
+    @Override
+    public void beginPipeline() {
+
+    }
+
+    @Override
+    public void endPipeline() {
+
+    }
+
 }
