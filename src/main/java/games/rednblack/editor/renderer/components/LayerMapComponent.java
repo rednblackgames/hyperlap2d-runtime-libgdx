@@ -73,6 +73,22 @@ public class LayerMapComponent  extends PooledComponent {
 		layers.swap(layers.indexOf(sourceVO, false), layers.indexOf(targetVO, false));
 	}
 
+	public String jump(String source, String target) {
+		LayerItemVO sourceVO = getLayer(source);
+		LayerItemVO targetVO = getLayer(target);
+		int sourceIndex = layers.indexOf(sourceVO, false);
+		int targetIndex = layers.indexOf(targetVO, false);
+
+		layers.removeIndex(sourceIndex);
+		if (targetIndex == layers.size) {
+			layers.add(sourceVO);
+		} else {
+			layers.insert(Math.max(targetIndex, 0), sourceVO);
+		}
+
+		return layers.get(sourceIndex).layerName;
+	}
+
 	@Override
 	public void reset() {
 		autoIndexing = true;
