@@ -24,6 +24,7 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
 @All(PhysicsBodyComponent.class)
 public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
 
+    public static boolean enableInterpolation = false;
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
 
@@ -79,6 +80,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
     public void interpolate(int entity, float alpha) {
         if (!isPhysicsOn)
             return;
+
+        alpha = enableInterpolation ? alpha : 1;
 
         PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
         Body body = physicsBodyComponent.body;
