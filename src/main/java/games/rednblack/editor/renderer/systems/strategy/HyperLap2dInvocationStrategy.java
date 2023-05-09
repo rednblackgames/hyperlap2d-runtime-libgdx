@@ -16,7 +16,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     private final BitVector disabledLogicSystems = new BitVector();
     private final BitVector disabledInterpolationSystems = new BitVector();
 
-    public static float TIME_STEP = 1f / 60f;
+    public static float TIME_STEP = 1f / 120f;
     public static long TIME_STEP_NANO = (long) (TIME_STEP * 1000000000);
     public static float INV_TIME_STEP_NANO = 1f / TIME_STEP_NANO;
 

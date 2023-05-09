@@ -19,11 +19,10 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
-import games.rednblack.editor.renderer.utils.MathUtilsFix;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*, InterpolationSystem*/ {
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
 
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
@@ -49,8 +48,6 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*
         IntBag actives = subscription.getEntities();
         int[] ids = actives.getData();
         for (int i = 0, s = actives.size(); s > i; i++) {
-            //Update previous state
-            interpolate(ids[i], 1f);
             process(ids[i]);
         }
 
@@ -64,7 +61,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener/*
      *
      * @param alpha linear interpolation factor
      */
-    //@Override
+    @Override
     public void interpolate(float alpha) {
         IntBag bag = subscription.getEntities();
         for (int i = 0, s = bag.size(); i < s; ++i) {
