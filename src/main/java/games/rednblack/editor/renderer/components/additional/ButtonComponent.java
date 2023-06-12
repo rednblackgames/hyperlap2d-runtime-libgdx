@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 public class ButtonComponent extends PooledComponent {
 
     public boolean isTouched = false;
+    public boolean isChecked = false;
 
     private final Array<ButtonListener> listeners = new Array<>();
 

@@ -62,12 +62,18 @@ public class ButtonSystem extends BaseEntitySystem {
         if ((inputHoldEntity != entity && inputHoldEntity != -1)) return;
 
         boolean isTouched = isTouched(entity);
+        boolean isChecked = isChecked(entity);
         for (int i = 0; i < nodeComponent.children.size; i++) {
             Integer childEntity = nodeComponent.children.get(i);
             MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
             ZIndexComponent childZComponent = zIndexComponentMapper.get(childEntity);
             if (isTouched) {
                 inputHoldEntity = entity;
+            } else {
+                inputHoldEntity = -1;
+            }
+
+            if (isTouched || isChecked) {
                 if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = false;
                 }
@@ -75,8 +81,6 @@ public class ButtonSystem extends BaseEntitySystem {
                     childMainItemComponent.visible = true;
                 }
             } else {
-                inputHoldEntity = -1;
-
                 if (childZComponent.layerName.equals("normal")) {
                     childMainItemComponent.visible = true;
                 }
@@ -85,6 +89,11 @@ public class ButtonSystem extends BaseEntitySystem {
                 }
             }
         }
+    }
+
+    private boolean isChecked(int entity) {
+        ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
+        return buttonComponent.isChecked;
     }
 
     private boolean isTouched(int entity) {
