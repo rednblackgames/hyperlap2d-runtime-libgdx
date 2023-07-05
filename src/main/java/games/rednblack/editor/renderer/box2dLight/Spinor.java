@@ -2,7 +2,6 @@ package games.rednblack.editor.renderer.box2dLight;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.StringBuilder;
-import games.rednblack.editor.renderer.utils.MathUtilsFix;
 
 public class Spinor {
   float real;
@@ -104,7 +103,7 @@ public class Spinor {
   }
 
   public float angle() {
-    return MathUtilsFix.atan2(complex, real) * 2;
+    return MathUtils.atan2(complex, real) * 2;
   }
 
   public Spinor lerp(Spinor end, float alpha, Spinor tmp) {
