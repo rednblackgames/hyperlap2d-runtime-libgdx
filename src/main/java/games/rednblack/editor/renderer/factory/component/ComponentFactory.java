@@ -263,6 +263,11 @@ public abstract class ComponentFactory {
             sensorComponent.leftSpanPercent = vo.sensor.leftSpanPercent;
             sensorComponent.rightSpanPercent = vo.sensor.rightSpanPercent;
             sensorComponent.topSpanPercent = vo.sensor.topSpanPercent;
+
+            sensorComponent.bottomHeightPercent = vo.sensor.bottomHeightPercent;
+            sensorComponent.leftWidthPercent = vo.sensor.leftWidthPercent;
+            sensorComponent.rightWidthPercent = vo.sensor.rightWidthPercent;
+            sensorComponent.topHeightPercent = vo.sensor.topHeightPercent;
         }
 
         if (vo.light != null) {

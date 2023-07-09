@@ -125,12 +125,18 @@ public class PhysicsBodyLoader {
         }
         PolygonShape p = tmpPolygonShape;
 
+        float realWidth = dimensionsComponent.width * transformComponent.scaleX;
+        float realHeight = dimensionsComponent.height * transformComponent.scaleY;
+        float realOriginX = transformComponent.originX * transformComponent.scaleX;
+        float realOriginY = transformComponent.originY * transformComponent.scaleY;
+
         if (sensorComponent.bottom) {
-            tmp.set(dimensionsComponent.width * 0.5f, 0);
+            float h = realHeight * 0.5f * sensorComponent.bottomHeightPercent;
+            tmp.set(realWidth * 0.5f, -h);
 
             if (bottom != null) //Recycle previous fixture
                 p = (PolygonShape) bottom.getShape();
-            p.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            p.setAsBox(tmp.x * sensorComponent.bottomSpanPercent, h, tmp.sub(realOriginX, realOriginY), 0f);
 
             if (bottom == null)
                 physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.BOTTOM);
@@ -139,11 +145,12 @@ public class PhysicsBodyLoader {
         }
 
         if (sensorComponent.top) {
-            tmp.set(dimensionsComponent.width * 0.5f, dimensionsComponent.height);
+            float h = realHeight * 0.5f * sensorComponent.topHeightPercent;
+            tmp.set(realWidth * 0.5f, realHeight + h);
 
             if (top != null) //Recycle previous fixture
                 p = (PolygonShape) top.getShape();
-            p.setAsBox(tmp.x * sensorComponent.topSpanPercent, 0.05f, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            p.setAsBox(tmp.x * sensorComponent.topSpanPercent, h, tmp.sub(realOriginX, realOriginY), 0f);
 
             if (top == null)
                 physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.TOP);
@@ -152,11 +159,12 @@ public class PhysicsBodyLoader {
         }
 
         if (sensorComponent.left) {
-            tmp.set(0, dimensionsComponent.height * 0.5f);
+            float w = realWidth * 0.5f * sensorComponent.leftWidthPercent;
+            tmp.set(-w, realHeight * 0.5f);
 
             if (left != null) //Recycle previous fixture
                 p = (PolygonShape) left.getShape();
-            p.setAsBox(0.05f, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            p.setAsBox(w, tmp.y * sensorComponent.leftSpanPercent, tmp.sub(realOriginX, realOriginY), 0f);
 
             if (left == null)
                 physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.LEFT);
@@ -165,11 +173,12 @@ public class PhysicsBodyLoader {
         }
 
         if (sensorComponent.right) {
-            tmp.set(dimensionsComponent.width, dimensionsComponent.height * 0.5f);
+            float w = realWidth * 0.5f * sensorComponent.rightWidthPercent;
+            tmp.set(realWidth + w, realHeight * 0.5f);
 
             if (right != null) //Recycle previous fixture
                 p = (PolygonShape) right.getShape();
-            p.setAsBox(0.05f, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(transformComponent.originX, transformComponent.originY), 0f);
+            p.setAsBox(w, tmp.y * sensorComponent.rightSpanPercent, tmp.sub(realOriginX, realOriginY), 0f);
 
             if (right == null)
                 physicsBodyComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SENSORS, sensorFixtureDef, SensorUserData.RIGHT);

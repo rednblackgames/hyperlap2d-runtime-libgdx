@@ -2,6 +2,8 @@ package games.rednblack.editor.renderer.data;
 
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 
+import java.util.Objects;
+
 /**
  * The data transfer object for the sensors.
  * 
@@ -19,6 +21,11 @@ public class SensorDataVO {
 	public float rightSpanPercent;
 	public float topSpanPercent;
 
+	public float bottomHeightPercent;
+	public float leftWidthPercent;
+	public float rightWidthPercent;
+	public float topHeightPercent;
+
 	public SensorDataVO() {
 	}
 	
@@ -32,6 +39,11 @@ public class SensorDataVO {
 		leftSpanPercent = vo.leftSpanPercent;
 		rightSpanPercent = vo.rightSpanPercent;
 		topSpanPercent = vo.topSpanPercent;
+
+		bottomHeightPercent = vo.bottomHeightPercent;
+		leftWidthPercent = vo.leftWidthPercent;
+		rightWidthPercent = vo.rightWidthPercent;
+		topHeightPercent = vo.topHeightPercent;
 	}
 
     public void loadFromComponent(SensorComponent sensorComponent) {
@@ -44,49 +56,23 @@ public class SensorDataVO {
     	leftSpanPercent = sensorComponent.leftSpanPercent;
     	rightSpanPercent = sensorComponent.rightSpanPercent;
     	topSpanPercent = sensorComponent.topSpanPercent;
+
+		bottomHeightPercent = sensorComponent.bottomHeightPercent;
+		leftWidthPercent = sensorComponent.leftWidthPercent;
+		rightWidthPercent = sensorComponent.rightWidthPercent;
+		topHeightPercent = sensorComponent.topHeightPercent;
     }
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (bottom ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(bottomSpanPercent);
-		result = prime * result + (left ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(leftSpanPercent);
-		result = prime * result + (right ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(rightSpanPercent);
-		result = prime * result + (top ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(topSpanPercent);
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SensorDataVO that = (SensorDataVO) o;
+		return bottom == that.bottom && left == that.left && right == that.right && top == that.top && Float.compare(that.bottomSpanPercent, bottomSpanPercent) == 0 && Float.compare(that.leftSpanPercent, leftSpanPercent) == 0 && Float.compare(that.rightSpanPercent, rightSpanPercent) == 0 && Float.compare(that.topSpanPercent, topSpanPercent) == 0 && Float.compare(that.bottomHeightPercent, bottomHeightPercent) == 0 && Float.compare(that.leftWidthPercent, leftWidthPercent) == 0 && Float.compare(that.rightWidthPercent, rightWidthPercent) == 0 && Float.compare(that.topHeightPercent, topHeightPercent) == 0;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SensorDataVO other = (SensorDataVO) obj;
-		if (bottom != other.bottom)
-			return false;
-		if (Float.floatToIntBits(bottomSpanPercent) != Float.floatToIntBits(other.bottomSpanPercent))
-			return false;
-		if (left != other.left)
-			return false;
-		if (Float.floatToIntBits(leftSpanPercent) != Float.floatToIntBits(other.leftSpanPercent))
-			return false;
-		if (right != other.right)
-			return false;
-		if (Float.floatToIntBits(rightSpanPercent) != Float.floatToIntBits(other.rightSpanPercent))
-			return false;
-		if (top != other.top)
-			return false;
-		if (Float.floatToIntBits(topSpanPercent) != Float.floatToIntBits(other.topSpanPercent))
-			return false;
-		return true;
+	public int hashCode() {
+		return Objects.hash(bottom, left, right, top, bottomSpanPercent, leftSpanPercent, rightSpanPercent, topSpanPercent, bottomHeightPercent, leftWidthPercent, rightWidthPercent, topHeightPercent);
 	}
-
 }
