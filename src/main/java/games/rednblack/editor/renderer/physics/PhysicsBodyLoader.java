@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.physics;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -393,6 +394,11 @@ public class PhysicsBodyLoader {
         if (sensorComponent != null && dimensionsComponent != null) {
             createSensors(physicsBodyComponent, sensorComponent, dimensionsComponent, transformComponent);
         }
+
+        if (physicsBodyComponent.body != null && physicsBodyComponent.fineBoundBox) {
+            BoundingBoxComponent boundingBoxComponent = ComponentRetriever.get(entity, BoundingBoxComponent.class, engine);
+            PhysicsBodyLoader.calculateFixtureBoundingBoxes(boundingBoxComponent, physicsBodyComponent);
+        }
     }
 
     private FixtureDef getFixtureDef(PhysicsBodyComponent component) {
@@ -420,5 +426,62 @@ public class PhysicsBodyLoader {
         }
 
         return tmpFixtureDef;
+    }
+
+    private static final Vector2 lower = new Vector2();
+    private static final Vector2 upper = new Vector2();
+    private static final Vector2[] tmpVertices = new Vector2[] {new Vector2(), new Vector2(), new Vector2(), new Vector2()};
+    private static final Rectangle tmpRect = new Rectangle();
+
+    public static void calculateFixtureBoundingBoxes(BoundingBoxComponent b, PhysicsBodyComponent physicsBodyComponent) {
+        Transform transform = physicsBodyComponent.body.getTransform();
+        boolean first = true;
+        for (Fixture fixture : physicsBodyComponent.body.getFixtureList()) {
+            getAABB(fixture, transform, tmpVertices, tmpRect);
+            if (first) {
+                b.rectangle.set(tmpRect);
+                first = false;
+            } else {
+                b.rectangle.merge(tmpRect);
+            }
+        }
+    }
+
+    public static void getAABB(Fixture fixture, Transform transform, Vector2[] vertices, Rectangle rectangle) {
+        if (fixture.getType() == Shape.Type.Circle) {
+
+            CircleShape shape = (CircleShape)fixture.getShape();
+            float radius = shape.getRadius();
+            vertices[0].set(shape.getPosition());
+            transform.mul(vertices[0]);
+            lower.set(vertices[0].x - radius, vertices[0].y - radius);
+            upper.set(vertices[0].x + radius, vertices[0].y + radius);
+        } else if (fixture.getType() == Shape.Type.Polygon) {
+            PolygonShape shape = (PolygonShape)fixture.getShape();
+            int vertexCount = shape.getVertexCount();
+
+            shape.getVertex(0, vertices[0]);
+            lower.set(transform.mul(vertices[0]));
+            upper.set(lower);
+            for (int i = 1; i < vertexCount; i++) {
+                shape.getVertex(i, vertices[1]);
+                transform.mul(vertices[1]);
+                lower.x = Math.min(lower.x, vertices[1].x);
+                lower.y = Math.min(lower.y, vertices[1].y);
+                upper.x = Math.max(upper.x, vertices[1].x);
+                upper.y = Math.max(upper.y, vertices[1].y);
+            }
+        }
+
+        // define vertices in ccw fashion...
+        vertices[0].set(lower.x, lower.y);
+        vertices[1].set(upper.x, lower.y);
+        vertices[2].set(upper.x, upper.y);
+        vertices[3].set(lower.x, upper.y);
+
+        rectangle.x = lower.x;
+        rectangle.y = lower.y;
+        rectangle.width = upper.x - lower.x;
+        rectangle.height = upper.y - lower.y;
     }
 }

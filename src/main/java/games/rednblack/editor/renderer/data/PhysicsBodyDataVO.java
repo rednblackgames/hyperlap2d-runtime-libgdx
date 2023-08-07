@@ -26,6 +26,7 @@ public class PhysicsBodyDataVO {
 	public boolean awake;
 	public boolean bullet;
     public boolean sensor;
+    public boolean fineBoundBox;
     public boolean fixedRotation;
 
     public float density;
@@ -48,6 +49,7 @@ public class PhysicsBodyDataVO {
     	gravityScale = vo.gravityScale;
     	allowSleep = vo.allowSleep;
         sensor = vo.sensor;
+        fineBoundBox = vo.fineBoundBox;
     	awake = vo.awake;
     	bullet = vo.bullet;
         density = vo.density;
@@ -67,6 +69,7 @@ public class PhysicsBodyDataVO {
         gravityScale = physicsComponent.gravityScale;
         allowSleep = physicsComponent.allowSleep;
         sensor = physicsComponent.sensor;
+        fineBoundBox = physicsComponent.fineBoundBox;
         awake = physicsComponent.awake;
         bullet = physicsComponent.bullet;
         density = physicsComponent.density;
@@ -93,6 +96,7 @@ public class PhysicsBodyDataVO {
                 awake == that.awake &&
                 bullet == that.bullet &&
                 sensor == that.sensor &&
+                fineBoundBox == that.fineBoundBox &&
                 shapeType == that.shapeType &&
                 fixedRotation == that.fixedRotation &&
                 Float.compare(that.density, density) == 0 &&
@@ -104,6 +108,6 @@ public class PhysicsBodyDataVO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(bodyType, shapeType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, density, friction, restitution, height);
+        return Objects.hash(bodyType, shapeType, mass, centerOfMass, rotationalInertia, damping, angularDamping, gravityScale, allowSleep, awake, bullet, fixedRotation, sensor, fineBoundBox, density, friction, restitution, height);
     }
 }

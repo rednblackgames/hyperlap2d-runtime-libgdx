@@ -32,6 +32,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
     public boolean awake = true;
     public boolean bullet = false;
     public boolean sensor = false;
+    public boolean fineBoundBox = false;
     public boolean fixedRotation = false;
 
     public float density = 1;
@@ -61,6 +62,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
         gravityScale = 1;
         allowSleep = true;
         sensor = false;
+        fineBoundBox = false;
         awake = true;
         bullet = false;
         density = 1;

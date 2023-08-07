@@ -235,6 +235,7 @@ public abstract class ComponentFactory {
             PhysicsBodyComponent physicsBodyComponent = physicsBodyCM.create(entity);
             physicsBodyComponent.allowSleep = vo.physics.allowSleep;
             physicsBodyComponent.sensor = vo.physics.sensor;
+            physicsBodyComponent.fineBoundBox = vo.physics.fineBoundBox;
             physicsBodyComponent.awake = vo.physics.awake;
             physicsBodyComponent.bodyType = vo.physics.bodyType;
             physicsBodyComponent.bullet = vo.physics.bullet;
