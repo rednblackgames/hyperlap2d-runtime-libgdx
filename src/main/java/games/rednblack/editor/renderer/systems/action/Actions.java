@@ -48,6 +48,8 @@ public class Actions {
         registerActionClass(SequenceData.class, SequenceAction.class);
         registerActionClass(RepeatData.class, RepeatAction.class);
 
+        PhysicsActions.initialize();
+
         initialized = true;
     }
 

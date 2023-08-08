@@ -1,6 +1,7 @@
-package games.rednblack.editor.renderer.systems.action.data;
+package games.rednblack.editor.renderer.systems.action.data.physics;
 
 import com.badlogic.gdx.math.Vector2;
+import games.rednblack.editor.renderer.systems.action.data.ComponentData;
 
 /**
  * Created by aurel on 19/02/16.

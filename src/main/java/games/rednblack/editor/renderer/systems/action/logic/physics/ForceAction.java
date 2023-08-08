@@ -1,7 +1,8 @@
-package games.rednblack.editor.renderer.systems.action.logic;
+package games.rednblack.editor.renderer.systems.action.logic.physics;
 
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
-import games.rednblack.editor.renderer.systems.action.data.ForceData;
+import games.rednblack.editor.renderer.systems.action.data.physics.ForceData;
+import games.rednblack.editor.renderer.systems.action.logic.ComponentAction;
 import games.rednblack.editor.renderer.utils.ForceUtils;
 
 /**

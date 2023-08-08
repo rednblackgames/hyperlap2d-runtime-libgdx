@@ -9,8 +9,6 @@ import com.badlogic.gdx.physics.box2d.Body;
  */
 public class ForceUtils {
 
-
-
     public static void applyImpulse(Vector2 impulsePosition, float strength, float influenceArea, Body body) {
         Vector2 v = body.getPosition().cpy().sub(impulsePosition);
 

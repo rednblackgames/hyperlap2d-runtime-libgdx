@@ -1,7 +1,5 @@
 package games.rednblack.editor.renderer.systems.action.data;
 
-import com.badlogic.gdx.math.Interpolation;
-
 /**
  * Created by ZeppLondon on 10/15/2015.
  */
