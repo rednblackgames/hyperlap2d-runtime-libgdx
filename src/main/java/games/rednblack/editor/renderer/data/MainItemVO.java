@@ -17,7 +17,6 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 public abstract class MainItemVO {
 	public enum RenderingLayer {SCREEN, SCREEN_READING}
 
-	public int uniqueId = -1;
 	public String itemIdentifier = "";
 	public String itemName = "";
     public String[] tags = null;
@@ -50,7 +49,6 @@ public abstract class MainItemVO {
 	
 	public MainItemVO(MainItemVO vo) {
 		if (vo == null) return;
-		uniqueId = vo.uniqueId;
 		itemIdentifier = vo.itemIdentifier;
 		itemName = vo.itemName;
         if(vo.tags != null) tags = Arrays.copyOf(vo.tags, vo.tags.length);
@@ -100,7 +98,6 @@ public abstract class MainItemVO {
 		TintComponent tintComponent = ComponentRetriever.get(entity, TintComponent.class, engine);
 		ZIndexComponent zindexComponent = ComponentRetriever.get(entity, ZIndexComponent.class, engine);
 
-		uniqueId = mainItemComponent.uniqueId;
 		itemIdentifier = mainItemComponent.itemIdentifier;
 		itemName = mainItemComponent.libraryLink;
 		tags = new String[mainItemComponent.tags.size];

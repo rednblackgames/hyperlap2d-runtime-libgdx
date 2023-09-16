@@ -6,6 +6,7 @@ import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
@@ -27,10 +28,9 @@ import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStra
 import games.rednblack.editor.renderer.utils.AsyncEntityFactoryCallback;
 import games.rednblack.editor.renderer.utils.HyperJson;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 public class EntityFactory {
+    private static final char [] subset = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
+
     public static final int UNKNOWN_TYPE = -1;
     public static final int COMPOSITE_TYPE = 1;
     public static final int COLOR_PRIMITIVE = 2;
@@ -53,8 +53,7 @@ public class EntityFactory {
 
     private final ObjectMap<String, EntityTransmuter> tagTransmuter = new ObjectMap<>();
 
-    // TODO: Do we still need it? Like, in Artemis all enties are already identified by a Unique ID
-    private final IntIntMap entities = new IntIntMap();
+    private final ObjectIntMap<String> entities = new ObjectIntMap<>();
 
     public RayHandler rayHandler;
     public World world;
@@ -227,39 +226,29 @@ public class EntityFactory {
         }
     }
 
-    public int postProcessEntity(int entity) {
+    public void postProcessEntity(int entity) {
         MainItemComponent mainItemComponent = mapper.get(entity);
 
-        if (mainItemComponent.uniqueId == -1) mainItemComponent.uniqueId = getFreeId();
+        if (mainItemComponent.uniqueId == null) mainItemComponent.uniqueId = generateRandomId(8);
         entities.put(mainItemComponent.uniqueId, entity);
 
         for (String tag : mainItemComponent.tags) {
             EntityTransmuter transmuter = tagTransmuter.get(tag);
             if (transmuter != null) transmuter.transmute(entity);
         }
-
-        return mainItemComponent.uniqueId;
     }
 
-    private int getFreeId() {
-        if (entities.size == 0) return 1;
-
-        // TODO: Is it performant enough?
-        // Just so you know why this TODO exists and what is really going on in here, i dont know why we need to sort the elements. That's why, to be on the safe side, i wrote some code to get it sorted
-        IntIntMap.Keys keys = entities.keys();
-        ArrayList<Integer> ids = new ArrayList<>();
-        while (keys.hasNext) ids.add(keys.next());
-
-        Collections.sort(ids);
-        for (int i = 1; i < ids.size(); i++) {
-            if (ids.get(i) - ids.get(i - 1) > 1) {
-                return ids.get(i - 1) + 1;
-            }
+    private String generateRandomId(int length) {
+        char[] buf = new char[length];
+        for (int i=0;i<buf.length;i++) {
+            int index = MathUtils.random.nextInt(subset.length);
+            buf[i] = subset[index];
         }
-        return ids.get(ids.size() - 1) + 1;
+
+        return new String(buf);
     }
 
-    public int getEntityByUniqueId(int id) {
+    public int getEntityByUniqueId(String id) {
         return entities.get(id, -1);
     }
 

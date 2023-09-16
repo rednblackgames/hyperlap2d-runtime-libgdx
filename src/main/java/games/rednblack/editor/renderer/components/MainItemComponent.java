@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 
 public class MainItemComponent extends PooledComponent {
-    public transient int uniqueId = -1;
+    public String uniqueId = null;
 	public String itemIdentifier = "";
 	public String libraryLink = "";
 
@@ -26,7 +26,7 @@ public class MainItemComponent extends PooledComponent {
 
 	@Override
 	public void reset() {
-		uniqueId = -1;
+		uniqueId = null;
 		itemIdentifier = "";
 		libraryLink = "";
 
