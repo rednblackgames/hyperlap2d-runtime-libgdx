@@ -29,7 +29,8 @@ import games.rednblack.editor.renderer.utils.AsyncEntityFactoryCallback;
 import games.rednblack.editor.renderer.utils.HyperJson;
 
 public class EntityFactory {
-    private static final char [] subset = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
+    private static final char[] idSubset = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
+    private static final char[] idBuffer = new char[8];
 
     public static final int UNKNOWN_TYPE = -1;
     public static final int COMPOSITE_TYPE = 1;
@@ -229,7 +230,7 @@ public class EntityFactory {
     public void postProcessEntity(int entity) {
         MainItemComponent mainItemComponent = mapper.get(entity);
 
-        if (mainItemComponent.uniqueId == null) mainItemComponent.uniqueId = generateRandomId(8);
+        if (mainItemComponent.uniqueId == null) mainItemComponent.uniqueId = generateRandomId(idBuffer);
         entities.put(mainItemComponent.uniqueId, entity);
 
         for (String tag : mainItemComponent.tags) {
@@ -238,18 +239,20 @@ public class EntityFactory {
         }
     }
 
-    private String generateRandomId(int length) {
-        char[] buf = new char[length];
-        for (int i=0;i<buf.length;i++) {
-            int index = MathUtils.random.nextInt(subset.length);
-            buf[i] = subset[index];
+    private String generateRandomId(char[] buffer) {
+        for (int i = 0; i < buffer.length; i++) {
+            int index = MathUtils.random.nextInt(idSubset.length);
+            buffer[i] = idSubset[index];
         }
-
-        return new String(buf);
+        return new String(buffer);
     }
 
     public int getEntityByUniqueId(String id) {
         return entities.get(id, -1);
+    }
+
+    public void removeEntity(String id) {
+        entities.remove(id, -1);
     }
 
     public void clean() {

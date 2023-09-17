@@ -173,6 +173,8 @@ public class SceneLoader {
                             }
 
                             renderer.removeSpecialEntity(entity);
+                            MainItemComponent mainItemComponent = mainItemCM.get(entity);
+                            entityFactory.removeEntity(mainItemComponent.uniqueId);
                         }
                     }
                 });
