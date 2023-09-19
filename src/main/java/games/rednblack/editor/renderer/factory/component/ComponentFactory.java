@@ -184,6 +184,7 @@ public abstract class ComponentFactory {
 
     protected void initializeComponentsFromVO(int entity, MainItemVO vo) {
         MainItemComponent mainItemComponent = mainItemCM.get(entity);
+        mainItemComponent.uniqueId = vo.uniqueId;
         mainItemComponent.customVariables.putAll(vo.customVariables);
         mainItemComponent.itemIdentifier = vo.itemIdentifier;
         mainItemComponent.libraryLink = vo.itemName;

@@ -127,6 +127,13 @@ public class CompositeItemVO extends MainItemVO {
 		throw new RuntimeException("Composite doesn't have resources to load.");
 	}
 
+	public void cleanIds() {
+		uniqueId = null;
+		for (MainItemVO subItem : getAllItems()) {
+			subItem.uniqueId = null;
+		}
+	}
+
 	private Array<MainItemVO> getAllItemsRecursive(Array<MainItemVO> itemsArray, CompositeItemVO compositeItemVO) {
 		for (String type : compositeItemVO.content.keys()) {
 			Array<MainItemVO> array = compositeItemVO.content.get(type);
