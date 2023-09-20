@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 public class ShaderVO {
     public String shaderName = "";
-    public ObjectMap<String, ShaderUniformVO> shaderUniforms = new ObjectMap<>();
+    public ObjectMap<String, ShaderUniformVO> shaderUniforms = new ObjectMap<>(0);
 
     public ShaderVO(){
 

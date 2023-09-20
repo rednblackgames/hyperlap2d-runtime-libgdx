@@ -21,7 +21,7 @@ public class CompositeItemVO extends MainItemVO {
 	public boolean scissorsEnabled = false;
 	public boolean renderToFBO = false;
 
-	public ObjectMap<String, Array<MainItemVO>> content = new ObjectMap<>();
+	public ObjectMap<String, Array<MainItemVO>> content = new ObjectMap<>(0);
 
 	public ObjectMap<String, StickyNoteVO> sStickyNotes = new ObjectMap<>(1);
 	public Array<LayerItemVO> layers = new Array<>();

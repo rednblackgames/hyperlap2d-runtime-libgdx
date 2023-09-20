@@ -21,7 +21,7 @@ public abstract class MainItemVO {
 	public String itemIdentifier = "";
 	public String itemName = "";
     public String[] tags = null;
-    public ObjectMap<String, String> customVariables = new ObjectMap<>();
+    public ObjectMap<String, String> customVariables = new ObjectMap<>(0);
 	public float x; 
 	public float y;
 	public float scaleX	= 1f;

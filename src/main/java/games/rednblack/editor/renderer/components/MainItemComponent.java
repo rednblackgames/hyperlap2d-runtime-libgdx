@@ -13,8 +13,8 @@ public class MainItemComponent extends PooledComponent {
 	public boolean visible = true;
 	public boolean culled = false;
 
-	public ObjectSet<String> tags = new ObjectSet<>();
-	public ObjectMap<String, String> customVariables = new ObjectMap<>();
+	public ObjectSet<String> tags = new ObjectSet<>(0);
+	public ObjectMap<String, String> customVariables = new ObjectMap<>(0);
 
 	public void setCustomVars(String key, String value) {
 		customVariables.put(key, value);

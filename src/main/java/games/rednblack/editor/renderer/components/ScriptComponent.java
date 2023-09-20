@@ -74,7 +74,8 @@ public class ScriptComponent extends PooledComponent {
 
     @Override
     public void reset() {
-        for (IScript script : scripts) {
+        for (int i = 0; i < scripts.size; i++) {
+            IScript script = scripts.get(i);
             script.dispose();
             //Free script into pool
             if (script instanceof BasicScript) {
