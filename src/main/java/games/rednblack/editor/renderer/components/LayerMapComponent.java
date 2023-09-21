@@ -1,34 +1,38 @@
 package games.rednblack.editor.renderer.components;
 
-import java.util.HashMap;
-
 import com.artemis.PooledComponent;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import games.rednblack.editor.renderer.data.LayerItemVO;
 
 public class LayerMapComponent  extends PooledComponent {
 	public boolean autoIndexing = true;
 	private final Array<LayerItemVO> layers = new Array<>();
-
-	private final HashMap<String, LayerItemVO> layerMap = new HashMap<>();
+	private final IntMap<LayerItemVO> layerMap = new IntMap<>();
 
 	public void setLayers(Array<LayerItemVO> layersToAdd) {
 		this.layers.addAll(layersToAdd);
 		layerMap.clear();
 		for (LayerItemVO vo : layers) {
-			layerMap.put(vo.layerName, vo);
+			putLayer(vo.layerName, vo);
 		}
 	}
 
 	public LayerItemVO getLayer(String name) {
-		return layerMap.get(name);
+		return layerMap.get(name.hashCode());
+	}
+
+	private void putLayer(String name, LayerItemVO itemVO) {
+		int hashCode = name.hashCode();
+		if (layerMap.containsKey(hashCode)) throw new IllegalArgumentException("Layer name hash collision.");
+		layerMap.put(hashCode, itemVO);
 	}
 
 	public int getIndexByName(String name) {
-		if(layerMap.containsKey(name)) {
-			return layers.indexOf(layerMap.get(name), false);
+		LayerItemVO layer = getLayer(name);
+		if (layer != null) {
+			return layers.indexOf(layer, false);
 		}
-
 		return 0;
 	}
 
@@ -43,12 +47,12 @@ public class LayerMapComponent  extends PooledComponent {
 
 	public void addLayer(int index, LayerItemVO layerVo) {
 		layers.insert(index, layerVo);
-		layerMap.put(layerVo.layerName, layerVo);
+		putLayer(layerVo.layerName, layerVo);
 	}
 
 	public void addLayer(LayerItemVO layerVo) {
 		layers.add(layerVo);
-		layerMap.put(layerVo.layerName, layerVo);
+		putLayer(layerVo.layerName, layerVo);
 	}
 
 	public Array<LayerItemVO> getLayers() {
@@ -57,14 +61,14 @@ public class LayerMapComponent  extends PooledComponent {
 
 	public void deleteLayer(String layerName) {
 		layers.removeIndex(getIndexByName(layerName));
-		layerMap.remove(layerName);
+		layerMap.remove(layerName.hashCode());
 	}
 
 	public void rename(String prevName, String newName) {
-		LayerItemVO vo = layerMap.get(prevName);
+		LayerItemVO vo = getLayer(prevName);
 		vo.layerName = newName;
-		layerMap.remove(prevName);
-		layerMap.put(newName, vo);
+		layerMap.remove(prevName.hashCode());
+		putLayer(newName, vo);
 	}
 
 	public void swap(String source, String target) {
