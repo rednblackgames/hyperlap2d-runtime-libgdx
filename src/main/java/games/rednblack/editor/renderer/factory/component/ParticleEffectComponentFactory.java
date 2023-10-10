@@ -48,12 +48,14 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
         ParticleComponent component = particleCM.get(entity);
 
         ParticleEffect particleEffect = rm.getParticleEffect(component.particleName);
-        if (component.autoStart)
-            particleEffect.start();
         component.particleEffect = particleEffect;
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         component.worldMultiplier = 1f / projectInfoVO.pixelToWorld;
         component.scaleEffect(1f);
+
+        particleEffect.reset(false);
+        if (component.autoStart)
+            particleEffect.start();
     }
 
     @Override
