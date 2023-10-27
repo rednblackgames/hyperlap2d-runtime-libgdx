@@ -103,8 +103,6 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     @Override
     public void process(int entity) {
-        drawableLogicMapper.beginPipeline();
-
         timeRunning += Gdx.graphics.getDeltaTime();
         batch.setColor(Color.WHITE);
 
@@ -120,10 +118,12 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        drawableLogicMapper.beginPipeline();
         batch.begin();
         drawRecursively(entity, 1f, DrawableLogic.RenderingType.TEXTURE);
         batch.end();
         frameBufferManager.endCurrent();
+        drawableLogicMapper.endPipeline();
 
         if (rayHandler != null && useLights) {
             //Render normal map texture only if lights are enabled
@@ -133,11 +133,13 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
             batch.setProjectionMatrix(camera.combined);
 
+            drawableLogicMapper.beginPipeline();
             batch.begin();
             hasNormals = false;
             drawRecursively(entity, 1f, DrawableLogic.RenderingType.NORMAL_MAP);
             batch.end();
             frameBufferManager.endCurrent();
+            drawableLogicMapper.endPipeline();
         }
 
         screenTexture = frameBufferManager.getColorBufferTexture("main");
@@ -200,8 +202,6 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             rayHandler.setCombinedMatrix(orthoCamera);
             rayHandler.updateAndRender();
         }
-
-        drawableLogicMapper.endPipeline();
     }
 
     private void drawRecursively(int rootEntity, float parentAlpha, DrawableLogic.RenderingType renderingType) {
