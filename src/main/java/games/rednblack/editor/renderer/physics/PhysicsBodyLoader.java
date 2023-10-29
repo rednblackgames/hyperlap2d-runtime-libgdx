@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.*;
@@ -18,6 +17,7 @@ import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
+import games.rednblack.editor.renderer.utils.TmpFloatArray;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class PhysicsBodyLoader {
@@ -28,9 +28,9 @@ public class PhysicsBodyLoader {
     private final PolygonShape tmpPolygonShape = new PolygonShape();
     private final ChainShape tmpChainShape = new ChainShape();
     private final CircleShape tmpCircleShape = new CircleShape();
-    private final IntMap<float[]> verticesCache = new IntMap<>();
     private final FixtureDef tmpFixtureDef = new FixtureDef();
     private final FixtureDef sensorFixtureDef = new FixtureDef();
+    private final TmpFloatArray tmpFloatArray = new TmpFloatArray();
 
     public static PhysicsBodyLoader getInstance() {
         if (instance == null) {
@@ -192,7 +192,7 @@ public class PhysicsBodyLoader {
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
-        float[] verts = getTemporaryVerticesArray(minPolygonData.size * 2);
+        float[] verts = tmpFloatArray.getTemporaryArray(minPolygonData.size * 2);
         Vector2 point = Pools.obtain(Vector2.class);
         for (int j = 0; j < verts.length; j += 2) {
             point.set(minPolygonData.get(j / 2));
@@ -266,7 +266,7 @@ public class PhysicsBodyLoader {
                 p = (PolygonShape) fixtures.get(i).getShape();
 
                 Vector2[] minPolygonDatum = minPolygonData[i];
-                float[] verts = getTemporaryVerticesArray(minPolygonDatum.length * 2);
+                float[] verts = tmpFloatArray.getTemporaryArray(minPolygonDatum.length * 2);
                 for (int j = 0; j < verts.length; j += 2) {
                     float tempX = minPolygonDatum[j / 2].x;
                     float tempY = minPolygonDatum[j / 2].y;
@@ -298,7 +298,7 @@ public class PhysicsBodyLoader {
 
             for (int i = 0; i < minPolygonData.length; i++) {
                 Vector2[] minPolygonDatum = minPolygonData[i];
-                float[] verts = getTemporaryVerticesArray(minPolygonDatum.length * 2);
+                float[] verts = tmpFloatArray.getTemporaryArray(minPolygonDatum.length * 2);
                 for (int j = 0; j < verts.length; j += 2) {
                     float tempX = minPolygonDatum[j / 2].x;
                     float tempY = minPolygonDatum[j / 2].y;
@@ -356,12 +356,6 @@ public class PhysicsBodyLoader {
 
             physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
         }
-    }
-
-    private float[] getTemporaryVerticesArray(int size) {
-        if (!verticesCache.containsKey(size))
-            verticesCache.put(size, new float[size]);
-        return verticesCache.get(size);
     }
 
     public void refreshShape(int entity, com.artemis.World engine) {
