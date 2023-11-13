@@ -25,8 +25,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.utils.poly.PolygonRuntimeUtils;
 
-import java.security.InvalidParameterException;
-
 /// <summary>
 /// Convex decomposition algorithm created by Mark Bayazit (http://mnbayazit.com/)
 /// For more information about this algorithm, see http://mnbayazit.com/406/bayazit
@@ -536,7 +534,7 @@ class SimplifyTools {
       if (vertices.size <= 3)
          return vertices;
       if (areaTolerance < 0) {
-         throw new InvalidParameterException(
+         throw new IllegalArgumentException(
                "areaTolerance: must be equal to or greater then zero.");
       }
       Array<Vector2> result = new Array<Vector2>();
@@ -548,7 +546,7 @@ class SimplifyTools {
       for (int index = 0; index < vertices.size; ++index, v2 = v3) {
          if (index == vertices.size - 1) {
             if (result.size == 0) {
-               throw new InvalidParameterException(
+               throw new IllegalArgumentException(
                      "areaTolerance: The tolerance is too high!");
             }
             v3 = result.get(0);
