@@ -11,7 +11,9 @@ public class LayerMapComponent  extends PooledComponent {
 	private final IntMap<LayerItemVO> layerMap = new IntMap<>();
 
 	public void setLayers(Array<LayerItemVO> layersToAdd) {
-		this.layers.addAll(layersToAdd);
+		for (int i = 0; i < layersToAdd.size; i++) {
+			this.layers.add(new LayerItemVO(layersToAdd.get(i)));
+		}
 		layerMap.clear();
 		for (LayerItemVO vo : layers) {
 			putLayer(vo.layerName, vo);
