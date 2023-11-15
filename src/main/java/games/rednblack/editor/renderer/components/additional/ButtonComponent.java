@@ -4,23 +4,21 @@ import com.artemis.PooledComponent;
 import com.artemis.annotations.Transient;
 import com.badlogic.gdx.utils.Array;
 
-/**
- * Created by azakhary on 8/1/2015.
- */
 @Transient
 public class ButtonComponent extends PooledComponent {
 
     public boolean isTouched = false;
     public boolean isChecked = false;
+    public boolean isTouchEnabled = true;
 
-    private final Array<ButtonListener> listeners = new Array<>();
+    public final Array<ButtonListener> listeners = new Array<>();
 
     public interface ButtonListener {
-        void touchUp();
+        void touchUp(int entity);
 
-        void touchDown();
+        void touchDown(int entity);
 
-        void clicked();
+        void clicked(int entity);
     }
 
     public void addListener(ButtonListener listener) {
@@ -33,21 +31,6 @@ public class ButtonComponent extends PooledComponent {
 
     public void clearListeners() {
         listeners.clear();
-    }
-
-    public void setTouchState(boolean isTouched) {
-        if (!this.isTouched && isTouched) {
-            for (int i = 0; i < listeners.size; i++) {
-                listeners.get(i).touchDown();
-            }
-        }
-        if (this.isTouched && !isTouched) {
-            for (int i = 0; i < listeners.size; i++) {
-                listeners.get(i).touchUp();
-                listeners.get(i).clicked();
-            }
-        }
-        this.isTouched = isTouched;
     }
 
     @Override

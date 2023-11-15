@@ -58,11 +58,18 @@ public class ButtonSystem extends BaseEntitySystem {
             return;
         }
 
+        ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
+
+        if (!buttonComponent.isTouchEnabled) {
+            inputHoldEntity = -1;
+            return;
+        }
+
         //Check if another input has acquired click focus
         if ((inputHoldEntity != entity && inputHoldEntity != -1)) return;
 
-        boolean isTouched = isTouched(entity);
-        boolean isChecked = isChecked(entity);
+        boolean isTouched = isTouched(entity, buttonComponent);
+        boolean isChecked = buttonComponent.isChecked;
         for (int i = 0; i < nodeComponent.children.size; i++) {
             Integer childEntity = nodeComponent.children.get(i);
             MainItemComponent childMainItemComponent = mainItemComponentMapper.get(childEntity);
@@ -91,13 +98,7 @@ public class ButtonSystem extends BaseEntitySystem {
         }
     }
 
-    private boolean isChecked(int entity) {
-        ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
-        return buttonComponent.isChecked;
-    }
-
-    private boolean isTouched(int entity) {
-        ButtonComponent buttonComponent = buttonComponentMapper.get(entity);
+    private boolean isTouched(int entity, ButtonComponent buttonComponent) {
         if (Gdx.input.isTouched()) {
             DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
             tmp.set(Gdx.input.getX(), Gdx.input.getY());
@@ -105,11 +106,33 @@ public class ButtonSystem extends BaseEntitySystem {
             TransformMathUtils.globalToLocalCoordinates(entity, tmp, transformMapper, parentMapper, viewPortComponentMapper);
 
             if (dimensionsComponent.hit(tmp.x, tmp.y)) {
-                buttonComponent.setTouchState(true);
+                setTouchState(buttonComponent, true, entity);
                 return true;
             }
         }
-        buttonComponent.setTouchState(false);
+        setTouchState(buttonComponent, false, entity);
         return false;
+    }
+
+    public void setTouchState(ButtonComponent buttonComponent, boolean isTouched, int entity) {
+        if (!buttonComponent.isTouched && isTouched) {
+            for (int i = 0; i < buttonComponent.listeners.size; i++) {
+                buttonComponent.listeners.get(i).touchDown(entity);
+            }
+        }
+        if (buttonComponent.isTouched && !isTouched) {
+            for (int i = 0; i < buttonComponent.listeners.size; i++) {
+                buttonComponent.listeners.get(i).touchUp(entity);
+
+                DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
+                tmp.set(Gdx.input.getX(), Gdx.input.getY());
+                TransformMathUtils.globalToLocalCoordinates(entity, tmp, transformMapper, parentMapper, viewPortComponentMapper);
+
+                if (dimensionsComponent.hit(tmp.x, tmp.y)) {
+                    buttonComponent.listeners.get(i).clicked(entity);
+                }
+            }
+        }
+        buttonComponent.isTouched = isTouched;
     }
 }
