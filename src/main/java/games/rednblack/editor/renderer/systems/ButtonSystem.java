@@ -10,10 +10,14 @@ import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
+import games.rednblack.editor.renderer.utils.ZSortComparator;
 
 @All(ButtonComponent.class)
 public class ButtonSystem extends BaseEntitySystem {
 
+    private final ZSortComparator zSortComparator = new ZSortComparator();
+
+    protected ComponentMapper<ZIndexComponent> zIndexMapper;
     protected ComponentMapper<ButtonComponent> buttonComponentMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
     protected ComponentMapper<NodeComponent> nodeComponentMapper;
@@ -38,6 +42,8 @@ public class ButtonSystem extends BaseEntitySystem {
     protected final void processSystem() {
         IntBag actives = subscription.getEntities();
         int[] ids = actives.getData();
+        zSortComparator.setzIndexMapper(zIndexMapper);
+        zSortComparator.quickSort(ids, actives.size());
         for (int i = actives.size() - 1; i >= 0; i--) {
             process(ids[i]);
         }
