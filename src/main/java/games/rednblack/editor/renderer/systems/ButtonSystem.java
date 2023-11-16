@@ -121,14 +121,15 @@ public class ButtonSystem extends BaseEntitySystem {
             }
         }
         if (buttonComponent.isTouched && !isTouched) {
+            DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
+            tmp.set(Gdx.input.getX(), Gdx.input.getY());
+            TransformMathUtils.globalToLocalCoordinates(entity, tmp, transformMapper, parentMapper, viewPortComponentMapper);
+            boolean hitEntity = dimensionsComponent.hit(tmp.x, tmp.y);
+
             for (int i = 0; i < buttonComponent.listeners.size; i++) {
                 buttonComponent.listeners.get(i).touchUp(entity);
 
-                DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
-                tmp.set(Gdx.input.getX(), Gdx.input.getY());
-                TransformMathUtils.globalToLocalCoordinates(entity, tmp, transformMapper, parentMapper, viewPortComponentMapper);
-
-                if (dimensionsComponent.hit(tmp.x, tmp.y)) {
+                if (hitEntity) {
                     buttonComponent.listeners.get(i).clicked(entity);
                 }
             }
