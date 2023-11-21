@@ -84,6 +84,12 @@ public class ItemWrapper {
         return new ItemWrapper(entity, engine);
     }
 
+    public int getChildEntity(String id) {
+        Integer entity = childrenMap.get(id);
+        if (entity == null) return -1;
+        return entity;
+    }
+
     /**
      * Get a child set from this composite using which contains a tag
      * @param tagName tag to find
