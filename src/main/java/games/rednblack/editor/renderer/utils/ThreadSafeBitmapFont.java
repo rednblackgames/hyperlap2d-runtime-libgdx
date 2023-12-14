@@ -62,13 +62,7 @@ public class ThreadSafeBitmapFont extends BitmapFont {
 
         @Override
         public GlyphLayout addText(CharSequence str, float x, float y, int start, int end, float targetWidth, int halign, boolean wrap, String truncate) {
-            //TODO this is a very bad workaroud that might not even work...
-            try {
-                return super.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Pools.obtain(GlyphLayout.class);
-            }
+            return super.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
         }
     }
 }
