@@ -83,6 +83,7 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
         }
 
         this.projectInfoVO = this.asyncResourceManager.loadProjectVO();
+        if (parameter != null) this.asyncResourceManager.setWorkingResolution(parameter.resolution);
         for (int i = 0; i < this.projectInfoVO.scenes.size(); i++) {
             String sceneName = this.projectInfoVO.scenes.get(i).sceneName;
 
@@ -144,6 +145,8 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
 
         public boolean loadAllScenes = true;
         public final Array<String> scenes = new Array<>();
+
+        public String resolution = "orig";
 
         public void addExternalResType(int type, String name) {
             Array<String> assets = externals.get(type);

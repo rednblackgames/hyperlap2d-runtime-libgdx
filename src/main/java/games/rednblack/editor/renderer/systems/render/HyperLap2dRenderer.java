@@ -566,9 +566,14 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         screenTextureRegion.setTexture(null);
     }
 
+    private float fboScaleFactor = 1;
+    public void setFBOScaleFactor(float factor) {
+        fboScaleFactor = factor;
+    }
+
     private void createCoreFrameBuffers() {
-        frameBufferManager.createFBO("main", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), false, hasStencilBuffer, true);
-        frameBufferManager.createFBO("normalMap", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), false, false, true);
+        frameBufferManager.createFBO("main", (int) (Gdx.graphics.getBackBufferWidth() / fboScaleFactor), (int) (Gdx.graphics.getBackBufferHeight() / fboScaleFactor), false, hasStencilBuffer, true);
+        frameBufferManager.createFBO("normalMap", (int) (Gdx.graphics.getBackBufferWidth() / fboScaleFactor), (int) (Gdx.graphics.getBackBufferHeight() / fboScaleFactor), false, false, true);
     }
 
     public void setUseLights(boolean useLights) {
@@ -588,6 +593,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     public float getTimeRunning() {
         return timeRunning;
+    }
+
+    public Camera getScreenCamera() {
+        return screenCamera;
     }
 }
 
