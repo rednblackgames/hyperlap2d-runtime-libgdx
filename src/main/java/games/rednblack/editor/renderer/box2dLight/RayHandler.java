@@ -18,6 +18,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.box2dLight.shaders.LightShader;
 import games.rednblack.editor.renderer.box2dLight.shaders.LightWithNormalMapShader;
 
+import static games.rednblack.editor.renderer.systems.render.FrameBufferManager.GL_MAX_TEXTURE_SIZE;
+
 /**
  * Handler that manages everything related to lights updating and rendering
  * <p>Implements {@link Disposable}
@@ -175,6 +177,21 @@ public class RayHandler implements Disposable {
 	 * Resize the FBO used for intermediate rendering.
 	 */
 	public void resizeFBO(int fboWidth, int fboHeight) {
+		// Check if either width or height exceeds max_size
+		if (fboWidth > GL_MAX_TEXTURE_SIZE || fboHeight > GL_MAX_TEXTURE_SIZE) {
+			// Calculate the aspect ratio
+			double aspectRatio = (double) fboWidth / fboHeight;
+
+			// Adjust dimensions while maintaining the aspect ratio
+			if (fboWidth > fboHeight) {
+				fboWidth = GL_MAX_TEXTURE_SIZE;
+				fboHeight = (int) (GL_MAX_TEXTURE_SIZE / aspectRatio);
+			} else {
+				fboHeight = GL_MAX_TEXTURE_SIZE;
+				fboWidth = (int) (GL_MAX_TEXTURE_SIZE * aspectRatio);
+			}
+		}
+
 		if (lightMap != null) {
 			lightMap.dispose();
 		}
