@@ -36,6 +36,8 @@ public class ButtonComponent extends PooledComponent {
     @Override
     public void reset() {
         isTouched = false;
+        isChecked = false;
+        isTouchEnabled = true;
         listeners.clear();
     }
 }
