@@ -87,6 +87,9 @@ public class SpriteComponentFactory extends ComponentFactory {
 
         if (spriteAnimationComponent.frameRangeMap.isEmpty()) {
             spriteAnimationComponent.frameRangeMap.put("Default", new FrameRange("Default", 0, regions.size - 1));
+        } else {
+            FrameRange defaultRange = spriteAnimationComponent.frameRangeMap.get("Default");
+            defaultRange.endFrame = regions.size - 1;
         }
 
         if (spriteAnimationComponent.currentAnimation == null) {
