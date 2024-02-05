@@ -13,7 +13,7 @@ public class SizeToAction <T extends SizeToData> extends TemporalAction<T>  {
         DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
         if (dimensionsComponent == null) return;
 
-        dimensionsComponent.width = actionData.startWidth + (actionData.endHeight - actionData.startWidth) * percent;
+        dimensionsComponent.width = actionData.startWidth + (actionData.endWidth - actionData.startWidth) * percent;
         dimensionsComponent.height = actionData.startHeight + (actionData.endHeight - actionData.startHeight) * percent;
     }
 
