@@ -25,6 +25,7 @@ import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
 import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
+import games.rednblack.editor.renderer.utils.ShaderUniformProvider;
 
 import java.util.Stack;
 
@@ -79,6 +80,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     };
 
     private final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer.class);
+
+    private ShaderUniformProvider shaderUniformProvider;
 
     public HyperLap2dRenderer(Batch batch, boolean hasStencilBuffer) {
         this.batch = batch;
@@ -149,6 +152,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.setShader(sceneShader);
         batch.begin();
+        if (sceneShader != null && shaderUniformProvider != null) shaderUniformProvider.applyUniforms(null, sceneShader);
         batch.draw(screenTexture,
                 viewport.getScreenX(), viewport.getScreenY(),
                 0, 0,
@@ -491,6 +495,8 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
                             break;
                     }
                 }
+
+                if (shaderUniformProvider != null) shaderUniformProvider.applyUniforms(shaderComponent.shaderName, batch.getShader());
             }
         }
     }
@@ -597,6 +603,10 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
     public Camera getScreenCamera() {
         return screenCamera;
+    }
+
+    public void setShaderUniformProvider(ShaderUniformProvider shaderUniformProvider) {
+        this.shaderUniformProvider = shaderUniformProvider;
     }
 }
 
