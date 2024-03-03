@@ -60,6 +60,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
                 if (disabledLogicSystems.get(i))
                     continue;
 
+                updateEntitySateSync();
                 logicSystems.get(i).process();
             }
 
@@ -80,6 +81,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
             if (disabledRenderSystems.get(i))
                 continue;
 
+            updateEntitySateSync();
             renderSystems.get(i).process();
         }
 
