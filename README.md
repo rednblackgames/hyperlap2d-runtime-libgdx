@@ -27,7 +27,7 @@ dependencies {
 <dependency>
   <groupId>games.rednblack.hyperlap2d</groupId>
   <artifactId>runtime-libgdx</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.4</version>
   <type>pom</type>
 </dependency>
 ```
@@ -38,7 +38,8 @@ dependencies {
 
 | HyperLap2D     | libGDX | Artemis |
 |----------------|--------|---------|
-| 0.1.4-SNAPSHOT | 1.12.1 | 2.3.0   |
+| 0.1.5-SNAPSHOT | 1.12.1 | 2.3.0   |
+| 0.1.4          | 1.12.1 | 2.3.0   |
 | 0.1.3          | 1.12.0 | 2.3.0   |
 | 0.1.2          | 1.11.0 | 2.3.0   |
 
