@@ -3,7 +3,6 @@ package games.rednblack.editor.renderer.utils;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pools;
 
 public class ThreadSafeBitmapFont extends BitmapFont {
     public ThreadSafeBitmapFont() {
