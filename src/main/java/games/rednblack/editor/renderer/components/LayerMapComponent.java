@@ -20,8 +20,8 @@ public class LayerMapComponent  extends PooledComponent {
 		}
 	}
 
-	public LayerItemVO getLayer(String name) {
-		return layerMap.get(name.hashCode());
+	public LayerItemVO getLayer(int nameHashCode) {
+		return layerMap.get(nameHashCode);
 	}
 
 	private void putLayer(String name, LayerItemVO itemVO) {
@@ -30,16 +30,16 @@ public class LayerMapComponent  extends PooledComponent {
 		layerMap.put(hashCode, itemVO);
 	}
 
-	public int getIndexByName(String name) {
-		LayerItemVO layer = getLayer(name);
+	public int getIndexByName(int nameHashCode) {
+		LayerItemVO layer = getLayer(nameHashCode);
 		if (layer != null) {
 			return layers.indexOf(layer, false);
 		}
 		return 0;
 	}
 
-	public boolean isVisible(String name) {
-		LayerItemVO vo = getLayer(name);
+	public boolean isVisible(int layerHashcode) {
+		LayerItemVO vo = getLayer(layerHashcode);
 		if (vo != null) {
 			return vo.isVisible;
 		}
@@ -62,26 +62,26 @@ public class LayerMapComponent  extends PooledComponent {
 	}
 
 	public void deleteLayer(String layerName) {
-		layers.removeIndex(getIndexByName(layerName));
+		layers.removeIndex(getIndexByName(layerName.hashCode()));
 		layerMap.remove(layerName.hashCode());
 	}
 
 	public void rename(String prevName, String newName) {
-		LayerItemVO vo = getLayer(prevName);
+		LayerItemVO vo = getLayer(prevName.hashCode());
 		vo.layerName = newName;
 		layerMap.remove(prevName.hashCode());
 		putLayer(newName, vo);
 	}
 
 	public void swap(String source, String target) {
-		LayerItemVO sourceVO = getLayer(source);
-		LayerItemVO targetVO = getLayer(target);
+		LayerItemVO sourceVO = getLayer(source.hashCode());
+		LayerItemVO targetVO = getLayer(target.hashCode());
 		layers.swap(layers.indexOf(sourceVO, false), layers.indexOf(targetVO, false));
 	}
 
 	public String jump(String source, String target) {
-		LayerItemVO sourceVO = getLayer(source);
-		LayerItemVO targetVO = getLayer(target);
+		LayerItemVO sourceVO = getLayer(source.hashCode());
+		LayerItemVO targetVO = getLayer(target.hashCode());
 		int sourceIndex = layers.indexOf(sourceVO, false);
 		int targetIndex = layers.indexOf(targetVO, false);
 

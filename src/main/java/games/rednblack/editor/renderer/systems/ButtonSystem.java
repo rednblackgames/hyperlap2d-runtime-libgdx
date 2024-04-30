@@ -87,17 +87,17 @@ public class ButtonSystem extends BaseEntitySystem {
             }
 
             if (isTouched || isChecked) {
-                if (childZComponent.layerName.equals("normal")) {
+                if (childZComponent.getLayerName().equals("normal")) {
                     childMainItemComponent.visible = false;
                 }
-                if (childZComponent.layerName.equals("pressed")) {
+                if (childZComponent.getLayerName().equals("pressed")) {
                     childMainItemComponent.visible = true;
                 }
             } else {
-                if (childZComponent.layerName.equals("normal")) {
+                if (childZComponent.getLayerName().equals("normal")) {
                     childMainItemComponent.visible = true;
                 }
-                if (childZComponent.layerName.equals("pressed")) {
+                if (childZComponent.getLayerName().equals("pressed")) {
                     childMainItemComponent.visible = false;
                 }
             }

@@ -121,7 +121,7 @@ public abstract class MainItemVO {
 		flipX = transformComponent.flipX;
 		flipY = transformComponent.flipY;
 
-        layerName = zindexComponent.layerName;
+        layerName = zindexComponent.getLayerName();
 
 		tint = new float[4];
 		tint[0] = tintComponent.color.r;

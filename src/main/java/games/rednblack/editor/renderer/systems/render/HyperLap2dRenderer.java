@@ -324,7 +324,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
 
             ZIndexComponent childZIndexComponent = zIndexComponentMapper.get(child);
 
-            if (!rootLayers.isVisible(childZIndexComponent.layerName)) {
+            if (!rootLayers.isVisible(childZIndexComponent.layerHash)) {
                 //Skip if layer is not visible
                 continue;
             }

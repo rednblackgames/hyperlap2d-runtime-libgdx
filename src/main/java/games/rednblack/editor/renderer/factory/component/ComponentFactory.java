@@ -144,7 +144,7 @@ public abstract class ComponentFactory {
         t.y = initialData.y;
         ZIndexComponent z = zIndexCM.get(entity);
         if (initialData.layerName == null || initialData.layerName.isEmpty()) initialData.layerName = "Default";
-        z.layerName = initialData.layerName;
+        z.setLayerName(initialData.layerName);
         //Set factory specific initial data
         setInitialData(entity, initialData.data);
 
@@ -210,7 +210,7 @@ public abstract class ComponentFactory {
         ZIndexComponent zIndexComponent = zIndexCM.get(entity);
         if (vo.layerName == null || vo.layerName.isEmpty()) vo.layerName = "Default";
 
-        zIndexComponent.layerName = vo.layerName;
+        zIndexComponent.setLayerName(vo.layerName);
         zIndexComponent.setZIndex(vo.zIndex);
         zIndexComponent.needReOrder = false;
 

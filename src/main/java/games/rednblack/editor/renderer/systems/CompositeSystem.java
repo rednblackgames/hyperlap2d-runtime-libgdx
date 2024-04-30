@@ -48,7 +48,7 @@ public class CompositeSystem extends IteratingSystem {
         if (compositeTransformComponent != null) {
 
             if (compositeTransformComponent.automaticResize && viewPortComponent == null) {
-                float checksum = calcCheckSum(entity);
+                float checksum = calcCheckSum(transformComponent);
                 if (checksum != compositeTransformComponent.checksum) {
                     compositeTransformComponent.checksum = checksum;
                     recalculateSize();
@@ -59,9 +59,8 @@ public class CompositeSystem extends IteratingSystem {
         }
     }
 
-    private float calcCheckSum(int entity) {
-        TransformComponent t = transformMapper.get(entity);
-        DimensionsComponent d = dimensionsMapper.get(entity);
+    private float calcCheckSum(TransformComponent t) {
+        DimensionsComponent d = dimensionsComponent;
 
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);

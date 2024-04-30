@@ -44,7 +44,7 @@ public class LayerSystem extends IteratingSystem {
         for (int i = 0; i < children.size; i++) {
             Integer entity = children.get(i);
             ZIndexComponent zindexComponent = zIndexMapper.get(entity);
-            zindexComponent.layerIndex = getLayerIndexByName(zindexComponent.layerName, layerMapComponent);
+            zindexComponent.layerIndex = getLayerIndexByName(zindexComponent.layerHash, layerMapComponent);
             if (zindexComponent.needReOrder && layerMapComponent.autoIndexing) {
                 if (zindexComponent.getZIndex() < 0) throw new IllegalArgumentException("ZIndex cannot be < 0.");
                 if (children.size == 1) {
@@ -74,11 +74,11 @@ public class LayerSystem extends IteratingSystem {
         children.sort(comparator);
     }
 
-    private int getLayerIndexByName(String layerName, LayerMapComponent layerMapComponent) {
+    private int getLayerIndexByName(int layerNameHashCode, LayerMapComponent layerMapComponent) {
         if (layerMapComponent == null) {
             return 0;
         }
-        return layerMapComponent.getIndexByName(layerName);
+        return layerMapComponent.getIndexByName(layerNameHashCode);
     }
 
     private class ZComparator implements Comparator<Integer> {

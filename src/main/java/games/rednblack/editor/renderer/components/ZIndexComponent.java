@@ -5,7 +5,8 @@ import com.artemis.PooledComponent;
 public class ZIndexComponent  extends PooledComponent {
     private int zIndex = 0;
     public boolean needReOrder = false;
-    public String layerName = "";
+    private String layerName = "";
+    public int layerHash = layerName.hashCode();
     public int layerIndex;
 
     public int getZIndex() {
@@ -17,6 +18,15 @@ public class ZIndexComponent  extends PooledComponent {
         needReOrder = true;
     }
 
+    public void setLayerName(String layerName) {
+        this.layerName = layerName;
+        this.layerHash = layerName.hashCode();
+    }
+
+    public String getLayerName() {
+        return layerName;
+    }
+
     public int getGlobalZIndex() {
         return layerIndex + zIndex;
     }
@@ -25,7 +35,7 @@ public class ZIndexComponent  extends PooledComponent {
     public void reset() {
         zIndex = 0;
         needReOrder = false;
-        layerName = "";
         layerIndex = 0;
+        setLayerName("");
     }
 }

@@ -48,7 +48,7 @@ public class BoundingBoxSystem extends IteratingSystem {
             t.y += rectangle.y;
         }
 
-        float checksum = calcCheckSum(entity);
+        float checksum = calcCheckSum(entity, parentNode, t, d);
         if (checksum != b.checksum) {
             b.points[0].set(0, 0);
             b.points[1].set(d.width, 0);
@@ -75,10 +75,7 @@ public class BoundingBoxSystem extends IteratingSystem {
         }
     }
 
-    private float calcCheckSum(int entity) {
-        ParentNodeComponent parentNode = parentNodeMapper.get(entity);
-        TransformComponent t = transformMapper.get(entity);
-        DimensionsComponent d = dimensionsMapper.get(entity);
+    private float calcCheckSum(int entity, ParentNodeComponent parentNode, TransformComponent t, DimensionsComponent d) {
         PhysicsBodyComponent p = physicsMapper.get(entity);
 
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
