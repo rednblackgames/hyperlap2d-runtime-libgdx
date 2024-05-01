@@ -8,12 +8,20 @@ public class ResolutionEntryVO {
     public int height;
     public int base;
 
+    private int lastW, lastH;
+    private String fullName;
+
     @Override
     public String toString() {
         if (width == 0 && height == 0) {
             return name;
         }
-        return width + "x" + height + " (" + name + ")";
+        if (width != lastW || height != lastH) {
+            lastW = width;
+            lastH = height;
+            fullName = name + " (" + width + "x" + height + ")";
+        }
+        return fullName;
     }
 
     @Override
