@@ -238,7 +238,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         } else {
             if (transform.shouldTransform()) {
                 computeTransform(rootEntity);
-                applyTransform(rootEntity, batch);
+                applyTransform(transform, batch);
             }
 
             if (curCompositeTransformComponent.scissorsEnabled) {
@@ -300,7 +300,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             }
 
             if (transform.shouldTransform())
-                resetTransform(rootEntity, batch);
+                resetTransform(transform, batch);
         }
     }
 
@@ -420,14 +420,12 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         return curTransform.computedTransform;
     }
 
-    protected void applyTransform(int rootEntity, Batch batch) {
-        TransformComponent curTransform = transformMapper.get(rootEntity);
+    protected void applyTransform(TransformComponent curTransform, Batch batch) {
         curTransform.oldTransform.set(batch.getTransformMatrix());
         batch.setTransformMatrix(curTransform.computedTransform);
     }
 
-    protected void resetTransform(int rootEntity, Batch batch) {
-        TransformComponent curTransform = transformMapper.get(rootEntity);
+    protected void resetTransform(TransformComponent curTransform, Batch batch) {
         batch.setTransformMatrix(curTransform.oldTransform);
     }
 

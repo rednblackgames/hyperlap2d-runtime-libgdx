@@ -22,18 +22,19 @@ public class BoundingBoxSystem extends IteratingSystem {
     @Override
     protected void process(int entity) {
         ParentNodeComponent parentNode = parentNodeMapper.get(entity);
-        BoundingBoxComponent b = boundingBoxMapper.get(entity);
 
         MainItemComponent m = null;
         if (parentNode != null && parentNode.parentEntity != -1){
             m = mainItemMapper.get(parentNode.parentEntity);
         }
 
-        DimensionsComponent d = dimensionsMapper.get(entity);
-        TransformComponent t = transformMapper.get(entity);
-
         if (m != null && (!m.visible || m.culled))
                 return;
+
+        BoundingBoxComponent b = boundingBoxMapper.get(entity);
+
+        DimensionsComponent d = dimensionsMapper.get(entity);
+        TransformComponent t = transformMapper.get(entity);
 
         float originalX = t.x;
         float originalY = t.y;

@@ -3,7 +3,7 @@ package games.rednblack.editor.renderer.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Plane;
@@ -20,7 +20,7 @@ public class CullingSystem extends IteratingSystem {
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
 
-    private OrthographicCamera camera;
+    private Camera camera;
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private float ppwu = 1;
@@ -29,7 +29,7 @@ public class CullingSystem extends IteratingSystem {
     protected void process(int entity) {
         ViewPortComponent viewPort = viewPortMapper.get(entity);
         ppwu = viewPort.pixelsPerWU;
-        this.camera = (OrthographicCamera) viewPort.viewPort.getCamera();
+        this.camera = viewPort.viewPort.getCamera();
 
         MainItemComponent m = mainItemMapper.get(entity);
         m.culled = false;
