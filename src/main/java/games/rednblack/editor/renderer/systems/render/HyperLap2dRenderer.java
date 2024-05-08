@@ -222,7 +222,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             //Active composite frame buffer
             batch.end();
 
-            frameBufferManager.createIfNotExists(fboTag, (int) dimensions.width * pixelsPerWU, (int) dimensions.height * pixelsPerWU, false, hasStencilBuffer);
+            frameBufferManager.createIfNotExists(fboTag, (int) (dimensions.width * pixelsPerWU), (int) (dimensions.height * pixelsPerWU), false, hasStencilBuffer);
 
             tmpFboCamera.viewportWidth = dimensions.width;
             tmpFboCamera.viewportHeight = dimensions.height;
