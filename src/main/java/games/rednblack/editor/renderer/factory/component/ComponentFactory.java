@@ -6,7 +6,9 @@ import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -15,6 +17,7 @@ import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
+import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public abstract class ComponentFactory {
@@ -290,7 +293,11 @@ public abstract class ComponentFactory {
         if (vo.shader.shaderName != null && !vo.shader.shaderName.isEmpty()) {
             ShaderComponent shaderComponent = shaderCM.create(entity);
             shaderComponent.shaderName = vo.shader.shaderName;
-            shaderComponent.customUniforms.putAll(vo.shader.shaderUniforms);
+            for (ObjectMap.Entry<String, ShaderUniformVO> entry : vo.shader.shaderUniforms) {
+                ShaderUniformVO shaderUniformVO = Pools.get(ShaderUniformVO.class, ShaderComponent.UNIFORMS_POOL_SIZE).obtain();
+                shaderUniformVO.set(entry.value);
+                shaderComponent.customUniforms.put(entry.key, shaderUniformVO);
+            }
             shaderComponent.renderingLayer = vo.renderingLayer;
         }
     }
