@@ -63,6 +63,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     private final Color color = new Color(1, 1, 1, 1);
     float colorPacked = Color.WHITE_FLOAT_BITS;
+    private final Color tint = new Color(1, 1, 1, 1);
 
     /** Number of render calls since the last {@link #begin()}. **/
     public int renderCalls = 0;
@@ -1238,20 +1239,25 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
 
     @Override
     public void setColor (Color tint) {
-        color.set(tint);
+        color.set(tint).mul(this.tint);
         colorPacked = tint.toFloatBits();
     }
 
     @Override
     public void setColor (float r, float g, float b, float a) {
-        color.set(r, g, b, a);
+        color.set(r, g, b, a).mul(tint);
         colorPacked = color.toFloatBits();
     }
 
     @Override
     public void setPackedColor (float packedColor) {
         Color.abgr8888ToColor(color, packedColor);
-        colorPacked = packedColor;
+        color.mul(tint);
+        colorPacked = color.toFloatBits();
+    }
+
+    public void setTintColor (Color tint) {
+        this.tint.set(tint);
     }
 
     @Override
