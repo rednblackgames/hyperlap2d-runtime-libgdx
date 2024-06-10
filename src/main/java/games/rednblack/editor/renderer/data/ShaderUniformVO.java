@@ -1,6 +1,8 @@
 package games.rednblack.editor.renderer.data;
 
-public class ShaderUniformVO {
+import com.badlogic.gdx.utils.Pool;
+
+public class ShaderUniformVO implements Pool.Poolable {
     protected String type;
 
     public int intValue;
@@ -76,5 +78,16 @@ public class ShaderUniformVO {
         if (type != null && !type.equals(newType))
             throw new IllegalArgumentException("Cannot modify Uniform type once assigned.");
         return newType;
+    }
+
+    @Override
+    public void reset() {
+        type = null;
+        intValue = 0;
+
+        floatValue = 0;
+        floatValue2 = 0;
+        floatValue3 = 0;
+        floatValue4 = 0;
     }
 }
