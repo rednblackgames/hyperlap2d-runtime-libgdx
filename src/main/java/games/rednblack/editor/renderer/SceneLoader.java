@@ -95,7 +95,7 @@ public class SceneLoader {
     private void initSceneLoader(SceneConfiguration configuration) {
         entityFactory = new EntityFactory();
 
-        renderer = configuration.getSystem(HyperLap2dRenderer.class);
+        renderer = configuration.getSystem(configuration.getRendererClass());
 
         WorldConfigurationBuilder config = new WorldConfigurationBuilder();
 

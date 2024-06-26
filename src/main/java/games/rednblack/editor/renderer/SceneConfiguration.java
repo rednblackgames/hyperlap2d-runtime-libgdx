@@ -29,6 +29,8 @@ public class SceneConfiguration {
     private boolean cullingEnabled = true;
     private ExternalTypesConfiguration externalItemTypes;
 
+    private Class<? extends HyperLap2dRenderer> rendererClass;
+
     // Artemis World, our Engine - config
     private final Array<SystemData<?>> systems = new Array<>();
     private int expectedEntityCount = 128;
@@ -60,10 +62,17 @@ public class SceneConfiguration {
         addSystem(new BoundingBoxSystem());
         addSystem(new CullingSystem());
         addSystem(new HyperLap2dRenderer(batch, hasStencil));
+        rendererClass = HyperLap2dRenderer.class;
         addSystem(new ButtonSystem());
     }
 
     // For User's Use
+
+    public void setRendererSystem(HyperLap2dRenderer renderer) {
+        removeSystem(HyperLap2dRenderer.class);
+        addSystem(renderer);
+        rendererClass = renderer.getClass();
+    }
 
 
     public void setResourceRetriever(IResourceRetriever iResourceRetriever) {
@@ -85,7 +94,7 @@ public class SceneConfiguration {
         if (containsSystem(LightSystem.class)) {
             LightSystem system = getSystem(LightSystem.class);
             system.setRayHandler(this.rayHandler);
-            HyperLap2dRenderer renderer = getSystem(HyperLap2dRenderer.class);
+            HyperLap2dRenderer renderer = getSystem(rendererClass);
             renderer.setRayHandler(this.rayHandler);
         }
     }
@@ -229,6 +238,10 @@ public class SceneConfiguration {
         }
 
         components.add(component);
+    }
+
+    public Class<? extends HyperLap2dRenderer> getRendererClass() {
+        return rendererClass;
     }
 
     public ObjectMap<String, ObjectSet<Class<? extends Component>>> getTagTransmuters() {

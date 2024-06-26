@@ -48,40 +48,43 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
     protected ComponentMapper<ChainedEntitiesComponent> chainedEntitiesMapper;
 
     protected DrawableLogicMapper drawableLogicMapper;
-    private RayHandler rayHandler;
-    private Camera camera;
-    private Viewport viewport;
+    protected RayHandler rayHandler;
+    protected Camera camera;
+    protected Viewport viewport;
 
     public static final Color clearColor = new Color(Color.CLEAR);
 
-    private final Batch batch;
-    private float timeRunning = 0;
+    protected final Batch batch;
+    protected float timeRunning = 0;
 
-    private final FrameBufferManager frameBufferManager;
-    private final Camera screenCamera, tmpFboCamera;
-    private Texture screenTexture;
-    private final TextureRegion screenTextureRegion = new TextureRegion();
+    protected final FrameBufferManager frameBufferManager;
+    protected final Camera screenCamera, tmpFboCamera;
+    protected Texture screenTexture;
+    protected final TextureRegion screenTextureRegion = new TextureRegion();
 
-    private float invScreenWidth, invScreenHeight;
-    private int pixelsPerWU;
+    protected float invScreenWidth, invScreenHeight;
+    protected int pixelsPerWU;
 
-    private ShaderProgram sceneShader = null;
-    private boolean useLights = false;
-    private boolean hasNormals = false;
-    private final boolean hasStencilBuffer;
+    protected ShaderProgram sceneShader = null;
+    protected boolean useLights = false;
+    protected boolean hasNormals = false;
+    protected final boolean hasStencilBuffer;
+    protected float fboScaleFactor = 1;
 
-    private final Vector3 tmpVec3 = new Vector3();
-    private final Stack<Matrix4> fboM4Stack = new Stack<>();
-    private final Pool<Matrix4> fboM4Pool = new Pool<Matrix4>() {
+    protected final Vector3 tmpVec3 = new Vector3();
+    protected final Stack<Matrix4> fboM4Stack = new Stack<>();
+    protected final Pool<Matrix4> fboM4Pool = new Pool<Matrix4>() {
         @Override
         protected Matrix4 newObject() {
             return new Matrix4();
         }
     };
 
-    private final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer.class);
+    protected final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer.class);
 
-    private ShaderUniformProvider shaderUniformProvider;
+    protected ShaderUniformProvider shaderUniformProvider;
+
+    protected boolean enableCull = true;
 
     public HyperLap2dRenderer(Batch batch, boolean hasStencilBuffer) {
         this.batch = batch;
@@ -208,7 +211,7 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         }
     }
 
-    private void drawRecursively(int rootEntity, float parentAlpha, DrawableLogic.RenderingType renderingType) {
+    protected void drawRecursively(int rootEntity, float parentAlpha, DrawableLogic.RenderingType renderingType) {
         CompositeTransformComponent curCompositeTransformComponent = compositeTransformMapper.get(rootEntity);
         TransformComponent transform = transformMapper.get(rootEntity);
         DimensionsComponent dimensions = dimensionsMapper.get(rootEntity);
@@ -332,7 +335,9 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
             MainItemComponent childMainItemComponent = mainItemComponentMapper.get(child);
             if (!childMainItemComponent.visible || childMainItemComponent.culled) {
                 //Skip if entity is culled or not visible
-                continue;
+                if (enableCull) {
+                    continue;
+                }
             }
 
             TransformComponent childTransformComponent = transformMapper.get(child);
@@ -570,12 +575,11 @@ public class HyperLap2dRenderer extends IteratingSystem implements RendererSyste
         screenTextureRegion.setTexture(null);
     }
 
-    private float fboScaleFactor = 1;
     public void setFBOScaleFactor(float factor) {
         fboScaleFactor = factor;
     }
 
-    private void createCoreFrameBuffers() {
+    protected void createCoreFrameBuffers() {
         frameBufferManager.createFBO("main", (int) (Gdx.graphics.getBackBufferWidth() / fboScaleFactor), (int) (Gdx.graphics.getBackBufferHeight() / fboScaleFactor), false, hasStencilBuffer, true);
         frameBufferManager.createFBO("normalMap", (int) (Gdx.graphics.getBackBufferWidth() / fboScaleFactor), (int) (Gdx.graphics.getBackBufferHeight() / fboScaleFactor), false, false, true);
     }
