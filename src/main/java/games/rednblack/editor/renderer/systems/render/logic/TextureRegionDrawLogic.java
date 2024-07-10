@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.systems.render.logic;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -24,6 +25,8 @@ public class TextureRegionDrawLogic implements DrawableLogic {
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+        batch.setBlendFunctionSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
+
         TextureRegionComponent entityTextureRegionComponent = textureRegionMapper.get(entity);
         ShaderComponent shaderComponent = shaderMapper.get(entity);
 

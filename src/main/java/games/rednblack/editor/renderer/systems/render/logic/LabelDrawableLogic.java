@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.systems.render.logic;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
@@ -22,6 +23,7 @@ public class LabelDrawableLogic implements DrawableLogic {
 
 	@Override
 	public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
+		batch.setBlendFunctionSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
 		TransformComponent entityTransformComponent = transformMapper.get(entity);
 		LabelComponent labelComponent = labelComponentMapper.get(entity);
 		DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
