@@ -36,11 +36,11 @@ dependencies {
 
 **Compatibility Table**
 
-| HyperLap2D     | libGDX          | Artemis |
-|----------------|-----------------|---------|
-| 0.1.5-SNAPSHOT | 1.12.2-SNAPSHOT | 2.3.0   |
-| 0.1.4          | 1.12.1          | 2.3.0   |
-| 0.1.3          | 1.12.0          | 2.3.0   |
+| HyperLap2D     | libGDX | Artemis |
+|----------------|--------|---------|
+| 0.1.5-SNAPSHOT | 1.13.0 | 2.3.0   |
+| 0.1.4          | 1.12.1 | 2.3.0   |
+| 0.1.3          | 1.12.0 | 2.3.0   |
 
 You can learn how to use runtime in [Wiki](https://hyperlap2d.rednblack.games/wiki)
 
