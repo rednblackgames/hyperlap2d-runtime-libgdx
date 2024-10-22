@@ -4,10 +4,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.utils.SnapshotArray;
-import games.rednblack.editor.renderer.components.CompositeTransformComponent;
-import games.rednblack.editor.renderer.components.LayerMapComponent;
-import games.rednblack.editor.renderer.components.NodeComponent;
-import games.rednblack.editor.renderer.components.ZIndexComponent;
+import games.rednblack.editor.renderer.components.*;
 
 import java.util.Comparator;
 
@@ -19,6 +16,7 @@ public class LayerSystem extends IteratingSystem {
     protected ComponentMapper<ZIndexComponent> zIndexMapper;
     protected ComponentMapper<LayerMapComponent> layerMapper;
     protected ComponentMapper<NodeComponent> nodeMapper;
+    protected ComponentMapper<MainItemComponent> mainMapper;
 
 	@Override
 	protected void process(int entityId) {
@@ -30,6 +28,11 @@ public class LayerSystem extends IteratingSystem {
                     nodeComponent.children.add(entityID);
             }
         }
+        MainItemComponent mainItemComponent = mainMapper.get(entityId);
+        if (mainItemComponent.culled) {
+            return;
+        }
+
         LayerMapComponent layerMapComponent = layerMapper.get(entityId);
         updateLayers(nodeComponent.children, layerMapComponent);
 
