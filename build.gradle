@@ -22,8 +22,8 @@ java {
     withJavadocJar()
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 task dist(type: Jar) {
@@ -32,5 +32,5 @@ task dist(type: Jar) {
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs += ["--release", "7"]
+    options.compilerArgs += ["--release", "8"]
 }
