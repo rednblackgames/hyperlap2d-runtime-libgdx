@@ -27,6 +27,7 @@ java {
 }
 
 task dist(type: Jar) {
+    dependsOn classes
     from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
 }
