@@ -32,6 +32,10 @@ task dist(type: Jar) {
     from files(sourceSets.main.output.resourcesDir)
 }
 
+generateMetadataFileForMavenJavaPublication {
+    dependsOn dist
+}
+
 tasks.withType(JavaCompile) {
     options.compilerArgs += ["--release", "8"]
 }
