@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.box2dLight;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.StringBuilder;
+import com.badlogic.gdx.utils.CharArray;
 
 public class Spinor {
   float real;
@@ -149,12 +149,12 @@ public class Spinor {
   }
   
   @Override public String toString() {
-    StringBuilder result = new StringBuilder();
-    float radians = angle();
-    result.append("radians: ");
-    result.append(radians);
-    result.append(", degrees: ");
-    result.append(radians * MathUtils.radiansToDegrees);
-    return result.toString();
+      CharArray result = new CharArray();
+      float radians = angle();
+      result.append("radians: ");
+      result.append(radians);
+      result.append(", degrees: ");
+      result.append(radians * MathUtils.radiansToDegrees);
+      return result.toString();
   }
 }

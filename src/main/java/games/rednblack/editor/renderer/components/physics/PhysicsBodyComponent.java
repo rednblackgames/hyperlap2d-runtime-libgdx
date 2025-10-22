@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
@@ -131,7 +130,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
             fixturesMap.get(type).removeValue(fixture, true);
 
         if (fixture.getUserData() != null)
-            Pools.free(fixture.getUserData());
+            PhysicsBodyLoader.POOLS.free(fixture.getUserData());
         body.destroyFixture(fixture);
     }
 
@@ -141,7 +140,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
         while (body.getFixtureList().size > 0) {
             Fixture fixture = body.getFixtureList().get(0);
             if (fixture.getUserData() != null)
-                Pools.free(fixture.getUserData());
+                PhysicsBodyLoader.POOLS.free(fixture.getUserData());
             body.destroyFixture(fixture);
         }
 
@@ -156,7 +155,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
         while (fixtures.size > 0) {
             Fixture fixture = fixtures.removeIndex(0);
             if (fixture.getUserData() != null)
-                Pools.free(fixture.getUserData());
+                PhysicsBodyLoader.POOLS.free(fixture.getUserData());
             body.destroyFixture(fixture);
             inverseFixtureMap.remove(fixture, -1);
         }

@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.StringBuilder;
+import com.badlogic.gdx.utils.CharArray;
 
 public class LabelComponent extends PooledComponent {
 	public transient LabelStyle style;
 	public transient final GlyphLayout layout = new GlyphLayout();
 	public transient BitmapFontCache cache;
 
-	public StringBuilder text = new StringBuilder();
+	public CharArray text = new CharArray();
 	public String fontName;
 	public int fontSize;
 	public int labelAlign = Align.center;
@@ -56,15 +56,15 @@ public class LabelComponent extends PooledComponent {
 	}
 	
 	public boolean textEquals (CharSequence other) {
-		int length = text.length;
-		char[] chars = text.chars;
+		int length = text.length();
+		char[] chars = text.items;
 		if (length != other.length()) return false;
 		for (int i = 0; i < length; i++)
 			if (chars[i] != other.charAt(i)) return false;
 		return true;
 	}
 
-	public StringBuilder getText () {
+	public CharArray getText () {
 		return text;
 	}
 	

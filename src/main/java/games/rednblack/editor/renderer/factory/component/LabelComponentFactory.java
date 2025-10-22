@@ -6,8 +6,6 @@ import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
@@ -19,7 +17,7 @@ import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 
 public class LabelComponentFactory extends ComponentFactory {
-
+    protected GlyphLayout glyphLayout = new GlyphLayout();
     protected ComponentMapper<LabelComponent> labelCM;
 
     private static int labelDefaultSize = 12;
@@ -121,14 +119,12 @@ public class LabelComponentFactory extends ComponentFactory {
         LabelComponent labelComponent = labelCM.get(entity);
         DimensionsComponent component = dimensionsCM.get(entity);
         if (component.width == 0 && component.height == 0) {
-            Pool<GlyphLayout> layoutPool = Pools.get(GlyphLayout.class);
-            GlyphLayout layout = layoutPool.obtain();
-            layout.setText(labelComponent.cache.getFont(), labelComponent.getText());
-            component.width = layout.width / projectInfoVO.pixelToWorld;
+            glyphLayout.setText(labelComponent.cache.getFont(), labelComponent.getText());
+            component.width = glyphLayout.width / projectInfoVO.pixelToWorld;
             component.width += (component.width * 20) / 100;
-            component.height = layout.height / projectInfoVO.pixelToWorld;
+            component.height = glyphLayout.height / projectInfoVO.pixelToWorld;
             component.height += (component.height * 40) / 100;
-            layoutPool.free(layout);
+            glyphLayout.reset();
         }
     }
 }

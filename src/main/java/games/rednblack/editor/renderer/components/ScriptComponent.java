@@ -3,9 +3,9 @@ package games.rednblack.editor.renderer.components;
 import com.artemis.PooledComponent;
 import com.artemis.World;
 import com.artemis.annotations.Transient;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 
@@ -16,7 +16,22 @@ import java.util.Iterator;
  */
 @Transient
 public class ScriptComponent extends PooledComponent {
-    public static int SCRIPTS_POOL_SIZE = 100;
+    public static final PoolManager SCRIPTS_POOLS = new PoolManager();
+
+    private static <T extends BasicScript> Pool<T> getOrCreatePool(Class<T> clazz) {
+        Pool<T> pool = SCRIPTS_POOLS.getPoolOrNull(clazz);
+        if (pool == null) {
+            pool = new DefaultPool<>(() -> {
+                try {
+                    return ClassReflection.newInstance(clazz);
+                } catch (ReflectionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            SCRIPTS_POOLS.addPool(pool);
+        }
+        return pool;
+    }
 
     public Array<IScript> scripts = new Array<>();
     public World engine;
@@ -27,7 +42,7 @@ public class ScriptComponent extends PooledComponent {
     }
 
     public <T extends BasicScript> T addScript(Class<T> clazz) {
-        Pool<T> pool = Pools.get(clazz, SCRIPTS_POOL_SIZE);
+        Pool<T> pool = getOrCreatePool(clazz);
         T script = pool.obtain();
         script.setPool(pool);
         addScript(script);

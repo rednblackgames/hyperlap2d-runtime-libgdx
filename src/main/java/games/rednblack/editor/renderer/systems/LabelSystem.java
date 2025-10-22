@@ -61,7 +61,7 @@ public class LabelSystem extends IteratingSystem {
 			textY += (dimensionsComponent.height - textHeight) / 2;
 		}
 		
-		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length, Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, labelComponent.wrap, null);
+		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, labelComponent.wrap, null);
 		labelComponent.cache.setText(labelComponent.layout, textX, textY);
 		
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(oldScaleX, oldScaleY);

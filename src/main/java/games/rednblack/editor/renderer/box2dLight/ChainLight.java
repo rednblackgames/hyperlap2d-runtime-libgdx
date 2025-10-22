@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.FloatArray;
-import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.PoolManager;
 
 /**
  * A light whose ray starting points are evenly distributed along a chain of
@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.Pools;
  * @author spruce
  */
 public class ChainLight extends Light {
+    static private PoolManager POOLS = new PoolManager(Vector2::new, FloatArray::new, Spinor::new);
 
     public static float defaultRayStartOffset = 0.001f;
     public float rayStartOffset;
@@ -159,7 +160,7 @@ public class ChainLight extends Light {
      */
     public void debugRender(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(Color.YELLOW);
-        FloatArray vertices = Pools.obtain(FloatArray.class);
+        FloatArray vertices = POOLS.obtain(FloatArray.class);
         vertices.clear();
         for (int i = 0; i < rayNum; i++) {
             vertices.addAll(mx[i], my[i]);
@@ -168,7 +169,7 @@ public class ChainLight extends Light {
             vertices.addAll(startX[i], startY[i]);
         }
         shapeRenderer.polygon(vertices.shrink());
-        Pools.free(vertices);
+        POOLS.free(vertices);
     }
 
     @Override
@@ -228,7 +229,7 @@ public class ChainLight extends Light {
         if (!this.chainLightBounds.contains(x, y))
             return false;
         // actual check
-        FloatArray vertices = Pools.obtain(FloatArray.class);
+        FloatArray vertices = POOLS.obtain(FloatArray.class);
         vertices.clear();
 
         for (int i = 0; i < rayNum; i++) {
@@ -250,7 +251,7 @@ public class ChainLight extends Light {
         }
         boolean result = (intersects & 1) == 1;
 
-        Pools.free(vertices);
+        POOLS.free(vertices);
         return result;
     }
 
@@ -280,21 +281,21 @@ public class ChainLight extends Light {
      * any time the number or values of elements changes in {@link #chain}.
      */
     public void updateChain() {
-        Vector2 v1 = Pools.obtain(Vector2.class);
-        Vector2 v2 = Pools.obtain(Vector2.class);
-        Vector2 vSegmentStart = Pools.obtain(Vector2.class);
-        Vector2 vDirection = Pools.obtain(Vector2.class);
-        Vector2 vRayOffset = Pools.obtain(Vector2.class);
-        Spinor tmpAngle = Pools.obtain(Spinor.class);
+        Vector2 v1 = POOLS.obtain(Vector2.class);
+        Vector2 v2 = POOLS.obtain(Vector2.class);
+        Vector2 vSegmentStart = POOLS.obtain(Vector2.class);
+        Vector2 vDirection = POOLS.obtain(Vector2.class);
+        Vector2 vRayOffset = POOLS.obtain(Vector2.class);
+        Spinor tmpAngle = POOLS.obtain(Spinor.class);
         // Spinors used to represent perpendicular angle of each segment
-        Spinor previousAngle = Pools.obtain(Spinor.class);
-        Spinor currentAngle = Pools.obtain(Spinor.class);
-        Spinor nextAngle = Pools.obtain(Spinor.class);
+        Spinor previousAngle = POOLS.obtain(Spinor.class);
+        Spinor currentAngle = POOLS.obtain(Spinor.class);
+        Spinor nextAngle = POOLS.obtain(Spinor.class);
         // Spinors used to represent start, end and interpolated ray
         // angles for a given segment
-        Spinor startAngle = Pools.obtain(Spinor.class);
-        Spinor endAngle = Pools.obtain(Spinor.class);
-        Spinor rayAngle = Pools.obtain(Spinor.class);
+        Spinor startAngle = POOLS.obtain(Spinor.class);
+        Spinor endAngle = POOLS.obtain(Spinor.class);
+        Spinor rayAngle = POOLS.obtain(Spinor.class);
 
         int segmentCount = chain.size / 2 - 1;
 
@@ -365,18 +366,18 @@ public class ChainLight extends Light {
 
         }
 
-        Pools.free(v1);
-        Pools.free(v2);
-        Pools.free(vSegmentStart);
-        Pools.free(vDirection);
-        Pools.free(vRayOffset);
-        Pools.free(previousAngle);
-        Pools.free(currentAngle);
-        Pools.free(nextAngle);
-        Pools.free(startAngle);
-        Pools.free(endAngle);
-        Pools.free(rayAngle);
-        Pools.free(tmpAngle);
+        POOLS.free(v1);
+        POOLS.free(v2);
+        POOLS.free(vSegmentStart);
+        POOLS.free(vDirection);
+        POOLS.free(vRayOffset);
+        POOLS.free(previousAngle);
+        POOLS.free(currentAngle);
+        POOLS.free(nextAngle);
+        POOLS.free(startAngle);
+        POOLS.free(endAngle);
+        POOLS.free(rayAngle);
+        POOLS.free(tmpAngle);
     }
 
     /**

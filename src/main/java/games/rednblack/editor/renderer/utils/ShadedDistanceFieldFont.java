@@ -26,7 +26,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pools;
 
 /** Renders bitmap fonts using distance field textures, see the <a
  * href="https://github.com/libgdx/libgdx/wiki/Distance-field-fonts">Distance Field Fonts wiki article</a> for usage. Initialize
@@ -153,17 +152,6 @@ public class ShadedDistanceFieldFont extends BitmapFont {
             super.draw(spriteBatch, start, end);
             setSmoothingUniform(spriteBatch, 0);
             spriteBatch.setShader(oldShader);
-        }
-
-        @Override
-        public GlyphLayout addText(CharSequence str, float x, float y, int start, int end, float targetWidth, int halign, boolean wrap, String truncate) {
-            //TODO this is a very bad workaroud that might not even work...
-            try {
-                return super.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Pools.obtain(GlyphLayout.class);
-            }
         }
     }
 }

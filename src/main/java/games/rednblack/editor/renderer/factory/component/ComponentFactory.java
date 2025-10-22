@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 import games.rednblack.editor.renderer.box2dLight.RayHandler;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -294,7 +293,7 @@ public abstract class ComponentFactory {
             ShaderComponent shaderComponent = shaderCM.create(entity);
             shaderComponent.shaderName = vo.shader.shaderName;
             for (ObjectMap.Entry<String, ShaderUniformVO> entry : vo.shader.shaderUniforms) {
-                ShaderUniformVO shaderUniformVO = Pools.get(ShaderUniformVO.class, ShaderComponent.UNIFORMS_POOL_SIZE).obtain();
+                ShaderUniformVO shaderUniformVO = ShaderComponent.POOLS.obtain(ShaderUniformVO.class);
                 shaderUniformVO.set(entry.value);
                 shaderComponent.customUniforms.put(entry.key, shaderUniformVO);
             }

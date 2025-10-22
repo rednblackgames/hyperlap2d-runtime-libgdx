@@ -3,8 +3,9 @@ package games.rednblack.editor.renderer.systems.action;
 import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.utils.DefaultPool;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.PoolManager;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.ActionComponent;
@@ -17,7 +18,7 @@ import java.util.HashMap;
  * Created by Eduard on 10/13/2015.
  */
 public class Actions {
-    public static int ACTIONS_POOL_SIZE = 100;
+    public static final PoolManager ACTION_POOLS = new PoolManager();
 
     public static HashMap<String, ActionLogic> actionLogicMap = new HashMap<>();
     public static HashMap<String, String> actionDataLogicMap = new HashMap<>();
@@ -30,33 +31,34 @@ public class Actions {
     }
 
     private static void initialize() throws ReflectionException {
-        registerActionClass(MoveToData.class, MoveToAction.class);
-        registerActionClass(MoveByData.class, MoveByAction.class);
-        registerActionClass(SizeToData.class, SizeToAction.class);
-        registerActionClass(SizeByData.class, SizeByAction.class);
-        registerActionClass(ScaleToData.class, ScaleToAction.class);
-        registerActionClass(ScaleByData.class, ScaleByAction.class);
-        registerActionClass(RotateToData.class, RotateToAction.class);
-        registerActionClass(RotateByData.class, RotateByAction.class);
-        registerActionClass(ColorData.class, ColorAction.class);
-        registerActionClass(AlphaData.class, AlphaAction.class);
+        registerActionClass(MoveToData.class, MoveToData::new, MoveToAction.class);
+        registerActionClass(MoveByData.class, MoveByData::new, MoveByAction.class);
+        registerActionClass(SizeToData.class, SizeToData::new, SizeToAction.class);
+        registerActionClass(SizeByData.class, SizeByData::new, SizeByAction.class);
+        registerActionClass(ScaleToData.class, ScaleToData::new, ScaleToAction.class);
+        registerActionClass(ScaleByData.class, ScaleByData::new, ScaleByAction.class);
+        registerActionClass(RotateToData.class, RotateToData::new, RotateToAction.class);
+        registerActionClass(RotateByData.class, RotateByData::new, RotateByAction.class);
+        registerActionClass(ColorData.class, ColorData::new, ColorAction.class);
+        registerActionClass(AlphaData.class, AlphaData::new, AlphaAction.class);
 
-        registerActionClass(RunnableData.class, RunnableAction.class);
-        registerActionClass(DelayData.class, DelayAction.class);
+        registerActionClass(RunnableData.class, RunnableData::new, RunnableAction.class);
+        registerActionClass(DelayData.class, DelayData::new, DelayAction.class);
 
-        registerActionClass(ParallelData.class, ParallelAction.class);
-        registerActionClass(SequenceData.class, SequenceAction.class);
-        registerActionClass(RepeatData.class, RepeatAction.class);
+        registerActionClass(ParallelData.class, ParallelData::new, ParallelAction.class);
+        registerActionClass(SequenceData.class, SequenceData::new, SequenceAction.class);
+        registerActionClass(RepeatData.class, RepeatData::new, RepeatAction.class);
 
         PhysicsActions.initialize();
 
         initialized = true;
     }
 
-    public static <T extends ActionLogic, U extends ActionData> void registerActionClass(Class<U> typeData, Class<T> type) throws ReflectionException {
+    public static <T extends ActionLogic, U extends ActionData> void registerActionClass(Class<U> typeData, DefaultPool.PoolSupplier<U> supplierData, Class<T> type) throws ReflectionException {
         if (!actionLogicMap.containsKey(type.getName())) {
             actionLogicMap.put(type.getName(), ClassReflection.newInstance(type));
             actionDataLogicMap.put(typeData.getName(), type.getName());
+            ACTION_POOLS.addPool(supplierData);
         }
     }
 
@@ -66,7 +68,7 @@ public class Actions {
 
     static public <T extends ActionData> T actionData(Class<T> type, boolean autoPoolable) {
         checkInit();
-        Pool<T> pool = Pools.get(type, ACTIONS_POOL_SIZE);
+        Pool<T> pool = ACTION_POOLS.getPool(type);
         T action = pool.obtain();
         if (autoPoolable)
             action.setPool(pool);

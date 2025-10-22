@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.PoolManager;
 import games.rednblack.editor.renderer.box2dLight.LightData;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -21,6 +21,7 @@ import games.rednblack.editor.renderer.utils.TmpFloatArray;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class PhysicsBodyLoader {
+    public static PoolManager POOLS = new PoolManager(LightData::new, Vector2::new);
 
     private static PhysicsBodyLoader instance;
 
@@ -193,7 +194,7 @@ public class PhysicsBodyLoader {
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
         float[] verts = tmpFloatArray.getTemporaryArray(minPolygonData.size * 2);
-        Vector2 point = Pools.obtain(Vector2.class);
+        Vector2 point = POOLS.obtain(Vector2.class);
         for (int j = 0; j < verts.length; j += 2) {
             point.set(minPolygonData.get(j / 2));
 
@@ -205,9 +206,9 @@ public class PhysicsBodyLoader {
             verts[j] = point.x;
             verts[j + 1] = point.y;
         }
-        Pools.free(point);
+        POOLS.free(point);
 
-        LightData lightData = Pools.obtain(LightData.class);
+        LightData lightData = POOLS.obtain(LightData.class);
         lightData.height = physicsComponent.height;
 
         Array<Fixture> fixtures = physicsComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
@@ -216,7 +217,7 @@ public class PhysicsBodyLoader {
             //Recycle already created shape
             shape = (ChainShape) fixtures.get(0).getShape();
             if (fixtures.get(0).getUserData() != null)
-                Pools.free(fixtures.get(0).getUserData());
+                POOLS.free(fixtures.get(0).getUserData());
             fixtures.get(0).setUserData(lightData);
 
             shape.clear();
@@ -245,7 +246,7 @@ public class PhysicsBodyLoader {
         float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
         float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
-        LightData lightData = Pools.obtain(LightData.class);
+        LightData lightData = POOLS.obtain(LightData.class);
         lightData.height = physicsComponent.height;
 
         FixtureDef fixtureDef = getFixtureDef(physicsComponent);
@@ -259,7 +260,7 @@ public class PhysicsBodyLoader {
                     physicsComponent.createFixture(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE, fixtureDef, lightData);
                 } else {
                     if (fixtures.get(i).getUserData() != null)
-                        Pools.free(fixtures.get(i).getUserData());
+                        POOLS.free(fixtures.get(i).getUserData());
                     fixtures.get(i).setUserData(lightData);
                 }
 
@@ -330,7 +331,7 @@ public class PhysicsBodyLoader {
         float x = (dimensionsComponent.width / 2f - transformComponent.originX) * scaleX;
         float y = (dimensionsComponent.height / 2f - transformComponent.originY) * scaleY;
 
-        LightData lightData = Pools.obtain(LightData.class);
+        LightData lightData = POOLS.obtain(LightData.class);
         lightData.height = physicsComponent.height;
 
         Array<Fixture> fixtures = physicsComponent.fixturesMap.get(PhysicsBodyComponent.FIXTURE_TYPE_SHAPE);
@@ -339,7 +340,7 @@ public class PhysicsBodyLoader {
             //Recycle already created shape
             shape = (CircleShape) fixtures.get(0).getShape();
             if (fixtures.get(0).getUserData() != null)
-                Pools.free(fixtures.get(0).getUserData());
+                POOLS.free(fixtures.get(0).getUserData());
             fixtures.get(0).setUserData(lightData);
 
             shape.setRadius(component.radius);

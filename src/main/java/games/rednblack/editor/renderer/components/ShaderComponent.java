@@ -3,15 +3,15 @@ package games.rednblack.editor.renderer.components;
 import com.artemis.PooledComponent;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.PoolManager;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ShaderComponent  extends PooledComponent {
-	public static int UNIFORMS_POOL_SIZE = 100;
+public class ShaderComponent extends PooledComponent {
+    static public PoolManager POOLS = new PoolManager(ShaderUniformVO::new);
 
 	public MainItemVO.RenderingLayer renderingLayer = MainItemVO.RenderingLayer.SCREEN;
 	public String shaderName = "";
@@ -41,7 +41,7 @@ public class ShaderComponent  extends PooledComponent {
 		for (String uniformName : customUniforms.keys()) {
 			if (!uniforms.containsKey(uniformName)) {
 				ShaderUniformVO vo = customUniforms.remove(uniformName);
-				Pools.free(vo);
+                POOLS.free(vo);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ public class ShaderComponent  extends PooledComponent {
 
 		uniforms.clear();
 		for (ShaderUniformVO vo : customUniforms.values()) {
-			Pools.free(vo);
+            POOLS.free(vo);
 		}
 		customUniforms.clear();
 	}

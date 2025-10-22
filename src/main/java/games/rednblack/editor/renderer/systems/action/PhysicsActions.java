@@ -18,9 +18,9 @@ import games.rednblack.editor.renderer.systems.action.logic.physics.TransformToA
 public class PhysicsActions {
 
     static void initialize() throws ReflectionException {
-        Actions.registerActionClass(ForceData.class, ForceAction.class);
-        Actions.registerActionClass(TransformToData.class, TransformToAction.class);
-        Actions.registerActionClass(TransformByData.class, TransformByAction.class);
+        Actions.registerActionClass(ForceData.class, ForceData::new, ForceAction.class);
+        Actions.registerActionClass(TransformToData.class, TransformToData::new, TransformToAction.class);
+        Actions.registerActionClass(TransformByData.class, TransformByData::new, TransformByAction.class);
     }
 
     public static ActionData transformTo(float x, float y, float angle) {
