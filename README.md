@@ -6,7 +6,7 @@ HyperLap2D runtime for libGDX framework.
 
 #### Gradle
 ![maven-central](https://img.shields.io/maven-central/v/games.rednblack.hyperlap2d/runtime-libgdx?color=blue&label=release)
-![sonatype-nexus](https://img.shields.io/nexus/s/games.rednblack.hyperlap2d/runtime-libgdx?label=snapshot&server=https%3A%2F%2Foss.sonatype.org)
+![sonatype-nexus](https://img.shields.io/maven-metadata/v?label=snapshot&metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fgames%2Frednblack%2Fhyperlap2d%2Fruntime-libgdx%2Fmaven-metadata.xml)
 
 Runtime needs to be included into your `core` project.
 ```groovy
@@ -27,7 +27,7 @@ dependencies {
 <dependency>
   <groupId>games.rednblack.hyperlap2d</groupId>
   <artifactId>runtime-libgdx</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
   <type>pom</type>
 </dependency>
 ```
