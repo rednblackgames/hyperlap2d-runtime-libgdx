@@ -16,7 +16,7 @@ public class ParticleSystem extends IteratingSystem {
         ParticleComponent particleComponent = particleComponentMapper.get(entityId);
 
         ParticleEffect particleEffect = particleComponent.particleEffect;
-        particleEffect.update(world.delta);
+        particleEffect.update(world.getDelta());
     }
 
 }

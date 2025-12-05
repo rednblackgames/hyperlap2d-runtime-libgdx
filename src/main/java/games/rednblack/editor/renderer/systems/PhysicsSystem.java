@@ -19,14 +19,17 @@ import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
+import games.rednblack.editor.renderer.systems.strategy.LogicSystem;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
+public class PhysicsSystem extends BaseEntitySystem implements LogicSystem, ContactListener, InterpolationSystem {
 
-    public static boolean enableInterpolation = false;
+    public static boolean enableInterpolation = true;
     public static int VELOCITY_ITERATIONS = 8;
     public static int POSITION_ITERATIONS = 3;
+
+    private final Vector2 tempPos = new Vector2(0, 0);
 
     protected ComponentMapper<TransformComponent> transformComponentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsBodyComponentMapper;
@@ -81,43 +84,50 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         if (!isPhysicsOn)
             return;
 
-        alpha = enableInterpolation ? alpha : 1;
+        float activeAlpha = enableInterpolation ? alpha : 1;
 
         PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
         Body body = physicsBodyComponent.body;
 
-        if (body == null)
-            return;
+        if (body == null) return;
 
         TransformComponent transformComponent = transformComponentMapper.get(entity);
 
-        Transform transform = body.getTransform();
-        Vector2 bodyPosition = transform.getPosition();
-        bodyPosition.sub(transformComponent.originX, transformComponent.originY);
-        float bodyAngle = transform.getRotation();
+        Vector2 currentPos = body.getPosition();
+        float worldInterpX = physicsBodyComponent.prevX * (1.0f - activeAlpha) + currentPos.x * activeAlpha;
+        float worldInterpY = physicsBodyComponent.prevY * (1.0f - activeAlpha) + currentPos.y * activeAlpha;
 
-        float angle = transformComponent.rotation;
+        float currentAngle = body.getTransform().getRotation();
+        float worldInterpAngleRad = MathUtils.lerpAngle(physicsBodyComponent.prevAngle, currentAngle, activeAlpha);
+        float worldInterpAngleDeg = worldInterpAngleRad * MathUtils.radiansToDegrees;
 
-        int parentEntity = parentNodeComponentMapper.get(entity).parentEntity;
-        ParentNodeComponent rootParentNode = parentNodeComponentMapper.get(parentEntity);
-        if (rootParentNode != null) {//if parent entity is not the root
-            //TODO origin doesn't get properly applied when composite is rotated
-            TransformMathUtils.sceneToLocalCoordinates(parentEntity, bodyPosition, transformComponentMapper, parentNodeComponentMapper);
+        ParentNodeComponent parentNode = parentNodeComponentMapper.get(entity);
+        int parentEntity = (parentNode != null) ? parentNode.parentEntity : -1;
+        ParentNodeComponent rootParentNode = (parentEntity != -1) ? parentNodeComponentMapper.get(parentEntity) : null;
 
-            float ba = bodyAngle * MathUtils.radiansToDegrees;
-            angle = TransformMathUtils.sceneToLocalRotation(parentEntity, ba, transformComponentMapper, parentNodeComponentMapper);
+        if (rootParentNode != null) {
+            tempPos.set(worldInterpX, worldInterpY);
 
-            //TODO angle interpolation doesn't work, madness floating point
-            transformComponent.rotation = angle;
+            TransformMathUtils.sceneToLocalCoordinates(parentEntity, tempPos, transformComponentMapper, parentNodeComponentMapper);
+
+            transformComponent.x = tempPos.x - transformComponent.originX;
+            transformComponent.y = tempPos.y - transformComponent.originY;
+
+            float parentWorldRotation = TransformMathUtils.localToSceneRotation(parentEntity, transformComponentMapper, parentNodeComponentMapper);
+            float localRotation = worldInterpAngleDeg - parentWorldRotation;
+            transformComponent.rotation = normalizeAngle(localRotation);
         } else {
-            float cs = (1.0f - alpha) * MathUtils.cosDeg(angle) + alpha * MathUtils.cos(bodyAngle);
-            float sn = (1.0f - alpha) * MathUtils.sinDeg(angle) + alpha * MathUtils.sin(bodyAngle);
+            transformComponent.x = worldInterpX - transformComponent.originX;
+            transformComponent.y = worldInterpY - transformComponent.originY;
 
-            transformComponent.rotation = MathUtils.atan2(sn, cs) * MathUtils.radiansToDegrees;
+            transformComponent.rotation = worldInterpAngleDeg;
         }
+    }
 
-        transformComponent.x = bodyPosition.x * alpha + transformComponent.x * (1.0f - alpha);
-        transformComponent.y = bodyPosition.y * alpha + transformComponent.y * (1.0f - alpha);
+    private float normalizeAngle(float angle) {
+        angle = angle % 360;
+        if (angle < 0) angle += 360;
+        return angle;
     }
 
     protected void process(int entity) {
@@ -139,6 +149,13 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         }
 
         physicsBodyComponent.executeRefresh(entity);
+
+        if (physicsBodyComponent.body != null) {
+            Vector2 position = physicsBodyComponent.body.getPosition();
+            physicsBodyComponent.prevX = position.x;
+            physicsBodyComponent.prevY = position.y;
+            physicsBodyComponent.prevAngle = physicsBodyComponent.body.getTransform().getRotation();
+        }
     }
 
     public void setPhysicsOn(boolean isPhysicsOn) {

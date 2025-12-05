@@ -21,7 +21,7 @@ public class SpriteAnimationSystem extends IteratingSystem {
         tex.region = state.currentAnimation.getKeyFrame(state.time);
 
         if (!state.paused) {
-            state.time += world.delta;
+            state.time += world.getDelta();
         }
     }
 }

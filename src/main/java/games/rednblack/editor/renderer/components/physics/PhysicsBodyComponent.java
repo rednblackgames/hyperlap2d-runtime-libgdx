@@ -47,6 +47,10 @@ public class PhysicsBodyComponent extends RefreshableComponent {
     public transient final IntMap<Array<Fixture>> fixturesMap = new IntMap<>();
     private transient final ObjectIntMap<Fixture> inverseFixtureMap = new ObjectIntMap<>();
 
+    public float prevX;
+    public float prevY;
+    public float prevAngle;
+
     public PhysicsBodyComponent() {
 
     }

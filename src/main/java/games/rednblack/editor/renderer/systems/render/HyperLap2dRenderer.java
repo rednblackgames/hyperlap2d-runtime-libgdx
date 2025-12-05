@@ -24,13 +24,12 @@ import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogicMapper;
-import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
 import games.rednblack.editor.renderer.utils.ShaderUniformProvider;
 
 import java.util.Stack;
 
 @All(ViewPortComponent.class)
-public class HyperLap2dRenderer extends IteratingSystem implements RendererSystem {
+public class HyperLap2dRenderer extends IteratingSystem {
     protected ComponentMapper<ViewPortComponent> viewPortMapper;
     protected ComponentMapper<CompositeTransformComponent> compositeTransformMapper;
     protected ComponentMapper<NodeComponent> nodeMapper;

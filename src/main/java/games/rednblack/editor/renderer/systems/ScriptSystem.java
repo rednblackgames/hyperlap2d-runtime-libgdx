@@ -7,13 +7,12 @@ import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
-import games.rednblack.editor.renderer.systems.strategy.RendererSystem;
 
 /**
  * Created by azakhary on 6/19/2015.
  */
 @All(ScriptComponent.class)
-public class ScriptSystem extends IteratingSystem implements RendererSystem {
+public class ScriptSystem extends IteratingSystem {
 
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
 
@@ -25,7 +24,7 @@ public class ScriptSystem extends IteratingSystem implements RendererSystem {
             if (script instanceof BasicScript) {
                 ((BasicScript) script).doInit(entity);
             }
-            script.act(world.delta);
+            script.act(world.getDelta());
         }
     }
 }
