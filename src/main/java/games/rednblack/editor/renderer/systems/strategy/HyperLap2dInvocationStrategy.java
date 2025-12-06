@@ -36,12 +36,15 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     protected void initialize() {
         for (int i = 0; i < systems.size(); i++) {
             BaseSystem rawSystem = systems.get(i);
-            if (rawSystem instanceof LogicSystem)
-                logicSystems.add(rawSystem);
-            else
-                renderSystems.add(rawSystem);
             if (rawSystem instanceof InterpolationSystem)
                 interpolationSystems.add((InterpolationSystem) rawSystem);
+
+            Class<?> systemClass = rawSystem.getClass();
+            if (systemClass.isAnnotationPresent(FixedTimestep.class)) {
+                logicSystems.add(rawSystem);
+            } else {
+                renderSystems.add(rawSystem);
+            }
         }
 
         currentTime = TimeUtils.nanoTime();
@@ -101,9 +104,9 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
     @Override
     public boolean isEnabled(BaseSystem target) {
-        Bag<BaseSystem> checkSystems = (target instanceof LogicSystem) ? logicSystems : renderSystems;
-        BitVector checkDisabled = (target instanceof LogicSystem) ? disabledLogicSystems : disabledRenderSystems;
         Class<? extends BaseSystem> targetClass = target.getClass();
+        Bag<BaseSystem> checkSystems = targetClass.isAnnotationPresent(FixedTimestep.class) ? logicSystems : renderSystems;
+        BitVector checkDisabled = targetClass.isAnnotationPresent(FixedTimestep.class) ? disabledLogicSystems : disabledRenderSystems;
         for (int i = 0; i < checkSystems.size(); i++) {
             if (targetClass == checkSystems.get(i).getClass())
                 return !checkDisabled.get(i);
@@ -113,9 +116,9 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
     @Override
     public void setEnabled(BaseSystem target, boolean value) {
-        Bag<BaseSystem> checkSystems = (target instanceof LogicSystem) ? logicSystems : renderSystems;
-        BitVector checkDisabled = (target instanceof LogicSystem) ? disabledLogicSystems : disabledRenderSystems;
         Class<? extends BaseSystem> targetClass = target.getClass();
+        Bag<BaseSystem> checkSystems = targetClass.isAnnotationPresent(FixedTimestep.class) ? logicSystems : renderSystems;
+        BitVector checkDisabled = targetClass.isAnnotationPresent(FixedTimestep.class) ? disabledLogicSystems : disabledRenderSystems;
         for (int i = 0; i < checkSystems.size(); i++) {
             if (targetClass == checkSystems.get(i).getClass()) {
                 checkDisabled.set(i, !value);

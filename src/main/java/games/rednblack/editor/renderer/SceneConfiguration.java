@@ -29,6 +29,7 @@ public class SceneConfiguration {
     private boolean cullingEnabled = true;
     private ExternalTypesConfiguration externalItemTypes;
 
+    private HyperLap2dRenderer rendererSystem;
     private Class<? extends HyperLap2dRenderer> rendererClass;
 
     // Artemis World, our Engine - config
@@ -61,7 +62,7 @@ public class SceneConfiguration {
         addSystem(new ActionSystem());
         addSystem(new BoundingBoxSystem());
         addSystem(new CullingSystem());
-        addSystem(new HyperLap2dRenderer(batch, hasStencil));
+        rendererSystem = new HyperLap2dRenderer(batch, hasStencil);
         rendererClass = HyperLap2dRenderer.class;
         addSystem(new ButtonSystem());
     }
@@ -69,11 +70,13 @@ public class SceneConfiguration {
     // For User's Use
 
     public void setRendererSystem(HyperLap2dRenderer renderer) {
-        removeSystem(HyperLap2dRenderer.class);
-        addSystem(renderer);
+        rendererSystem = renderer;
         rendererClass = renderer.getClass();
     }
 
+    protected void addRenderer() {
+        addSystem(rendererSystem);
+    }
 
     public void setResourceRetriever(IResourceRetriever iResourceRetriever) {
         this.iResourceRetriever = iResourceRetriever;

@@ -80,7 +80,7 @@ public class SceneLoader {
     private ActionFactory actionFactory;
 
     public SceneLoader(SceneConfiguration configuration) {
-
+        configuration.addRenderer();
         this.world = configuration.getWorld();
         this.rayHandler = configuration.getRayHandler();
 

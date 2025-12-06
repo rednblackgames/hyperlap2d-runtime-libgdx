@@ -18,12 +18,13 @@ import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
+import games.rednblack.editor.renderer.systems.strategy.FixedTimestep;
 import games.rednblack.editor.renderer.systems.strategy.InterpolationSystem;
-import games.rednblack.editor.renderer.systems.strategy.LogicSystem;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
+@FixedTimestep
 @All(PhysicsBodyComponent.class)
-public class PhysicsSystem extends BaseEntitySystem implements LogicSystem, ContactListener, InterpolationSystem {
+public class PhysicsSystem extends BaseEntitySystem implements ContactListener, InterpolationSystem {
 
     public static boolean enableInterpolation = true;
     public static int VELOCITY_ITERATIONS = 8;
