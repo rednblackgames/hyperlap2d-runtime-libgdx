@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
@@ -47,7 +47,6 @@ public class ConeLight extends PositionalLight {
 	public void update () {
 		if (rayHandler.pseudo3d) {
 			prepareFixtureData();
-			updateDynamicShadowMeshes();
 		}
 
 		updateBody();
@@ -96,7 +95,7 @@ public class ConeLight extends PositionalLight {
 	 */
 	public void setDistance(float dist) {
 		dist *= RayHandler.gammaCorrectionParameter;
-		this.distance = dist < 0.01f ? 0.01f : dist;
+		this.distance = Math.max(dist, 0.01f);
 		dirty = true;
 	}
 	

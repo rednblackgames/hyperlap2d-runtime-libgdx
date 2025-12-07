@@ -6,7 +6,7 @@ import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;

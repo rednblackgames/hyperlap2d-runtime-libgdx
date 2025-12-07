@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 public class RayHandlerOptions {
 	boolean gammaCorrection = false;

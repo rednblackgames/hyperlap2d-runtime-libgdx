@@ -5,15 +5,14 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import games.rednblack.editor.renderer.box2dLight.DirectionalLight;
-import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.lights.DirectionalLight;
+import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
@@ -35,7 +34,6 @@ import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
 import games.rednblack.editor.renderer.systems.render.HyperLap2dRenderer;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
-import games.rednblack.editor.renderer.utils.DefaultShaders;
 import games.rednblack.editor.renderer.utils.SceneLoaderFieldResolver;
 
 /**
@@ -415,10 +413,6 @@ public class SceneLoader {
     }
 
     public void setAmbientInfo(SceneVO vo, boolean override) {
-        if (sceneDirectionalLight != null) {
-            sceneDirectionalLight.remove();
-            sceneDirectionalLight = null;
-        }
         boolean isDiffuse = !vo.lightsPropertiesVO.lightType.equals("BRIGHT");
         renderer.setUseLights(vo.lightsPropertiesVO.enabled);
         renderer.setSceneShader(rm.getShaderProgram(vo.shaderVO.shaderName));
@@ -443,12 +437,19 @@ public class SceneLoader {
                     vo.lightsPropertiesVO.ambientColor[2], vo.lightsPropertiesVO.ambientColor[3]);
 
             if (vo.lightsPropertiesVO.lightType.equals("DIRECTIONAL")) {
-                Color lightColor = new Color(vo.lightsPropertiesVO.directionalColor[0], vo.lightsPropertiesVO.directionalColor[1],
+                if (sceneDirectionalLight == null) {
+                    sceneDirectionalLight = new DirectionalLight(rayHandler, vo.lightsPropertiesVO.directionalRays,
+                            Color.BLACK, vo.lightsPropertiesVO.directionalDegree);
+                }
+                sceneDirectionalLight.setColor(vo.lightsPropertiesVO.directionalColor[0], vo.lightsPropertiesVO.directionalColor[1],
                         vo.lightsPropertiesVO.directionalColor[2], vo.lightsPropertiesVO.directionalColor[3]);
-                sceneDirectionalLight = new DirectionalLight(rayHandler, vo.lightsPropertiesVO.directionalRays,
-                        lightColor, vo.lightsPropertiesVO.directionalDegree);
+
                 sceneDirectionalLight.setHeight(vo.lightsPropertiesVO.directionalHeight);
+            } else if (sceneDirectionalLight != null) {
+                sceneDirectionalLight.remove();
+                sceneDirectionalLight = null;
             }
+
             rayHandler.setAmbientLight(clr);
             rayHandler.setBlurNum(vo.lightsPropertiesVO.blurNum);
         }

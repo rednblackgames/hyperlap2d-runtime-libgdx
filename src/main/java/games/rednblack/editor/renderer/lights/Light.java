@@ -1,8 +1,6 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -50,11 +48,8 @@ public abstract class Light implements Disposable {
 	protected float direction;
 	protected float colorF;
 	protected float softShadowLength = 2.5f;
-	
-	protected Mesh lightMesh;
-	protected Mesh softShadowMesh;
 
-	protected float segments[];
+	protected float[] segments;
 	protected float[] mx;
 	protected float[] my;
 	protected float[] f;
@@ -69,10 +64,9 @@ public abstract class Light implements Disposable {
 	//Constant-Linear-Quadratic Falloff coefficients ratio
 	protected Vector3 falloff = new Vector3();
 
-	protected final Array<Mesh> dynamicShadowMeshes = new Array<Mesh>();
 	//Should never be cleared except when the light changes position (not direction). Prevents shadows from disappearing when fixture is out of sight.
-	protected final Array<Fixture> affectedFixtures = new Array<Fixture>();
-	protected final Array<Vector2> tmpVerts = new Array<Vector2>();
+	protected final Array<Fixture> affectedFixtures = new Array<>();
+	protected final Array<Vector2> tmpVerts = new Array<>();
 
 	protected final IntArray ind = new IntArray();
 
@@ -116,16 +110,9 @@ public abstract class Light implements Disposable {
 	/**
 	 * Render this light
 	 */
-	abstract void render();
+    abstract void draw(LightBatch batch);
 
-	/**
-	 * Render this light shadow
-	 */
-	protected void dynamicShadowRender() {
-		for (Mesh m : dynamicShadowMeshes) {
-			m.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP);
-		}
-	}
+    abstract void drawDynamicShadows(LightBatch batch);
 
 	/**
 	 * Sets light distance
@@ -267,12 +254,6 @@ public abstract class Light implements Disposable {
 	 */
 	public void dispose() {
 		affectedFixtures.clear();
-		lightMesh.dispose();
-		softShadowMesh.dispose();
-		for (Mesh mesh : dynamicShadowMeshes) {
-			mesh.dispose();
-		}
-		dynamicShadowMeshes.clear();
 	}
 
 	/**

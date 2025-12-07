@@ -6,7 +6,7 @@ import com.artemis.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.data.LabelVO;

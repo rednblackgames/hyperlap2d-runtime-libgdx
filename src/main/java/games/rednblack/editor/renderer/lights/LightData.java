@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.utils.Pool;

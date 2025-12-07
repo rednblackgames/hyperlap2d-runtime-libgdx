@@ -2,10 +2,10 @@ package games.rednblack.editor.renderer.components.light;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
-import games.rednblack.editor.renderer.box2dLight.ConeLight;
-import games.rednblack.editor.renderer.box2dLight.Light;
-import games.rednblack.editor.renderer.box2dLight.PointLight;
-import games.rednblack.editor.renderer.box2dLight.RayHandler;
+import games.rednblack.editor.renderer.lights.ConeLight;
+import games.rednblack.editor.renderer.lights.Light;
+import games.rednblack.editor.renderer.lights.PointLight;
+import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 
 public class LightObjectComponent extends RefreshableComponent {
@@ -19,7 +19,7 @@ public class LightObjectComponent extends RefreshableComponent {
 	public float coneDegree = 45;
 	public float softnessLength = -1f;
 	public float intensity = 1f;
-	public Vector3 falloff = new Vector3(1, 0, 0);
+	public Vector3 falloff = new Vector3(1, 0, 5);
 
 	public boolean isStatic = true;
 	public boolean isXRay = true;

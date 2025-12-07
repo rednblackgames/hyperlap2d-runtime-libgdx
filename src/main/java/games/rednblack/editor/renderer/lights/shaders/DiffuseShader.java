@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight.shaders;
+package games.rednblack.editor.renderer.lights.shaders;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;

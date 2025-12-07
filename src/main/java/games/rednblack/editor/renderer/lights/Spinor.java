@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.CharArray;

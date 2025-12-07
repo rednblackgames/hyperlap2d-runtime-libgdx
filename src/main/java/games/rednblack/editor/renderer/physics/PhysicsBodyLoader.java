@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.PoolManager;
-import games.rednblack.editor.renderer.box2dLight.LightData;
+import games.rednblack.editor.renderer.lights.LightData;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;

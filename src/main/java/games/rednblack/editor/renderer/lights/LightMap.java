@@ -1,4 +1,4 @@
-package games.rednblack.editor.renderer.box2dLight;
+package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -10,16 +10,16 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
-import games.rednblack.editor.renderer.box2dLight.shaders.*;
+import games.rednblack.editor.renderer.lights.shaders.*;
 
 class LightMap {
 	private ShaderProgram shadowShader;
 	FrameBuffer frameBuffer;
-	private Mesh lightMapMesh;
+	private final Mesh lightMapMesh;
 
-	private FrameBuffer pingPongBuffer;
+	private final FrameBuffer pingPongBuffer;
 
-	private RayHandler rayHandler;
+	private final RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
 	private ShaderProgram blurShader;
 	private ShaderProgram diffuseShader;
