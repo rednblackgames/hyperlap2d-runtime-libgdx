@@ -65,8 +65,6 @@ public abstract class PositionalLight extends Light {
             for (int i = 0; i < rayNum; i++) {
                 if (!(this instanceof PointLight) && i == rayNum - 1) continue;
 
-                batch.checkSpace(6);
-
                 int nextI = (i + 1) % rayNum;
 
                 int currentIdx = (i + 1) * 4;
@@ -86,13 +84,13 @@ public abstract class PositionalLight extends Light {
                 float softNX = nx + ns * softShadowLength * cos[nextI];
                 float softNY = ny + ns * softShadowLength * sin[nextI];
 
-                batch.drawVertex(cx, cy, colorF, cs, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(softCX, softCY, zeroColorBits, 0f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(nx, ny, colorF, ns, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-                batch.drawVertex(nx, ny, colorF, ns, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(softCX, softCY, zeroColorBits, 0f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(softNX, softNY, zeroColorBits, 0f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+                batch.drawQuad(
+                        cx, cy, colorF, cs,
+                        softCX, softCY, zeroColorBits, 0f,
+                        softNX, softNY, zeroColorBits, 0f,
+                        nx, ny, colorF, ns,
+                        intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+                );
             }
         }
     }
@@ -218,15 +216,13 @@ public abstract class PositionalLight extends Light {
             float currEndY = tmpEnd.y;
 
             if (!first) {
-                batch.checkSpace(6);
-
-                batch.drawVertex(prevX, prevY, startColBits, prevF1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(prevEndX, prevEndY, endColBits, prevF2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-                batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(prevEndX, prevEndY, endColBits, prevF2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(currEndX, currEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+                batch.drawQuad(
+                        prevEndX, prevEndY, endColBits, prevF2,
+                        currEndX, currEndY, endColBits, f2,
+                        currX, currY, startColBits, f1,
+                        prevX, prevY, startColBits, prevF1,
+                        intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+                );
             }
 
             prevX = currX; prevY = currY;
@@ -239,8 +235,6 @@ public abstract class PositionalLight extends Light {
         if (data.roofShadow || pseudo3dHeight <= data.height) {
             for (int n = 0; n < vertexCount; n++) {
                 if (n < 2) continue;
-
-                batch.checkSpace(3);
 
                 tmpVec.set(tmpVerts.get(0));
                 float dst = tmpVec.dst(start);
@@ -257,9 +251,12 @@ public abstract class PositionalLight extends Light {
                 float f3 = 1f - dst3 / distance;
                 float col3 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f3).toFloatBits() : oneColorBits;
 
-                batch.drawVertex(tmpVec.x, tmpVec.y, col1, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(tmpEnd.x, tmpEnd.y, col2, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(v3.x, v3.y, col3, f3, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+                batch.drawTriangle(
+                        tmpVec.x, tmpVec.y, col1, f1,
+                        tmpEnd.x, tmpEnd.y, col2, f2,
+                        v3.x, v3.y, col3, f3,
+                        intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+                );
             }
         }
     }
@@ -301,7 +298,6 @@ public abstract class PositionalLight extends Light {
         float prevEndY = tmpEnd.y;
 
         for (int k = 0; k < RayHandler.CIRCLE_APPROX_POINTS; k++) {
-            batch.checkSpace(6);
             tmpVec.rotateRad(angle);
 
             tmpStart.set(center).add(tmpVec);
@@ -312,13 +308,13 @@ public abstract class PositionalLight extends Light {
             float currEndX = tmpEnd.x;
             float currEndY = tmpEnd.y;
 
-            batch.drawVertex(prevX, prevY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(prevEndX, prevEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-            batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(prevEndX, prevEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(currEndX, currEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+            batch.drawQuad(
+                    prevEndX, prevEndY, endColBits, f2,
+                    currEndX, currEndY, endColBits, f2,
+                    currX, currY, startColBits, f1,
+                    prevX, prevY, startColBits, f1,
+                    intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+            );
 
             prevX = currX; prevY = currY;
             prevEndX = currEndX; prevEndY = currEndY;
@@ -353,8 +349,6 @@ public abstract class PositionalLight extends Light {
         tmpVec.set(body.getWorldPoint(tmpVec));
         if (!contains(tmpVec)) return;
 
-        batch.checkSpace(6);
-
         float dst2 = tmpVec.dst(start);
         float l2 = data.getLimit(dst2, pseudo3dHeight, distance);
         float f1_2 = 1f - dst2 / distance;
@@ -373,13 +367,13 @@ public abstract class PositionalLight extends Light {
         tmpColor.set(Color.WHITE);
         float c1_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_1).toFloatBits() : colBits;
 
-        batch.drawVertex(x1, y1, c1_start, f1_1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex1, ey1, c1_end, f2_1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(x2, y2, c1_start, f1_2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz); // Uso c1_start approx o ricalcola
-
-        batch.drawVertex(x2, y2, c1_start, f1_2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex1, ey1, c1_end, f2_1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex2, ey2, c1_end, f2_2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz); // Uso c1_end approx
+        batch.drawQuad(
+                x1, y1, c1_start, f1_1,
+                ex1, ey1, c1_end, f2_1,
+                ex2, ey2, c1_end, f2_2,
+                x2, y2, c1_start, f1_2,
+                intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+        );
     }
 
     @Override

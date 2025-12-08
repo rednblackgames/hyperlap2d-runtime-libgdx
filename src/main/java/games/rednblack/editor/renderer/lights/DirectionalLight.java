@@ -132,30 +132,24 @@ public class DirectionalLight extends Light {
         float virtualLightZ = (pseudo3dHeight != 0) ? pseudo3dHeight : 100f;
 
         for (int i = 0; i < rayNum - 1; i++) {
-            batch.checkSpace(6);
-
             int idx_s1 = i * 8;      // Start Ray i
             int idx_e1 = i * 8 + 4;  // End Ray i
 
             int idx_s2 = (i + 1) * 8;     // Start Ray i+1
             int idx_e2 = (i + 1) * 8 + 4; // End Ray i+1
 
-            // T1: S1, E1, S2
-            batch.drawVertex(segments[idx_s1], segments[idx_s1+1], segments[idx_s1+2], segments[idx_s1+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-            batch.drawVertex(segments[idx_e1], segments[idx_e1+1], segments[idx_e1+2], segments[idx_e1+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-            batch.drawVertex(segments[idx_s2], segments[idx_s2+1], segments[idx_s2+2], segments[idx_s2+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-
-            // T2: S2, E1, E2
-            batch.drawVertex(segments[idx_s2], segments[idx_s2+1], segments[idx_s2+2], segments[idx_s2+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-            batch.drawVertex(segments[idx_e1], segments[idx_e1+1], segments[idx_e1+2], segments[idx_e1+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-            batch.drawVertex(segments[idx_e2], segments[idx_e2+1], segments[idx_e2+2], segments[idx_e2+3], intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
+            batch.drawQuad(
+                    segments[idx_s1], segments[idx_s1+1], segments[idx_s1+2], segments[idx_s1+3],
+                    segments[idx_e1], segments[idx_e1+1], segments[idx_e1+2], segments[idx_e1+3],
+                    segments[idx_e2], segments[idx_e2+1], segments[idx_e2+2], segments[idx_e2+3],
+                    segments[idx_s2], segments[idx_s2+1], segments[idx_s2+2], segments[idx_s2+3],
+                    intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ
+            );
         }
 
         // 2. Soft Shadows
         if (soft && !xray && !rayHandler.pseudo3d) {
             for (int i = 0; i < rayNum - 1; i++) {
-                batch.checkSpace(6);
-
                 int idx_e1 = i * 8 + 4;
                 int idx_e2 = (i + 1) * 8 + 4;
 
@@ -174,13 +168,13 @@ public class DirectionalLight extends Light {
                 float soft2y = e2y + softShadowLength * sin;
 
                 // Quad Soft
-                batch.drawVertex(e1x, e1y, colorF, s1, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-                batch.drawVertex(soft1x, soft1y, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-                batch.drawVertex(e2x, e2y, colorF, s2, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-
-                batch.drawVertex(e2x, e2y, colorF, s2, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-                batch.drawVertex(soft1x, soft1y, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
-                batch.drawVertex(soft2x, soft2y, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ);
+                batch.drawQuad(
+                        e1x, e1y, colorF, s1,
+                        soft1x, soft1y, zeroColorBits, 1f,
+                        soft2x, soft2y, zeroColorBits, 1f,
+                        e2x, e2y, colorF, s2,
+                        intensity, falloff.x, falloff.y, falloff.z, virtualLightX, virtualLightY, virtualLightZ
+                );
             }
         }
     }
@@ -282,15 +276,13 @@ public class DirectionalLight extends Light {
             tmpEnd.set(tmpVec).sub(lstart).setLength(l).add(tmpVec); // Directional uses lstart (virtual source)
 
             if (!first) {
-                batch.checkSpace(6);
-
-                batch.drawVertex(prevX, prevY, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                batch.drawVertex(prevEndX, prevEndY, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                batch.drawVertex(tmpVec.x, tmpVec.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-
-                batch.drawVertex(tmpVec.x, tmpVec.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                batch.drawVertex(prevEndX, prevEndY, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                batch.drawVertex(tmpEnd.x, tmpEnd.y, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
+                batch.drawQuad(
+                        prevEndX, prevEndY, endCol, f,
+                        tmpEnd.x, tmpEnd.y, endCol, f,
+                        tmpVec.x, tmpVec.y, startCol, f,
+                        prevX, prevY, startCol, f,
+                        intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz
+                );
             }
             prevX = tmpVec.x; prevY = tmpVec.y;
             prevEndX = tmpEnd.x; prevEndY = tmpEnd.y;
@@ -304,14 +296,15 @@ public class DirectionalLight extends Light {
                 Vector2 v0 = tmpVerts.get(0);
 
                 for (int i = 1; i < vCount - 1; i++) {
-                    batch.checkSpace(3);
-
                     Vector2 v1 = tmpVerts.get(i);
                     Vector2 v2 = tmpVerts.get(i + 1);
 
-                    batch.drawVertex(v0.x, v0.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                    batch.drawVertex(v1.x, v1.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-                    batch.drawVertex(v2.x, v2.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
+                    batch.drawTriangle(
+                            v0.x, v0.y, startCol, f,
+                            v1.x, v1.y, startCol, f,
+                            v2.x, v2.y, startCol, f,
+                            intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz
+                    );
                 }
             }
         }
@@ -332,27 +325,23 @@ public class DirectionalLight extends Light {
         float prevX = tmpStart.x, prevY = tmpStart.y, prevEndX = tmpEnd.x, prevEndY = tmpEnd.y;
 
         for (int k = 0; k < RayHandler.CIRCLE_APPROX_POINTS; k++) {
-            batch.checkSpace(6);
-
             tmpVec.rotateRad(angle);
             tmpStart.set(center).add(tmpVec);
             tmpEnd.set(tmpStart).sub(lstart).setLength(l).add(tmpStart);
 
-            batch.drawVertex(prevX, prevY, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-            batch.drawVertex(prevEndX, prevEndY, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-            batch.drawVertex(tmpStart.x, tmpStart.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-
-            batch.drawVertex(tmpStart.x, tmpStart.y, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-            batch.drawVertex(prevEndX, prevEndY, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-            batch.drawVertex(tmpEnd.x, tmpEnd.y, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
+            batch.drawQuad(
+                    prevX, prevY, startCol, f,
+                    prevEndX, prevEndY, endCol, f,
+                    tmpEnd.x, tmpEnd.y, endCol, f,
+                    tmpStart.x, tmpStart.y, startCol, f,
+                    intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz
+            );
 
             prevX = tmpStart.x; prevY = tmpStart.y; prevEndX = tmpEnd.x; prevEndY = tmpEnd.y;
         }
     }
 
     private void drawShadowEdge(LightBatch batch, Fixture fixture, LightData data, float startCol, float endCol, float f, float l, Shape fixtureShape, Body body, float vlx, float vly, float vlz) {
-        batch.checkSpace(6);
-
         EdgeShape shape = (EdgeShape) fixtureShape;
         shape.getVertex1(tmpVec); tmpVec.set(body.getWorldPoint(tmpVec));
         float x1 = tmpVec.x, y1 = tmpVec.y;
@@ -364,13 +353,13 @@ public class DirectionalLight extends Light {
         tmpEnd.set(tmpVec).sub(lstart).setLength(l).add(tmpVec);
         float ex2 = tmpEnd.x, ey2 = tmpEnd.y;
 
-        batch.drawVertex(x1, y1, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-        batch.drawVertex(ex1, ey1, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-        batch.drawVertex(x2, y2, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-
-        batch.drawVertex(x2, y2, startCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-        batch.drawVertex(ex1, ey1, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
-        batch.drawVertex(ex2, ey2, endCol, f, intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz);
+        batch.drawQuad(
+                x1, y1, startCol, f,
+                ex1, ey1, endCol, f,
+                ex2, ey2, endCol, f,
+                x2, y2, startCol, f,
+                intensity, falloff.x, falloff.y, falloff.z, vlx, vly, vlz
+        );
     }
 
     protected void prepareFixtureData() {

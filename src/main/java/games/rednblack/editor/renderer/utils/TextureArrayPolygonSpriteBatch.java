@@ -147,7 +147,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         }
         textureUnitIndicesBuffer.flip();
 
-        Mesh.VertexDataType vertexDataType = Mesh.VertexDataType.VertexArray;
+        Mesh.VertexDataType vertexDataType = Mesh.VertexDataType.VertexBufferObject;
         if (Gdx.gl30 != null) {
             vertexDataType = Mesh.VertexDataType.VertexBufferObjectWithVAO;
         }

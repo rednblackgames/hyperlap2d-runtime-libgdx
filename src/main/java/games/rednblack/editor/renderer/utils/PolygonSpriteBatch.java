@@ -131,7 +131,7 @@ public class PolygonSpriteBatch extends com.badlogic.gdx.graphics.g2d.PolygonSpr
         if (maxVertices > 32767)
             throw new IllegalArgumentException("Can't have more than 32767 vertices per batch: " + maxVertices);
 
-        Mesh.VertexDataType vertexDataType = Mesh.VertexDataType.VertexArray;
+        Mesh.VertexDataType vertexDataType = Mesh.VertexDataType.VertexBufferObject;
         if (Gdx.gl30 != null) {
             vertexDataType = VertexDataType.VertexBufferObjectWithVAO;
         }

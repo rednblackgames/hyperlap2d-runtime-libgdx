@@ -95,8 +95,6 @@ public class ChainLight extends Light {
         rayHandler.lightRenderedLastFrame++;
 
         for (int i = 0; i < rayNum - 1; i++) {
-            batch.checkSpace(6);
-
             float sx1 = startX[i];
             float sy1 = startY[i];
             float ex1 = mx[i];
@@ -111,20 +109,18 @@ public class ChainLight extends Light {
 
             float z = pseudo3dHeight != 0 ? pseudo3dHeight : 50f;
 
-            batch.drawVertex(sx1, sy1, colorF, 0f, intensity, falloff.x, falloff.y, falloff.z, sx1, sy1, z);
-            batch.drawVertex(ex1, ey1, colorF, f1, intensity, falloff.x, falloff.y, falloff.z, sx1, sy1, z);
-            batch.drawVertex(sx2, sy2, colorF, 0f, intensity, falloff.x, falloff.y, falloff.z, sx2, sy2, z);
-
-            batch.drawVertex(sx2, sy2, colorF, 0f, intensity, falloff.x, falloff.y, falloff.z, sx2, sy2, z);
-            batch.drawVertex(ex1, ey1, colorF, f1, intensity, falloff.x, falloff.y, falloff.z, sx1, sy1, z);
-            batch.drawVertex(ex2, ey2, colorF, f2, intensity, falloff.x, falloff.y, falloff.z, sx2, sy2, z);
+            batch.drawQuad(
+                    sx1, sy1, colorF, 0f,
+                    ex1, ey1, colorF, f1,
+                    ex2, ey2, colorF, f2,
+                    sx2, sy2, colorF, 0f,
+                    intensity, falloff.x, falloff.y, falloff.z, sx1, sy1, z
+            );
         }
 
         // Soft Shadows
         if (soft && !xray && !rayHandler.pseudo3d) {
             for (int i = 0; i < rayNum - 1; i++) {
-                batch.checkSpace(6);
-
                 float ex1 = mx[i];
                 float ey1 = my[i];
                 float s1 = f[i];
@@ -155,13 +151,13 @@ public class ChainLight extends Light {
                 float lx = startX[i]; float ly = startY[i]; // Approx light pos
 
                 // Quad Soft
-                batch.drawVertex(ex1, ey1, colorF, s1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
-                batch.drawVertex(softX1, softY1, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
-                batch.drawVertex(ex2, ey2, colorF, s2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
-
-                batch.drawVertex(ex2, ey2, colorF, s2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
-                batch.drawVertex(softX1, softY1, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
-                batch.drawVertex(softX2, softY2, zeroColorBits, 1f, intensity, falloff.x, falloff.y, falloff.z, lx, ly, z);
+                batch.drawQuad(
+                        ex1, ey1, colorF, s1,
+                        softX1, softY1, zeroColorBits, 1f,
+                        softX2, softY2, zeroColorBits, 1f,
+                        ex2, ey2, colorF, s2,
+                        intensity, falloff.x, falloff.y, falloff.z, lx, ly, z
+                );
             }
         }
     }
@@ -281,15 +277,13 @@ public class ChainLight extends Light {
             float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
             if (!first) {
-                batch.checkSpace(6);
-
-                batch.drawVertex(prevX, prevY, prevStartCol, prevF1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(prevEndX, prevEndY, prevEndCol, prevF2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(tmpVec.x, tmpVec.y, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-                batch.drawVertex(tmpVec.x, tmpVec.y, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(prevEndX, prevEndY, prevEndCol, prevF2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                batch.drawVertex(tmpEnd.x, tmpEnd.y, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+                batch.drawQuad(
+                        prevEndX, prevEndY, prevEndCol, prevF2,
+                        tmpEnd.x, tmpEnd.y, endColBits, f2,
+                        tmpVec.x, tmpVec.y, startColBits, f1,
+                        prevX, prevY, prevStartCol, prevF1,
+                        intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+                );
             }
             prevX = tmpVec.x; prevY = tmpVec.y;
             prevEndX = tmpEnd.x; prevEndY = tmpEnd.y;
@@ -308,8 +302,6 @@ public class ChainLight extends Light {
                 float c0 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f0).toFloatBits() : oneColorBits;
 
                 for (int i = 1; i < vCount - 1; i++) {
-                    batch.checkSpace(3);
-
                     Vector2 v1 = tmpVerts.get(i);
                     float d1 = Vector2.dst(v1.x, v1.y, lx, ly);
                     float f1_roof = 1f - d1 / distance;
@@ -320,9 +312,12 @@ public class ChainLight extends Light {
                     float f2_roof = 1f - d2 / distance;
                     float c2 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_roof).toFloatBits() : oneColorBits;
 
-                    batch.drawVertex(v0.x, v0.y, c0, f0, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                    batch.drawVertex(v1.x, v1.y, c1, f1_roof, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-                    batch.drawVertex(v2.x, v2.y, c2, f2_roof, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+                    batch.drawTriangle(
+                            v0.x, v0.y, c0, f0,
+                            v1.x, v1.y, c1, f1_roof,
+                            v2.x, v2.y, c2, f2_roof,
+                            intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+                    );
                 }
             }
         }
@@ -359,8 +354,6 @@ public class ChainLight extends Light {
         float prevEndY = tmpEnd.y;
 
         for (int k = 0; k < RayHandler.CIRCLE_APPROX_POINTS; k++) {
-            batch.checkSpace(6);
-
             tmpVec.rotateRad(angle);
 
             tmpStart.set(center).add(tmpVec);
@@ -371,13 +364,13 @@ public class ChainLight extends Light {
             float currEndX = tmpEnd.x;
             float currEndY = tmpEnd.y;
 
-            batch.drawVertex(prevX, prevY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(prevEndX, prevEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-            batch.drawVertex(currX, currY, startColBits, f1, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(prevEndX, prevEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-            batch.drawVertex(currEndX, currEndY, endColBits, f2, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+            batch.drawQuad(
+                    prevX, prevY, startColBits, f1,
+                    prevEndX, prevEndY, endColBits, f2,
+                    currEndX, currEndY, endColBits, f2,
+                    currX, currY, startColBits, f1,
+                    intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+            );
 
             prevX = currX; prevY = currY;
             prevEndX = currEndX; prevEndY = currEndY;
@@ -385,8 +378,6 @@ public class ChainLight extends Light {
     }
 
     private void drawShadowEdge(LightBatch batch, Fixture fixture, LightData data, float colBits, Shape fixtureShape, Body body, float lx, float ly, float lz) {
-        batch.checkSpace(6);
-
         EdgeShape shape = (EdgeShape) fixtureShape;
 
         shape.getVertex1(tmpVec);
@@ -427,13 +418,13 @@ public class ChainLight extends Light {
         tmpColor.set(Color.WHITE);
         float c2_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_end).toFloatBits() : colBits;
 
-        batch.drawVertex(x1, y1, c1_start, f1_start, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex1, ey1, c1_end, f1_end, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(x2, y2, c2_start, f2_start, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-
-        batch.drawVertex(x2, y2, c2_start, f2_start, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex1, ey1, c1_end, f1_end, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
-        batch.drawVertex(ex2, ey2, c2_end, f2_end, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+        batch.drawQuad(
+                x1, y1, c1_start, f1_start,
+                ex1, ey1, c1_end, f1_end,
+                ex2, ey2, c2_end, f2_end,
+                x2, y2, c2_start, f2_start,
+                intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz
+        );
     }
 
     public void updateChain() {
