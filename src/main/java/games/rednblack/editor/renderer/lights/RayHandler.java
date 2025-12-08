@@ -375,4 +375,8 @@ public class RayHandler implements Disposable {
     public void setNormalMap(Texture normalMap) {
         lightBatch.setNormalMap(normalMap);
     }
+
+    public LightBatch getLightBatch() {
+        return lightBatch;
+    }
 }

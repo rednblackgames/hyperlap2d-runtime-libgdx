@@ -59,6 +59,7 @@ public class LightBatch {
 
     public void begin(Matrix4 projectionMatrix) {
         if (drawing) throw new IllegalStateException("begin() called before end()");
+        renderCalls = 0;
         drawing = true;
         shader.bind();
         shader.setUniformMatrix("u_projTrans", projectionMatrix);
@@ -100,44 +101,102 @@ public class LightBatch {
     public void drawFan(float[] segments, int vertexCount, float intensity, float fx, float fy, float fz, float lx, float ly, float lz) {
         if (vertexCount < 3) return;
 
-        // Buffer check (rough estimate: vertexCount * 3 vertices per triangle)
-        if (idx + (vertexCount * 3 * VERTEX_SIZE) >= vertices.length) flush();
+        int triangles = vertexCount - 1;
+        int totalFloatsNeeded = triangles * 3 * VERTEX_SIZE;
 
+        if (idx + totalFloatsNeeded > vertices.length) {
+            flush();
+        }
+
+        float[] localVerts = this.vertices;
+        int i = this.idx;
+
+        // Center
         float cx = segments[0];
         float cy = segments[1];
         float cc = segments[2];
         float cs = segments[3];
 
-        for (int i = 1; i < vertexCount; i++) {
-            checkSpace(3);
+        int limit = vertexCount - 1;
+        int k = 1;
+        int p_idx = 4;
 
-            int p1_idx = i * 4;
-            int next_idx = ((i + 1) == vertexCount) ? 4 : (i + 1) * 4;
+        int unrollLimit = limit - 3;
 
-            // Center
-            putVertex(cx, cy, cc, cs, intensity, fx, fy, fz, lx, ly, lz);
-            // P1
-            putVertex(segments[p1_idx], segments[p1_idx+1], segments[p1_idx+2], segments[p1_idx+3], intensity, fx, fy, fz, lx, ly, lz);
+        for (; k < unrollLimit; k += 4) {
+            // V1
+            localVerts[i] = cx; localVerts[i+1] = cy; localVerts[i+2] = cc; localVerts[i+3] = cs;
+            localVerts[i+4] = intensity; localVerts[i+5] = fx; localVerts[i+6] = fy; localVerts[i+7] = fz; localVerts[i+8] = lx; localVerts[i+9] = ly; localVerts[i+10] = lz;
 
-            // P2 (handling pointlight loop closure)
-            if (i == vertexCount - 1) {
-                putVertex(segments[4], segments[5], segments[6], segments[7], intensity, fx, fy, fz, lx, ly, lz);
-            } else {
-                putVertex(segments[next_idx], segments[next_idx+1], segments[next_idx+2], segments[next_idx+3], intensity, fx, fy, fz, lx, ly, lz);
-            }
+            // V2
+            localVerts[i+11] = segments[p_idx]; localVerts[i+12] = segments[p_idx+1]; localVerts[i+13] = segments[p_idx+2]; localVerts[i+14] = segments[p_idx+3];
+            localVerts[i+15] = intensity; localVerts[i+16] = fx; localVerts[i+17] = fy; localVerts[i+18] = fz; localVerts[i+19] = lx; localVerts[i+20] = ly; localVerts[i+21] = lz;
+
+            // V3
+            localVerts[i+22] = segments[p_idx+4]; localVerts[i+23] = segments[p_idx+5]; localVerts[i+24] = segments[p_idx+6]; localVerts[i+25] = segments[p_idx+7];
+            localVerts[i+26] = intensity; localVerts[i+27] = fx; localVerts[i+28] = fy; localVerts[i+29] = fz; localVerts[i+30] = lx; localVerts[i+31] = ly; localVerts[i+32] = lz;
+
+            // V1
+            localVerts[i+33] = cx; localVerts[i+34] = cy; localVerts[i+35] = cc; localVerts[i+36] = cs;
+            localVerts[i+37] = intensity; localVerts[i+38] = fx; localVerts[i+39] = fy; localVerts[i+40] = fz; localVerts[i+41] = lx; localVerts[i+42] = ly; localVerts[i+43] = lz;
+
+            // V2
+            localVerts[i+44] = segments[p_idx+4]; localVerts[i+45] = segments[p_idx+5]; localVerts[i+46] = segments[p_idx+6]; localVerts[i+47] = segments[p_idx+7];
+            localVerts[i+48] = intensity; localVerts[i+49] = fx; localVerts[i+50] = fy; localVerts[i+51] = fz; localVerts[i+52] = lx; localVerts[i+53] = ly; localVerts[i+54] = lz;
+
+            // V3
+            localVerts[i+55] = segments[p_idx+8]; localVerts[i+56] = segments[p_idx+9]; localVerts[i+57] = segments[p_idx+10]; localVerts[i+58] = segments[p_idx+11];
+            localVerts[i+59] = intensity; localVerts[i+60] = fx; localVerts[i+61] = fy; localVerts[i+62] = fz; localVerts[i+63] = lx; localVerts[i+64] = ly; localVerts[i+65] = lz;
+
+            localVerts[i+66] = cx; localVerts[i+67] = cy; localVerts[i+68] = cc; localVerts[i+69] = cs;
+            localVerts[i+70] = intensity; localVerts[i+71] = fx; localVerts[i+72] = fy; localVerts[i+73] = fz; localVerts[i+74] = lx; localVerts[i+75] = ly; localVerts[i+76] = lz;
+
+            localVerts[i+77] = segments[p_idx+8]; localVerts[i+78] = segments[p_idx+9]; localVerts[i+79] = segments[p_idx+10]; localVerts[i+80] = segments[p_idx+11];
+            localVerts[i+81] = intensity; localVerts[i+82] = fx; localVerts[i+83] = fy; localVerts[i+84] = fz; localVerts[i+85] = lx; localVerts[i+86] = ly; localVerts[i+87] = lz;
+
+            localVerts[i+88] = segments[p_idx+12]; localVerts[i+89] = segments[p_idx+13]; localVerts[i+90] = segments[p_idx+14]; localVerts[i+91] = segments[p_idx+15];
+            localVerts[i+92] = intensity; localVerts[i+93] = fx; localVerts[i+94] = fy; localVerts[i+95] = fz; localVerts[i+96] = lx; localVerts[i+97] = ly; localVerts[i+98] = lz;
+
+            localVerts[i+99] = cx; localVerts[i+100] = cy; localVerts[i+101] = cc; localVerts[i+102] = cs;
+            localVerts[i+103] = intensity; localVerts[i+104] = fx; localVerts[i+105] = fy; localVerts[i+106] = fz; localVerts[i+107] = lx; localVerts[i+108] = ly; localVerts[i+109] = lz;
+
+            localVerts[i+110] = segments[p_idx+12]; localVerts[i+111] = segments[p_idx+13]; localVerts[i+112] = segments[p_idx+14]; localVerts[i+113] = segments[p_idx+15];
+            localVerts[i+114] = intensity; localVerts[i+115] = fx; localVerts[i+116] = fy; localVerts[i+117] = fz; localVerts[i+118] = lx; localVerts[i+119] = ly; localVerts[i+120] = lz;
+
+            localVerts[i+121] = segments[p_idx+16]; localVerts[i+122] = segments[p_idx+17]; localVerts[i+123] = segments[p_idx+18]; localVerts[i+124] = segments[p_idx+19];
+            localVerts[i+125] = intensity; localVerts[i+126] = fx; localVerts[i+127] = fy; localVerts[i+128] = fz; localVerts[i+129] = lx; localVerts[i+130] = ly; localVerts[i+131] = lz;
+
+            i += 132;
+            p_idx += 16;
         }
-    }
 
-    /** * Generic method to draw triangles (used for Pseudo3D shadows and generic geometry)
-     * verticesInput must be a multiple of 4 floats (x,y,col,s)
-     */
-    public void drawVerts(float[] verticesInput, int offset, int count, float intensity, float fx, float fy, float fz, float lx, float ly, float lz) {
-        int numVerts = count / 4;
-        if (idx + (numVerts * VERTEX_SIZE) >= vertices.length) flush();
+        for (; k < limit; k++) {
+            int next_p_idx = p_idx + 4;
 
-        for (int i = 0; i < count; i+=4) {
-            putVertex(verticesInput[offset+i], verticesInput[offset+i+1], verticesInput[offset+i+2], verticesInput[offset+i+3], intensity, fx, fy, fz, lx, ly, lz);
+            localVerts[i++] = cx; localVerts[i++] = cy; localVerts[i++] = cc; localVerts[i++] = cs;
+            localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+            localVerts[i++] = segments[p_idx]; localVerts[i++] = segments[p_idx+1]; localVerts[i++] = segments[p_idx+2]; localVerts[i++] = segments[p_idx+3];
+            localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+            localVerts[i++] = segments[next_p_idx]; localVerts[i++] = segments[next_p_idx+1]; localVerts[i++] = segments[next_p_idx+2]; localVerts[i++] = segments[next_p_idx+3];
+            localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+            p_idx += 4;
         }
+
+        int last_idx = limit * 4;
+
+        localVerts[i++] = cx; localVerts[i++] = cy; localVerts[i++] = cc; localVerts[i++] = cs;
+        localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+        localVerts[i++] = segments[last_idx]; localVerts[i++] = segments[last_idx+1]; localVerts[i++] = segments[last_idx+2]; localVerts[i++] = segments[last_idx+3];
+        localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+        localVerts[i++] = segments[4]; localVerts[i++] = segments[5]; localVerts[i++] = segments[6]; localVerts[i++] = segments[7];
+        localVerts[i++] = intensity; localVerts[i++] = fx; localVerts[i++] = fy; localVerts[i++] = fz; localVerts[i++] = lx; localVerts[i++] = ly; localVerts[i++] = lz;
+
+        this.idx = i;
     }
 
     /**
@@ -145,22 +204,22 @@ public class LightBatch {
      * Public method necessary for manual triangle construction (e.g. Pseudo3D).
      */
     public void drawVertex(float x, float y, float color, float s, float intensity, float fx, float fy, float fz, float lx, float ly, float lz) {
-        if (idx + VERTEX_SIZE >= vertices.length) flush();
-        putVertex(x, y, color, s, intensity, fx, fy, fz, lx, ly, lz);
-    }
+        float[] localVerts = this.vertices;
+        int i = this.idx;
 
-    private void putVertex(float x, float y, float color, float s, float i, float fx, float fy, float fz, float lx, float ly, float lz) {
-        vertices[idx++] = x;
-        vertices[idx++] = y;
-        vertices[idx++] = color;
-        vertices[idx++] = s;
-        vertices[idx++] = i;
-        vertices[idx++] = fx;
-        vertices[idx++] = fy;
-        vertices[idx++] = fz;
-        vertices[idx++] = lx;
-        vertices[idx++] = ly;
-        vertices[idx++] = lz;
+        localVerts[i++] = x;
+        localVerts[i++] = y;
+        localVerts[i++] = color;
+        localVerts[i++] = s;
+        localVerts[i++] = intensity;
+        localVerts[i++] = fx;
+        localVerts[i++] = fy;
+        localVerts[i++] = fz;
+        localVerts[i++] = lx;
+        localVerts[i++] = ly;
+        localVerts[i++] = lz;
+
+        this.idx = i;
     }
 
     public void flush() {
@@ -169,6 +228,10 @@ public class LightBatch {
         mesh.setVertices(vertices, 0, idx);
         mesh.render(shader, GL20.GL_TRIANGLES);
         idx = 0;
+    }
+
+    public int getRenderCalls() {
+        return renderCalls;
     }
 
     public void dispose() {

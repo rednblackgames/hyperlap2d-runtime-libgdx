@@ -238,9 +238,9 @@ public abstract class PositionalLight extends Light {
 
         if (data.roofShadow || pseudo3dHeight <= data.height) {
             for (int n = 0; n < vertexCount; n++) {
-                batch.checkSpace(3);
-
                 if (n < 2) continue;
+
+                batch.checkSpace(3);
 
                 tmpVec.set(tmpVerts.get(0));
                 float dst = tmpVec.dst(start);
@@ -336,8 +336,6 @@ public abstract class PositionalLight extends Light {
         tmpVec.set(body.getWorldPoint(tmpVec));
         if (!contains(tmpVec)) return;
 
-        batch.checkSpace(6);
-
         float dst1 = tmpVec.dst(start);
         float l1 = data.getLimit(dst1, pseudo3dHeight, distance);
         float f1_1 = 1f - dst1 / distance;
@@ -354,6 +352,8 @@ public abstract class PositionalLight extends Light {
         shape.getVertex2(tmpVec);
         tmpVec.set(body.getWorldPoint(tmpVec));
         if (!contains(tmpVec)) return;
+
+        batch.checkSpace(6);
 
         float dst2 = tmpVec.dst(start);
         float l2 = data.getLimit(dst2, pseudo3dHeight, distance);
