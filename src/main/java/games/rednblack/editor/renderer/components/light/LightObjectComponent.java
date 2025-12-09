@@ -21,8 +21,8 @@ public class LightObjectComponent extends RefreshableComponent {
 	public float intensity = 1f;
 	public Vector3 falloff = new Vector3(1, 0, 5);
 
-	public boolean isStatic = false;
-	public boolean isXRay = false;
+	public boolean isStatic = true;
+	public boolean isXRay = true;
 	public boolean isSoft = false;
 	public boolean isActive = true;
 

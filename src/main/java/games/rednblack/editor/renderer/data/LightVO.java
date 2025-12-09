@@ -20,8 +20,8 @@ public class LightVO extends MainItemVO {
 	public float coneDegree = 30;
 	public float softnessLength = -1f;
 	public float intensity = 1f;
-	public boolean isStatic = false;
-	public boolean isXRay = false;
+	public boolean isStatic = true;
+	public boolean isXRay = true;
 	public boolean isSoft = false;
 	public boolean isActive = true;
 	
