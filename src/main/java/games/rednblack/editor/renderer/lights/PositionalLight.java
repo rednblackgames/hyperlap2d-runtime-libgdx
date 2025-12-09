@@ -59,11 +59,11 @@ public abstract class PositionalLight extends Light {
         float lz = pseudo3dHeight;
 
         //Main light
-        batch.drawFan(segments, vertexNum, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz);
+        batch.drawFan(segments, vertexNum, intensity, falloff.x, falloff.y, falloff.z, lx, ly, lz, isCircle());
 
         if (soft && !xray && !rayHandler.pseudo3d) {
             for (int i = 0; i < rayNum; i++) {
-                if (!(this instanceof PointLight) && i == rayNum - 1) continue;
+                if (!isCircle() && i == rayNum - 1) continue;
 
                 int nextI = (i + 1) % rayNum;
 
@@ -523,6 +523,8 @@ public abstract class PositionalLight extends Light {
         }
         return oddNodes;
     }
+
+    protected abstract boolean isCircle();
 
     public float getBodyOffsetX() { return bodyOffsetX; }
     public float getBodyOffsetY() { return bodyOffsetY; }

@@ -88,7 +88,12 @@ public class PointLight extends PositionalLight {
 			endY[i] = distance * sin[i];
 		}
 	}
-	
+
+	@Override
+	protected boolean isCircle() {
+		return true;
+	}
+
 	/** Not applicable for this light type **/
 	@Deprecated
 	@Override

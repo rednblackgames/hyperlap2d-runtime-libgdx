@@ -97,10 +97,10 @@ public class LightBatch {
      * Draws a light mesh based on pre-calculated segments (Fan format).
      * Automatically converts Triangle Fan -> Triangles for batching.
      */
-    public void drawFan(float[] segments, int vertexCount, float intensity, float fx, float fy, float fz, float lx, float ly, float lz) {
+    public void drawFan(float[] segments, int vertexCount, float intensity, float fx, float fy, float fz, float lx, float ly, float lz, boolean wrapAround) {
         if (vertexCount < 3) return;
 
-        int numTriangles = vertexCount - 1;
+        int numTriangles = wrapAround ? vertexCount - 1 : vertexCount - 2;
 
         if (vertCount + vertexCount > MAX_VERTICES || indexIdx + (numTriangles * 3) > MAX_INDICES) {
             flush();
@@ -125,12 +125,12 @@ public class LightBatch {
             verts[vIdx++] = intensity; verts[vIdx++] = fx; verts[vIdx++] = fy; verts[vIdx++] = fz; verts[vIdx++] = lx; verts[vIdx++] = ly; verts[vIdx++] = lz;
         }
 
-        int rimPoints = vertexCount - 1;
-        for (int i = 0; i < rimPoints; i++) {
+        int loopCount = wrapAround ? vertexCount - 1 : vertexCount - 2;
+        for (int i = 0; i < loopCount; i++) {
             int currentRim = startV + 1 + i;
             int nextRim    = startV + 1 + i + 1;
 
-            if (i == rimPoints - 1) {
+            if (wrapAround && i == loopCount - 1) {
                 nextRim = startV + 1;
             }
 

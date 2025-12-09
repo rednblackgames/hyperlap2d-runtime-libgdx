@@ -98,7 +98,44 @@ public class ConeLight extends PositionalLight {
 		this.distance = Math.max(dist, 0.01f);
 		dirty = true;
 	}
-	
+
+	@Override
+	protected boolean isCircle() {
+		return MathUtils.isEqual(coneDegree, 180f);
+	}
+
+	@Override
+	protected void setMesh() {
+		// ray starting point
+		int size = 0;
+		segments[size++] = start.x;
+		segments[size++] = start.y;
+		segments[size++] = colorF;
+		segments[size++] = 0f;
+
+		// rays ending points.
+		for (int i = 0; i < rayNum; i++) {
+			segments[size++] = mx[i];
+			segments[size++] = my[i];
+			float currentAlpha = 1f;
+
+			if (coneDegree < 180f) {
+				float edgeFadePercent = 0.15f;
+				float progress = (float) i / (float) (rayNum - 1);
+
+				if (progress < edgeFadePercent) {
+					currentAlpha = progress / edgeFadePercent;
+				} else if (progress > (1f - edgeFadePercent)) {
+					currentAlpha = (1f - progress) / edgeFadePercent;
+				}
+			}
+			Color c = tmpColor.set(color);
+			c.a *= currentAlpha;
+			segments[size++] = c.toFloatBits();
+			segments[size++] = f[i];
+		}
+	}
+
 	/** Updates lights sector basing on distance, direction and coneDegree **/
 	protected void setEndPoints() {
 		for (int i = 0; i < rayNum; i++) {
