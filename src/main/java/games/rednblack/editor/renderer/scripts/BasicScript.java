@@ -10,7 +10,7 @@ public abstract class BasicScript implements IScript, Pool.Poolable {
     private boolean isInit = false;
     protected int entity = -1;
 
-    public final void doInit(int item) {
+    public void doInit(int item) {
         if (isInit) return;
         init(item);
     }
@@ -30,6 +30,10 @@ public abstract class BasicScript implements IScript, Pool.Poolable {
         pool = null;
         entity = -1;
         isInit = false;
+    }
+
+    public boolean isInit() {
+        return isInit;
     }
 
     public void setPool(Pool pool) {

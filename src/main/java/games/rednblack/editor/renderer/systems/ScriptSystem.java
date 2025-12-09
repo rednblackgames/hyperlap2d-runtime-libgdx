@@ -8,9 +8,6 @@ import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 
-/**
- * Created by azakhary on 6/19/2015.
- */
 @All(ScriptComponent.class)
 public class ScriptSystem extends IteratingSystem {
 
@@ -22,9 +19,15 @@ public class ScriptSystem extends IteratingSystem {
         for (int i = 0; i < scripts.size; i++) {
             IScript script = scripts.get(i);
             if (script instanceof BasicScript) {
-                ((BasicScript) script).doInit(entity);
+                BasicScript basicScript = (BasicScript) script;
+                if (!basicScript.isInit()) {
+                    basicScript.doInit(entity);
+                } else {
+                    script.act(world.getDelta());
+                }
+            } else {
+                script.act(world.getDelta());
             }
-            script.act(world.getDelta());
         }
     }
 }
