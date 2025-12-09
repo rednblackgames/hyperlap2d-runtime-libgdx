@@ -443,7 +443,7 @@ public class SceneLoader {
                 }
                 sceneDirectionalLight.setColor(vo.lightsPropertiesVO.directionalColor[0], vo.lightsPropertiesVO.directionalColor[1],
                         vo.lightsPropertiesVO.directionalColor[2], vo.lightsPropertiesVO.directionalColor[3]);
-
+                sceneDirectionalLight.setDirection(vo.lightsPropertiesVO.directionalDegree);
                 sceneDirectionalLight.setHeight(vo.lightsPropertiesVO.directionalHeight);
             } else if (sceneDirectionalLight != null) {
                 sceneDirectionalLight.remove();

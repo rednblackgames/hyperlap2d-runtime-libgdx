@@ -122,6 +122,8 @@ public class DirectionalLight extends Light {
 
     @Override
     void draw(LightBatch batch) {
+        if (rayHandler.pseudo3d && pseudo3dHeight <= 0) return;
+
         rayHandler.lightRenderedLastFrame++;
 
         float dist = 10000f;
@@ -129,7 +131,7 @@ public class DirectionalLight extends Light {
         float centerY = (rayHandler.y1 + rayHandler.y2) * 0.5f;
         float virtualLightX = centerX - cos * dist;
         float virtualLightY = centerY - sin * dist;
-        float virtualLightZ = (pseudo3dHeight != 0) ? pseudo3dHeight : 100f;
+        float virtualLightZ = pseudo3dHeight;
 
         for (int i = 0; i < rayNum - 1; i++) {
             int idx_s1 = i * 8;      // Start Ray i
@@ -181,6 +183,8 @@ public class DirectionalLight extends Light {
 
     @Override
     void drawDynamicShadows(LightBatch batch) {
+        if (pseudo3dHeight <= 0f) return;
+
         float colBits = rayHandler.ambientLight.toFloatBits();
         // Virtual Position per shadows
         float dist = 10000f;
@@ -188,7 +192,8 @@ public class DirectionalLight extends Light {
         float centerY = (rayHandler.y1 + rayHandler.y2) * 0.5f;
         float vlx = centerX - cos * dist;
         float vly = centerY - sin * dist;
-        float vlz = pseudo3dHeight != 0 ? pseudo3dHeight : 100f;
+        float vlz = pseudo3dHeight;
+        float tan = (float) Math.tan(pseudo3dHeight * MathUtils.degRad);
 
         for (Fixture fixture : affectedFixtures) {
             Object userData = fixture.getUserData();
@@ -203,7 +208,7 @@ public class DirectionalLight extends Light {
             center.set(body.getWorldCenter());
             lstart.set(center).add(xDisp, yDisp);
 
-            float l = data.height / (float) Math.tan(pseudo3dHeight * MathUtils.degRad);
+            float l = data.height / tan;
             float f = 1f;
 
             tmpColor.set(Color.BLACK);
@@ -379,14 +384,28 @@ public class DirectionalLight extends Light {
     @Override public Body getBody() { return body; }
     @Override public void attachToBody(Body body) {} // Not supported
     public void setIgnoreBody(Body body) { this.body = body; ignoreBody = (body != null); }
+
     @Override public void setHeight(float degrees) {
-        flipDirection = false;
-        if (degrees < 0f) pseudo3dHeight = 0f;
-        else {
-            degrees = degrees % 360;
-            if (degrees > 180f) { pseudo3dHeight = -1f; }
-            else if (degrees > 90f) { pseudo3dHeight = 180f - degrees; flipDirection = true; }
-            else pseudo3dHeight = degrees;
+        degrees = degrees % 360;
+        if (degrees < 0) degrees += 360;
+
+        boolean oldFlip = flipDirection;
+
+        if (degrees > 180f) {
+            pseudo3dHeight = -0.01f;
+            flipDirection = false;
+        } else if (degrees > 90f) {
+            pseudo3dHeight = 180f - degrees;
+            flipDirection = true;
+        } else {
+            pseudo3dHeight = degrees;
+            flipDirection = false;
         }
+
+        if (oldFlip != flipDirection) {
+            setDirection(this.direction);
+        }
+
+        if (staticLight) dirty = true;
     }
 }
