@@ -27,6 +27,11 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         INV_TIME_STEP_NANO = 1f / TIME_STEP_NANO;
     }
 
+    public static float TIME_SCALE = 1f;
+    public static void setTimeScale(float timeScale) {
+        TIME_SCALE = Math.max(0, timeScale);
+    }
+
     private long currentTime;
     private long accumulator = 0;
 
@@ -56,7 +61,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         long frameTime = Math.min(newTime - currentTime, 250000000);
         currentTime = newTime;
 
-        accumulator += frameTime;
+        accumulator += (long) (frameTime * TIME_SCALE);
 
         world.setDelta(TIME_STEP);
 
@@ -82,7 +87,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
             interpolationSystems.get(i).interpolate(alpha);
         }
 
-        world.setDelta(Gdx.graphics.getDeltaTime());
+        world.setDelta(Gdx.graphics.getDeltaTime() * TIME_SCALE);
 
         //process rendering systems
         for (int i = 0, s = renderSystems.size(); s > i; i++) {
