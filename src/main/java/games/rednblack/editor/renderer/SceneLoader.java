@@ -452,6 +452,7 @@ public class SceneLoader {
 
             rayHandler.setAmbientLight(clr);
             rayHandler.setBlurNum(vo.lightsPropertiesVO.blurNum);
+            rayHandler.setLightMapScale(vo.lightsPropertiesVO.lightMapScale);
         }
     }
 

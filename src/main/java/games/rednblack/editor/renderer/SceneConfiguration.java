@@ -196,7 +196,7 @@ public class SceneConfiguration {
             rayHandler.setAmbientLight(1f, 1f, 1f, 1f);
             rayHandler.setCulling(true);
             rayHandler.setBlur(true);
-            rayHandler.setBlurNum(3);
+            rayHandler.setBlurNum(1);
             rayHandler.setShadows(true);
 
             setRayHandler(rayHandler);

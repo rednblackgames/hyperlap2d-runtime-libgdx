@@ -5,6 +5,7 @@ public class LightsPropertiesVO {
     public boolean pseudo3d;
     public float[] ambientColor;
     public int blurNum;
+    public int lightMapScale;
     public String lightType; //DIFFUSE, DIRECTIONAL
 
     public int directionalRays;
@@ -13,7 +14,8 @@ public class LightsPropertiesVO {
     public float[] directionalColor;
 
     public LightsPropertiesVO() {
-        blurNum = 3;
+        blurNum = 1;
+        lightMapScale = 4;
         lightType = "DIFFUSE";
         enabled = false;
         pseudo3d = false;
@@ -28,6 +30,7 @@ public class LightsPropertiesVO {
         this.enabled = lightsPropertiesVO.enabled;
         this.pseudo3d = lightsPropertiesVO.pseudo3d;
         this.blurNum = lightsPropertiesVO.blurNum;
+        this.lightMapScale = lightsPropertiesVO.lightMapScale;
         this.lightType = lightsPropertiesVO.lightType;
         this.directionalRays = lightsPropertiesVO.directionalRays;
         this.directionalDegree = lightsPropertiesVO.directionalDegree;

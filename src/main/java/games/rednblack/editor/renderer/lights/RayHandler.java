@@ -69,6 +69,7 @@ public class RayHandler implements Disposable {
     int shadowsDroppedLimit = 10;
 
     int blurNum = 1;
+    int lightMapScale = 4;
 
     boolean customViewport = false;
     int viewportX = 0;
@@ -85,15 +86,18 @@ public class RayHandler implements Disposable {
 
     int lightRenderedLastFrame = 0;
 
+    int originalFboWidth;
+    int originalFboHeight;
+
     /**
      * Class constructor specifying the physics world.
      */
     public RayHandler(World world) {
-        this(world, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4, null);
+        this(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), null);
     }
 
     public RayHandler(World world, RayHandlerOptions options) {
-        this(world, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4, options);
+        this(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), options);
     }
 
     public RayHandler(World world, int fboWidth, int fboHeight) {
@@ -120,6 +124,12 @@ public class RayHandler implements Disposable {
      * Resize the FBO used for intermediate rendering.
      */
     public void resizeFBO(int fboWidth, int fboHeight) {
+        originalFboWidth = fboWidth;
+        originalFboHeight = fboHeight;
+
+        fboWidth /= lightMapScale;
+        fboHeight /= lightMapScale;
+
         if (fboWidth > GL_MAX_TEXTURE_SIZE || fboHeight > GL_MAX_TEXTURE_SIZE) {
             double aspectRatio = (double) fboWidth / fboHeight;
             if (fboWidth > fboHeight) {
@@ -294,6 +304,15 @@ public class RayHandler implements Disposable {
 
     public void setBlurNum(int blurNum) {
         this.blurNum = blurNum;
+    }
+
+    public void setLightMapScale(int lightMapScale) {
+        if (lightMapScale <= 0) return;
+
+        if (lightMapScale != this.lightMapScale) {
+            this.lightMapScale = lightMapScale;
+            resizeFBO(originalFboWidth, originalFboHeight);
+        }
     }
 
     public void setShadows(boolean shadows) {

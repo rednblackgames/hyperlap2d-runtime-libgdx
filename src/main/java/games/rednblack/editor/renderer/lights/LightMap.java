@@ -21,7 +21,7 @@ class LightMap {
 
 	private final RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
-	private ShaderProgram blurShader;
+	private ShaderProgram onePassBlurShader;
 	private ShaderProgram diffuseShader;
 
 	FrameBuffer shadowBuffer;
@@ -51,6 +51,17 @@ class LightMap {
 		lightMapMesh = createLightMapMesh();
 
 		createShaders();
+	}
+
+	void createShaders() {
+		disposeShaders();
+
+		shadowShader = rayHandler.pseudo3d ? DynamicShadowShader.createShadowShader() : ShadowShader.createShadowShader();
+		diffuseShader = DiffuseShader.createShadowShader();
+
+		withoutShadowShader = WithoutShadowShader.createShadowShader();
+
+		onePassBlurShader = OnePassGaussian.createBlurShader(fboWidth, fboHeight);
 	}
 
 	public void render() {
@@ -108,32 +119,27 @@ class LightMap {
 
 	public void gaussianBlur(FrameBuffer buffer, int blurNum) {
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
+		onePassBlurShader.bind();
 		for (int i = 0; i < blurNum; i++) {
 			buffer.getColorBufferTexture().bind(0);
-			// horizontal
 			pingPongBuffer.begin();
 			{
-				blurShader.bind();
-				blurShader.setUniformf("dir", 1f, 0f);
-				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
-
+				lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 			}
 			pingPongBuffer.end();
 
 			pingPongBuffer.getColorBufferTexture().bind(0);
-			// vertical
 			buffer.begin();
 			{
-				blurShader.bind();
-				blurShader.setUniformf("dir", 0f, 1f);
-				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+				lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 			}
+
 			if (rayHandler.customViewport) {
 				buffer.end(
-					rayHandler.viewportX,
-					rayHandler.viewportY,
-					rayHandler.viewportWidth,
-					rayHandler.viewportHeight);
+						rayHandler.viewportX,
+						rayHandler.viewportY,
+						rayHandler.viewportWidth,
+						rayHandler.viewportHeight);
 			} else {
 				buffer.end();
 			}
@@ -152,17 +158,6 @@ class LightMap {
 		pingPongBuffer.dispose();
 	}
 
-	void createShaders() {
-		disposeShaders();
-
-		shadowShader = rayHandler.pseudo3d ? DynamicShadowShader.createShadowShader() : ShadowShader.createShadowShader();
-		diffuseShader = DiffuseShader.createShadowShader();
-
-		withoutShadowShader = WithoutShadowShader.createShadowShader();
-
-		blurShader = Gaussian.createBlurShader(fboWidth, fboHeight);
-	}
-
 	private void disposeShaders() {
 		if (shadowShader != null)
 			shadowShader.dispose();
@@ -170,8 +165,8 @@ class LightMap {
 			diffuseShader.dispose();
 		if (withoutShadowShader != null)
 			withoutShadowShader.dispose();
-		if (blurShader != null)
-			blurShader.dispose();
+		if (onePassBlurShader != null)
+			onePassBlurShader.dispose();
 	}
 
 	private Mesh createLightMapMesh() {
