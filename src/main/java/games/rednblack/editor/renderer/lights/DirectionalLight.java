@@ -211,8 +211,8 @@ public class DirectionalLight extends Light {
             float l = data.height / tan;
             float f = 1f;
 
-            tmpColor.set(Color.WHITE);
-            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : oneColorBits;
+            tmpColor.set(SHADOW_STRENGTH);
+            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : shadowStrengthBits;
             tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : colBits;
 

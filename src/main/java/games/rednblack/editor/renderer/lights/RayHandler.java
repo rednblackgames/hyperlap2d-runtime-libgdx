@@ -65,7 +65,7 @@ public class RayHandler implements Disposable {
 
     // Pseudo3D & Experimental
     boolean pseudo3d = false;
-    boolean shadowColorInterpolation = true;
+    boolean shadowColorInterpolation = false;
     int shadowsDroppedLimit = 10;
 
     int blurNum = 1;

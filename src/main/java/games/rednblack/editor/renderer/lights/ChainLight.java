@@ -271,8 +271,8 @@ public class ChainLight extends Light {
             float f1 = 1f - dst / distance;
             float f2 = 1f - (dst + l) / distance;
 
-            tmpColor.set(Color.WHITE);
-            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+            tmpColor.set(SHADOW_STRENGTH);
+            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : shadowStrengthBits;
             tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
@@ -299,18 +299,18 @@ public class ChainLight extends Light {
                 Vector2 v0 = tmpVerts.get(0);
                 float d0 = Vector2.dst(v0.x, v0.y, lx, ly);
                 float f0 = 1f - d0 / distance;
-                float c0 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f0).toFloatBits() : oneColorBits;
+                float c0 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f0).toFloatBits() : shadowStrengthBits;
 
                 for (int i = 1; i < vCount - 1; i++) {
                     Vector2 v1 = tmpVerts.get(i);
                     float d1 = Vector2.dst(v1.x, v1.y, lx, ly);
                     float f1_roof = 1f - d1 / distance;
-                    float c1 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_roof).toFloatBits() : oneColorBits;
+                    float c1 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_roof).toFloatBits() : shadowStrengthBits;
 
                     Vector2 v2 = tmpVerts.get(i + 1);
                     float d2 = Vector2.dst(v2.x, v2.y, lx, ly);
                     float f2_roof = 1f - d2 / distance;
-                    float c2 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_roof).toFloatBits() : oneColorBits;
+                    float c2 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_roof).toFloatBits() : shadowStrengthBits;
 
                     batch.drawTriangle(
                             v0.x, v0.y, c0, f0,
@@ -336,8 +336,8 @@ public class ChainLight extends Light {
         float f1 = 1f - dst / distance;
         float f2 = 1f - (dst + l) / distance;
 
-        tmpColor.set(Color.WHITE);
-        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+        tmpColor.set(SHADOW_STRENGTH);
+        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : shadowStrengthBits;
         tmpColor.set(Color.BLACK);
         float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
@@ -408,13 +408,13 @@ public class ChainLight extends Light {
         float ex2 = tmpEnd.x;
         float ey2 = tmpEnd.y;
 
-        tmpColor.set(Color.WHITE);
-        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_start).toFloatBits() : oneColorBits;
+        tmpColor.set(SHADOW_STRENGTH);
+        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_start).toFloatBits() : shadowStrengthBits;
         tmpColor.set(Color.BLACK);
         float c1_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_end).toFloatBits() : colBits;
 
-        tmpColor.set(Color.WHITE);
-        float c2_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_start).toFloatBits() : oneColorBits;
+        tmpColor.set(SHADOW_STRENGTH);
+        float c2_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_start).toFloatBits() : shadowStrengthBits;
         tmpColor.set(Color.BLACK);
         float c2_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_end).toFloatBits() : colBits;
 

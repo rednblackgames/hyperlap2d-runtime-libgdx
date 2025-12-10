@@ -203,9 +203,9 @@ public abstract class PositionalLight extends Light {
             float f1 = 1f - dst / distance;
             float f2 = 1f - (dst + l) / distance;
 
-            tmpColor.set(Color.WHITE);
+            tmpColor.set(SHADOW_STRENGTH);
             float startColBits = rayHandler.shadowColorInterpolation ?
-                    tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+                    tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : shadowStrengthBits;
             tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ?
                     tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
@@ -239,17 +239,17 @@ public abstract class PositionalLight extends Light {
                 tmpVec.set(tmpVerts.get(0));
                 float dst = tmpVec.dst(start);
                 float f1 = 1f - dst / distance;
-                float col1 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+                float col1 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : shadowStrengthBits;
 
                 tmpEnd.set(tmpVerts.get(n-1));
                 float dst2 = tmpEnd.dst(start);
                 float f2 = 1f - dst2 / distance;
-                float col2 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : oneColorBits;
+                float col2 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : shadowStrengthBits;
 
                 Vector2 v3 = tmpVerts.get(n);
                 float dst3 = v3.dst(start);
                 float f3 = 1f - dst3 / distance;
-                float col3 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f3).toFloatBits() : oneColorBits;
+                float col3 = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f3).toFloatBits() : shadowStrengthBits;
 
                 batch.drawTriangle(
                         tmpVec.x, tmpVec.y, col1, f1,
@@ -279,8 +279,8 @@ public abstract class PositionalLight extends Light {
         float f1 = 1f - dst / distance;
         float f2 = 1f - (dst + l) / distance;
 
-        tmpColor.set(Color.WHITE);
-        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+        tmpColor.set(SHADOW_STRENGTH);
+        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : shadowStrengthBits;
         tmpColor.set(Color.BLACK);
         float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
@@ -362,8 +362,8 @@ public abstract class PositionalLight extends Light {
         float ey2 = tmpEnd.y;
 
         // Colors
-        tmpColor.set(Color.WHITE);
-        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_1).toFloatBits() : oneColorBits;
+        tmpColor.set(SHADOW_STRENGTH);
+        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_1).toFloatBits() : shadowStrengthBits;
         tmpColor.set(Color.BLACK);
         float c1_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_1).toFloatBits() : colBits;
 
