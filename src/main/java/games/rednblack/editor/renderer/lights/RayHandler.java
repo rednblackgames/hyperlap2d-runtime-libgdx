@@ -217,7 +217,8 @@ public class RayHandler implements Disposable {
         if (pseudo3d && shadows) {
             lightBatch.flush();
 
-            Gdx.gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            Gdx.gl.glBlendEquation(GL20.GL_FUNC_REVERSE_SUBTRACT);
+            Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
 
             for (Light light : lightList) {
                 light.drawDynamicShadows(lightBatch);
@@ -225,6 +226,8 @@ public class RayHandler implements Disposable {
         }
 
         lightBatch.end();
+
+        Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
 
         if (useLightMap) {
             if (customViewport) {

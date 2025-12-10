@@ -211,9 +211,9 @@ public class DirectionalLight extends Light {
             float l = data.height / tan;
             float f = 1f;
 
-            tmpColor.set(Color.BLACK);
-            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : oneColorBits;
             tmpColor.set(Color.WHITE);
+            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : oneColorBits;
+            tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, 1 - f).toFloatBits() : colBits;
 
             if (type == Shape.Type.Polygon || type == Shape.Type.Chain) {

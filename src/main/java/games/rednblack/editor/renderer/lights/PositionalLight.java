@@ -203,10 +203,10 @@ public abstract class PositionalLight extends Light {
             float f1 = 1f - dst / distance;
             float f2 = 1f - (dst + l) / distance;
 
-            tmpColor.set(Color.BLACK);
+            tmpColor.set(Color.WHITE);
             float startColBits = rayHandler.shadowColorInterpolation ?
                     tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
-            tmpColor.set(Color.WHITE);
+            tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ?
                     tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
@@ -279,9 +279,9 @@ public abstract class PositionalLight extends Light {
         float f1 = 1f - dst / distance;
         float f2 = 1f - (dst + l) / distance;
 
-        tmpColor.set(Color.BLACK);
-        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
         tmpColor.set(Color.WHITE);
+        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+        tmpColor.set(Color.BLACK);
         float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
         tmpVec.set(start).sub(center).clamp(r, r).rotateRad(a);
@@ -362,9 +362,9 @@ public abstract class PositionalLight extends Light {
         float ey2 = tmpEnd.y;
 
         // Colors
-        tmpColor.set(Color.BLACK);
-        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_1).toFloatBits() : oneColorBits;
         tmpColor.set(Color.WHITE);
+        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_1).toFloatBits() : oneColorBits;
+        tmpColor.set(Color.BLACK);
         float c1_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_1).toFloatBits() : colBits;
 
         batch.drawQuad(

@@ -271,9 +271,9 @@ public class ChainLight extends Light {
             float f1 = 1f - dst / distance;
             float f2 = 1f - (dst + l) / distance;
 
-            tmpColor.set(Color.BLACK);
-            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
             tmpColor.set(Color.WHITE);
+            float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+            tmpColor.set(Color.BLACK);
             float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
             if (!first) {
@@ -336,9 +336,9 @@ public class ChainLight extends Light {
         float f1 = 1f - dst / distance;
         float f2 = 1f - (dst + l) / distance;
 
-        tmpColor.set(Color.BLACK);
-        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
         tmpColor.set(Color.WHITE);
+        float startColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1).toFloatBits() : oneColorBits;
+        tmpColor.set(Color.BLACK);
         float endColBits = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2).toFloatBits() : colBits;
 
         tmpVec.set(lx, ly).sub(center).clamp(r, r).rotateRad(a);
@@ -408,14 +408,14 @@ public class ChainLight extends Light {
         float ex2 = tmpEnd.x;
         float ey2 = tmpEnd.y;
 
-        tmpColor.set(Color.BLACK);
-        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_start).toFloatBits() : oneColorBits;
         tmpColor.set(Color.WHITE);
+        float c1_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_start).toFloatBits() : oneColorBits;
+        tmpColor.set(Color.BLACK);
         float c1_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f1_end).toFloatBits() : colBits;
 
-        tmpColor.set(Color.BLACK);
-        float c2_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_start).toFloatBits() : oneColorBits;
         tmpColor.set(Color.WHITE);
+        float c2_start = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_start).toFloatBits() : oneColorBits;
+        tmpColor.set(Color.BLACK);
         float c2_end = rayHandler.shadowColorInterpolation ? tmpColor.lerp(rayHandler.ambientLight, f2_end).toFloatBits() : colBits;
 
         batch.drawQuad(
