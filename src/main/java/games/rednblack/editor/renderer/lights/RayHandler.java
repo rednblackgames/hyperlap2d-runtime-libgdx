@@ -214,6 +214,16 @@ public class RayHandler implements Disposable {
             light.draw(lightBatch);
         }
 
+        if (pseudo3d && shadows) {
+            lightBatch.flush();
+
+            Gdx.gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            for (Light light : lightList) {
+                light.drawDynamicShadows(lightBatch);
+            }
+        }
+
         lightBatch.end();
 
         if (useLightMap) {
@@ -222,32 +232,12 @@ public class RayHandler implements Disposable {
             } else {
                 lightMap.frameBuffer.end();
             }
+
+            // 3. Blur Passes
+            boolean needed = lightRenderedLastFrame > 0;
+            if (needed && blur)
+                lightMap.gaussianBlur(lightMap.frameBuffer, blurNum);
         }
-
-        if (useLightMap && pseudo3d) {
-            lightMap.shadowBuffer.begin();
-            Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-            lightBatch.begin(combined);
-            for (Light light : lightList) {
-                light.drawDynamicShadows(lightBatch);
-            }
-            lightBatch.end();
-
-            if (customViewport) {
-                lightMap.shadowBuffer.end(viewportX, viewportY, viewportWidth, viewportHeight);
-            } else {
-                lightMap.shadowBuffer.end();
-            }
-        }
-
-        // 3. Blur Passes
-        boolean needed = lightRenderedLastFrame > 0;
-        if (needed && blur)
-            lightMap.gaussianBlur(lightMap.frameBuffer, blurNum);
-        if (needed && blur && pseudo3d)
-            lightMap.gaussianBlur(lightMap.shadowBuffer, blurNum);
     }
 
     /**

@@ -13,18 +13,15 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import games.rednblack.editor.renderer.lights.shaders.*;
 
 class LightMap {
-	private ShaderProgram shadowShader;
 	FrameBuffer frameBuffer;
 	private final Mesh lightMapMesh;
 
 	private final FrameBuffer pingPongBuffer;
 
 	private final RayHandler rayHandler;
-	private ShaderProgram withoutShadowShader;
-	private ShaderProgram onePassBlurShader;
+	private ShaderProgram standardShader;
 	private ShaderProgram diffuseShader;
-
-	FrameBuffer shadowBuffer;
+	private ShaderProgram onePassBlurShader;
 
 	boolean lightMapDrawingDisabled;
 
@@ -45,8 +42,6 @@ class LightMap {
 				fboHeight, false);
 		pingPongBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
 				fboHeight, false);
-		shadowBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
-				fboHeight, false);
 
 		lightMapMesh = createLightMapMesh();
 
@@ -56,10 +51,8 @@ class LightMap {
 	void createShaders() {
 		disposeShaders();
 
-		shadowShader = rayHandler.pseudo3d ? DynamicShadowShader.createShadowShader() : ShadowShader.createShadowShader();
-		diffuseShader = DiffuseShader.createShadowShader();
-
-		withoutShadowShader = WithoutShadowShader.createShadowShader();
+		standardShader = StandardLightShader.createShader();
+		diffuseShader = DiffuseLightShader.createShader();
 
 		onePassBlurShader = OnePassGaussian.createBlurShader(fboWidth, fboHeight);
 	}
@@ -70,48 +63,26 @@ class LightMap {
 		if (lightMapDrawingDisabled)
 			return;
 
-		if (rayHandler.pseudo3d) {
-			frameBuffer.getColorBufferTexture().bind(1);
-			shadowBuffer.getColorBufferTexture().bind(0);
-		} else {
-			frameBuffer.getColorBufferTexture().bind(0);
-		}
+		frameBuffer.getColorBufferTexture().bind(0);
 
-		// at last lights are rendered over scene
-		if (rayHandler.shadows) {
+		if (rayHandler.shadows || needed) {
 			final Color c = rayHandler.ambientLight;
-			ShaderProgram shader = shadowShader;
-			if (rayHandler.pseudo3d) {
-				shader.bind();
-				if (RayHandler.isDiffuse) {
-					rayHandler.diffuseBlendFunc.apply();
-					shader.setUniformf("ambient", c.r, c.g, c.b, c.a);
-				} else {
-					rayHandler.shadowBlendFunc.apply();
-					shader.setUniformf("ambient", c.r * c.a, c.g * c.a,
-							c.b * c.a, 1f - c.a);
-				}
-				shader.setUniformi("isDiffuse", RayHandler.isDiffuse ? 1 : 0);
-				shader.setUniformi("u_texture", 1);
-				shader.setUniformi("u_shadows", 0);
-			} else if (RayHandler.isDiffuse) {
+			ShaderProgram shader;
+
+			if (RayHandler.isDiffuse) {
 				shader = diffuseShader;
 				shader.bind();
 				rayHandler.diffuseBlendFunc.apply();
 				shader.setUniformf("ambient", c.r, c.g, c.b, c.a);
 			} else {
+				shader = standardShader;
 				shader.bind();
 				rayHandler.shadowBlendFunc.apply();
-				shader.setUniformf("ambient", c.r * c.a, c.g * c.a,
-						c.b * c.a, 1f - c.a);
+				shader.setUniformf("ambient", c.r * c.a, c.g * c.a, c.b * c.a, 1f - c.a);
 			}
 
+			shader.setUniformi("u_texture", 0);
 			lightMapMesh.render(shader, GL20.GL_TRIANGLE_FAN);
-		} else if (needed) {
-			rayHandler.simpleBlendFunc.apply();
-			withoutShadowShader.bind();
-
-			lightMapMesh.render(withoutShadowShader, GL20.GL_TRIANGLE_FAN);
 		}
 
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
@@ -154,17 +125,14 @@ class LightMap {
 		lightMapMesh.dispose();
 
 		frameBuffer.dispose();
-		shadowBuffer.dispose();
 		pingPongBuffer.dispose();
 	}
 
 	private void disposeShaders() {
-		if (shadowShader != null)
-			shadowShader.dispose();
+		if (standardShader != null)
+			standardShader.dispose();
 		if (diffuseShader != null)
 			diffuseShader.dispose();
-		if (withoutShadowShader != null)
-			withoutShadowShader.dispose();
 		if (onePassBlurShader != null)
 			onePassBlurShader.dispose();
 	}
