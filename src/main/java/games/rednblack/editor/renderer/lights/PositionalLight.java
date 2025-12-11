@@ -101,7 +101,7 @@ public abstract class PositionalLight extends Light {
 
         for (Fixture fixture : affectedFixtures) {
             Object userData = fixture.getUserData();
-            if (!(userData instanceof LightData) || fixture.isSensor()) continue;
+            if (!(userData instanceof LightData)) continue;
 
             LightData data = (LightData) userData;
             // if (data.shadowsDropped >= rayHandler.shadowsDroppedLimit) continue;

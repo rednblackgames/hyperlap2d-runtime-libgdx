@@ -28,6 +28,11 @@ public abstract class Light implements Disposable {
 	static final Color SHADOW_STRENGTH = new Color(0.7f, 0.7f, 0.7f, 1f);
 	static final float shadowStrengthBits = SHADOW_STRENGTH.toFloatBits();
 	static final int MIN_RAYS = 3;
+
+	/** Global lights filter **/
+	private static Filter globalFilterA = null;
+	/** This light specific filter **/
+	private Filter filterA = null;
 	
 	protected final Color color = new Color();
 	protected final Vector2 tmpPosition = new Vector2();
@@ -101,6 +106,48 @@ public abstract class Light implements Disposable {
 		setDistance(distance);
 		setSoftnessLength(distance * 0.1f);
 		setDirection(directionDegree);
+	}
+
+	/**
+	 * Sets given contact filter for ALL LIGHTS
+	 */
+	public static void setGlobalContactFilter(Filter filter) {
+		globalFilterA = filter;
+	}
+
+	/**
+	 * Creates new contact filter for ALL LIGHTS with give parameters
+	 *
+	 * @param categoryBits - see {@link Filter#categoryBits}
+	 * @param groupIndex   - see {@link Filter#groupIndex}
+	 * @param maskBits     - see {@link Filter#maskBits}
+	 */
+	public static void setGlobalContactFilter(short categoryBits, short groupIndex, short maskBits) {
+		globalFilterA = new Filter();
+		globalFilterA.categoryBits = categoryBits;
+		globalFilterA.groupIndex = groupIndex;
+		globalFilterA.maskBits = maskBits;
+	}
+
+	/**
+	 * Sets given contact filter for this light
+	 */
+	public void setContactFilter(Filter filter) {
+		filterA = filter;
+	}
+
+	/**
+	 * Creates new contact filter for this light with given parameters
+	 *
+	 * @param categoryBits - see {@link Filter#categoryBits}
+	 * @param groupIndex   - see {@link Filter#groupIndex}
+	 * @param maskBits     - see {@link Filter#maskBits}
+	 */
+	public void setContactFilter(short categoryBits, short groupIndex, short maskBits) {
+		filterA = new Filter();
+		filterA.categoryBits = categoryBits;
+		filterA.groupIndex = groupIndex;
+		filterA.maskBits = maskBits;
 	}
 
 	/**
@@ -457,17 +504,9 @@ public abstract class Light implements Disposable {
 		return rayNum;
 	}
 
-	/** Global lights filter **/
-	static private Filter globalFilterA = null;
-	/** This light specific filter **/
-	private Filter filterA = null;
-
-	final RayCastCallback ray = new RayCastCallback() {
+	protected final RayCastCallback ray = new RayCastCallback() {
 		@Override
 		final public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-			if (fixture.isSensor())
-				return -1;
-
 			if ((globalFilterA != null) && !globalContactFilter(fixture))
 				return -1;
 			
@@ -483,75 +522,23 @@ public abstract class Light implements Disposable {
 			return fraction;
 		}
 	};
-	
-	boolean contactFilter(Fixture fixtureB) {
-		Filter filterB = fixtureB.getFilterData();
 
-		if (filterA.groupIndex != 0 &&
-			filterA.groupIndex == filterB.groupIndex)
-			return filterA.groupIndex > 0;
+	protected final QueryCallback dynamicShadowCallback = new QueryCallback() {
+		@Override
+		public boolean reportFixture(Fixture fixture) {
+			if (!onDynamicCallback(fixture)) {
+				return true;
+			}
+			affectedFixtures.add(fixture);
+			if (fixture.getUserData() instanceof LightData) {
+				LightData data = (LightData) fixture.getUserData();
+				data.shadowsDropped++;
+			}
+			return true;
+		}
+	};
 
-		return  (filterA.maskBits & filterB.categoryBits) != 0 &&
-				(filterA.categoryBits & filterB.maskBits) != 0;
-	}
-
-	/**
-	 * Sets given contact filter for this light
-	 */
-	public void setContactFilter(Filter filter) {
-		filterA = filter;
-	}
-
-	/**
-	 * Creates new contact filter for this light with given parameters
-	 * 
-	 * @param categoryBits - see {@link Filter#categoryBits}
-	 * @param groupIndex   - see {@link Filter#groupIndex}
-	 * @param maskBits     - see {@link Filter#maskBits}
-	 */
-	public void setContactFilter(short categoryBits, short groupIndex,
-			short maskBits) {
-		filterA = new Filter();
-		filterA.categoryBits = categoryBits;
-		filterA.groupIndex = groupIndex;
-		filterA.maskBits = maskBits;
-	}
-
-	boolean globalContactFilter(Fixture fixtureB) {
-		Filter filterB = fixtureB.getFilterData();
-
-		if (globalFilterA.groupIndex != 0 &&
-			globalFilterA.groupIndex == filterB.groupIndex)
-			return globalFilterA.groupIndex > 0;
-
-		return  (globalFilterA.maskBits & filterB.categoryBits) != 0 &&
-				(globalFilterA.categoryBits & filterB.maskBits) != 0;
-	}
-
-	/**
-	 * Sets given contact filter for ALL LIGHTS
-	 */
-	static public void setGlobalContactFilter(Filter filter) {
-		globalFilterA = filter;
-	}
-
-	/**
-	 * Creates new contact filter for ALL LIGHTS with give parameters
-	 * 
-	 * @param categoryBits - see {@link Filter#categoryBits}
-	 * @param groupIndex   - see {@link Filter#groupIndex}
-	 * @param maskBits     - see {@link Filter#maskBits}
-	 */
-	static public void setGlobalContactFilter(short categoryBits, short groupIndex,
-			short maskBits) {
-		globalFilterA = new Filter();
-		globalFilterA.categoryBits = categoryBits;
-		globalFilterA.groupIndex = groupIndex;
-		globalFilterA.maskBits = maskBits;
-	}
-
-	protected boolean onDynamicCallback(Fixture fixture) {
-
+	private boolean onDynamicCallback(Fixture fixture) {
 		if ((globalFilterA != null) && !globalContactFilter(fixture)) {
 			return false;
 		}
@@ -566,22 +553,26 @@ public abstract class Light implements Disposable {
 		//We only add the affectedFixtures once
 		return !affectedFixtures.contains(fixture, true);
 	}
+	
+	private boolean contactFilter(Fixture fixtureB) {
+		Filter filterB = fixtureB.getFilterData();
 
-	final QueryCallback dynamicShadowCallback = new QueryCallback() {
+		if (filterA.groupIndex != 0 &&
+			filterA.groupIndex == filterB.groupIndex)
+			return filterA.groupIndex > 0;
 
-		@Override
-		public boolean reportFixture(Fixture fixture) {
-			if (!onDynamicCallback(fixture)) {
-				return true;
-			}
-			affectedFixtures.add(fixture);
-			if (fixture.getUserData() instanceof LightData) {
-				LightData data = (LightData) fixture.getUserData();
-				data.shadowsDropped++;
-			}
-			return true;
-		}
+		return  (filterA.maskBits & filterB.categoryBits) != 0 &&
+				(filterA.categoryBits & filterB.maskBits) != 0;
+	}
 
-	};
+	private boolean globalContactFilter(Fixture fixtureB) {
+		Filter filterB = fixtureB.getFilterData();
 
+		if (globalFilterA.groupIndex != 0 &&
+			globalFilterA.groupIndex == filterB.groupIndex)
+			return globalFilterA.groupIndex > 0;
+
+		return  (globalFilterA.maskBits & filterB.categoryBits) != 0 &&
+				(globalFilterA.categoryBits & filterB.maskBits) != 0;
+	}
 }

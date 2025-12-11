@@ -219,6 +219,11 @@ public class PhysicsBodyLoader {
             if (fixtures.get(0).getUserData() != null)
                 POOLS.free(fixtures.get(0).getUserData());
             fixtures.get(0).setUserData(lightData);
+            //Update defs
+            fixtures.get(0).setDensity(physicsComponent.density);
+            fixtures.get(0).setFriction(physicsComponent.friction);
+            fixtures.get(0).setRestitution(physicsComponent.restitution);
+            fixtures.get(0).setSensor(physicsComponent.sensor);
 
             shape.clear();
             if (physicsComponent.shapeType == PhysicsBodyDataVO.ShapeType.CHAIN_LOOP)
@@ -262,6 +267,11 @@ public class PhysicsBodyLoader {
                     if (fixtures.get(i).getUserData() != null)
                         POOLS.free(fixtures.get(i).getUserData());
                     fixtures.get(i).setUserData(lightData);
+                    //Update defs
+                    fixtures.get(i).setDensity(physicsComponent.density);
+                    fixtures.get(i).setFriction(physicsComponent.friction);
+                    fixtures.get(i).setRestitution(physicsComponent.restitution);
+                    fixtures.get(i).setSensor(physicsComponent.sensor);
                 }
 
                 p = (PolygonShape) fixtures.get(i).getShape();
@@ -342,6 +352,11 @@ public class PhysicsBodyLoader {
             if (fixtures.get(0).getUserData() != null)
                 POOLS.free(fixtures.get(0).getUserData());
             fixtures.get(0).setUserData(lightData);
+            //Update defs
+            fixtures.get(0).setDensity(physicsComponent.density);
+            fixtures.get(0).setFriction(physicsComponent.friction);
+            fixtures.get(0).setRestitution(physicsComponent.restitution);
+            fixtures.get(0).setSensor(physicsComponent.sensor);
 
             shape.setRadius(component.radius);
             shape.setPosition(tmp.set(x, y));
