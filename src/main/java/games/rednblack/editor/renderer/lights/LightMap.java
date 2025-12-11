@@ -1,19 +1,18 @@
 package games.rednblack.editor.renderer.lights;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 import games.rednblack.editor.renderer.lights.shaders.*;
 
 class LightMap {
-	FrameBuffer frameBuffer;
+	private final FrameBuffer frameBuffer;
+	private FrameBuffer renderer;
 	private final Mesh lightMapMesh;
 
 	private final FrameBuffer pingPongBuffer;
@@ -27,7 +26,7 @@ class LightMap {
 
 	private final int fboWidth, fboHeight;
 
-	public LightMap(RayHandler rayHandler, int fboWidth, int fboHeight) {
+	public LightMap(RayHandler rayHandler, int fboWidth, int fboHeight, int samples) {
 		this.rayHandler = rayHandler;
 
 		if (fboWidth <= 0)
@@ -38,10 +37,17 @@ class LightMap {
 		this.fboWidth = fboWidth;
 		this.fboHeight = fboHeight;
 
-		frameBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
-				fboHeight, false);
-		pingPongBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
-				fboHeight, false);
+		if (samples > 0 && Gdx.gl30 != null) {
+			GLFrameBuffer.FrameBufferBuilder builder = new GLFrameBuffer.FrameBufferBuilder(fboWidth, fboHeight, samples);
+			builder.addColorRenderBuffer(GL30.GL_RGBA8);
+			frameBuffer = builder.build();
+			pingPongBuffer = builder.build();
+
+			renderer = new FrameBuffer(Format.RGBA8888, fboWidth, fboHeight, false);
+		} else {
+			frameBuffer = new FrameBuffer(Format.RGBA8888, fboWidth, fboHeight, false);
+			pingPongBuffer = new FrameBuffer(Format.RGBA8888, fboWidth, fboHeight, false);
+		}
 
 		lightMapMesh = createLightMapMesh();
 
@@ -63,7 +69,12 @@ class LightMap {
 		if (lightMapDrawingDisabled)
 			return;
 
-		frameBuffer.getColorBufferTexture().bind(0);
+		if (renderer != null) {
+			frameBuffer.transfer(renderer);
+			renderer.getColorBufferTexture().bind(0);
+		} else {
+			frameBuffer.getColorBufferTexture().bind(0);
+		}
 
 		if (rayHandler.shadows || needed) {
 			final Color c = rayHandler.ambientLight;
@@ -88,35 +99,47 @@ class LightMap {
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
 	}
 
-	public void gaussianBlur(FrameBuffer buffer, int blurNum) {
+	public void gaussianBlur(int blurNum) {
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
 		onePassBlurShader.bind();
 		for (int i = 0; i < blurNum; i++) {
-			buffer.getColorBufferTexture().bind(0);
-			pingPongBuffer.begin();
-			{
-				lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+			if (renderer != null) {
+				frameBuffer.transfer(renderer);
+				renderer.getColorBufferTexture().bind(0);
+			} else {
+				frameBuffer.getColorBufferTexture().bind(0);
 			}
+
+			pingPongBuffer.begin();
+			lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 			pingPongBuffer.end();
 
-			pingPongBuffer.getColorBufferTexture().bind(0);
-			buffer.begin();
-			{
-				lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+			if (renderer != null) {
+				pingPongBuffer.transfer(renderer);
+				renderer.getColorBufferTexture().bind(0);
+			} else {
+				pingPongBuffer.getColorBufferTexture().bind(0);
 			}
 
+			frameBuffer.begin();
+			lightMapMesh.render(onePassBlurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+
 			if (rayHandler.customViewport) {
-				buffer.end(
+				frameBuffer.end(
 						rayHandler.viewportX,
 						rayHandler.viewportY,
 						rayHandler.viewportWidth,
 						rayHandler.viewportHeight);
 			} else {
-				buffer.end();
+				frameBuffer.end();
 			}
 		}
 
 		Gdx.gl20.glEnable(GL20.GL_BLEND);
+	}
+
+	public FrameBuffer getFrameBuffer() {
+		return frameBuffer;
 	}
 
 	void dispose() {
@@ -126,6 +149,8 @@ class LightMap {
 
 		frameBuffer.dispose();
 		pingPongBuffer.dispose();
+
+		if (renderer != null) renderer.dispose();
 	}
 
 	private void disposeShaders() {

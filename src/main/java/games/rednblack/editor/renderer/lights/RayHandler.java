@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
@@ -64,8 +63,9 @@ public class RayHandler implements Disposable {
     boolean blur = true;
 
     // Pseudo3D & Experimental
-    boolean pseudo3d = false;
-    boolean shadowColorInterpolation = false;
+    boolean pseudo3d;
+    boolean shadowColorInterpolation;
+    int samples;
     int shadowsDroppedLimit = 10;
 
     int blurNum = 1;
@@ -93,7 +93,7 @@ public class RayHandler implements Disposable {
      * Class constructor specifying the physics world.
      */
     public RayHandler(World world) {
-        this(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), null);
+        this(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new RayHandlerOptions());
     }
 
     public RayHandler(World world, RayHandlerOptions options) {
@@ -101,18 +101,17 @@ public class RayHandler implements Disposable {
     }
 
     public RayHandler(World world, int fboWidth, int fboHeight) {
-        this(world, fboWidth, fboHeight, null);
+        this(world, fboWidth, fboHeight, new RayHandlerOptions());
     }
 
     public RayHandler(World world, int fboWidth, int fboHeight, RayHandlerOptions options) {
         this.world = world;
 
-        if (options != null) {
-            isDiffuse = options.isDiffuse;
-            gammaCorrection = options.gammaCorrection;
-            pseudo3d = options.pseudo3d;
-            shadowColorInterpolation = options.shadowColorInterpolation;
-        }
+        isDiffuse = options.isDiffuse;
+        gammaCorrection = options.gammaCorrection;
+        pseudo3d = options.pseudo3d;
+        shadowColorInterpolation = options.shadowColorInterpolation;
+        samples = options.samples;
 
         lightShader = LightShader.createLightShader();
         lightBatch = new LightBatch(lightShader);
@@ -144,7 +143,7 @@ public class RayHandler implements Disposable {
         if (lightMap != null) {
             lightMap.dispose();
         }
-        lightMap = new LightMap(this, fboWidth, fboHeight);
+        lightMap = new LightMap(this, fboWidth, fboHeight, samples);
     }
 
     public void setCombinedMatrix(OrthographicCamera camera) {
@@ -199,7 +198,7 @@ public class RayHandler implements Disposable {
         // 1. Render Main Lights (Geometry) to FrameBuffer
         boolean useLightMap = (shadows || blur);
         if (useLightMap) {
-            lightMap.frameBuffer.begin();
+            lightMap.getFrameBuffer().begin();
             Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         }
@@ -207,7 +206,7 @@ public class RayHandler implements Disposable {
         // Setup blending for lights accumulation
         simpleBlendFunc.apply();
 
-        lightBatch.resize(lightMap.frameBuffer.getWidth(), lightMap.frameBuffer.getHeight());
+        lightBatch.resize(lightMap.getFrameBuffer().getWidth(), lightMap.getFrameBuffer().getHeight());
         lightBatch.begin(combined);
 
         for (Light light : lightList) {
@@ -231,15 +230,15 @@ public class RayHandler implements Disposable {
 
         if (useLightMap) {
             if (customViewport) {
-                lightMap.frameBuffer.end(viewportX, viewportY, viewportWidth, viewportHeight);
+                lightMap.getFrameBuffer().end(viewportX, viewportY, viewportWidth, viewportHeight);
             } else {
-                lightMap.frameBuffer.end();
+                lightMap.getFrameBuffer().end();
             }
 
             // 3. Blur Passes
             boolean needed = lightRenderedLastFrame > 0;
             if (needed && blur)
-                lightMap.gaussianBlur(lightMap.frameBuffer, blurNum);
+                lightMap.gaussianBlur(blurNum);
         }
     }
 
@@ -374,14 +373,6 @@ public class RayHandler implements Disposable {
 
     public void setLightMapRendering(boolean isAutomatic) {
         lightMap.lightMapDrawingDisabled = !isAutomatic;
-    }
-
-    public Texture getLightMapTexture() {
-        return lightMap.frameBuffer.getColorBufferTexture();
-    }
-
-    public FrameBuffer getLightMapBuffer() {
-        return lightMap.frameBuffer;
     }
 
     public void setNormalMap(Texture normalMap) {

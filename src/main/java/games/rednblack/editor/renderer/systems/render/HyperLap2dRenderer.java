@@ -85,12 +85,12 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
     protected boolean enableCull = true;
 
-    public HyperLap2dRenderer(Batch batch, boolean hasStencilBuffer) {
+    public HyperLap2dRenderer(Batch batch, boolean hasStencilBuffer, int samples) {
         this.batch = batch;
         this.hasStencilBuffer = hasStencilBuffer;
         drawableLogicMapper = new DrawableLogicMapper();
 
-        frameBufferManager = new FrameBufferManager();
+        frameBufferManager = new FrameBufferManager(samples);
         createCoreFrameBuffers();
         screenCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         tmpFboCamera = new OrthographicCamera();
@@ -551,7 +551,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
     }
 
     public void dispose() {
-        frameBufferManager.disposeAll();
+        frameBufferManager.dispose();
         fboM4Pool.clear();
         fboM4Stack.clear();
     }

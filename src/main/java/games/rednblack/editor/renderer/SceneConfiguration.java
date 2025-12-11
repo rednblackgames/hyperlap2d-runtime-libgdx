@@ -27,6 +27,7 @@ public class SceneConfiguration {
     private RayHandler rayHandler;
     private SystemInvocationStrategy invocationStrategy;
     private boolean cullingEnabled = true;
+    private final int msaaSamples;
     private ExternalTypesConfiguration externalItemTypes;
 
     private HyperLap2dRenderer rendererSystem;
@@ -47,10 +48,11 @@ public class SceneConfiguration {
     }
 
     public SceneConfiguration(Batch batch) {
-        this(batch, false);
+        this(batch, false, 0);
     }
 
-    public SceneConfiguration(Batch batch, boolean hasStencil) {
+    public SceneConfiguration(Batch batch, boolean hasStencil, int samples) {
+        msaaSamples = samples;
         addSystem(new LayerSystem());
         addSystem(new ParticleSystem());
         addSystem(new SpriteAnimationSystem());
@@ -62,7 +64,7 @@ public class SceneConfiguration {
         addSystem(new ActionSystem());
         addSystem(new BoundingBoxSystem());
         addSystem(new CullingSystem());
-        rendererSystem = new HyperLap2dRenderer(batch, hasStencil);
+        rendererSystem = new HyperLap2dRenderer(batch, hasStencil, msaaSamples);
         rendererClass = HyperLap2dRenderer.class;
         addSystem(new ButtonSystem());
     }
@@ -191,6 +193,7 @@ public class SceneConfiguration {
             RayHandlerOptions rayHandlerOptions = new RayHandlerOptions();
             rayHandlerOptions.setGammaCorrection(false);
             rayHandlerOptions.setDiffuse(true);
+            rayHandlerOptions.setSamples(msaaSamples);
 
             RayHandler rayHandler = new RayHandler(world, rayHandlerOptions);
             rayHandler.setAmbientLight(1f, 1f, 1f, 1f);
@@ -249,6 +252,10 @@ public class SceneConfiguration {
 
     public ObjectMap<String, ObjectSet<Class<? extends Component>>> getTagTransmuters() {
         return tagTransmuters;
+    }
+
+    public int getMsaaSamples() {
+        return msaaSamples;
     }
 
     // For SceneConfiguration's Use

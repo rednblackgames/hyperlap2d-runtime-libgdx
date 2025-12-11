@@ -2,30 +2,37 @@ package games.rednblack.editor.renderer.systems.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer.FrameBufferBuilder;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Stack;
 
-public class FrameBufferManager {
-    private final HashMap<String, FrameBuffer> frameBuffers;
-    private final Stack<FrameBuffer> stack;
+public class FrameBufferManager implements Disposable {
+    private final ObjectMap<String, FBOContainer> frameBuffers;
+    private final Stack<FBOContainer> stack;
+    private final int samples;
+
     public static int GL_MAX_TEXTURE_SIZE = 4096;
 
-    public FrameBufferManager() {
+    public FrameBufferManager(int samples) {
         IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
         Gdx.gl20.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, intBuffer);
         GL_MAX_TEXTURE_SIZE = intBuffer.get();
-        frameBuffers = new HashMap<>();
+        frameBuffers = new ObjectMap<>();
         stack = new Stack<>();
+        this.samples = Gdx.gl30 != null ? samples : 0;
     }
 
     public void createFBO(String tag, int width, int height, boolean replace) {
-        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, false,replace);
+        createFBO(tag, Pixmap.Format.RGBA8888, width, height, false, false, replace);
     }
 
     public void createFBO(String tag, int width, int height) {
@@ -59,16 +66,16 @@ public class FrameBufferManager {
             }
         }
 
-        FrameBuffer fbo = new FrameBuffer(format, width, height, hasDepth, hasStencil);
-        frameBuffers.put(tag, fbo);
+        FBOContainer container = new FBOContainer(format, width, height, hasDepth, hasStencil, samples);
+        frameBuffers.put(tag, container);
     }
 
     public void createIfNotExists(String tag, int width, int height, boolean hasDepth, boolean hasStencil) {
-        FrameBuffer buffer = frameBuffers.get(tag);
-        if (buffer == null) {
+        FBOContainer container = frameBuffers.get(tag);
+        if (container == null) {
             createFBO(tag, width, height);
-        } else if (buffer.getWidth() != width || buffer.getHeight() != height) {
-                createFBO(tag, width, height, hasDepth, hasStencil, true);
+        } else if (container.getWidth() != width || container.getHeight() != height) {
+            createFBO(tag, width, height, hasDepth, hasStencil, true);
         }
     }
 
@@ -76,11 +83,12 @@ public class FrameBufferManager {
         if (!stack.isEmpty()) {
             stack.peek().end();
         }
-        FrameBuffer buffer = frameBuffers.get(tag);
-        if (buffer == null)
+
+        FBOContainer container = frameBuffers.get(tag);
+        if (container == null)
             throw new IllegalArgumentException("FBO '" + tag + "' does not exists.");
 
-        stack.push(buffer).begin();
+        stack.push(container).begin();
     }
 
     public void endCurrent() {
@@ -94,33 +102,112 @@ public class FrameBufferManager {
     }
 
     public boolean isActive(String tag) {
-        FrameBuffer buffer = frameBuffers.get(tag);
-        if (buffer == null)
+        FBOContainer container = frameBuffers.get(tag);
+        if (container == null)
             return false;
 
-        return !stack.isEmpty() && stack.peek() == buffer;
+        return !stack.isEmpty() && stack.peek() == container;
     }
 
     public void dispose(String tag) {
-        FrameBuffer buffer = frameBuffers.get(tag);
-        if (buffer == null)
+        FBOContainer container = frameBuffers.get(tag);
+        if (container == null)
             return;
 
-        buffer.dispose();
+        container.dispose();
         frameBuffers.remove(tag);
     }
 
-    public void disposeAll() {
-        for (FrameBuffer buffer : frameBuffers.values())
-            buffer.dispose();
+    @Override
+    public void dispose() {
+        for (FBOContainer container : frameBuffers.values())
+            container.dispose();
         frameBuffers.clear();
     }
 
     public Texture getColorBufferTexture(String tag) {
-        FrameBuffer buffer = frameBuffers.get(tag);
-        if (buffer == null)
+        FBOContainer container = frameBuffers.get(tag);
+        if (container == null)
             throw new IllegalArgumentException("FBO '" + tag + "' does not exists.");
 
-        return buffer.getColorBufferTexture();
+        return container.getTexture();
+    }
+
+    private static class FBOContainer implements Disposable {
+        private final FrameBuffer standardFbo;
+        private FrameBuffer msaaFbo;
+        private final boolean isMsaa;
+
+        private final int width;
+        private final int height;
+
+        public FBOContainer(Pixmap.Format format, int width, int height, boolean hasDepth, boolean hasStencil, int samples) {
+            this.width = width;
+            this.height = height;
+            this.isMsaa = samples > 0;
+
+            FrameBufferBuilder standardBuilder = new FrameBufferBuilder(width, height);
+            standardBuilder.addBasicColorTextureAttachment(format);
+            if (hasDepth) standardBuilder.addBasicDepthRenderBuffer();
+            if (hasStencil) standardBuilder.addBasicStencilRenderBuffer();
+            this.standardFbo = standardBuilder.build();
+
+            if (isMsaa) {
+                FrameBufferBuilder msaaBuilder = new FrameBufferBuilder(width, height);
+                int internalFormat = getGlInternalFormat(format);
+                msaaBuilder.addColorRenderBuffer(internalFormat);
+                if (hasDepth) msaaBuilder.addBasicDepthRenderBuffer();
+                if (hasStencil) msaaBuilder.addBasicStencilRenderBuffer();
+                msaaBuilder.samples = samples;
+                this.msaaFbo = msaaBuilder.build();
+            }
+        }
+
+        private static int getGlInternalFormat(Pixmap.Format format) {
+            switch (format) {
+                case RGBA8888:
+                    return GL30.GL_RGBA8;
+                case RGB888:
+                    return GL30.GL_RGB8;
+                case RGB565:
+                    return GL30.GL_RGB565;
+                case RGBA4444:
+                    return GL30.GL_RGBA4;
+                case Alpha:
+                    return GL30.GL_ALPHA;
+                default:
+                    return GL30.GL_RGBA8;
+            }
+        }
+
+        public void begin() {
+            if (isMsaa) {
+                msaaFbo.begin();
+            } else {
+                standardFbo.begin();
+            }
+        }
+
+        public void end() {
+            if (isMsaa) {
+                msaaFbo.end();
+                msaaFbo.transfer(standardFbo);
+            } else {
+                standardFbo.end();
+            }
+        }
+
+        public Texture getTexture() {
+            return standardFbo.getColorBufferTexture();
+        }
+
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+
+        @Override
+        public void dispose() {
+            if (standardFbo != null) standardFbo.dispose();
+            if (msaaFbo != null) msaaFbo.dispose();
+        }
     }
 }

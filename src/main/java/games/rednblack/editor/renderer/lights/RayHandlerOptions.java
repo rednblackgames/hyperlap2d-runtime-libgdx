@@ -6,9 +6,14 @@ public class RayHandlerOptions {
 
 	boolean pseudo3d = false;
 	boolean shadowColorInterpolation = false;
+	int samples = 0;
 
 	public void setDiffuse (boolean diffuse) {
 		isDiffuse = diffuse;
+	}
+
+	public void setSamples(int samples) {
+		this.samples = samples;
 	}
 
 	public void setGammaCorrection (boolean gammaCorrection) {
