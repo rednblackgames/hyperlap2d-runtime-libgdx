@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
@@ -63,16 +62,13 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         TintComponent tintComponent = tintMapper.get(entity);
         TextureRegionComponent textureRegionComponent = textureRegionMapper.get(entity);
         TransformComponent entityTransformComponent = transformMapper.get(entity);
-        DimensionsComponent dimensionsComponent = dimensionsMapper.get(entity);
 
         RepeatablePolygonSprite repeatablePolygonSprite = textureRegionComponent.repeatablePolygonSprite;
         boolean isRepeat = textureRegionComponent.isRepeat;
 
         float scaleX = entityTransformComponent.scaleX * (entityTransformComponent.flipX ? -1 : 1);
         float scaleY = entityTransformComponent.scaleY * (entityTransformComponent.flipY ? -1 : 1);
-        Rectangle b = dimensionsComponent.polygon.getBoundingRectangle();
-        repeatablePolygonSprite.setOrigin(entityTransformComponent.originX + b.x * scaleX,
-                entityTransformComponent.originY + b.y * scaleY);
+        repeatablePolygonSprite.setOrigin(entityTransformComponent.originX, entityTransformComponent.originY);
         repeatablePolygonSprite.setPosition(entityTransformComponent.x, entityTransformComponent.y);
         repeatablePolygonSprite.setRotation(entityTransformComponent.rotation);
         repeatablePolygonSprite.setScale(scaleX, scaleY);

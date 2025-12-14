@@ -155,6 +155,7 @@ public class RepeatablePolygonSprite implements Disposable {
     private void buildVertices() {
         vertices.clear();
         if (polygon.getVertices().length == 0) return;
+
         for (int i = 0; i < parts.size; i++) {
             float[] verts = parts.get(i);
             if (verts == null) continue;
@@ -162,44 +163,60 @@ public class RepeatablePolygonSprite implements Disposable {
             float[] fullVerts = fullVertsParts.get(i);
             int idx = 0;
 
-            int col = i / rows;
-            int row = i % rows;
-            int offsettedCol = col + (int) gridOffset.x;
-            int offsettedRow = row + (int) gridOffset.y;
+            float minX = verts[0], maxX = verts[0], minY = verts[1], maxY = verts[1];
+            for(int k=0; k<verts.length; k+=2) {
+                if(verts[k] < minX) minX = verts[k];
+                if(verts[k] > maxX) maxX = verts[k];
+                if(verts[k+1] < minY) minY = verts[k+1];
+                if(verts[k+1] > maxY) maxY = verts[k+1];
+            }
+            float midX = (minX + maxX) / 2f;
+            float midY = (minY + maxY) / 2f;
+
+            int offsettedCol = MathUtils.floor((midX - textureOffset.x) / gridWidth);
+            int offsettedRow = MathUtils.floor((midY - textureOffset.y) / gridHeight);
 
             for (int j = 0; j < verts.length; j += 2) {
-                float x = (verts[j] + buildOffset.x + textureOffset.x) - getOriginX();
-                x *= getScaleX();
-                float y = (verts[j + 1] + buildOffset.y + textureOffset.y) - getOriginY();
-                y *= getScaleY();
+                float distFromPivotX = verts[j] - getOriginX();
+                float distFromPivotY = verts[j + 1] - getOriginY();
+
+                distFromPivotX *= getScaleX();
+                distFromPivotY *= getScaleY();
+
                 if (getRotation() != 0) {
-                    float tempX = x;
-                    float tempY = y;
-                    float rotationInRads = getRotation() * MathUtils.degreesToRadians;
-                    x = tempX * (float) Math.cos(rotationInRads) - tempY * (float) Math.sin(rotationInRads);
-                    y = tempY * (float) Math.cos(rotationInRads) + tempX * (float) Math.sin(rotationInRads);
+                    float rads = getRotation() * MathUtils.degreesToRadians;
+                    float cos = (float) Math.cos(rads);
+                    float sin = (float) Math.sin(rads);
+
+                    float tx = distFromPivotX;
+                    float ty = distFromPivotY;
+                    distFromPivotX = tx * cos - ty * sin;
+                    distFromPivotY = ty * cos + tx * sin;
                 }
-                x += getX() + getOriginX();
-                y += getY() + getOriginY();
+
+                float x = getX() + getOriginX() + distFromPivotX + buildOffset.x;
+                float y = getY() + getOriginY() + distFromPivotY + buildOffset.y;
+
                 fullVerts[idx++] = x;
                 fullVerts[idx++] = y;
-
                 fullVerts[idx++] = colorPacked;
 
-                float inGridX = verts[j] - offsettedCol * gridWidth;
-                float inGridY = verts[j + 1] - offsettedRow * gridHeight;
+                float cellOriginX = offsettedCol * gridWidth + textureOffset.x;
+                float cellOriginY = offsettedRow * gridHeight + textureOffset.y;
+
+                float inGridX = verts[j] - cellOriginX;
+                float inGridY = verts[j + 1] - cellOriginY;
+
                 float u = inGridX / gridWidth;
                 float v = inGridY / gridHeight;
-                if (u > 1.0f) u = 1.0f;
-                if (v > 1.0f) v = 1.0f;
-                if (u < 0.0f) u = 0.0f;
-                if (v < 0.0f) v = 0.0f;
 
-                v = 1 - v;//Needs to flip on Y direction
+                if (u < 0.0001f) u = 0; else if (u > 0.9999f) u = 1;
+                if (v < 0.0001f) v = 0; else if (v > 0.9999f) v = 1;
 
-                // (col & 1 == 0) == true : col is even
-                if (wrapTypeX == WrapType.REPEAT_MIRRORED & (col & 1) != 0) u = 1 - u;
-                if (wrapTypeY == WrapType.REPEAT_MIRRORED & (row & 1) == 0) v = 1 - v;
+                v = 1 - v; // Flip Y
+
+                if (wrapTypeX == WrapType.REPEAT_MIRRORED && (offsettedCol & 1) != 0) u = 1 - u;
+                if (wrapTypeY == WrapType.REPEAT_MIRRORED && (offsettedRow & 1) == 0) v = 1 - v;
 
                 if (textureRegion != null) {
                     u = textureRegion.getU() + (textureRegion.getU2() - textureRegion.getU()) * u;
@@ -212,20 +229,10 @@ public class RepeatablePolygonSprite implements Disposable {
             vertices.add(fullVerts);
         }
 
-        this.textureDebugX = (buildOffset.x + textureOffset.x) * getScaleX();
-        this.textureDebugY = (buildOffset.y + textureOffset.y) * getScaleY();
-        if (getRotation() != 0) {
-            float tempX = this.textureDebugX;
-            float tempY = this.textureDebugY;
-            float rotationInRads = getRotation() * MathUtils.degreesToRadians;
-            this.textureDebugX = tempX * (float) Math.cos(rotationInRads) - tempY * (float) Math.sin(rotationInRads);
-            this.textureDebugY = tempY * (float) Math.cos(rotationInRads) + tempX * (float) Math.sin(rotationInRads);
-        }
-        this.textureDebugX += getX();
-        this.textureDebugY += getY();
+        this.textureDebugX = getX() + getOriginX() + buildOffset.x;
+        this.textureDebugY = getY() + getOriginY() + buildOffset.y;
 
         this.boundingRect = this.polygon.getBoundingRectangle();
-
         dirtyAttributes = false;
     }
 
