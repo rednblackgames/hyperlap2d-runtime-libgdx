@@ -1,7 +1,6 @@
 package games.rednblack.editor.renderer.components.light;
 
 import com.artemis.ComponentMapper;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -95,6 +94,9 @@ public class LightBodyComponent extends RefreshableComponent {
         PhysicsBodyComponent physicsComponent = physicsBodyCM.get(entity);
         TransformComponent transformComponent = transformCM.get(entity);
 
+        float scaleX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+        float scaleY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
         if (polygonShapeComponent != null && physicsComponent != null && physicsComponent.body != null && polygonShapeComponent.vertices != null) {
             Array<Vector2> verticesArray = polygonShapeComponent.vertices;
             //TODO Pool Vertices Array
@@ -102,13 +104,11 @@ public class LightBodyComponent extends RefreshableComponent {
 
             for (int i = 0, j = 0; i < verticesArray.size; i++) {
                 Vector2 point = verticesArray.get(i);
-                chain[j++] = point.x - transformComponent.originX;
-                chain[j++] = point.y - transformComponent.originY;
+                chain[j++] = (point.x - transformComponent.originX) * scaleX;
+                chain[j++] = (point.y - transformComponent.originY) * scaleY;
             }
-            //TODO Pool this color too!!
-            Color lightColor = new Color(color[0], color[1], color[2], color[3]);
             //TODO Pooling ChainLight object would be nice :)
-            lightObject = new ChainLight(rayHandler, rays, lightColor, distance, rayDirection, chain);
+            lightObject = new ChainLight(rayHandler, rays, null, distance, rayDirection, chain);
             lightObject.attachToBody(physicsComponent.body);
         }
     }

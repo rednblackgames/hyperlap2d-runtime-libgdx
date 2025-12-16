@@ -5,14 +5,12 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import games.rednblack.editor.renderer.components.ParentNodeComponent;
-import games.rednblack.editor.renderer.components.ViewPortComponent;
+import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
-import games.rednblack.editor.renderer.components.ScriptComponent;
-import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
@@ -38,7 +36,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
     protected ComponentMapper<CircleShapeComponent> circleShapeComponentMapper;
     protected ComponentMapper<ScriptComponent> scriptComponentMapper;
     protected ComponentMapper<ParentNodeComponent> parentNodeComponentMapper;
-    protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
+    protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
 
     private World world;
     private boolean isPhysicsOn = true;
@@ -113,6 +111,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
 
             transformComponent.x = tempPos.x - transformComponent.originX;
             transformComponent.y = tempPos.y - transformComponent.originY;
+            applyPolygonOffset(entity, transformComponent);
 
             float parentWorldRotation = TransformMathUtils.localToSceneRotation(parentEntity, transformComponentMapper, parentNodeComponentMapper);
             float localRotation = worldInterpAngleDeg - parentWorldRotation;
@@ -120,8 +119,40 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         } else {
             transformComponent.x = worldInterpX - transformComponent.originX;
             transformComponent.y = worldInterpY - transformComponent.originY;
+            applyPolygonOffset(entity, transformComponent);
 
             transformComponent.rotation = worldInterpAngleDeg;
+        }
+    }
+
+    private void applyPolygonOffset(int entity, TransformComponent transformComponent) {
+        DimensionsComponent dimensionsComponent = dimensionsComponentMapper.get(entity);
+
+        if (dimensionsComponent.polygon != null) {
+            Rectangle rect = dimensionsComponent.polygon.getBoundingRectangle();
+            if (rect.x != 0 || rect.y != 0) {
+                float sX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
+                float sY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
+
+                transformComponent.x += (sX - 1.0f) * rect.x;
+                transformComponent.y += (sY - 1.0f) * rect.y;
+
+                float targetX = rect.x * sX;
+                float targetY = rect.y * sY;
+
+                float rad = transformComponent.rotation * MathUtils.degreesToRadians;
+                float cos = MathUtils.cos(rad);
+                float sin = MathUtils.sin(rad);
+
+                float rotatedX = targetX * cos - targetY * sin;
+                float rotatedY = targetX * sin + targetY * cos;
+
+                float diffX = targetX - rotatedX;
+                float diffY = targetY - rotatedY;
+
+                transformComponent.x -= diffX;
+                transformComponent.y -= diffY;
+            }
         }
     }
 
