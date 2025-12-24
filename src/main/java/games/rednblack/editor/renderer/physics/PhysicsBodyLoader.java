@@ -59,15 +59,15 @@ public class PhysicsBodyLoader {
 
         BodyDef bodyDef = new BodyDef();
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
-        tmp.set(transformComponent.originX, transformComponent.originY);
         ComponentMapper<TransformComponent> transformMapper = (ComponentMapper<TransformComponent>) ComponentMapper.getFor(TransformComponent.class, engine);
         ComponentMapper<ParentNodeComponent> parentNodeMapper = (ComponentMapper<ParentNodeComponent>) ComponentMapper.getFor(ParentNodeComponent.class, engine);
-        TransformMathUtils.localToSceneCoordinates(entity, tmp, transformMapper, parentNodeMapper);
+
+        tmp.set(transformComponent.x + transformComponent.originX, transformComponent.y + transformComponent.originY);
+
         if (dimensionsComponent.polygon != null) {
             float sX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
             float sY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
             Rectangle b = dimensionsComponent.polygon.getBoundingRectangle();
-            tmp.sub((sX - 1.0f) * b.x, (sY - 1.0f) * b.y);
 
             float targetX = b.x * sX;
             float targetY = b.y * sY;
@@ -79,11 +79,17 @@ public class PhysicsBodyLoader {
             float rotatedX = targetX * cos - targetY * sin;
             float rotatedY = targetX * sin + targetY * cos;
 
-            float diffX = targetX - rotatedX;
-            float diffY = targetY - rotatedY;
+            float diffX = b.x - rotatedX;
+            float diffY = b.y - rotatedY;
 
             tmp.add(diffX, diffY);
         }
+
+        int parentEntity = parentNodeMapper.get(entity).parentEntity;
+        if (parentEntity != -1) {
+            TransformMathUtils.localToAscendantCoordinates(-1, parentEntity, tmp, transformMapper, parentNodeMapper);
+        }
+
         bodyDef.position.set(tmp.x, tmp.y);
         bodyDef.angle = TransformMathUtils.localToSceneRotation(entity, transformMapper, parentNodeMapper) * MathUtils.degreesToRadians;
 

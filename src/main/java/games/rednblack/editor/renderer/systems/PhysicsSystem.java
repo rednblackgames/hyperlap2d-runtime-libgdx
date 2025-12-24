@@ -109,13 +109,13 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
 
             TransformMathUtils.sceneToLocalCoordinates(parentEntity, tempPos, transformComponentMapper, parentNodeComponentMapper);
 
-            transformComponent.x = tempPos.x - transformComponent.originX;
-            transformComponent.y = tempPos.y - transformComponent.originY;
-            applyPolygonOffset(entity, transformComponent);
-
             float parentWorldRotation = TransformMathUtils.localToSceneRotation(parentEntity, transformComponentMapper, parentNodeComponentMapper);
             float localRotation = worldInterpAngleDeg - parentWorldRotation;
             transformComponent.rotation = normalizeAngle(localRotation);
+
+            transformComponent.x = tempPos.x - transformComponent.originX;
+            transformComponent.y = tempPos.y - transformComponent.originY;
+            applyPolygonOffset(entity, transformComponent);
         } else {
             transformComponent.x = worldInterpX - transformComponent.originX;
             transformComponent.y = worldInterpY - transformComponent.originY;
@@ -134,9 +134,6 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
                 float sX = transformComponent.scaleX * (transformComponent.flipX ? -1 : 1);
                 float sY = transformComponent.scaleY * (transformComponent.flipY ? -1 : 1);
 
-                transformComponent.x += (sX - 1.0f) * rect.x;
-                transformComponent.y += (sY - 1.0f) * rect.y;
-
                 float targetX = rect.x * sX;
                 float targetY = rect.y * sY;
 
@@ -147,8 +144,8 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
                 float rotatedX = targetX * cos - targetY * sin;
                 float rotatedY = targetX * sin + targetY * cos;
 
-                float diffX = targetX - rotatedX;
-                float diffY = targetY - rotatedY;
+                float diffX = rect.x - rotatedX;
+                float diffY = rect.y - rotatedY;
 
                 transformComponent.x -= diffX;
                 transformComponent.y -= diffY;
