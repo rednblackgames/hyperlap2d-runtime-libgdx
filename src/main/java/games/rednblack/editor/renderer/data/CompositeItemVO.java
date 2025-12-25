@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -39,17 +38,13 @@ public class CompositeItemVO extends MainItemVO {
 		renderToFBO = vo.renderToFBO;
 
 		content.clear();
-		try {
-			for (String type : vo.content.keys()) {
-				Array<MainItemVO> typeArray = new Array<>(ClassReflection.forName(type));
-				typeArray.addAll(vo.content.get(type));
-				content.put(type, typeArray);
-			}
-		} catch (ReflectionException e) {
-			e.printStackTrace();
-		}
+        for (String type : vo.content.keys()) {
+            Array<MainItemVO> typeArray = new Array<>(HyperJson.getJson().getClass(type));
+            typeArray.addAll(vo.content.get(type));
+            content.put(type, typeArray);
+        }
 
-		layers.clear();
+        layers.clear();
 		for (int i = 0; i < vo.layers.size; i++) {
 			layers.add(new LayerItemVO(vo.layers.get(i)));
 		}
@@ -62,21 +57,17 @@ public class CompositeItemVO extends MainItemVO {
 	}
 
 	public void addItem(MainItemVO vo) {
-		String clazz = vo.getClass().getName();
+		String clazz = HyperJson.getJson().getTag(vo.getClass());
 		Array<MainItemVO> array = content.get(clazz);
 		if (array == null) {
-			try {
-				array = new Array<>(ClassReflection.forName(clazz));
-			} catch (ReflectionException e) {
-				throw new RuntimeException(e);
-			}
-			content.put(clazz, array);
+            array = new Array<>(vo.getClass());
+            content.put(clazz, array);
 		}
 		array.add(vo);
 	}
 
 	public void removeItem(MainItemVO vo) {
-		String clazz = vo.getClass().getName();
+		String clazz = HyperJson.getJson().getTag(vo.getClass());
 		Array<MainItemVO> array = content.get(clazz);
 		array.removeValue(vo, true);
 	}
@@ -137,7 +128,7 @@ public class CompositeItemVO extends MainItemVO {
 	private Array<MainItemVO> getAllItemsRecursive(Array<MainItemVO> itemsArray, CompositeItemVO compositeItemVO) {
 		for (String type : compositeItemVO.content.keys()) {
 			Array<MainItemVO> array = compositeItemVO.content.get(type);
-			if (!type.equals(CompositeItemVO.class.getName())) {
+			if (!type.equals(HyperJson.getJson().getTag(CompositeItemVO.class))) {
 				itemsArray.addAll(array);
 			} else {
 				for (MainItemVO c : array) {
@@ -152,7 +143,7 @@ public class CompositeItemVO extends MainItemVO {
 
 	public Array<FontSizePair> getRecursiveFontList() {
 		ObjectSet<FontSizePair> list = new ObjectSet<>();
-		Array<MainItemVO> sLabels = content.get(LabelVO.class.getName());
+		Array<MainItemVO> sLabels = content.get(HyperJson.getJson().getTag(LabelVO.class));
 		if (sLabels != null) {
 			for (MainItemVO elem : sLabels) {
 				LabelVO sLabel = (LabelVO) elem;
@@ -161,7 +152,7 @@ public class CompositeItemVO extends MainItemVO {
 			}
 		}
 
-		Array<MainItemVO> sComposites = content.get(CompositeItemVO.class.getName());
+		Array<MainItemVO> sComposites = content.get(HyperJson.getJson().getTag(CompositeItemVO.class));
 		if (sComposites != null) {
 			for (MainItemVO elem : sComposites) {
 				CompositeItemVO sComposite = (CompositeItemVO) elem;
@@ -180,7 +171,7 @@ public class CompositeItemVO extends MainItemVO {
 		if (type == CompositeItemVO.class) throw new IllegalArgumentException("Can be retrieved only resource");
 
 		ObjectSet<String> list = new ObjectSet<>();
-		Array<MainItemVO> sElements = content.get(type.getName());
+		Array<MainItemVO> sElements = content.get(HyperJson.getJson().getTag(type));
 		if (sElements != null) {
 			for (MainItemVO elem : sElements) {
 				String resName = elem.getResourceName();
@@ -189,7 +180,7 @@ public class CompositeItemVO extends MainItemVO {
 			}
 		}
 
-		Array<MainItemVO> sComposites = content.get(CompositeItemVO.class.getName());
+		Array<MainItemVO> sComposites = content.get(HyperJson.getJson().getTag(CompositeItemVO.class));
 		if (sComposites != null) {
 			for (MainItemVO elem : sComposites) {
 				CompositeItemVO sComposite = (CompositeItemVO) elem;
@@ -223,7 +214,7 @@ public class CompositeItemVO extends MainItemVO {
 	}
 
 	public <T extends MainItemVO> Array<T> getElementsArray(Class<T> type) {
-		Array<T> array = (Array<T>) content.get(type.getName());
+		Array<T> array = (Array<T>) content.get(HyperJson.getJson().getTag(type));
 		return array != null ? array : new Array<T>();
 	}
 }

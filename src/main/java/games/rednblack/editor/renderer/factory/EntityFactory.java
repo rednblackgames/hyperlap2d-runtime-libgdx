@@ -184,7 +184,7 @@ public class EntityFactory {
 
     private void createAllChildrenAsync(int root, CompositeItemVO vo) {
         for (String key : new ObjectMap.Keys<>(vo.content)) {
-            if (key.equals(CompositeItemVO.class.getName())) continue;
+            if (key.equals(HyperJson.getJson().getTag(CompositeItemVO.class))) continue;
 
             Array<MainItemVO> vos = vo.content.get(key);
             for (MainItemVO mainItemVO : new Array.ArrayIterator<>(vos, true)) {
@@ -194,7 +194,7 @@ public class EntityFactory {
             }
         }
 
-        Array<MainItemVO> compositeVOs = vo.content.get(CompositeItemVO.class.getName());
+        Array<MainItemVO> compositeVOs = vo.content.get(HyperJson.getJson().getTag(CompositeItemVO.class));
         if (compositeVOs != null) {
             for (MainItemVO mainItemVO : new Array.ArrayIterator<>(compositeVOs, true)) {
                 CompositeItemVO compositeItemVO = (CompositeItemVO) mainItemVO;
@@ -209,7 +209,7 @@ public class EntityFactory {
 
     public void initAllChildren(int root, CompositeItemVO vo) {
         for (String key : vo.content.keys()) {
-            if (key.equals(CompositeItemVO.class.getName())) continue;
+            if (key.equals(HyperJson.getJson().getTag(CompositeItemVO.class))) continue;
 
             Array<MainItemVO> vos = vo.content.get(key);
             for (MainItemVO mainItemVO : vos) {
@@ -217,7 +217,7 @@ public class EntityFactory {
             }
         }
 
-        Array<MainItemVO> compositeVOs = vo.content.get(CompositeItemVO.class.getName());
+        Array<MainItemVO> compositeVOs = vo.content.get(HyperJson.getJson().getTag(CompositeItemVO.class));
         if (compositeVOs != null) {
             for (MainItemVO mainItemVO : compositeVOs) {
                 CompositeItemVO compositeItemVO = (CompositeItemVO) mainItemVO;

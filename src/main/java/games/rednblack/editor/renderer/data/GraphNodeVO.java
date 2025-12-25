@@ -1,10 +1,10 @@
 package games.rednblack.editor.renderer.data;
 
-import java.util.HashMap;
+import com.badlogic.gdx.utils.ObjectMap;
 
 public class GraphNodeVO {
     public String id = "";
     public String type = "";
     public float x, y;
-    public HashMap<String, String> data = new HashMap<>();
+    public ObjectMap<String, String> data = new ObjectMap<>();
 }

@@ -220,7 +220,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
         boolean scissors = false;
 
-        if (curCompositeTransformComponent.renderToFBO) {
+        if (curCompositeTransformComponent.renderToFBO && dimensions.width > 0 && dimensions.height > 0) {
             //Active composite frame buffer
             batch.end();
 
@@ -259,7 +259,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
         drawChildren(rootEntity, batch, curCompositeTransformComponent, parentAlpha, renderingType);
 
-        if (curCompositeTransformComponent.renderToFBO) {
+        if (curCompositeTransformComponent.renderToFBO && dimensions.width > 0 && dimensions.height > 0) {
             //Close FBO and render the result
             batch.end();
             frameBufferManager.endCurrent();

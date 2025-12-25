@@ -15,8 +15,8 @@ public class SceneVO {
     public LightsPropertiesVO lightsPropertiesVO = new LightsPropertiesVO();
     public ShaderVO shaderVO = new ShaderVO();
 
-    public ArrayList<Float> verticalGuides = new ArrayList<Float>();
-    public ArrayList<Float> horizontalGuides = new ArrayList<Float>();
+    public ArrayList<Float> verticalGuides = new ArrayList<>();
+    public ArrayList<Float> horizontalGuides = new ArrayList<>();
 
     public SceneVO() {
 
