@@ -108,7 +108,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
     @Override
     public void process(int entity) {
-        timeRunning += Gdx.graphics.getDeltaTime();
+        timeRunning += world.getDelta();
         batch.setColor(Color.WHITE);
 
         ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
@@ -439,7 +439,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             if (shaderComponent.getShader() != null && shaderComponent.getShader().isCompiled()) {
                 batch.setShader(shaderComponent.getShader());
 
-                batch.getShader().setUniformf("u_delta_time", Gdx.graphics.getDeltaTime());
+                batch.getShader().setUniformf("u_delta_time", world.getDelta());
                 batch.getShader().setUniformf("u_time", timeRunning);
                 batch.getShader().setUniformf("u_viewportInverse", invScreenWidth, invScreenHeight);
 
