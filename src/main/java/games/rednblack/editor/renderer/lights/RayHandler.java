@@ -371,6 +371,10 @@ public class RayHandler implements Disposable {
         lightMap.createShaders();
     }
 
+    public boolean isPseudo3d() {
+        return pseudo3d;
+    }
+
     public void setLightMapRendering(boolean isAutomatic) {
         lightMap.lightMapDrawingDisabled = !isAutomatic;
     }

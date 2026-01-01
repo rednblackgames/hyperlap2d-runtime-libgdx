@@ -504,6 +504,14 @@ public abstract class Light implements Disposable {
 		return rayNum;
 	}
 
+	public float[] getMx() {
+		return mx;
+	}
+
+	public float[] getMy() {
+		return my;
+	}
+
 	protected final RayCastCallback ray = new RayCastCallback() {
 		@Override
 		final public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {

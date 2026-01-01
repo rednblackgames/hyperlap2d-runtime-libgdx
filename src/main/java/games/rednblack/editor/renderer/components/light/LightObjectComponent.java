@@ -27,7 +27,7 @@ public class LightObjectComponent extends RefreshableComponent {
 	public boolean isActive = true;
 
 	public transient Light lightObject = null;
-	private transient RayHandler rayHandler;
+	public transient RayHandler rayHandler;
 
 	public LightObjectComponent() {
 	}
