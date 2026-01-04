@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
@@ -21,7 +21,7 @@ public class SpriteAnimationSystem extends IteratingSystem {
         tex.region = state.currentAnimation.getKeyFrame(state.time);
 
         if (!state.paused) {
-            state.time += world.getDelta();
+            state.time += engine.getDelta();
         }
     }
 }

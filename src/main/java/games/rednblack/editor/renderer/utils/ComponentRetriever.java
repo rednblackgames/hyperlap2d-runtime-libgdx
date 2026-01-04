@@ -18,7 +18,6 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
@@ -34,6 +33,7 @@ import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
+import games.rednblack.editor.renderer.ecs.*;
 
 /**
  * Component Retriever is a singleton single instance class that initialises list of
@@ -52,7 +52,7 @@ public class ComponentRetriever {
     /**
      * Unique map of mappers that can be accessed by component class
      */
-    private final ObjectMap<World, ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>>> engineMappers = new ObjectMap<>();
+    private final ObjectMap<Engine, ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>>> engineMappers = new ObjectMap<>();
 
     /**
      * Private constructor
@@ -64,7 +64,7 @@ public class ComponentRetriever {
     /**
      * This is called only during first initialisation and populates map of mappers of all known Component mappers
      */
-    private void init(World engine) {
+    private void init(Engine engine) {
         ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>> mappers = instance.engineMappers.get(engine);
         if (mappers == null) {
             mappers = new ObjectMap<>();
@@ -110,7 +110,7 @@ public class ComponentRetriever {
         mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class, engine));
     }
 
-    public static void initialize(World engine) {
+    public static void initialize(Engine engine) {
         if (instance == null) {
             instance = new ComponentRetriever();
         }
@@ -131,15 +131,15 @@ public class ComponentRetriever {
     /**
      * @return returns Map of mappers, for internal use only
      */
-    private ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers(World engine) {
+    private ObjectMap<Class<? extends Component>, BaseComponentMapper<? extends Component>> getMappers(Engine engine) {
         return self().engineMappers.get(engine);
     }
 
-    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type, World engine) {
+    public static <T extends Component> BaseComponentMapper<T> getMapper(Class<T> type, Engine engine) {
         return (BaseComponentMapper<T>) self().getMappers(engine).get(type);
     }
 
-    public static Array<Component> getComponents(int entity, Array<Component> components, World engine) {
+    public static Array<Component> getComponents(int entity, Array<Component> components, Engine engine) {
         for (BaseComponentMapper<? extends Component> mapper : self().getMappers(engine).values()) {
             if (mapper.get(entity) != null) components.add(mapper.get(entity));
         }
@@ -153,7 +153,7 @@ public class ComponentRetriever {
      * @param type
      */
     public static void addMapper(Class<? extends Component> type) {
-        for (World engine : self().engineMappers.keys())
+        for (Engine engine : self().engineMappers.keys())
             self().getMappers(engine).put(type, ComponentMapper.getFor(type, engine));
     }
 
@@ -163,7 +163,7 @@ public class ComponentRetriever {
      *
      * @see ComponentMapper#get(int)
      */
-    public static <T extends Component> T get(int entity, Class<T> type, World engine) {
+    public static <T extends Component> T get(int entity, Class<T> type, Engine engine) {
         return getMapper(type, engine).get(entity);
     }
 
@@ -173,7 +173,7 @@ public class ComponentRetriever {
      *
      * @see ComponentMapper#create(int)
      */
-    public static <T extends Component> T create(int entity, Class<T> type, World engine) {
+    public static <T extends Component> T create(int entity, Class<T> type, Engine engine) {
         return getMapper(type, engine).create(entity);
     }
 
@@ -182,7 +182,7 @@ public class ComponentRetriever {
      *
      * @see ComponentMapper#remove(int)
      */
-    public static <T extends Component> void remove(int entity, Class<T> type, World engine) {
+    public static <T extends Component> void remove(int entity, Class<T> type, Engine engine) {
         getMapper(type, engine).remove(entity);
     }
 
@@ -191,7 +191,7 @@ public class ComponentRetriever {
      *
      * @see ComponentMapper#has(int)
      */
-    public static <T extends Component> boolean has(int entity, Class<T> type, World engine) {
+    public static <T extends Component> boolean has(int entity, Class<T> type, Engine engine) {
         return getMapper(type, engine).has(entity);
     }
 
@@ -199,7 +199,7 @@ public class ComponentRetriever {
      * Checks if the specified entity is present in the engine.
      *
      */
-    public static boolean isActive(int entity, World engine) {
+    public static boolean isActive(int entity, Engine engine) {
         return engine.getEntityManager().isActive(entity);
     }
 }

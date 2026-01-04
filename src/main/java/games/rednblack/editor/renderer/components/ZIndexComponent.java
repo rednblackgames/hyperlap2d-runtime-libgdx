@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 
 public class ZIndexComponent  extends PooledComponent {
     private int zIndex = 0;

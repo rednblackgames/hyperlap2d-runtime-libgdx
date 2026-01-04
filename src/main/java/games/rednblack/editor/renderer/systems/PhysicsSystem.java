@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.BaseEntitySystem;
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.utils.IntBag;
+import games.rednblack.editor.renderer.ecs.BaseEntitySystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -55,7 +55,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         }
 
         if (world != null && isPhysicsOn)
-            world.step(getWorld().getDelta(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+            world.step(getEngine().getDelta(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
     }
 
     /**
@@ -173,7 +173,7 @@ public class PhysicsSystem extends BaseEntitySystem implements ContactListener, 
         }
 
         if (physicsBodyComponent.body == null && ((polygonShapeComponent != null && polygonShapeComponent.vertices != null) || circleShapeComponent != null)) {
-            PhysicsBodyLoader.getInstance().createBody(world, entity, physicsBodyComponent, transformComponent, getWorld());
+            PhysicsBodyLoader.getInstance().createBody(world, entity, physicsBodyComponent, transformComponent, getEngine());
             physicsBodyComponent.body.setUserData(entity);
         }
 

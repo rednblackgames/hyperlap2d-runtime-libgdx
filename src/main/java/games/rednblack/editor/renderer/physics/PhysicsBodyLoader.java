@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.physics;
 
-import com.artemis.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.PoolManager;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.lights.LightData;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
@@ -52,7 +53,7 @@ public class PhysicsBodyLoader {
         instance = null;
     }
 
-    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, TransformComponent transformComponent, com.artemis.World engine) {
+    public Body createBody(World world, int entity, PhysicsBodyComponent physicsComponent, TransformComponent transformComponent, Engine engine) {
         if (physicsComponent == null || ComponentRetriever.get(entity, MainItemComponent.class, engine) == null) {
             return null;
         }
@@ -402,7 +403,7 @@ public class PhysicsBodyLoader {
         }
     }
 
-    public void refreshShape(int entity, com.artemis.World engine) {
+    public void refreshShape(int entity, Engine engine) {
         PhysicsBodyComponent physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class, engine);
         TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);

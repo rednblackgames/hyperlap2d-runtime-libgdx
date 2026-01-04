@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 import com.badlogic.gdx.math.Rectangle;
 
 public class CompositeTransformComponent extends PooledComponent {

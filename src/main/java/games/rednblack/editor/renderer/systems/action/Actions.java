@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.DefaultPool;
@@ -312,7 +312,7 @@ public class Actions {
         return actionData;
     }
 
-    public static void addAction(final int entity, ActionData data, World engine) {
+    public static void addAction(final int entity, ActionData data, Engine engine) {
         checkInit();
         ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
 
@@ -323,14 +323,14 @@ public class Actions {
         actionComponent.dataArray.add(data);
     }
 
-    public static void removeActions(int entity, World engine) {
+    public static void removeActions(int entity, Engine engine) {
         ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         if (actionComponent != null) {
             actionComponent.reset(); // action component with empty data array will be removed later by ActionSystem
         }
     }
 
-    public static void removeAction(int entity, ActionData data, World engine) {
+    public static void removeAction(int entity, ActionData data, Engine engine) {
         ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         if (actionComponent != null) {
             if (actionComponent.dataArray.contains(data, true)) {
@@ -341,7 +341,7 @@ public class Actions {
         }
     }
 
-    public static boolean hasActions(int entity, World engine) {
+    public static boolean hasActions(int entity, Engine engine) {
         ActionComponent actionComponent = engine.getMapper(ActionComponent.class).get(entity);
         return actionComponent != null && actionComponent.dataArray.size > 0;
     }

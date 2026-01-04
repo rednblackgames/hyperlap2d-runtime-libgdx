@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.utils.IntMap;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 
@@ -26,7 +26,7 @@ public class DrawableLogicMapper {
         return logicClassMap.get(type);
     }
 
-    public void injectMappers(World engine) {
+    public void injectMappers(Engine engine) {
         for (DrawableLogic value : logicClassMap.values()) engine.inject(value);
     }
 

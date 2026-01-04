@@ -2,7 +2,7 @@ package games.rednblack.editor.renderer.data;
 
 import java.util.Arrays;
 
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
@@ -93,7 +93,7 @@ public abstract class MainItemVO {
 		renderingLayer = vo.renderingLayer;
     }
 
-	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+	public void loadFromEntity(int entity, Engine engine, EntityFactory entityFactory) {
 		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
 		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
 		transformComponent = transformComponent.getRealComponent();

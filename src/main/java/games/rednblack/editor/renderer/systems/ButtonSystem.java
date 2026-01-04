@@ -1,10 +1,10 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.Aspect;
-import com.artemis.BaseEntitySystem;
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.utils.IntBag;
+import games.rednblack.editor.renderer.ecs.Aspect;
+import games.rednblack.editor.renderer.ecs.BaseEntitySystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.*;

@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class ViewPortComponent extends PooledComponent {

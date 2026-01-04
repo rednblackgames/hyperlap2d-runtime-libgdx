@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.systems.render;
 
-import com.artemis.ComponentMapper;
-import com.artemis.World;
-import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.Engine;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -108,7 +108,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
     @Override
     public void process(int entity) {
-        timeRunning += world.getDelta();
+        timeRunning += engine.getDelta();
         batch.setColor(Color.WHITE);
 
         ViewPortComponent ViewPortComponent = viewPortMapper.get(entity);
@@ -439,7 +439,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             if (shaderComponent.getShader() != null && shaderComponent.getShader().isCompiled()) {
                 batch.setShader(shaderComponent.getShader());
 
-                batch.getShader().setUniformf("u_delta_time", world.getDelta());
+                batch.getShader().setUniformf("u_delta_time", engine.getDelta());
                 batch.getShader().setUniformf("u_time", timeRunning);
                 batch.getShader().setUniformf("u_viewportInverse", invScreenWidth, invScreenHeight);
 
@@ -594,7 +594,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             sceneShader = null;
     }
 
-    public void injectMappers(World engine) {
+    public void injectMappers(Engine engine) {
         drawableLogicMapper.injectMappers(engine);
     }
 

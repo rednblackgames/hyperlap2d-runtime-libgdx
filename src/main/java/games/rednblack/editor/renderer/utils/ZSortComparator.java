@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.components.ZIndexComponent;
 
 public class ZSortComparator {

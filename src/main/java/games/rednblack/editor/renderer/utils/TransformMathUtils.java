@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.*;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;

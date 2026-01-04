@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import games.rednblack.editor.renderer.data.LayerItemVO;

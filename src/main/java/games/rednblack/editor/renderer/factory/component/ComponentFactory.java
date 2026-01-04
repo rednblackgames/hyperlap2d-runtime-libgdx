@@ -1,13 +1,14 @@
 package games.rednblack.editor.renderer.factory.component;
 
-import com.artemis.Archetype;
-import com.artemis.ArchetypeBuilder;
-import com.artemis.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.Archetype;
+import games.rednblack.editor.renderer.ecs.ArchetypeBuilder;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
@@ -39,7 +40,7 @@ public abstract class ComponentFactory {
     protected IResourceRetriever rm;
     protected RayHandler rayHandler;
     protected World world;
-    protected com.artemis.World engine;
+    protected Engine engine;
 
     private Archetype entityArchetype;
 
@@ -49,11 +50,11 @@ public abstract class ComponentFactory {
     public ComponentFactory() {
     }
 
-    public ComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public ComponentFactory(Engine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         injectDependencies(engine, rayHandler, world, rm);
     }
 
-    public void injectDependencies(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public void injectDependencies(Engine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         this.engine = engine;
         this.engine.inject(this);
         this.rayHandler = rayHandler;

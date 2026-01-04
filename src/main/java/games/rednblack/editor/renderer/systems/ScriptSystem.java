@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.scripts.BasicScript;
@@ -23,10 +23,10 @@ public class ScriptSystem extends IteratingSystem {
                 if (!basicScript.isInit()) {
                     basicScript.doInit(entity);
                 } else {
-                    script.act(world.getDelta());
+                    script.act(engine.getDelta());
                 }
             } else {
-                script.act(world.getDelta());
+                script.act(engine.getDelta());
             }
         }
     }

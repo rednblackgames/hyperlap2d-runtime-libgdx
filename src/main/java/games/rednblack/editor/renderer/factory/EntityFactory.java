@@ -1,10 +1,7 @@
 package games.rednblack.editor.renderer.factory;
 
-import com.artemis.Component;
-import com.artemis.ComponentMapper;
-import com.artemis.EntityTransmuter;
-import com.artemis.EntityTransmuterFactory;
-import com.artemis.utils.IntBag;
+import games.rednblack.editor.renderer.ecs.*;
+import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
@@ -59,7 +56,7 @@ public class EntityFactory {
     public RayHandler rayHandler;
     public World world;
     public IResourceRetriever rm = null;
-    public com.artemis.World engine;
+    public Engine engine;
 
     private final AsyncExecutor asyncExecutor = new AsyncExecutor(1);
 
@@ -69,7 +66,7 @@ public class EntityFactory {
     public EntityFactory() {
     }
 
-    public void injectExternalItemType(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public void injectExternalItemType(Engine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         this.engine = engine;
         this.engine.inject(this);
         this.rayHandler = rayHandler;

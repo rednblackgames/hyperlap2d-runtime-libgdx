@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import games.rednblack.editor.renderer.commons.RefreshableComponent;
 import games.rednblack.editor.renderer.data.PhysicsBodyDataVO;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.physics.PhysicsBodyLoader;
 
 public class PhysicsBodyComponent extends RefreshableComponent {
@@ -14,7 +15,7 @@ public class PhysicsBodyComponent extends RefreshableComponent {
     public static final int FIXTURE_TYPE_SENSORS = 1;
     public static final int FIXTURE_TYPE_USER_DEFINED = 2;
 
-    protected transient com.artemis.World engine;
+    protected transient Engine engine;
 
     protected boolean needsRefresh = false;
 

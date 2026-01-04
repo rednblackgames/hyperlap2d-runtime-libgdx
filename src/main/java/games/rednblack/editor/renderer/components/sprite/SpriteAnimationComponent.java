@@ -2,7 +2,7 @@ package games.rednblack.editor.renderer.components.sprite;
 
 import java.util.HashMap;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import games.rednblack.editor.renderer.data.FrameRange;
 

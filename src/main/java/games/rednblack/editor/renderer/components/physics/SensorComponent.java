@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.components.physics;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 
 /**
  * The component for the sensors.

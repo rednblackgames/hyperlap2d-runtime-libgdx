@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.data;
 
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -24,7 +24,7 @@ public class Image9patchVO extends MainItemVO {
     }
 
     @Override
-    public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+    public void loadFromEntity(int entity, Engine engine, EntityFactory entityFactory) {
         super.loadFromEntity(entity, engine, entityFactory);
 
         NinePatchComponent ninePatchComponent = ComponentRetriever.get(entity, NinePatchComponent.class, engine);

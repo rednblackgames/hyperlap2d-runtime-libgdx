@@ -18,7 +18,7 @@
 
 package games.rednblack.editor.renderer.commons;
 
-import com.artemis.BaseSystem;
+import games.rednblack.editor.renderer.ecs.BaseSystem;
 import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;

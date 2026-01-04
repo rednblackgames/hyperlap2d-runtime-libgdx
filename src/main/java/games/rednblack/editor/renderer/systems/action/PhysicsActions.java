@@ -1,9 +1,10 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.artemis.Component;
+import games.rednblack.editor.renderer.ecs.Component;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.action.data.physics.ForceData;
 import games.rednblack.editor.renderer.systems.action.data.physics.TransformByData;
@@ -94,7 +95,7 @@ public class PhysicsActions {
      *                        has this component
      * @return {@link ForceData} object
      */
-    public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent, com.artemis.World engine) {
+    public static ForceData force(Vector2 force, Vector2 relativePoint, Class<? extends Component> linkedComponent, Engine engine) {
         ForceData forceData = force(force, relativePoint);
 
         forceData.linkedComponentMapper = engine.getMapper(linkedComponent);

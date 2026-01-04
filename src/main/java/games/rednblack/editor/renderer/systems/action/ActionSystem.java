@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems.action;
 
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.components.ActionComponent;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
@@ -27,8 +27,8 @@ public class ActionSystem extends IteratingSystem {
         for (int i = 0; i < dataArray.size; i++) {
             ActionData data = dataArray.get(i);
             ActionLogic actionLogic = Actions.actionLogicMap.get(data.logicClassName);
-            actionLogic.setEngine(getWorld());
-            if (actionLogic.act(world.getDelta(), entity, data)) {
+            actionLogic.setEngine(getEngine());
+            if (actionLogic.act(engine.getDelta(), entity, data)) {
                 dataArray.removeValue(data, true);
                 if (data.getPool() != null)
                     data.getPool().free(data);

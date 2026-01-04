@@ -1,8 +1,9 @@
 package games.rednblack.editor.renderer.factory.component;
 
-import com.artemis.ComponentMapper;
-import com.artemis.EntityTransmuter;
-import com.artemis.EntityTransmuterFactory;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.Engine;
+import games.rednblack.editor.renderer.ecs.EntityTransmuter;
+import games.rednblack.editor.renderer.ecs.EntityTransmuterFactory;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
@@ -21,7 +22,7 @@ public class ParticleEffectComponentFactory extends ComponentFactory {
 
     private final EntityTransmuter transmuter;
 
-    public ParticleEffectComponentFactory(com.artemis.World engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
+    public ParticleEffectComponentFactory(Engine engine, RayHandler rayHandler, World world, IResourceRetriever rm) {
         super(engine, rayHandler, world, rm);
         transmuter = new EntityTransmuterFactory(engine)
                 .add(ParticleComponent.class)

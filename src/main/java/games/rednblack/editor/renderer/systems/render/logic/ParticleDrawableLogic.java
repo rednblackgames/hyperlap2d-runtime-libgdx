@@ -1,10 +1,11 @@
 package games.rednblack.editor.renderer.systems.render.logic;
 
-import com.artemis.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class ParticleDrawableLogic implements DrawableLogic {
@@ -12,7 +13,7 @@ public class ParticleDrawableLogic implements DrawableLogic {
     protected ComponentMapper<ParticleComponent> particleComponentMapper;
     protected ComponentMapper<TransformComponent> transformComponentMapper;
 
-    protected com.artemis.World engine;
+    protected Engine engine;
 
     @Override
     public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {

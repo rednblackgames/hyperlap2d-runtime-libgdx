@@ -1,6 +1,5 @@
 package games.rednblack.editor.renderer;
 
-import com.artemis.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -8,6 +7,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import games.rednblack.editor.renderer.ecs.BaseSystem;
+import games.rednblack.editor.renderer.ecs.Component;
+import games.rednblack.editor.renderer.ecs.SystemInvocationStrategy;
+import games.rednblack.editor.renderer.ecs.EngineConfigurationBuilder;
 import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.lights.RayHandlerOptions;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
@@ -118,7 +121,7 @@ public class SceneConfiguration {
 
     public void addSystem(BaseSystem system) {
         if (system == null) return;
-        addSystem(WorldConfigurationBuilder.Priority.NORMAL, system);
+        addSystem(EngineConfigurationBuilder.Priority.NORMAL, system);
     }
 
     /**

@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
-import com.artemis.World;
-import com.artemis.annotations.Transient;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
+import games.rednblack.editor.renderer.ecs.Engine;
+import games.rednblack.editor.renderer.ecs.annotations.Transient;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
@@ -34,7 +34,7 @@ public class ScriptComponent extends PooledComponent {
     }
 
     public Array<IScript> scripts = new Array<>();
-    public World engine;
+    public Engine engine;
 
     public void addScript(IScript script) {
         engine.inject(script);

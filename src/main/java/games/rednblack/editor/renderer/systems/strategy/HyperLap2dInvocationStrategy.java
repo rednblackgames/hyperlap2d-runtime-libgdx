@@ -1,9 +1,9 @@
 package games.rednblack.editor.renderer.systems.strategy;
 
-import com.artemis.BaseSystem;
-import com.artemis.SystemInvocationStrategy;
-import com.artemis.utils.Bag;
-import com.artemis.utils.BitVector;
+import games.rednblack.editor.renderer.ecs.BaseSystem;
+import games.rednblack.editor.renderer.ecs.SystemInvocationStrategy;
+import games.rednblack.editor.renderer.ecs.utils.Bag;
+import games.rednblack.editor.renderer.ecs.utils.BitVector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -63,7 +63,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
 
         accumulator += (long) (frameTime * TIME_SCALE);
 
-        world.setDelta(TIME_STEP);
+        engine.setDelta(TIME_STEP);
 
         while (accumulator >= TIME_STEP_NANO) {
             //Process logic systems
@@ -87,7 +87,7 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
             interpolationSystems.get(i).interpolate(alpha);
         }
 
-        world.setDelta(Gdx.graphics.getDeltaTime() * TIME_SCALE);
+        engine.setDelta(Gdx.graphics.getDeltaTime() * TIME_SCALE);
 
         //process rendering systems
         for (int i = 0, s = renderSystems.size(); s > i; i++) {

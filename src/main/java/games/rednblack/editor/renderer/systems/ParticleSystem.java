@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.systems;
 
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.All;
-import com.artemis.systems.IteratingSystem;
+import games.rednblack.editor.renderer.ecs.ComponentMapper;
+import games.rednblack.editor.renderer.ecs.annotations.All;
+import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import games.rednblack.editor.renderer.components.particle.ParticleComponent;
 
@@ -16,7 +16,7 @@ public class ParticleSystem extends IteratingSystem {
         ParticleComponent particleComponent = particleComponentMapper.get(entityId);
 
         ParticleEffect particleEffect = particleComponent.particleEffect;
-        particleEffect.update(world.getDelta());
+        particleEffect.update(engine.getDelta());
     }
 
 }

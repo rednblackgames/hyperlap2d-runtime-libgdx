@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.data;
 
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.math.Vector3;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -51,7 +51,7 @@ public class LightVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+	public void loadFromEntity(int entity, Engine engine, EntityFactory entityFactory) {
 		super.loadFromEntity(entity, engine, entityFactory);
 
 		LightObjectComponent lightObjectComponent = ComponentRetriever.get(entity, LightObjectComponent.class, engine);

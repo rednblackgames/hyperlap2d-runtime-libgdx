@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.World;
-import com.artemis.injection.FieldResolver;
-import com.artemis.utils.reflect.Field;
+import games.rednblack.editor.renderer.ecs.Engine;
+import games.rednblack.editor.renderer.ecs.injection.FieldResolver;
+import com.badlogic.gdx.utils.reflect.Field;
 import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.factory.ActionFactory;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -16,7 +16,7 @@ public class SceneLoaderFieldResolver implements FieldResolver {
     }
 
     @Override
-    public void initialize(World world) {
+    public void initialize(Engine engine) {
 
     }
 

@@ -1,6 +1,6 @@
 package games.rednblack.editor.renderer.commons;
 
-import com.artemis.PooledComponent;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
 
 public abstract class RefreshableComponent extends PooledComponent {
     protected boolean needsRefresh = false;

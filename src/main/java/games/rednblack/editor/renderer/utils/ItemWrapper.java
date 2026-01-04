@@ -18,20 +18,19 @@
 
 package games.rednblack.editor.renderer.utils;
 
-import com.artemis.BaseComponentMapper;
-import com.artemis.Component;
+import games.rednblack.editor.renderer.ecs.BaseComponentMapper;
+import games.rednblack.editor.renderer.ecs.Component;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
+import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
-
-import java.util.HashMap;
 
 /**
  * Created by azakhary on 7/8/2015.
@@ -40,7 +39,7 @@ public class ItemWrapper {
 
     private int entity = -1;
 
-    private com.artemis.World engine;
+    private Engine engine;
 
     private NodeComponent nodeComponent;
     private final ObjectMap<String, Integer> childrenMap = new ObjectMap<>();
@@ -50,7 +49,7 @@ public class ItemWrapper {
         // empty wrapper is better then null pointer
     }
 
-    public ItemWrapper(int entity, com.artemis.World engine) {
+    public ItemWrapper(int entity, Engine engine) {
         this.entity = entity;
         this.engine = engine;
         nodeComponent = ComponentRetriever.get(entity, NodeComponent.class, engine);

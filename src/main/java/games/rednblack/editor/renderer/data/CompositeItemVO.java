@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
-import com.artemis.BaseComponentMapper;
-import com.artemis.World;
+import games.rednblack.editor.renderer.ecs.BaseComponentMapper;
+import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -78,7 +78,7 @@ public class CompositeItemVO extends MainItemVO {
 	}
 
 	@Override
-	public void loadFromEntity(int entity, World engine, EntityFactory entityFactory) {
+	public void loadFromEntity(int entity, Engine engine, EntityFactory entityFactory) {
 		super.loadFromEntity(entity, engine, entityFactory);
 
 		NodeComponent nodeComponent = ComponentRetriever.get(entity, NodeComponent.class, engine);

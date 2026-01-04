@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer;
 
-import com.artemis.*;
-import com.artemis.utils.IntBag;
+import games.rednblack.editor.renderer.ecs.*;
+import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -36,6 +36,8 @@ import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStra
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.SceneLoaderFieldResolver;
 
+import java.lang.reflect.Field;
+
 /**
  * SceneLoader is important part of runtime that utilizes provided
  * IResourceRetriever (or creates default one shipped with runtime) in order to
@@ -61,7 +63,7 @@ public class SceneLoader {
     // Initialised when injectExternalItemType is called
 
     // Initialised when createEngine is called
-    private com.artemis.World engine = null;
+    private Engine engine = null;
     private ComponentMapper<LightBodyComponent> lightBodyCM;
     private ComponentMapper<LightObjectComponent> lightObjectCM;
     private ComponentMapper<MainItemComponent> mainItemCM;
@@ -95,18 +97,18 @@ public class SceneLoader {
 
         renderer = configuration.getSystem(configuration.getRendererClass());
 
-        WorldConfigurationBuilder config = new WorldConfigurationBuilder();
+        EngineConfigurationBuilder config = new EngineConfigurationBuilder();
 
         for (SceneConfiguration.SystemData<?> data : configuration.getSystems()) {
             config.with(data.priority, data.system);
         }
         config.register(configuration.getInvocationStrategy());
         config.register(new SceneLoaderFieldResolver(this));
-        WorldConfiguration build = config.build();
+        EngineConfiguration build = config.build();
         build.expectedEntityCount(configuration.getExpectedEntityCount());
         build.setAlwaysDelayComponentRemoval(true);
 
-        this.engine = new com.artemis.World(build);
+        this.engine = new Engine(build);
 
         engine.inject(this);
         ComponentRetriever.initialize(engine);
@@ -477,7 +479,7 @@ public class SceneLoader {
         return rm;
     }
 
-    public com.artemis.World getEngine() {
+    public Engine getEngine() {
         return engine;
     }
 

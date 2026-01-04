@@ -1,7 +1,7 @@
 package games.rednblack.editor.renderer.components.additional;
 
-import com.artemis.PooledComponent;
-import com.artemis.annotations.Transient;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
+import games.rednblack.editor.renderer.ecs.annotations.Transient;
 import com.badlogic.gdx.utils.Array;
 
 @Transient

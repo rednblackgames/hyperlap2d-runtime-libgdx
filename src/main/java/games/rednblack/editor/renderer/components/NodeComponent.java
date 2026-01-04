@@ -1,8 +1,8 @@
 package games.rednblack.editor.renderer.components;
 
-import com.artemis.PooledComponent;
-import com.artemis.annotations.EntityId;
-import com.artemis.utils.IntBag;
+import games.rednblack.editor.renderer.ecs.PooledComponent;
+import games.rednblack.editor.renderer.ecs.annotations.EntityId;
+import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.utils.SnapshotArray;
 
 public class NodeComponent extends PooledComponent {
