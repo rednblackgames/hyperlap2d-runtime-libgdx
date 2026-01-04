@@ -7,3 +7,4 @@ This is a fork of [libGDX's Box2DLights](https://github.com/libgdx/box2dlights),
 - Pseudo3D lights
 - Custom light falloff (Constant-Linear-Quadratic)
 - Custom light intensity
+- MSAA Samples
