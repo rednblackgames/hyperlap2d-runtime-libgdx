@@ -113,8 +113,9 @@ public class ButtonSystem extends BaseEntitySystem {
 
             if (dimensionsComponent.hit(tmp.x, tmp.y)) {
                 setTouchState(buttonComponent, true, entity);
-                return true;
             }
+
+            return buttonComponent.isTouched;
         }
         setTouchState(buttonComponent, false, entity);
         return false;

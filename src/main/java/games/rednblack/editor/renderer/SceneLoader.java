@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer;
 
+import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.ecs.*;
 import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.graphics.Color;
@@ -75,7 +76,7 @@ public class SceneLoader {
     // Initialised when loadScene is called
     private int pixelsPerWU = 1;
     private SceneVO sceneVO;
-    private int rootEntity;
+    private int rootEntity = -1;
     private DirectionalLight sceneDirectionalLight;
     private ActionFactory actionFactory;
 
@@ -93,6 +94,7 @@ public class SceneLoader {
      * this method is called when rm has loaded all data
      */
     private void initSceneLoader(SceneConfiguration configuration) {
+        configuration.addTagTransmuter("button", ButtonComponent.class);
         entityFactory = new EntityFactory();
 
         renderer = configuration.getSystem(configuration.getRendererClass());
