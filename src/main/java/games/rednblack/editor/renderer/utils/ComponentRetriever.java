@@ -108,6 +108,8 @@ public class ComponentRetriever {
         mappers.put(ButtonComponent.class, ComponentMapper.getFor(ButtonComponent.class, engine));
 
         mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class, engine));
+
+        mappers.put(LayoutComponent.class, ComponentMapper.getFor(LayoutComponent.class, engine));
     }
 
     public static void initialize(Engine engine) {

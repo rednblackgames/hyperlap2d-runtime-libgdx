@@ -6,6 +6,7 @@ import games.rednblack.editor.renderer.ecs.Engine;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.LayoutComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
@@ -43,6 +44,7 @@ public abstract class MainItemVO {
 	public LightBodyDataVO light = null;
 	public SensorDataVO sensor = null;
 	public Circle circle = null;
+	public LayoutConstraintVO layout = null;
 	
 	public MainItemVO() {
 		
@@ -86,6 +88,10 @@ public abstract class MainItemVO {
 
 		if(vo.light != null){
 			light = new LightBodyDataVO(vo.light);
+		}
+
+		if(vo.layout != null){
+			layout = new LayoutConstraintVO(vo.layout);
 		}
 
 		shader.set(vo.shader);
@@ -169,6 +175,12 @@ public abstract class MainItemVO {
 			shader.shaderUniforms.clear();
 			shader.shaderUniforms.putAll(shaderComponent.customUniforms);
 			renderingLayer = shaderComponent.renderingLayer;
+		}
+
+		LayoutComponent layoutComponent = ComponentRetriever.get(entity, LayoutComponent.class, engine);
+		if(layoutComponent != null) {
+			layout = new LayoutConstraintVO();
+			layout.loadFromComponent(layoutComponent, engine);
 		}
 	}
 

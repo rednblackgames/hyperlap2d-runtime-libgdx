@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Pool;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.LayoutComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
@@ -35,6 +36,7 @@ public abstract class ComponentFactory {
     protected ComponentMapper<ShaderComponent> shaderCM;
     protected ComponentMapper<TintComponent> tintCM;
     protected ComponentMapper<TransformComponent> transformCM;
+    protected ComponentMapper<LayoutComponent> layoutCM;
     protected ComponentMapper<ZIndexComponent> zIndexCM;
 
     protected IResourceRetriever rm;
@@ -299,6 +301,40 @@ public abstract class ComponentFactory {
                 shaderComponent.customUniforms.put(entry.key, shaderUniformVO);
             }
             shaderComponent.renderingLayer = vo.renderingLayer;
+        }
+
+        if (vo.layout != null) {
+            LayoutComponent layoutComponent = layoutCM.create(entity);
+            layoutComponent.horizontalBias = vo.layout.horizontalBias;
+            layoutComponent.verticalBias = vo.layout.verticalBias;
+            if (vo.layout.left != null) {
+                layoutComponent.left = new LayoutComponent.ConstraintData();
+                layoutComponent.left.targetUniqueId = vo.layout.left.targetUniqueId;
+                layoutComponent.left.targetSide = vo.layout.left.targetSide;
+                layoutComponent.left.margin = vo.layout.left.margin;
+                layoutComponent.left.targetEntity = -1;
+            }
+            if (vo.layout.right != null) {
+                layoutComponent.right = new LayoutComponent.ConstraintData();
+                layoutComponent.right.targetUniqueId = vo.layout.right.targetUniqueId;
+                layoutComponent.right.targetSide = vo.layout.right.targetSide;
+                layoutComponent.right.margin = vo.layout.right.margin;
+                layoutComponent.right.targetEntity = -1;
+            }
+            if (vo.layout.top != null) {
+                layoutComponent.top = new LayoutComponent.ConstraintData();
+                layoutComponent.top.targetUniqueId = vo.layout.top.targetUniqueId;
+                layoutComponent.top.targetSide = vo.layout.top.targetSide;
+                layoutComponent.top.margin = vo.layout.top.margin;
+                layoutComponent.top.targetEntity = -1;
+            }
+            if (vo.layout.bottom != null) {
+                layoutComponent.bottom = new LayoutComponent.ConstraintData();
+                layoutComponent.bottom.targetUniqueId = vo.layout.bottom.targetUniqueId;
+                layoutComponent.bottom.targetSide = vo.layout.bottom.targetSide;
+                layoutComponent.bottom.margin = vo.layout.bottom.margin;
+                layoutComponent.bottom.targetEntity = -1;
+            }
         }
     }
 

@@ -62,6 +62,7 @@ public class SceneConfiguration {
         addSystem(new PhysicsSystem());
         addSystem(new LightSystem());
         addSystem(new CompositeSystem());
+        addSystem(new LayoutSystem());
         addSystem(new LabelSystem());
         addSystem(new ScriptSystem());
         addSystem(new ActionSystem());
