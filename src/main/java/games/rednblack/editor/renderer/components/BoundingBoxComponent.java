@@ -8,6 +8,14 @@ public class BoundingBoxComponent extends PooledComponent {
 
     public Rectangle rectangle = new Rectangle();
 
+    /**
+     * Axis-aligned bounding box in the entity's parent coordinate system,
+     * expressed as offsets from (transform.x, transform.y).
+     * x = left offset, y = bottom offset, width/height = AABB size.
+     * Computed by {@link games.rednblack.editor.renderer.systems.BoundingBoxSystem}.
+     */
+    public Rectangle parentLocalAABB = new Rectangle();
+
     public Vector2[] points = new Vector2[4];
     public float checksum;
 
@@ -34,6 +42,7 @@ public class BoundingBoxComponent extends PooledComponent {
     @Override
     public void reset() {
         rectangle.set(0, 0, 0, 0);
+        parentLocalAABB.set(0, 0, 0, 0);
         for (Vector2 vector2 : points) {
             vector2.set(0, 0);
         }

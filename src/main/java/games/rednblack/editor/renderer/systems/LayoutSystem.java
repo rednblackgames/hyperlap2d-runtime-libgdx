@@ -20,6 +20,10 @@ import games.rednblack.editor.renderer.ecs.utils.IntBag;
  *
  * A per-entity checksum (similar to {@link BoundingBoxSystem}) skips
  * recalculation when none of the inputs have changed.
+ *
+ * Constraints are resolved relative to parent-local axis-aligned
+ * bounding boxes (AABB) from {@link BoundingBoxComponent#parentLocalAABB}
+ * so that rotation and scale are properly accounted for.
  */
 @All(LayoutComponent.class)
 public class LayoutSystem extends BaseEntitySystem {
@@ -182,8 +186,8 @@ public class LayoutSystem extends BaseEntitySystem {
         float checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps);
         if (checksum == layout.checksum) return;
 
-        processHorizontal(layout, transform, dimensions, parentDimensions, skipCycleDeps);
-        processVertical(layout, transform, dimensions, parentDimensions, skipCycleDeps);
+        processHorizontal(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps);
+        processVertical(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps);
 
         // Recompute AFTER processing so the stored checksum includes the
         // updated x/y.  This way next frame's pre-check matches immediately
@@ -192,38 +196,46 @@ public class LayoutSystem extends BaseEntitySystem {
     }
 
     private void processHorizontal(LayoutComponent layout, TransformComponent transform,
-                                    DimensionsComponent dimensions, DimensionsComponent parentDimensions,
-                                    boolean skipCycleDeps) {
+                                    DimensionsComponent dimensions, BoundingBoxComponent bb,
+                                    DimensionsComponent parentDimensions, boolean skipCycleDeps) {
+        float aabbLeft = bb != null ? bb.parentLocalAABB.x : 0;
+        float aabbRight = bb != null ? bb.parentLocalAABB.x + bb.parentLocalAABB.width : dimensions.width;
+        float aabbWidth = aabbRight - aabbLeft;
+
         float leftAnchor = resolveAnchor(layout.left, parentDimensions, skipCycleDeps);
         float rightAnchor = resolveAnchor(layout.right, parentDimensions, skipCycleDeps);
 
         if (!Float.isNaN(leftAnchor) && !Float.isNaN(rightAnchor)) {
             float leftPos = leftAnchor + layout.left.margin;
             float rightPos = rightAnchor - layout.right.margin;
-            float availableSpace = rightPos - leftPos - dimensions.width;
-            transform.x = leftPos + availableSpace * layout.horizontalBias;
+            float availableSpace = rightPos - leftPos - aabbWidth;
+            transform.x = leftPos - aabbLeft + availableSpace * layout.horizontalBias;
         } else if (!Float.isNaN(leftAnchor)) {
-            transform.x = leftAnchor + layout.left.margin;
+            transform.x = leftAnchor + layout.left.margin - aabbLeft;
         } else if (!Float.isNaN(rightAnchor)) {
-            transform.x = rightAnchor - layout.right.margin - dimensions.width;
+            transform.x = rightAnchor - layout.right.margin - aabbRight;
         }
     }
 
     private void processVertical(LayoutComponent layout, TransformComponent transform,
-                                  DimensionsComponent dimensions, DimensionsComponent parentDimensions,
-                                  boolean skipCycleDeps) {
+                                  DimensionsComponent dimensions, BoundingBoxComponent bb,
+                                  DimensionsComponent parentDimensions, boolean skipCycleDeps) {
+        float aabbBottom = bb != null ? bb.parentLocalAABB.y : 0;
+        float aabbTop = bb != null ? bb.parentLocalAABB.y + bb.parentLocalAABB.height : dimensions.height;
+        float aabbHeight = aabbTop - aabbBottom;
+
         float bottomAnchor = resolveAnchor(layout.bottom, parentDimensions, skipCycleDeps);
         float topAnchor = resolveAnchor(layout.top, parentDimensions, skipCycleDeps);
 
         if (!Float.isNaN(bottomAnchor) && !Float.isNaN(topAnchor)) {
             float bottomPos = bottomAnchor + layout.bottom.margin;
             float topPos = topAnchor - layout.top.margin;
-            float availableSpace = topPos - bottomPos - dimensions.height;
-            transform.y = bottomPos + availableSpace * layout.verticalBias;
+            float availableSpace = topPos - bottomPos - aabbHeight;
+            transform.y = bottomPos - aabbBottom + availableSpace * layout.verticalBias;
         } else if (!Float.isNaN(bottomAnchor)) {
-            transform.y = bottomAnchor + layout.bottom.margin;
+            transform.y = bottomAnchor + layout.bottom.margin - aabbBottom;
         } else if (!Float.isNaN(topAnchor)) {
-            transform.y = topAnchor - layout.top.margin - dimensions.height;
+            transform.y = topAnchor - layout.top.margin - aabbTop;
         }
     }
 
@@ -246,7 +258,7 @@ public class LayoutSystem extends BaseEntitySystem {
             DimensionsComponent siblingDimensions = dimensionsMapper.get(data.targetEntity);
             if (siblingTransform == null || siblingDimensions == null) return Float.NaN;
 
-            return resolveSiblingSide(data.targetSide, siblingTransform, siblingDimensions);
+            return resolveSiblingSide(data.targetSide, data.targetEntity, siblingTransform, siblingDimensions);
         }
     }
 
@@ -265,19 +277,35 @@ public class LayoutSystem extends BaseEntitySystem {
         }
     }
 
-    private float resolveSiblingSide(LayoutComponent.ConstraintSide side,
+    private float resolveSiblingSide(LayoutComponent.ConstraintSide side, int siblingEntity,
                                       TransformComponent siblingTransform,
                                       DimensionsComponent siblingDimensions) {
         if (side == null) return Float.NaN;
+
+        // Use precomputed parent-local AABB from BoundingBoxSystem;
+        // fall back to raw dimensions for entities without BoundingBoxComponent.
+        BoundingBoxComponent sibBB = boundingBoxMapper.get(siblingEntity);
+        float left, bottom, right, top;
+        if (sibBB != null) {
+            left = sibBB.parentLocalAABB.x;
+            bottom = sibBB.parentLocalAABB.y;
+            right = left + sibBB.parentLocalAABB.width;
+            top = bottom + sibBB.parentLocalAABB.height;
+        } else {
+            left = 0; bottom = 0;
+            right = siblingDimensions.width;
+            top = siblingDimensions.height;
+        }
+
         switch (side) {
             case LEFT:
-                return siblingTransform.x;
+                return siblingTransform.x + left;
             case RIGHT:
-                return siblingTransform.x + siblingDimensions.width;
+                return siblingTransform.x + right;
             case BOTTOM:
-                return siblingTransform.y;
+                return siblingTransform.y + bottom;
             case TOP:
-                return siblingTransform.y + siblingDimensions.height;
+                return siblingTransform.y + top;
             default:
                 return Float.NaN;
         }
@@ -290,10 +318,15 @@ public class LayoutSystem extends BaseEntitySystem {
     private float calcChecksum(LayoutComponent layout, TransformComponent transform,
                                 DimensionsComponent dimensions, DimensionsComponent parentDimensions,
                                 BoundingBoxComponent bb, boolean skipCycleDeps) {
+        float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
+        float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
         float cs = layout.horizontalBias * 3 + layout.verticalBias * 7
                  + dimensions.width * 11 + dimensions.height * 13
                  + parentDimensions.width * 17 + parentDimensions.height * 19
-                 + transform.x * 71 + transform.y * 73;
+                 + transform.x * 71 + transform.y * 73
+                 + transform.rotation * 83 + scaleX * 89 + scaleY * 97;
+        if (!Float.isNaN(transform.originX)) cs += transform.originX * 101;
+        if (!Float.isNaN(transform.originY)) cs += transform.originY * 103;
         if (bb != null) cs += bb.checksum * 79;
 
         cs += constraintChecksum(layout.left, skipCycleDeps) * 23;
@@ -310,14 +343,19 @@ public class LayoutSystem extends BaseEntitySystem {
         float cs = data.margin * 41 + data.targetEntity * 43;
         if (data.targetSide != null) cs += data.targetSide.ordinal() * 47;
 
-        // Include sibling spatial data so any position/size change propagates.
+        // Include sibling spatial data so any position/size/rotation change propagates.
         // The BoundingBoxComponent checksum captures transform changes across the
         // entire parent chain (rotation, scale, origin, etc.) that raw x/y alone miss.
         if (data.targetEntity != -1 && !(skipCycleDeps && inCycle.contains(data.targetEntity))) {
             TransformComponent st = transformMapper.get(data.targetEntity);
             DimensionsComponent sd = dimensionsMapper.get(data.targetEntity);
             if (st != null && sd != null) {
+                float stScaleX = st.scaleX * (st.flipX ? -1 : 1);
+                float stScaleY = st.scaleY * (st.flipY ? -1 : 1);
                 cs += st.x * 53 + st.y * 59 + sd.width * 61 + sd.height * 67;
+                cs += st.rotation * 107 + stScaleX * 109 + stScaleY * 113;
+                if (!Float.isNaN(st.originX)) cs += st.originX * 127;
+                if (!Float.isNaN(st.originY)) cs += st.originY * 131;
             }
             BoundingBoxComponent bb = boundingBoxMapper.get(data.targetEntity);
             if (bb != null) {
