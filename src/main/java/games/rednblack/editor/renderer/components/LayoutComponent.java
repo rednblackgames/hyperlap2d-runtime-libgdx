@@ -13,6 +13,8 @@ public class LayoutComponent extends PooledComponent {
     public float horizontalBias = 0.5f;
     public float verticalBias = 0.5f;
 
+    public transient float checksum;
+
     public static class ConstraintData {
         @EntityId public int targetEntity = -1; // -1 = parent
         public ConstraintSide targetSide;
@@ -34,5 +36,6 @@ public class LayoutComponent extends PooledComponent {
         bottom = null;
         horizontalBias = 0.5f;
         verticalBias = 0.5f;
+        checksum = 0;
     }
 }
