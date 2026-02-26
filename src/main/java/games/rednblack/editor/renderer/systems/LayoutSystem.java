@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.Pool;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.ecs.BaseEntitySystem;
 import games.rednblack.editor.renderer.ecs.ComponentMapper;
@@ -24,6 +25,9 @@ import games.rednblack.editor.renderer.ecs.utils.IntBag;
  * Constraints are resolved relative to parent-local axis-aligned
  * bounding boxes (AABB) from {@link BoundingBoxComponent#parentLocalAABB}
  * so that rotation and scale are properly accounted for.
+ *
+ * Constraint resolution (uniqueId -> entityId) and topological sort are
+ * performed once on entity insert/remove rather than every frame.
  */
 @All(LayoutComponent.class)
 public class LayoutSystem extends BaseEntitySystem {
@@ -36,7 +40,7 @@ public class LayoutSystem extends BaseEntitySystem {
     protected ComponentMapper<MainItemComponent> mainItemMapper;
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
 
-    // Topological sort structures – reused each frame to avoid allocations
+    // Topological sort structures – reused to avoid allocations
     private final IntArray sortedEntities = new IntArray();
     private final IntArray queue = new IntArray();
     private final IntIntMap inDegree = new IntIntMap();
@@ -44,6 +48,64 @@ public class LayoutSystem extends BaseEntitySystem {
     private final IntSet activeSet = new IntSet();
     private final IntSet inCycle = new IntSet();
     private final IntSet depTargets = new IntSet();
+    private final Pool<IntArray> intArrayPool = new Pool<IntArray>() {
+        @Override
+        protected IntArray newObject() {
+            return new IntArray(4);
+        }
+
+        @Override
+        protected void reset(IntArray object) {
+            object.clear();
+        }
+    };
+
+    // Only rebuild topo order and resolve on insert/remove
+    private boolean dirty = true;
+    private final IntSet unresolvedEntities = new IntSet();
+
+    // ----------------------------------------------------------------
+    // Entity lifecycle callbacks
+    // ----------------------------------------------------------------
+
+    @Override
+    protected void inserted(int entityId) {
+        LayoutComponent layout = layoutMapper.get(entityId);
+        resolveConstraints(layout, entityId);
+        if (hasUnresolved(layout)) {
+            unresolvedEntities.add(entityId);
+        }
+
+        // New entity might be a target for previously unresolved constraints
+        retryUnresolved();
+
+        dirty = true;
+    }
+
+    @Override
+    protected void removed(int entityId) {
+        unresolvedEntities.remove(entityId);
+
+        // Use reverseDeps for O(1) lookup instead of scanning all entities
+        IntArray dependents = reverseDeps.get(entityId);
+        if (dependents != null) {
+            for (int i = 0; i < dependents.size; i++) {
+                int dep = dependents.get(i);
+                LayoutComponent layout = layoutMapper.get(dep);
+                if (layout == null) continue;
+                if (layout.left != null && layout.left.targetEntity == entityId) layout.left = null;
+                if (layout.right != null && layout.right.targetEntity == entityId) layout.right = null;
+                if (layout.top != null && layout.top.targetEntity == entityId) layout.top = null;
+                if (layout.bottom != null && layout.bottom.targetEntity == entityId) layout.bottom = null;
+            }
+        }
+
+        dirty = true;
+    }
+
+    // ----------------------------------------------------------------
+    // Main processing
+    // ----------------------------------------------------------------
 
     @Override
     protected void processSystem() {
@@ -53,26 +115,61 @@ public class LayoutSystem extends BaseEntitySystem {
 
         if (size == 0) return;
 
-        // Phase 1: Resolve lazy constraint targets (uniqueId -> entityId)
-        for (int i = 0; i < size; i++) {
-            resolveConstraints(layoutMapper.get(ids[i]), ids[i]);
+        // Retry any unresolved constraints (may occur on load order)
+        if (!unresolvedEntities.isEmpty()) {
+            retryUnresolved();
+            dirty = true;
         }
 
-        // Phase 2: Build dependency graph and topological sort
-        buildTopologicalOrder(ids, size);
+        // Rebuild topological order only when entity composition changed
+        if (dirty) {
+            buildTopologicalOrder(ids, size);
+            dirty = false;
+        }
 
-        // Phase 3: Process in dependency order with checksum-based skip
+        // Process in dependency order with checksum-based skip
         for (int i = 0; i < sortedEntities.size; i++) {
-            processEntity(sortedEntities.get(i), false);
+            int entity = sortedEntities.get(i);
+            MainItemComponent mic = mainItemMapper.get(entity);
+            if (mic != null && (!mic.visible)) continue;
+            processEntity(entity, false);
         }
 
-        // Phase 4: Process cycle entities – ignore sibling deps on other
+        // Process cycle entities – ignore sibling deps on other
         // cycle members to prevent cross-frame oscillation
-        if (sortedEntities.size < size) {
+        if (inCycle.size > 0) {
             for (int i = 0; i < size; i++) {
                 if (inCycle.contains(ids[i])) {
+                    MainItemComponent mic = mainItemMapper.get(ids[i]);
+                    if (mic != null && (!mic.visible)) continue;
                     processEntity(ids[i], true);
                 }
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Constraint resolution helpers
+    // ----------------------------------------------------------------
+
+    private boolean hasUnresolved(LayoutComponent layout) {
+        return isUnresolved(layout.left) || isUnresolved(layout.right)
+            || isUnresolved(layout.top) || isUnresolved(layout.bottom);
+    }
+
+    private boolean isUnresolved(LayoutComponent.ConstraintData data) {
+        return data != null && !data.resolved;
+    }
+
+    private void retryUnresolved() {
+        IntSet.IntSetIterator iter = unresolvedEntities.iterator();
+        while (iter.hasNext) {
+            int entityId = iter.next();
+            LayoutComponent layout = layoutMapper.get(entityId);
+            if (layout == null) { iter.remove(); continue; }
+            resolveConstraints(layout, entityId);
+            if (!hasUnresolved(layout)) {
+                iter.remove();
             }
         }
     }
@@ -88,10 +185,11 @@ public class LayoutSystem extends BaseEntitySystem {
         inDegree.clear();
         queue.clear();
 
-        // Clear reused IntArrays in the reverse-dependency map
+        // Return IntArrays to pool and clear the map
         for (IntMap.Entry<IntArray> entry : reverseDeps) {
-            entry.value.clear();
+            intArrayPool.free(entry.value);
         }
+        reverseDeps.clear();
 
         // Build active set for O(1) membership tests
         for (int i = 0; i < size; i++) {
@@ -116,7 +214,7 @@ public class LayoutSystem extends BaseEntitySystem {
                 int target = iter.next();
                 IntArray deps = reverseDeps.get(target);
                 if (deps == null) {
-                    deps = new IntArray(4);
+                    deps = intArrayPool.obtain();
                     reverseDeps.put(target, deps);
                 }
                 deps.add(entity);
