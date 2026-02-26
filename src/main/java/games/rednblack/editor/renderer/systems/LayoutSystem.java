@@ -129,10 +129,7 @@ public class LayoutSystem extends BaseEntitySystem {
 
         // Process in dependency order with checksum-based skip
         for (int i = 0; i < sortedEntities.size; i++) {
-            int entity = sortedEntities.get(i);
-            MainItemComponent mic = mainItemMapper.get(entity);
-            if (mic != null && (!mic.visible)) continue;
-            processEntity(entity, false);
+            processEntity(sortedEntities.get(i), false);
         }
 
         // Process cycle entities – ignore sibling deps on other
@@ -140,8 +137,6 @@ public class LayoutSystem extends BaseEntitySystem {
         if (inCycle.size > 0) {
             for (int i = 0; i < size; i++) {
                 if (inCycle.contains(ids[i])) {
-                    MainItemComponent mic = mainItemMapper.get(ids[i]);
-                    if (mic != null && (!mic.visible)) continue;
                     processEntity(ids[i], true);
                 }
             }
@@ -279,26 +274,33 @@ public class LayoutSystem extends BaseEntitySystem {
         TransformComponent transform = transformMapper.get(entity);
         DimensionsComponent dimensions = dimensionsMapper.get(entity);
         BoundingBoxComponent bb = boundingBoxMapper.get(entity);
+        MainItemComponent mic = mainItemMapper.get(entity);
+        boolean visible = mic == null || mic.visible;
 
         // Checksum-based skip: if none of the inputs changed, skip recalculation
-        float checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps);
+        float checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps, visible);
         if (checksum == layout.checksum) return;
 
-        processHorizontal(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps);
-        processVertical(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps);
+        // Invisible entities collapse their AABB to zero so siblings
+        // constrained to them see a zero-size anchor point.
+        processHorizontal(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps, visible);
+        processVertical(layout, transform, dimensions, bb, parentDimensions, skipCycleDeps, visible);
 
-        // Recompute AFTER processing so the stored checksum includes the
-        // updated x/y.  This way next frame's pre-check matches immediately
-        // instead of lagging one frame behind the BoundingBoxSystem update.
-        layout.checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps);
+        layout.checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps, visible);
     }
 
     private void processHorizontal(LayoutComponent layout, TransformComponent transform,
                                     DimensionsComponent dimensions, BoundingBoxComponent bb,
-                                    DimensionsComponent parentDimensions, boolean skipCycleDeps) {
-        float aabbLeft = bb != null ? bb.parentLocalAABB.x : 0;
-        float aabbRight = bb != null ? bb.parentLocalAABB.x + bb.parentLocalAABB.width : dimensions.width;
-        float aabbWidth = aabbRight - aabbLeft;
+                                    DimensionsComponent parentDimensions, boolean skipCycleDeps,
+                                    boolean visible) {
+        float aabbLeft, aabbRight, aabbWidth;
+        if (!visible) {
+            aabbLeft = 0; aabbRight = 0; aabbWidth = 0;
+        } else {
+            aabbLeft = bb != null ? bb.parentLocalAABB.x : 0;
+            aabbRight = bb != null ? bb.parentLocalAABB.x + bb.parentLocalAABB.width : dimensions.width;
+            aabbWidth = aabbRight - aabbLeft;
+        }
 
         float leftAnchor = resolveAnchor(layout.left, parentDimensions, skipCycleDeps);
         float rightAnchor = resolveAnchor(layout.right, parentDimensions, skipCycleDeps);
@@ -317,10 +319,16 @@ public class LayoutSystem extends BaseEntitySystem {
 
     private void processVertical(LayoutComponent layout, TransformComponent transform,
                                   DimensionsComponent dimensions, BoundingBoxComponent bb,
-                                  DimensionsComponent parentDimensions, boolean skipCycleDeps) {
-        float aabbBottom = bb != null ? bb.parentLocalAABB.y : 0;
-        float aabbTop = bb != null ? bb.parentLocalAABB.y + bb.parentLocalAABB.height : dimensions.height;
-        float aabbHeight = aabbTop - aabbBottom;
+                                  DimensionsComponent parentDimensions, boolean skipCycleDeps,
+                                  boolean visible) {
+        float aabbBottom, aabbTop, aabbHeight;
+        if (!visible) {
+            aabbBottom = 0; aabbTop = 0; aabbHeight = 0;
+        } else {
+            aabbBottom = bb != null ? bb.parentLocalAABB.y : 0;
+            aabbTop = bb != null ? bb.parentLocalAABB.y + bb.parentLocalAABB.height : dimensions.height;
+            aabbHeight = aabbTop - aabbBottom;
+        }
 
         float bottomAnchor = resolveAnchor(layout.bottom, parentDimensions, skipCycleDeps);
         float topAnchor = resolveAnchor(layout.top, parentDimensions, skipCycleDeps);
@@ -380,19 +388,25 @@ public class LayoutSystem extends BaseEntitySystem {
                                       DimensionsComponent siblingDimensions) {
         if (side == null) return Float.NaN;
 
-        // Use precomputed parent-local AABB from BoundingBoxSystem;
-        // fall back to raw dimensions for entities without BoundingBoxComponent.
-        BoundingBoxComponent sibBB = boundingBoxMapper.get(siblingEntity);
+        // Invisible siblings collapse to zero so dependents see a point anchor.
+        MainItemComponent sibMic = mainItemMapper.get(siblingEntity);
+        boolean sibVisible = sibMic == null || sibMic.visible;
+
         float left, bottom, right, top;
-        if (sibBB != null) {
-            left = sibBB.parentLocalAABB.x;
-            bottom = sibBB.parentLocalAABB.y;
-            right = left + sibBB.parentLocalAABB.width;
-            top = bottom + sibBB.parentLocalAABB.height;
+        if (!sibVisible) {
+            left = 0; bottom = 0; right = 0; top = 0;
         } else {
-            left = 0; bottom = 0;
-            right = siblingDimensions.width;
-            top = siblingDimensions.height;
+            BoundingBoxComponent sibBB = boundingBoxMapper.get(siblingEntity);
+            if (sibBB != null) {
+                left = sibBB.parentLocalAABB.x;
+                bottom = sibBB.parentLocalAABB.y;
+                right = left + sibBB.parentLocalAABB.width;
+                top = bottom + sibBB.parentLocalAABB.height;
+            } else {
+                left = 0; bottom = 0;
+                right = siblingDimensions.width;
+                top = siblingDimensions.height;
+            }
         }
 
         switch (side) {
@@ -415,10 +429,11 @@ public class LayoutSystem extends BaseEntitySystem {
 
     private float calcChecksum(LayoutComponent layout, TransformComponent transform,
                                 DimensionsComponent dimensions, DimensionsComponent parentDimensions,
-                                BoundingBoxComponent bb, boolean skipCycleDeps) {
+                                BoundingBoxComponent bb, boolean skipCycleDeps, boolean visible) {
         float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
         float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
-        float cs = layout.horizontalBias * 3 + layout.verticalBias * 7
+        float cs = (visible ? 0 : 137)
+                 + layout.horizontalBias * 3 + layout.verticalBias * 7
                  + dimensions.width * 11 + dimensions.height * 13
                  + parentDimensions.width * 17 + parentDimensions.height * 19
                  + transform.x * 71 + transform.y * 73
@@ -445,6 +460,8 @@ public class LayoutSystem extends BaseEntitySystem {
         // The BoundingBoxComponent checksum captures transform changes across the
         // entire parent chain (rotation, scale, origin, etc.) that raw x/y alone miss.
         if (data.targetEntity != -1 && !(skipCycleDeps && inCycle.contains(data.targetEntity))) {
+            MainItemComponent sibMic = mainItemMapper.get(data.targetEntity);
+            if (sibMic != null && !sibMic.visible) cs += 139;
             TransformComponent st = transformMapper.get(data.targetEntity);
             DimensionsComponent sd = dimensionsMapper.get(data.targetEntity);
             if (st != null && sd != null) {
