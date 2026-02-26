@@ -50,7 +50,7 @@ public class BoundingBoxSystem extends IteratingSystem {
             t.y += rectangle.y;
         }
 
-        float checksum = calcCheckSum(entity, parentNode, t, d);
+        int checksum = calcCheckSum(entity, parentNode, t, d);
         if (checksum != b.checksum) {
             // Parent-local AABB using original dimensions (before polygon adjustment)
             computeParentLocalAABB(t, originalWidth, originalHeight, b);
@@ -117,14 +117,23 @@ public class BoundingBoxSystem extends IteratingSystem {
         b.parentLocalAABB.set(minX, minY, maxX - minX, maxY - minY);
     }
 
-    private float calcCheckSum(int entity, ParentNodeComponent parentNode, TransformComponent t, DimensionsComponent d) {
+    private int calcCheckSum(int entity, ParentNodeComponent parentNode, TransformComponent t, DimensionsComponent d) {
         PhysicsBodyComponent p = physicsMapper.get(entity);
 
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);
-        float fineBB = p != null && p.fineBoundBox ? 1 : 0;
 
-        float checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height + fineBB;
+        int checksum = Float.floatToRawIntBits(t.rotation) * 3
+                + Float.floatToRawIntBits(scaleX) * 5
+                + Float.floatToRawIntBits(scaleY) * 7
+                + Float.floatToRawIntBits(t.x) * 11
+                + Float.floatToRawIntBits(t.y) * 13
+                + Float.floatToRawIntBits(t.originX) * 17
+                + Float.floatToRawIntBits(t.originY) * 19
+                + Float.floatToRawIntBits(d.width) * 23
+                + Float.floatToRawIntBits(d.height) * 29
+                + (p != null && p.fineBoundBox ? 31 : 0);
+
         while (parentNode != null && parentNode.parentEntity != -1) {
             TransformComponent pt = transformMapper.get(parentNode.parentEntity);
             DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);
@@ -135,9 +144,17 @@ public class BoundingBoxSystem extends IteratingSystem {
 
             float pScaleX = pt.scaleX * (pt.flipX ? -1 : 1);
             float pScaleY = pt.scaleY * (pt.flipY ? -1 : 1);
-            float pFineBB = pp != null && pp.fineBoundBox ? 1 : 0;
 
-            checksum += pt.rotation + pScaleX + pScaleY + pt.x + pt.y + pt.originX + pt.originY + dt.width + dt.height + pFineBB;
+            checksum += Float.floatToRawIntBits(pt.rotation) * 37
+                    + Float.floatToRawIntBits(pScaleX) * 41
+                    + Float.floatToRawIntBits(pScaleY) * 43
+                    + Float.floatToRawIntBits(pt.x) * 47
+                    + Float.floatToRawIntBits(pt.y) * 53
+                    + Float.floatToRawIntBits(pt.originX) * 59
+                    + Float.floatToRawIntBits(pt.originY) * 61
+                    + Float.floatToRawIntBits(dt.width) * 67
+                    + Float.floatToRawIntBits(dt.height) * 71
+                    + (pp != null && pp.fineBoundBox ? 73 : 0);
             parentNode = parentNodeMapper.get(parentNode.parentEntity);
         }
         return checksum;

@@ -11,7 +11,7 @@ public class CompositeTransformComponent extends PooledComponent {
 	public final Rectangle scissors = new Rectangle();
 	public final Rectangle clipBounds = new Rectangle();
 
-	public float checksum;
+	public int checksum;
 
 	@Override
 	public void reset() {

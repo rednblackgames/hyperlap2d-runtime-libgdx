@@ -48,7 +48,7 @@ public class CompositeSystem extends IteratingSystem {
         if (compositeTransformComponent != null) {
 
             if (compositeTransformComponent.automaticResize && viewPortComponent == null) {
-                float checksum = calcCheckSum(transformComponent);
+                int checksum = calcCheckSum(transformComponent);
                 if (checksum != compositeTransformComponent.checksum) {
                     compositeTransformComponent.checksum = checksum;
                     recalculateSize();
@@ -59,13 +59,21 @@ public class CompositeSystem extends IteratingSystem {
         }
     }
 
-    private float calcCheckSum(TransformComponent t) {
+    private int calcCheckSum(TransformComponent t) {
         DimensionsComponent d = dimensionsComponent;
 
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);
 
-        float checksum = t.rotation + scaleX + scaleY + t.x + t.y + t.originX + t.originY + d.width + d.height;
+        int checksum = Float.floatToRawIntBits(t.rotation) * 3
+                + Float.floatToRawIntBits(scaleX) * 5
+                + Float.floatToRawIntBits(scaleY) * 7
+                + Float.floatToRawIntBits(t.x) * 11
+                + Float.floatToRawIntBits(t.y) * 13
+                + Float.floatToRawIntBits(t.originX) * 17
+                + Float.floatToRawIntBits(t.originY) * 19
+                + Float.floatToRawIntBits(d.width) * 23
+                + Float.floatToRawIntBits(d.height) * 29;
         Integer[] children = nodeComponent.children.begin();
         for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
             Integer child = children[i];
@@ -75,7 +83,15 @@ public class CompositeSystem extends IteratingSystem {
                 continue;
             float pScaleX = pt.scaleX * (pt.flipX ? -1 : 1);
             float pScaleY = pt.scaleY * (pt.flipY ? -1 : 1);
-            checksum += pt.rotation + pScaleX + pScaleY + pt.x + pt.y + pt.originX + pt.originY + dt.width + dt.height;
+            checksum += Float.floatToRawIntBits(pt.rotation) * 31
+                    + Float.floatToRawIntBits(pScaleX) * 37
+                    + Float.floatToRawIntBits(pScaleY) * 41
+                    + Float.floatToRawIntBits(pt.x) * 43
+                    + Float.floatToRawIntBits(pt.y) * 47
+                    + Float.floatToRawIntBits(pt.originX) * 53
+                    + Float.floatToRawIntBits(pt.originY) * 59
+                    + Float.floatToRawIntBits(dt.width) * 61
+                    + Float.floatToRawIntBits(dt.height) * 67;
         }
         nodeComponent.children.end();
         return checksum;

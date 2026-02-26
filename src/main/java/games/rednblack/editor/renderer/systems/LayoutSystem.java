@@ -278,7 +278,7 @@ public class LayoutSystem extends BaseEntitySystem {
         boolean visible = mic == null || mic.visible;
 
         // Checksum-based skip: if none of the inputs changed, skip recalculation
-        float checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps, visible);
+        int checksum = calcChecksum(layout, transform, dimensions, parentDimensions, bb, skipCycleDeps, visible);
         if (checksum == layout.checksum) return;
 
         // Invisible entities collapse their AABB to zero so siblings
@@ -427,19 +427,25 @@ public class LayoutSystem extends BaseEntitySystem {
     // Checksum – mirrors the pattern used in BoundingBoxSystem
     // ----------------------------------------------------------------
 
-    private float calcChecksum(LayoutComponent layout, TransformComponent transform,
-                                DimensionsComponent dimensions, DimensionsComponent parentDimensions,
-                                BoundingBoxComponent bb, boolean skipCycleDeps, boolean visible) {
+    private int calcChecksum(LayoutComponent layout, TransformComponent transform,
+                              DimensionsComponent dimensions, DimensionsComponent parentDimensions,
+                              BoundingBoxComponent bb, boolean skipCycleDeps, boolean visible) {
         float scaleX = transform.scaleX * (transform.flipX ? -1 : 1);
         float scaleY = transform.scaleY * (transform.flipY ? -1 : 1);
-        float cs = (visible ? 0 : 137)
-                 + layout.horizontalBias * 3 + layout.verticalBias * 7
-                 + dimensions.width * 11 + dimensions.height * 13
-                 + parentDimensions.width * 17 + parentDimensions.height * 19
-                 + transform.x * 71 + transform.y * 73
-                 + transform.rotation * 83 + scaleX * 89 + scaleY * 97;
-        if (!Float.isNaN(transform.originX)) cs += transform.originX * 101;
-        if (!Float.isNaN(transform.originY)) cs += transform.originY * 103;
+        int cs = (visible ? 0 : 137)
+                + Float.floatToRawIntBits(layout.horizontalBias) * 3
+                + Float.floatToRawIntBits(layout.verticalBias) * 7
+                + Float.floatToRawIntBits(dimensions.width) * 11
+                + Float.floatToRawIntBits(dimensions.height) * 13
+                + Float.floatToRawIntBits(parentDimensions.width) * 17
+                + Float.floatToRawIntBits(parentDimensions.height) * 19
+                + Float.floatToRawIntBits(transform.x) * 71
+                + Float.floatToRawIntBits(transform.y) * 73
+                + Float.floatToRawIntBits(transform.rotation) * 83
+                + Float.floatToRawIntBits(scaleX) * 89
+                + Float.floatToRawIntBits(scaleY) * 97
+                + Float.floatToRawIntBits(transform.originX) * 101
+                + Float.floatToRawIntBits(transform.originY) * 103;
         if (bb != null) cs += bb.checksum * 79;
 
         cs += constraintChecksum(layout.left, skipCycleDeps) * 23;
@@ -450,10 +456,10 @@ public class LayoutSystem extends BaseEntitySystem {
         return cs;
     }
 
-    private float constraintChecksum(LayoutComponent.ConstraintData data, boolean skipCycleDeps) {
+    private int constraintChecksum(LayoutComponent.ConstraintData data, boolean skipCycleDeps) {
         if (data == null) return 0;
 
-        float cs = data.margin * 41 + data.targetEntity * 43;
+        int cs = Float.floatToRawIntBits(data.margin) * 41 + data.targetEntity * 43;
         if (data.targetSide != null) cs += data.targetSide.ordinal() * 47;
 
         // Include sibling spatial data so any position/size/rotation change propagates.
@@ -467,10 +473,15 @@ public class LayoutSystem extends BaseEntitySystem {
             if (st != null && sd != null) {
                 float stScaleX = st.scaleX * (st.flipX ? -1 : 1);
                 float stScaleY = st.scaleY * (st.flipY ? -1 : 1);
-                cs += st.x * 53 + st.y * 59 + sd.width * 61 + sd.height * 67;
-                cs += st.rotation * 107 + stScaleX * 109 + stScaleY * 113;
-                if (!Float.isNaN(st.originX)) cs += st.originX * 127;
-                if (!Float.isNaN(st.originY)) cs += st.originY * 131;
+                cs += Float.floatToRawIntBits(st.x) * 53
+                    + Float.floatToRawIntBits(st.y) * 59
+                    + Float.floatToRawIntBits(sd.width) * 61
+                    + Float.floatToRawIntBits(sd.height) * 67
+                    + Float.floatToRawIntBits(st.rotation) * 107
+                    + Float.floatToRawIntBits(stScaleX) * 109
+                    + Float.floatToRawIntBits(stScaleY) * 113
+                    + Float.floatToRawIntBits(st.originX) * 127
+                    + Float.floatToRawIntBits(st.originY) * 131;
             }
             BoundingBoxComponent bb = boundingBoxMapper.get(data.targetEntity);
             if (bb != null) {

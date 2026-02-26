@@ -17,7 +17,7 @@ public class BoundingBoxComponent extends PooledComponent {
     public Rectangle parentLocalAABB = new Rectangle();
 
     public Vector2[] points = new Vector2[4];
-    public float checksum;
+    public int checksum;
 
     {
         points[0] = new Vector2();
