@@ -308,8 +308,13 @@ public class LayoutSystem extends BaseEntitySystem {
         if (!Float.isNaN(leftAnchor) && !Float.isNaN(rightAnchor)) {
             float leftPos = leftAnchor + layout.left.margin;
             float rightPos = rightAnchor - layout.right.margin;
-            float availableSpace = rightPos - leftPos - aabbWidth;
-            transform.x = leftPos - aabbLeft + availableSpace * layout.horizontalBias;
+            if (layout.matchConstraintWidth) {
+                dimensions.width = Math.max(0, rightPos - leftPos);
+                transform.x = leftPos;
+            } else {
+                float availableSpace = rightPos - leftPos - aabbWidth;
+                transform.x = leftPos - aabbLeft + availableSpace * layout.horizontalBias;
+            }
         } else if (!Float.isNaN(leftAnchor)) {
             transform.x = leftAnchor + layout.left.margin - aabbLeft;
         } else if (!Float.isNaN(rightAnchor)) {
@@ -336,8 +341,13 @@ public class LayoutSystem extends BaseEntitySystem {
         if (!Float.isNaN(bottomAnchor) && !Float.isNaN(topAnchor)) {
             float bottomPos = bottomAnchor + layout.bottom.margin;
             float topPos = topAnchor - layout.top.margin;
-            float availableSpace = topPos - bottomPos - aabbHeight;
-            transform.y = bottomPos - aabbBottom + availableSpace * layout.verticalBias;
+            if (layout.matchConstraintHeight) {
+                dimensions.height = Math.max(0, topPos - bottomPos);
+                transform.y = bottomPos;
+            } else {
+                float availableSpace = topPos - bottomPos - aabbHeight;
+                transform.y = bottomPos - aabbBottom + availableSpace * layout.verticalBias;
+            }
         } else if (!Float.isNaN(bottomAnchor)) {
             transform.y = bottomAnchor + layout.bottom.margin - aabbBottom;
         } else if (!Float.isNaN(topAnchor)) {
@@ -452,6 +462,8 @@ public class LayoutSystem extends BaseEntitySystem {
         cs += constraintChecksum(layout.right, skipCycleDeps) * 29;
         cs += constraintChecksum(layout.top, skipCycleDeps) * 31;
         cs += constraintChecksum(layout.bottom, skipCycleDeps) * 37;
+        cs += (layout.matchConstraintWidth ? 151 : 0);
+        cs += (layout.matchConstraintHeight ? 157 : 0);
 
         return cs;
     }

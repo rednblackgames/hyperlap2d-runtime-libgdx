@@ -15,6 +15,8 @@ public class LayoutConstraintVO {
     public ConstraintDataVO bottom = null;
     public float horizontalBias = 0.5f;
     public float verticalBias = 0.5f;
+    public boolean matchConstraintWidth = false;
+    public boolean matchConstraintHeight = false;
 
     public static class ConstraintDataVO {
         public String targetUniqueId = null; // null = parent
@@ -69,6 +71,8 @@ public class LayoutConstraintVO {
         if (vo.bottom != null) bottom = new ConstraintDataVO(vo.bottom);
         horizontalBias = vo.horizontalBias;
         verticalBias = vo.verticalBias;
+        matchConstraintWidth = vo.matchConstraintWidth;
+        matchConstraintHeight = vo.matchConstraintHeight;
     }
 
     public void loadFromComponent(LayoutComponent comp, Engine engine) {
@@ -90,6 +94,8 @@ public class LayoutConstraintVO {
         }
         horizontalBias = comp.horizontalBias;
         verticalBias = comp.verticalBias;
+        matchConstraintWidth = comp.matchConstraintWidth;
+        matchConstraintHeight = comp.matchConstraintHeight;
     }
 
     @Override
@@ -99,6 +105,8 @@ public class LayoutConstraintVO {
         LayoutConstraintVO that = (LayoutConstraintVO) o;
         return Float.compare(that.horizontalBias, horizontalBias) == 0 &&
                 Float.compare(that.verticalBias, verticalBias) == 0 &&
+                matchConstraintWidth == that.matchConstraintWidth &&
+                matchConstraintHeight == that.matchConstraintHeight &&
                 Objects.equals(left, that.left) &&
                 Objects.equals(right, that.right) &&
                 Objects.equals(top, that.top) &&
@@ -107,6 +115,6 @@ public class LayoutConstraintVO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(left, right, top, bottom, horizontalBias, verticalBias);
+        return Objects.hash(left, right, top, bottom, horizontalBias, verticalBias, matchConstraintWidth, matchConstraintHeight);
     }
 }

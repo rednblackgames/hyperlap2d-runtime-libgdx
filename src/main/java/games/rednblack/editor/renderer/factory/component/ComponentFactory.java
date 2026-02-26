@@ -307,6 +307,8 @@ public abstract class ComponentFactory {
             LayoutComponent layoutComponent = layoutCM.create(entity);
             layoutComponent.horizontalBias = vo.layout.horizontalBias;
             layoutComponent.verticalBias = vo.layout.verticalBias;
+            layoutComponent.matchConstraintWidth = vo.layout.matchConstraintWidth;
+            layoutComponent.matchConstraintHeight = vo.layout.matchConstraintHeight;
             if (vo.layout.left != null) {
                 layoutComponent.left = new LayoutComponent.ConstraintData();
                 layoutComponent.left.targetUniqueId = vo.layout.left.targetUniqueId;

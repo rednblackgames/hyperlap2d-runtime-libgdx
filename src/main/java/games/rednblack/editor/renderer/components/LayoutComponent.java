@@ -13,6 +13,9 @@ public class LayoutComponent extends PooledComponent {
     public float horizontalBias = 0.5f;
     public float verticalBias = 0.5f;
 
+    public boolean matchConstraintWidth = false;
+    public boolean matchConstraintHeight = false;
+
     public transient int checksum;
 
     public static class ConstraintData {
@@ -36,6 +39,8 @@ public class LayoutComponent extends PooledComponent {
         bottom = null;
         horizontalBias = 0.5f;
         verticalBias = 0.5f;
+        matchConstraintWidth = false;
+        matchConstraintHeight = false;
         checksum = 0;
     }
 }
