@@ -22,7 +22,11 @@ import games.rednblack.editor.renderer.utils.TmpFloatArray;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 
 public class PhysicsBodyLoader {
-    public static PoolManager POOLS = new PoolManager(LightData::new, Vector2::new);
+    public static PoolManager POOLS = new PoolManager();
+    static {
+        POOLS.addPool(LightData.class, LightData::new);
+        POOLS.addPool(Vector2.class, Vector2::new);
+    }
 
     private static PhysicsBodyLoader instance;
 

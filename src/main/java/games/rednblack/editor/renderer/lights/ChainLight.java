@@ -10,7 +10,12 @@ import com.badlogic.gdx.utils.PoolManager;
  * A light whose ray starting points are evenly distributed along a chain of vertices
  */
 public class ChainLight extends Light {
-    static private final PoolManager POOLS = new PoolManager(Vector2::new, FloatArray::new, Spinor::new);
+    static private final PoolManager POOLS = new PoolManager();
+    static {
+        POOLS.addPool(Vector.class, Vector2::new);
+        POOLS.addPool(FloatArray.class, FloatArray::new);
+        POOLS.addPool(Spinor.class, Spinor::new);
+    }
 
     public static float defaultRayStartOffset = 0.001f;
     public float rayStartOffset;

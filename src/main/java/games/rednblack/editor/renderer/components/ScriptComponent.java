@@ -28,7 +28,7 @@ public class ScriptComponent extends PooledComponent {
                     throw new RuntimeException(e);
                 }
             });
-            SCRIPTS_POOLS.addPool(pool);
+            SCRIPTS_POOLS.addPool(clazz, pool);
         }
         return pool;
     }

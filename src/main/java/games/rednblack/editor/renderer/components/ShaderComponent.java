@@ -11,7 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ShaderComponent extends PooledComponent {
-    static public PoolManager POOLS = new PoolManager(ShaderUniformVO::new);
+    static public PoolManager POOLS = new PoolManager();
+	static {
+		POOLS.addPool(ShaderUniformVO.class, ShaderUniformVO::new);
+	}
 
 	public MainItemVO.RenderingLayer renderingLayer = MainItemVO.RenderingLayer.SCREEN;
 	public String shaderName = "";

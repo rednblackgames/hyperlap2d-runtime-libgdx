@@ -58,7 +58,7 @@ public class Actions {
         if (!actionLogicMap.containsKey(type.getName())) {
             actionLogicMap.put(type.getName(), ClassReflection.newInstance(type));
             actionDataLogicMap.put(typeData.getName(), type.getName());
-            ACTION_POOLS.addPool(supplierData);
+            ACTION_POOLS.addPool(typeData, supplierData);
         }
     }
 
