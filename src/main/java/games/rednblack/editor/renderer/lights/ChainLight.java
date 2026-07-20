@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.PoolManager;
 public class ChainLight extends Light {
     static private final PoolManager POOLS = new PoolManager();
     static {
-        POOLS.addPool(Vector.class, Vector2::new);
+        POOLS.addPool(Vector2.class, Vector2::new);
         POOLS.addPool(FloatArray.class, FloatArray::new);
         POOLS.addPool(Spinor.class, Spinor::new);
     }
