@@ -94,6 +94,8 @@ public class TextureRegionDrawLogic implements DrawableLogic {
         TextureRegion region = entityTextureRegionComponent.region;
         if (screenReading && entityTextureRegionComponent.screenRegion != null)
             region = entityTextureRegionComponent.screenRegion;
+        //Region may be absent, e.g. it lives in an editor-only pack that was not exported
+        if (region == null) return;
         batch.draw(region,
                 entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,

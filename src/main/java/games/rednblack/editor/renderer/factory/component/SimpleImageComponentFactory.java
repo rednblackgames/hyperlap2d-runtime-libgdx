@@ -4,6 +4,7 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.ecs.EntityTransmuter;
 import games.rednblack.editor.renderer.ecs.EntityTransmuterFactory;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.lights.RayHandler;
@@ -78,12 +79,25 @@ public class SimpleImageComponentFactory extends ComponentFactory {
             normalMapRenderingCM.remove(entity);
             component.region = rm.getTextureRegion(component.regionName);
         }
+
+        if (component.region == null) {
+            // Not fatal: the region may belong to an editor-only pack deliberately left out of the
+            // export (see TexturePackVO.editorOnly), or simply be missing. Either way the item keeps
+            // its place in the hierarchy and draws nothing, rather than taking the whole scene down.
+            Gdx.app.error("SimpleImageComponentFactory", "missing texture region: " + component.regionName);
+        }
     }
 
     @Override
     protected void initializeDimensionsComponent(int entity) {
         TextureRegionComponent component = textureRegionCM.get(entity);
         DimensionsComponent dimension = dimensionsCM.get(entity);
+
+        if (component.region == null) {
+            dimension.width = 0;
+            dimension.height = 0;
+            return;
+        }
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();

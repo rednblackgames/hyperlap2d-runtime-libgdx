@@ -31,7 +31,7 @@ public class TextureRegionComponent extends RefreshableComponent {
 
     public void setPolygonSprite(PolygonShapeComponent polygonShapeComponent) {
         Array<Vector2> verticesArray = polygonShapeComponent.vertices;
-        if (verticesArray == null) return;
+        if (verticesArray == null || region == null) return;
         //TODO Another buddy that should be pooled
         float[] vertices = new float[verticesArray.size * 2];
         for (int i = 0; i < verticesArray.size; i++) {

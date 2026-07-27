@@ -38,15 +38,21 @@ public class ResourceManagerLoader extends AsynchronousAssetLoader<AsyncResource
             throw new GdxRuntimeException("fileName must be project.dt");
         }
 
+        // getDependencies() only enqueues packs whose atlas actually exists, so the same guard is
+        // needed here: without it a project.dt listing a pack with no atlas on disk - a leftover
+        // empty pack, or one deliberately not exported - throws "Asset not loaded" instead of
+        // simply being skipped.
         for (String pack : projectInfoVO.imagesPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            if (!packFile.exists()) continue;
             this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
         }
 
         for (String pack : projectInfoVO.animationsPacks.keySet()) {
             String name = pack.equals("main") ? "pack.atlas" : pack + ".atlas";
             FileHandle packFile = Gdx.files.internal(this.asyncResourceManager.packResolutionName + File.separator + name);
+            if (!packFile.exists()) continue;
             this.asyncResourceManager.addAtlasPack(pack, manager.get(packFile.path(), TextureAtlas.class));
         }
 
