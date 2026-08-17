@@ -749,37 +749,49 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         final short[] triangles = this.triangles;
         final float[] vertices = this.vertices;
 
-        //Calculate how many vertices and triangles will be put in the batch
-        int triangleCount = (count / 20) * 6;
-        float verticesCount = ((float) (count / 5)) * 6;
-        if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + verticesCount > vertices.length)
-            flush();
+        // Max vertices/triangles that fit into a single flush, in terms of input floats
+        final int maxVerticesInBatch = (vertices.length / VERTEX_SIZE) * 5;
+        final int maxTrianglesInBatch = (triangles.length / 6) * 20;
+        final int maxCountPerBatch = Math.min(maxVerticesInBatch, maxTrianglesInBatch);
 
-        float textureIndex = activateTexture(texture);
+        while (count > 0) {
+            int batchCount = Math.min(count, maxCountPerBatch);
 
-        final int vertexIndex = this.vertexIndex;
-        int triangleIndex = this.triangleIndex;
-        short vertex = (short)(vertexIndex / VERTEX_SIZE);
-        for (int n = triangleIndex + triangleCount; triangleIndex < n; triangleIndex += 6, vertex += 4) {
-            triangles[triangleIndex] = vertex;
-            triangles[triangleIndex + 1] = (short)(vertex + 1);
-            triangles[triangleIndex + 2] = (short)(vertex + 2);
-            triangles[triangleIndex + 3] = (short)(vertex + 2);
-            triangles[triangleIndex + 4] = (short)(vertex + 3);
-            triangles[triangleIndex + 5] = vertex;
+            int triangleCount = (batchCount / 20) * 6;
+            int verticesCount = (batchCount / 5) * 6;
+
+            if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + verticesCount > vertices.length)
+                flush();
+
+            float textureIndex = activateTexture(texture);
+
+            final int vertexIndex = this.vertexIndex;
+            int triangleIndex = this.triangleIndex;
+            short vertex = (short)(vertexIndex / VERTEX_SIZE);
+            for (int n = triangleIndex + triangleCount; triangleIndex < n; triangleIndex += 6, vertex += 4) {
+                triangles[triangleIndex] = vertex;
+                triangles[triangleIndex + 1] = (short)(vertex + 1);
+                triangles[triangleIndex + 2] = (short)(vertex + 2);
+                triangles[triangleIndex + 3] = (short)(vertex + 2);
+                triangles[triangleIndex + 4] = (short)(vertex + 3);
+                triangles[triangleIndex + 5] = vertex;
+            }
+            this.triangleIndex = triangleIndex;
+
+            int vdin = vertexIndex;
+            for (int offsetin = offset; offsetin < batchCount + offset; offsetin += 5, vdin += VERTEX_SIZE) {
+                vertices[vdin] = spriteVertices[offsetin];         // x
+                vertices[vdin + 1] = spriteVertices[offsetin + 1]; // y
+                vertices[vdin + 2] = spriteVertices[offsetin + 2]; // color
+                vertices[vdin + 3] = spriteVertices[offsetin + 3]; // u
+                vertices[vdin + 4] = spriteVertices[offsetin + 4]; // v
+                vertices[vdin + 5] = textureIndex;                 // texture index
+            }
+            this.vertexIndex = vertexIndex + verticesCount;
+
+            offset += batchCount;
+            count -= batchCount;
         }
-        this.triangleIndex = triangleIndex;
-
-        int vdin = vertexIndex;
-        for (int offsetin = offset; offsetin < count + offset; offsetin += 5, vdin += VERTEX_SIZE) {
-            vertices[vdin] = spriteVertices[offsetin]; // x
-            vertices[vdin + 1] = spriteVertices[offsetin + 1]; // y
-            vertices[vdin + 2] = spriteVertices[offsetin + 2]; // color
-            vertices[vdin + 3] = spriteVertices[offsetin + 3]; // u
-            vertices[vdin + 4] = spriteVertices[offsetin + 4]; // v
-            vertices[vdin + 5] = textureIndex; // texture index
-        }
-        this.vertexIndex = (int) (vertexIndex + verticesCount);
     }
 
     @Override
