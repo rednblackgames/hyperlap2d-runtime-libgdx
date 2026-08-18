@@ -39,6 +39,9 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
     static final int VERTEX_SIZE = 2 + 1 + 2 + 1; //Position + Color + Texture Coordinates + Texture Index
     static final int SPRITE_SIZE = 4 * VERTEX_SIZE; //A Sprite has 4 Vertices
 
+    static final int GDX_VERTEX_SIZE = 2 + 1 + 2; //Default libGDX's vertex size: Position + Color + Texture Coordinates
+    static final int GDX_SPRITE_SIZE = 4 * GDX_VERTEX_SIZE;
+
     private Mesh mesh;
 
     final float[] vertices;
@@ -310,7 +313,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         final float[] vertices = this.vertices;
 
         //Calculate how many vertices will be put in the batch
-        int vCount = (verticesCount / 5) * 6;
+        int vCount = (verticesCount / GDX_VERTEX_SIZE) * 6;
 
         if (triangleIndex + trianglesCount > triangles.length || vertexIndex + vCount > vertices.length) //
             flush();
@@ -326,7 +329,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         this.triangleIndex = triangleIndex;
 
         int vdin = vertexIndex;
-        for (int offsetin = verticesOffset; offsetin < verticesCount + verticesOffset; offsetin += 5, vdin += VERTEX_SIZE) {
+        for (int offsetin = verticesOffset; offsetin < verticesCount + verticesOffset; offsetin += GDX_VERTEX_SIZE, vdin += VERTEX_SIZE) {
             vertices[vdin] = polygonVertices[offsetin]; // x
             vertices[vdin + 1] = polygonVertices[offsetin + 1]; // y
             vertices[vdin + 2] = polygonVertices[offsetin + 2]; // color
@@ -750,15 +753,17 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         final float[] vertices = this.vertices;
 
         // Max vertices/triangles that fit into a single flush, in terms of input floats
-        final int maxVerticesInBatch = (vertices.length / VERTEX_SIZE) * 5;
-        final int maxTrianglesInBatch = (triangles.length / 6) * 20;
-        final int maxCountPerBatch = Math.min(maxVerticesInBatch, maxTrianglesInBatch);
+        final int maxVerticesInBatch = (vertices.length / VERTEX_SIZE) * GDX_VERTEX_SIZE;
+        //Each quad is made by two triangles -> 6 indices are required
+        final int maxTrianglesInBatch = (triangles.length / 6) * GDX_SPRITE_SIZE;
+        //Round down to a whole number of quads, a batch must never be split in the middle of a sprite
+        final int maxCountPerBatch = (Math.min(maxVerticesInBatch, maxTrianglesInBatch) / GDX_SPRITE_SIZE) * GDX_SPRITE_SIZE;
 
         while (count > 0) {
             int batchCount = Math.min(count, maxCountPerBatch);
 
-            int triangleCount = (batchCount / 20) * 6;
-            int verticesCount = (batchCount / 5) * 6;
+            int triangleCount = (batchCount / GDX_SPRITE_SIZE) * 6;
+            int verticesCount = (batchCount / GDX_VERTEX_SIZE) * 6;
 
             if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + verticesCount > vertices.length)
                 flush();
@@ -779,7 +784,7 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
             this.triangleIndex = triangleIndex;
 
             int vdin = vertexIndex;
-            for (int offsetin = offset; offsetin < batchCount + offset; offsetin += 5, vdin += VERTEX_SIZE) {
+            for (int offsetin = offset; offsetin < batchCount + offset; offsetin += GDX_VERTEX_SIZE, vdin += VERTEX_SIZE) {
                 vertices[vdin] = spriteVertices[offsetin];         // x
                 vertices[vdin + 1] = spriteVertices[offsetin + 1]; // y
                 vertices[vdin + 2] = spriteVertices[offsetin + 2]; // color
