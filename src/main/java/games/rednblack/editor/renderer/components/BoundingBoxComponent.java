@@ -12,12 +12,14 @@ public class BoundingBoxComponent extends PooledComponent {
      * Axis-aligned bounding box in the entity's parent coordinate system,
      * expressed as offsets from (transform.x, transform.y).
      * x = left offset, y = bottom offset, width/height = AABB size.
-     * Computed by {@link games.rednblack.editor.renderer.systems.BoundingBoxSystem}.
+     * Computed by {@link games.rednblack.editor.renderer.systems.ParentLocalAABBSystem}.
      */
     public Rectangle parentLocalAABB = new Rectangle();
 
     public Vector2[] points = new Vector2[4];
     public int checksum;
+    /** Change detection for {@link #parentLocalAABB}. */
+    public int aabbChecksum;
 
     {
         points[0] = new Vector2();
@@ -47,5 +49,6 @@ public class BoundingBoxComponent extends PooledComponent {
             vector2.set(0, 0);
         }
         checksum = 0;
+        aabbChecksum = 0;
     }
 }

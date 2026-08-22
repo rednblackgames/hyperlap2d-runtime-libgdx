@@ -30,8 +30,9 @@ public class LabelSystem extends IteratingSystem {
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(fontScaleX, fontScaleY);
 		
 		//horisontal Align
-		
-		float textWidth = labelComponent.layout.width;
+
+		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, labelComponent.wrap, null);
+
 		float textHeight = labelComponent.layout.height;
 		float textX = 0;
 		
@@ -61,7 +62,6 @@ public class LabelSystem extends IteratingSystem {
 			textY += (dimensionsComponent.height - textHeight) / 2;
 		}
 		
-		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, labelComponent.wrap, null);
 		labelComponent.cache.setText(labelComponent.layout, textX, textY);
 		
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(oldScaleX, oldScaleY);
