@@ -22,6 +22,9 @@ public class ProjectInfoVO {
     public HashMap<String, TexturePackVO> imagesPacks = new HashMap<>();
     public HashMap<String, TexturePackVO> animationsPacks = new HashMap<>();
 
+    /** Ten patch configuration of 9-patch image regions, keyed by region name. */
+    public HashMap<String, TenPatchVO> tenPatches = new HashMap<>();
+
     public String constructJsonString() {
         String str = "";
         Json json = HyperJson.getJson();

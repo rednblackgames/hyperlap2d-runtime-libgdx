@@ -4,8 +4,6 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.ecs.EntityTransmuter;
 import games.rednblack.editor.renderer.ecs.EntityTransmuterFactory;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import games.rednblack.editor.renderer.lights.RayHandler;
@@ -17,6 +15,7 @@ import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.data.ResolutionEntryVO;
 import games.rednblack.editor.renderer.factory.EntityFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.tenpatch.TenPatchUtils;
 
 public class NinePatchComponentFactory extends ComponentFactory {
     protected ComponentMapper<NinePatchComponent> ninePatchCM;
@@ -70,18 +69,13 @@ public class NinePatchComponentFactory extends ComponentFactory {
     }
 
     private void createNinePatchComponent(NinePatchComponent component, String imageName) {
-        TextureAtlas.AtlasRegion atlasRegion = (TextureAtlas.AtlasRegion) rm.getTextureRegion(imageName);
-        int[] splits = atlasRegion.findValue("split");
-        if (splits == null) {
-            splits = new int[]{0, 0, 0, 0};
-        }
-        component.ninePatch = new NinePatch(atlasRegion, splits[0], splits[1], splits[2], splits[3]);
+        component.tenPatch = TenPatchUtils.createDrawable(rm, imageName);
 
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         float multiplier = resolutionEntryVO.getMultiplier(rm.getProjectVO().originalResolution);
 
-        component.ninePatch.scale(multiplier / projectInfoVO.pixelToWorld, multiplier / projectInfoVO.pixelToWorld);
+        TenPatchUtils.scaleDrawable(component.tenPatch, multiplier / projectInfoVO.pixelToWorld, multiplier / projectInfoVO.pixelToWorld);
     }
 
     @Override

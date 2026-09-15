@@ -30,7 +30,7 @@ public class NinePatchDrawableLogic implements DrawableLogic {
         batch.setColor(tintComponent.color);
         batch.getColor().a *= parentAlpha;
 
-        entityNinePatchComponent.ninePatch.draw(batch, entityTransformComponent.x, entityTransformComponent.y,
+        entityNinePatchComponent.tenPatch.draw(batch, entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 entityDimensionsComponent.width, entityDimensionsComponent.height,
                 entityTransformComponent.scaleX, entityTransformComponent.scaleY, entityTransformComponent.rotation);

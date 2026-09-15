@@ -1,15 +1,16 @@
 package games.rednblack.editor.renderer.components;
 
 import games.rednblack.editor.renderer.ecs.PooledComponent;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
+import games.rednblack.editor.renderer.tenpatch.TenPatchDrawable;
 
 public class NinePatchComponent  extends PooledComponent {
 	public String textureRegionName;
-	public transient NinePatch ninePatch;
+	/** Drawable built from the region's {@link games.rednblack.editor.renderer.data.TenPatchVO}, scaled to world units. */
+	public transient TenPatchDrawable tenPatch;
 
 	@Override
 	public void reset() {
 		textureRegionName = null;
-		ninePatch = null;
+		tenPatch = null;
 	}
 }

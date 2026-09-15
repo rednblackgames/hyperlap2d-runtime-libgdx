@@ -1,7 +1,8 @@
 package games.rednblack.editor.renderer.scene2d;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
+import games.rednblack.editor.renderer.tenpatch.TenPatchDrawable;
+import games.rednblack.editor.renderer.tenpatch.TenPatchUtils;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -121,10 +122,8 @@ public class CompositeActor extends Group {
 
     protected void build9PatchImages(Array<Image9patchVO> patches, BuiltItemHandler itemHandler) {
         for(int i = 0; i < patches.size; i++) {
-            TextureAtlas.AtlasRegion region = (TextureAtlas.AtlasRegion) ir.getTextureRegion(patches.get(i).imageName);
-            int[] splits = region.findValue("split");
-            NinePatch ninePatch = new NinePatch(region, splits[0], splits[1], splits[2], splits[3]);
-            Image image = new Image(ninePatch);
+            TenPatchDrawable tenPatch = TenPatchUtils.createDrawable(ir, patches.get(i).imageName);
+            Image image = new Image(tenPatch);
             image.setWidth(patches.get(i).width*pixelsPerWU/resMultiplier);
             image.setHeight(patches.get(i).height * pixelsPerWU/resMultiplier);
             processMain(image, patches.get(i));
