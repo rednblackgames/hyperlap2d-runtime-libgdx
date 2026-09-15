@@ -13,6 +13,7 @@ Changes from the upstream `TenPatchDrawable`:
   `UnsupportedOperationException`); it behaves like `NinePatch#draw` and is used by the ECS renderer
 - Added `getTotalWidth()`/`getTotalHeight()` mirroring `NinePatch`
 - Extra width and height are no longer floored to whole pixels, HyperLap2D draws in world units
+- `set(TenPatchDrawable)` copies the animation frames of the source (upstream tested its own field instead)
 
 `TenPatchUtils` is HyperLap2D code that builds a `TenPatchDrawable` from the project's `TenPatchVO` (or from the
 atlas `split` value when the project does not define one) and scales the stretch areas to the loaded resolution.

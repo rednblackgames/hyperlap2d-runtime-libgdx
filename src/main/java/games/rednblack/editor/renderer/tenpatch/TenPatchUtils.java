@@ -1,12 +1,18 @@
 package games.rednblack.editor.renderer.tenpatch;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
+import games.rednblack.editor.renderer.data.FrameRange;
+import games.rednblack.editor.renderer.data.Image9patchVO;
 import games.rednblack.editor.renderer.data.ProjectInfoVO;
 import games.rednblack.editor.renderer.data.TenPatchVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+
+import java.util.Comparator;
 
 /**
  * Helpers to build a {@link TenPatchDrawable} for a 9-patch region of the project.
@@ -141,19 +147,102 @@ public class TenPatchUtils {
     }
 
     /**
+     * Frames of a sprite animation sorted by index, or null when {@code name} is not a sprite animation.
+     * A new array is returned, the resource manager's one is left untouched.
+     */
+    public static Array<TextureAtlas.AtlasRegion> getAnimationFrames(IResourceRetriever rm, String name) {
+        Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(name);
+        if (regions == null || regions.size == 0) return null;
+        Array<TextureAtlas.AtlasRegion> frames = new Array<>(regions);
+        frames.sort(FRAME_ORDER);
+        return frames;
+    }
+
+    private static final Comparator<TextureAtlas.AtlasRegion> FRAME_ORDER = new Comparator<TextureAtlas.AtlasRegion>() {
+        @Override
+        public int compare(TextureAtlas.AtlasRegion a, TextureAtlas.AtlasRegion b) {
+            return Integer.compare(a.index, b.index);
+        }
+    };
+
+    /** True when {@code name} is a sprite animation rather than a single region. */
+    public static boolean isAnimation(IResourceRetriever rm, String name) {
+        Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(name);
+        return regions != null && regions.size > 0;
+    }
+
+    /**
+     * The atlas region a 9-patch name stands for: the first frame of a sprite animation, or the image
+     * region itself. Null when the name is unknown or the region is not an atlas region.
+     */
+    public static TextureAtlas.AtlasRegion resolveRegion(IResourceRetriever rm, String name) {
+        Array<TextureAtlas.AtlasRegion> frames = getAnimationFrames(rm, name);
+        if (frames != null) return frames.first();
+        TextureRegion region = rm.getTextureRegion(name);
+        return region instanceof TextureAtlas.AtlasRegion ? (TextureAtlas.AtlasRegion) region : null;
+    }
+
+    /**
+     * Makes a drawable play the frames of a range, the way {@link TenPatchDrawable} animates on its own:
+     * it is what the scene2d actors and the editor preview use. ECS entities are animated by
+     * {@code SpriteAnimationSystem} instead, which updates the region drawn every frame.
+     *
+     * @param range    frames to play, null for all of them
+     * @param playMode as {@link Image9patchVO#playMode}
+     */
+    public static void setAnimation(TenPatchDrawable drawable, Array<TextureAtlas.AtlasRegion> frames, FrameRange range, int fps, int playMode) {
+        int start = range == null ? 0 : Math.max(0, Math.min(range.startFrame, frames.size - 1));
+        int end = range == null ? frames.size - 1 : Math.max(start, Math.min(range.endFrame, frames.size - 1));
+        Array<TextureRegion> regions = new Array<>(end - start + 1);
+        for (int i = start; i <= end; i++) {
+            regions.add(frames.get(i));
+        }
+        drawable.setRegions(regions);
+        drawable.setFrameDuration(fps > 0 ? 1f / fps : 1f);
+        drawable.setPlayMode(playMode);
+        drawable.setTime(0f);
+    }
+
+    /** {@link Animation.PlayMode} as the integer stored in VOs (see {@link Image9patchVO#playMode}). */
+    public static int playModeToInt(Animation.PlayMode playMode) {
+        if (playMode == null) return TenPatchDrawable.PlayMode.LOOP;
+        switch (playMode) {
+            case NORMAL: return TenPatchDrawable.PlayMode.NORMAL;
+            case REVERSED: return TenPatchDrawable.PlayMode.REVERSED;
+            case LOOP_REVERSED: return TenPatchDrawable.PlayMode.LOOP_REVERSED;
+            case LOOP_PINGPONG: return TenPatchDrawable.PlayMode.LOOP_PINGPONG;
+            case LOOP_RANDOM: return TenPatchDrawable.PlayMode.LOOP_RANDOM;
+            case LOOP:
+            default: return TenPatchDrawable.PlayMode.LOOP;
+        }
+    }
+
+    /** The integer stored in VOs as {@link Animation.PlayMode}, unknown values play in a loop. */
+    public static Animation.PlayMode playModeFromInt(int playMode) {
+        switch (playMode) {
+            case TenPatchDrawable.PlayMode.NORMAL: return Animation.PlayMode.NORMAL;
+            case TenPatchDrawable.PlayMode.REVERSED: return Animation.PlayMode.REVERSED;
+            case TenPatchDrawable.PlayMode.LOOP_REVERSED: return Animation.PlayMode.LOOP_REVERSED;
+            case TenPatchDrawable.PlayMode.LOOP_PINGPONG: return Animation.PlayMode.LOOP_PINGPONG;
+            case TenPatchDrawable.PlayMode.LOOP_RANDOM: return Animation.PlayMode.LOOP_RANDOM;
+            default: return Animation.PlayMode.LOOP;
+        }
+    }
+
+    /**
      * Builds the drawable of a region for the loaded resolution. Stretch areas and offsets stored in the
      * project are converted from original resolution pixels to the loaded resolution pixels; the drawable
-     * itself is not scaled, use {@link TenPatchDrawable#scale(float, float)} to map it to world units
-     * (remember to scale offsets and speeds by the same factor).
+     * itself is not scaled, use {@link #scaleDrawable(TenPatchDrawable, float, float)} to map it to world
+     * units. For a sprite animation the first frame is used, see {@link #setAnimation} to play the others.
      */
     public static TenPatchDrawable createDrawable(IResourceRetriever rm, String regionName) {
-        TextureRegion textureRegion = rm.getTextureRegion(regionName);
-        if (!(textureRegion instanceof TextureAtlas.AtlasRegion)) {
+        TextureAtlas.AtlasRegion region = resolveRegion(rm, regionName);
+        if (region == null) {
+            TextureRegion textureRegion = rm.getTextureRegion(regionName);
             int w = textureRegion.getRegionWidth();
             int h = textureRegion.getRegionHeight();
             return new TenPatchDrawable(new int[]{0, w - 1}, new int[]{0, h - 1}, false, textureRegion);
         }
-        TextureAtlas.AtlasRegion region = (TextureAtlas.AtlasRegion) textureRegion;
         ProjectInfoVO project = rm.getProjectVO();
         TenPatchVO vo = project == null || project.tenPatches == null ? null : project.tenPatches.get(regionName);
 

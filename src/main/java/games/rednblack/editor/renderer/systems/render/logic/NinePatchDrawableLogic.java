@@ -6,8 +6,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
+import games.rednblack.editor.renderer.components.TextureRegionComponent;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
+import games.rednblack.editor.renderer.tenpatch.TenPatchDrawable;
 
 public class NinePatchDrawableLogic implements DrawableLogic {
 
@@ -15,6 +17,7 @@ public class NinePatchDrawableLogic implements DrawableLogic {
     protected ComponentMapper<TransformComponent> transformMapper;
     protected ComponentMapper<DimensionsComponent> dimensionsMapper;
     protected ComponentMapper<NinePatchComponent> ninePatchMapper;
+    protected ComponentMapper<TextureRegionComponent> textureRegionMapper;
 
     private final Color batchColor = new Color();
 
@@ -30,7 +33,17 @@ public class NinePatchDrawableLogic implements DrawableLogic {
         batch.setColor(tintComponent.color);
         batch.getColor().a *= parentAlpha;
 
-        entityNinePatchComponent.tenPatch.draw(batch, entityTransformComponent.x, entityTransformComponent.y,
+        TenPatchDrawable tenPatch = entityNinePatchComponent.tenPatch;
+
+        // animated 9-patches carry the frame picked by SpriteAnimationSystem in their texture region component
+        if (textureRegionMapper.has(entity)) {
+            TextureRegionComponent textureRegionComponent = textureRegionMapper.get(entity);
+            if (textureRegionComponent.region != null && textureRegionComponent.region != tenPatch.getRegion()) {
+                tenPatch.setRegion(textureRegionComponent.region);
+            }
+        }
+
+        tenPatch.draw(batch, entityTransformComponent.x, entityTransformComponent.y,
                 entityTransformComponent.originX, entityTransformComponent.originY,
                 entityDimensionsComponent.width, entityDimensionsComponent.height,
                 entityTransformComponent.scaleX, entityTransformComponent.scaleY, entityTransformComponent.rotation);

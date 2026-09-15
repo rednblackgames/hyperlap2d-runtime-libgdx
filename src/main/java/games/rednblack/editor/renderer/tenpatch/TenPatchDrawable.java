@@ -179,7 +179,7 @@ public class TenPatchDrawable extends TextureRegionDrawable {
         offsetXspeed = other.offsetXspeed;
         offsetYspeed = other.offsetYspeed;
         time = other.time;
-        regions = regions == null ? null : new Array<TextureRegion>(other.regions);
+        regions = other.regions == null ? null : new Array<TextureRegion>(other.regions);
         frameDuration = other.frameDuration;
         autoUpdate = other.autoUpdate;
         playMode = other.playMode;

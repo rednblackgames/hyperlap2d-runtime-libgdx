@@ -122,7 +122,16 @@ public class CompositeActor extends Group {
 
     protected void build9PatchImages(Array<Image9patchVO> patches, BuiltItemHandler itemHandler) {
         for(int i = 0; i < patches.size; i++) {
-            TenPatchDrawable tenPatch = TenPatchUtils.createDrawable(ir, patches.get(i).imageName);
+            Image9patchVO vo = patches.get(i);
+            TenPatchDrawable tenPatch = TenPatchUtils.createDrawable(ir, vo.imageName);
+            Array<TextureAtlas.AtlasRegion> frames = TenPatchUtils.getAnimationFrames(ir, vo.imageName);
+            if (frames != null) {
+                FrameRange range = null;
+                for (FrameRange candidate : vo.frameRangeMap) {
+                    if (candidate.name.equals(vo.currentAnimation)) range = candidate;
+                }
+                TenPatchUtils.setAnimation(tenPatch, frames, range, vo.fps, vo.playMode);
+            }
             Image image = new Image(tenPatch);
             image.setWidth(patches.get(i).width*pixelsPerWU/resMultiplier);
             image.setHeight(patches.get(i).height * pixelsPerWU/resMultiplier);
