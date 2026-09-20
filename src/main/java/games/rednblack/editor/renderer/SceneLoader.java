@@ -29,6 +29,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.PhysicsSystem;
+import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
 import games.rednblack.editor.renderer.systems.render.FrameBufferManager;
@@ -117,9 +118,13 @@ public class SceneLoader {
 
         addEntityRemoveListener();
 
+        WidgetStateSystem widgetStateSystem = configuration.containsSystem(WidgetStateSystem.class)
+                ? configuration.getSystem(WidgetStateSystem.class) : null;
+
         if (configuration.getExternalItemTypes() != null) {
             for (IExternalItemType itemType : configuration.getExternalItemTypes()) {
                 itemType.injectMappers();
+                if (widgetStateSystem != null) itemType.registerStateOverrideHandlers(widgetStateSystem);
                 entityFactory.addExternalFactory(itemType);
                 renderer.addDrawableType(itemType);
                 externalItemTypes.put(itemType.getTypeId(), itemType);

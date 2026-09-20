@@ -17,6 +17,7 @@ import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ViewPortComponent;
+import games.rednblack.editor.renderer.components.widget.WidgetComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.factory.component.*;
@@ -24,6 +25,8 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.AsyncEntityFactoryCallback;
 import games.rednblack.editor.renderer.utils.HyperJson;
+import games.rednblack.editor.renderer.widget.WidgetType;
+import games.rednblack.editor.renderer.widget.WidgetTypes;
 
 public class EntityFactory {
     private static final char[] idSubset = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -43,6 +46,7 @@ public class EntityFactory {
     protected ComponentMapper<NodeComponent> node;
     protected ComponentMapper<ParentNodeComponent> parent;
     protected ComponentMapper<ViewPortComponent> viewportCM;
+    protected ComponentMapper<WidgetComponent> widgetCM;
 
     private final IntMap<ComponentFactory> factoriesMap = new IntMap<>();
     private final IntMap<ComponentFactory> externalFactories = new IntMap<>();
@@ -233,6 +237,26 @@ public class EntityFactory {
         for (String tag : mainItemComponent.tags) {
             EntityTransmuter transmuter = tagTransmuter.get(tag);
             if (transmuter != null) transmuter.transmute(entity);
+        }
+
+        attachWidgetBehaviour(entity);
+    }
+
+    /**
+     * Creates the behaviour components declared by the type of the widget (e.g. the button logic),
+     * so a widget works out of its serialized data alone, with no tag involved.
+     */
+    public void attachWidgetBehaviour(int entity) {
+        WidgetComponent widgetComponent = widgetCM.get(entity);
+        if (widgetComponent == null) return;
+
+        WidgetType type = WidgetTypes.get(widgetComponent.widgetType);
+        if (type == null) return;
+
+        for (int i = 0; i < type.behaviourComponents.size; i++) {
+            Class<? extends Component> behaviour = type.behaviourComponents.get(i);
+            ComponentMapper<? extends Component> behaviourMapper = engine.getMapper(behaviour);
+            if (!behaviourMapper.has(entity)) behaviourMapper.create(entity);
         }
     }
 

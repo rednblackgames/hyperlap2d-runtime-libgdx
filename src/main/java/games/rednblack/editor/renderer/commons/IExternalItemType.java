@@ -22,6 +22,7 @@ import games.rednblack.editor.renderer.ecs.BaseSystem;
 import com.badlogic.gdx.utils.ObjectSet;
 import games.rednblack.editor.renderer.factory.component.ComponentFactory;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
+import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.systems.render.logic.DrawableLogic;
 
 import java.util.HashMap;
@@ -39,6 +40,13 @@ public interface IExternalItemType {
     ComponentFactory getComponentFactory();
 
     void injectMappers();
+
+    /**
+     * Lets the extension make its own properties overridable per widget state
+     * (e.g. the current animation of a skeleton). Called once, after {@link #injectMappers()}.
+     */
+    default void registerStateOverrideHandlers(WidgetStateSystem system) {
+    }
 
     boolean hasResources();
     void loadExternalTypesAsync(IResourceRetriever rm, ObjectSet<String> assetsToLoad, HashMap<String, Object> assets);

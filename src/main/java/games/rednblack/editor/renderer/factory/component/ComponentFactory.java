@@ -17,6 +17,8 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
+import games.rednblack.editor.renderer.components.widget.WidgetComponent;
+import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
@@ -38,6 +40,8 @@ public abstract class ComponentFactory {
     protected ComponentMapper<TransformComponent> transformCM;
     protected ComponentMapper<LayoutComponent> layoutCM;
     protected ComponentMapper<ZIndexComponent> zIndexCM;
+    protected ComponentMapper<WidgetComponent> widgetCM;
+    protected ComponentMapper<WidgetPartComponent> widgetPartCM;
 
     protected IResourceRetriever rm;
     protected RayHandler rayHandler;
@@ -337,6 +341,14 @@ public abstract class ComponentFactory {
                 layoutComponent.bottom.margin = vo.layout.bottom.margin;
                 layoutComponent.bottom.targetEntity = -1;
             }
+        }
+
+        if (vo.widget != null) {
+            vo.widget.applyToComponent(widgetCM.create(entity));
+        }
+
+        if (vo.widgetPart != null) {
+            vo.widgetPart.applyToComponent(widgetPartCM.create(entity));
         }
     }
 

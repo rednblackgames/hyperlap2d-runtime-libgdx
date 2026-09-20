@@ -7,7 +7,11 @@ import com.badlogic.gdx.utils.Array;
 @Transient
 public class ButtonComponent extends PooledComponent {
 
+    /** True while the button is held down with the pointer over it: what the pressed look follows. */
     public boolean isTouched = false;
+    /** Pointer that pressed the button and is still down, -1 if none. It may have left the button. */
+    public int touchPointer = -1;
+    public boolean isHovered = false;
     public boolean isChecked = false;
     public boolean isTouchEnabled = true;
 
@@ -36,6 +40,8 @@ public class ButtonComponent extends PooledComponent {
     @Override
     public void reset() {
         isTouched = false;
+        touchPointer = -1;
+        isHovered = false;
         isChecked = false;
         isTouchEnabled = true;
         listeners.clear();

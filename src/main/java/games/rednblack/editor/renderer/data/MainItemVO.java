@@ -12,7 +12,10 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.physics.SensorComponent;
 import games.rednblack.editor.renderer.components.shape.CircleShapeComponent;
 import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
+import games.rednblack.editor.renderer.components.widget.WidgetComponent;
+import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
+import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.utils.ComponentRetriever;
 
 public abstract class MainItemVO {
@@ -45,6 +48,8 @@ public abstract class MainItemVO {
 	public SensorDataVO sensor = null;
 	public Circle circle = null;
 	public LayoutConstraintVO layout = null;
+	public WidgetVO widget = null;
+	public WidgetPartVO widgetPart = null;
 	
 	public MainItemVO() {
 		
@@ -94,12 +99,28 @@ public abstract class MainItemVO {
 			layout = new LayoutConstraintVO(vo.layout);
 		}
 
+		if (vo.widget != null) {
+			widget = new WidgetVO(vo.widget);
+		}
+
+		if (vo.widgetPart != null) {
+			widgetPart = new WidgetPartVO(vo.widgetPart);
+		}
+
 		shader.set(vo.shader);
 
 		renderingLayer = vo.renderingLayer;
     }
 
 	public void loadFromEntity(int entity, Engine engine, EntityFactory entityFactory) {
+		// A VO always describes the base look: overrides of the widget state being shown are taken
+		// off first (the state system puts them back on its next pass), so they never leak into it.
+		WidgetPartComponent shownPart = ComponentRetriever.get(entity, WidgetPartComponent.class, engine);
+		if (shownPart != null && shownPart.baseSnapshot.size > 0) {
+			WidgetStateSystem widgetStateSystem = engine.getSystem(WidgetStateSystem.class);
+			if (widgetStateSystem != null) widgetStateSystem.restoreBase(entity);
+		}
+
 		MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class, engine);
 		TransformComponent transformComponent = ComponentRetriever.get(entity, TransformComponent.class, engine);
 		transformComponent = transformComponent.getRealComponent();
@@ -181,6 +202,19 @@ public abstract class MainItemVO {
 		if(layoutComponent != null) {
 			layout = new LayoutConstraintVO();
 			layout.loadFromComponent(layoutComponent, engine);
+		}
+
+		WidgetComponent widgetComponent = ComponentRetriever.get(entity, WidgetComponent.class, engine);
+		if (widgetComponent != null) {
+			widget = new WidgetVO();
+			widget.loadFromComponent(widgetComponent);
+		}
+
+		WidgetPartComponent widgetPartComponent = ComponentRetriever.get(entity, WidgetPartComponent.class, engine);
+		// a part with no role and no override left is an ordinary item again
+		if (widgetPartComponent != null && (widgetPartComponent.overrides.size > 0 || (widgetPartComponent.role != null && !widgetPartComponent.role.isEmpty()))) {
+			widgetPart = new WidgetPartVO();
+			widgetPart.loadFromComponent(widgetPartComponent);
 		}
 	}
 

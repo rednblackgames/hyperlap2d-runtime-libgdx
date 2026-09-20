@@ -72,6 +72,8 @@ public class SceneConfiguration {
         rendererSystem = new HyperLap2dRenderer(batch, hasStencil, msaaSamples);
         rendererClass = HyperLap2dRenderer.class;
         addSystem(new ButtonSystem());
+        // right after the systems that change widget states, so a new state is drawn the same frame
+        addSystem(new WidgetStateSystem());
     }
 
     // For User's Use
