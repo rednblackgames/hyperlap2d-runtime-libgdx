@@ -17,6 +17,13 @@ public class SpriteAnimationStateComponent  extends PooledComponent {
 
     public  boolean paused = false;
 
+    /**
+     * Animations waiting their turn, each played once as the one before it ends, the current
+     * animation of the {@link SpriteAnimationComponent} taking over after the last of them. What
+     * lets a widget state open on a start animation before settling into its loop.
+     */
+    public transient final Array<String> queue = new Array<>(false, 2);
+
     private FrameRange lastFrameRange = null;
     private int lastFPS = -1;
     private Animation.PlayMode lastPlayMode = null;
@@ -63,6 +70,7 @@ public class SpriteAnimationStateComponent  extends PooledComponent {
     public void reset() {
         allRegions = null;
         currentAnimation = null;
+        queue.clear();
         time = 0.0f;
         paused = false;
         lastFrameRange = null;

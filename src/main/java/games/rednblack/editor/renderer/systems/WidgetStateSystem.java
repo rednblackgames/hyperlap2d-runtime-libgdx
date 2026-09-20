@@ -11,6 +11,7 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.annotations.All;
 import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import games.rednblack.editor.renderer.widget.InterpolableOverrideHandler;
+import games.rednblack.editor.renderer.widget.SequencedOverrideHandler;
 import games.rednblack.editor.renderer.widget.StateOverrideHandler;
 import games.rednblack.editor.renderer.widget.StateTween;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
@@ -180,9 +181,15 @@ public class WidgetStateSystem extends IteratingSystem {
             // does not care about it comes in): let it finish
             if (running != null && animate && Objects.equals(running.target, target)) continue;
 
+            // What plays around the value: the entry of the state coming in, and the exit of the one
+            // going out, which is why a press can read as start, loop and then end.
+            String enter = overridden ? enterOf(part.getSequence(state, key)) : null;
+            String exit = Objects.equals(previousState, state) ? null : exitOf(part.getSequence(previousState, key));
+            boolean sequenced = handler instanceof SequencedOverrideHandler && (enter != null || exit != null);
+
             // already there (a state applied again after its look was taken off to be read, or two
-            // states agreeing on a value): nothing to travel
-            if (running == null && Objects.equals(handler.capture(entity), target)) {
+            // states agreeing on a value): nothing to travel, unless something has to play first
+            if (!sequenced && running == null && Objects.equals(handler.capture(entity), target)) {
                 if (!overridden) part.baseSnapshot.remove(key);
                 continue;
             }
@@ -197,12 +204,22 @@ public class WidgetStateSystem extends IteratingSystem {
                 continue;
             }
 
-            handler.apply(entity, target);
+            if (sequenced) ((SequencedOverrideHandler) handler).applySequence(entity, target, enter, exit);
+            else handler.apply(entity, target);
+
             if (!overridden) part.baseSnapshot.remove(key);
         }
 
         part.appliedState = state;
         part.dirty = false;
+    }
+
+    private static String enterOf(WidgetPartComponent.Sequence sequence) {
+        return sequence == null || sequence.enter.isEmpty() ? null : sequence.enter;
+    }
+
+    private static String exitOf(WidgetPartComponent.Sequence sequence) {
+        return sequence == null || sequence.exit.isEmpty() ? null : sequence.exit;
     }
 
     private boolean startTween(int entity, WidgetPartComponent part, String key, InterpolableOverrideHandler handler,

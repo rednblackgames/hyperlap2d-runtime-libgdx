@@ -31,6 +31,16 @@ public class WidgetPartComponent extends PooledComponent {
      */
     public ObjectMap<String, ObjectMap<String, Transition>> transitions = new ObjectMap<>(0);
 
+    /** state name -> (property key -> what plays around the value) */
+    public ObjectMap<String, ObjectMap<String, Sequence>> sequences = new ObjectMap<>(0);
+
+    public static class Sequence {
+        /** Played once when the state is entered, empty for none. */
+        public String enter = "";
+        /** Played once when the state is left, empty for none. */
+        public String exit = "";
+    }
+
     public static class Transition {
         public float duration;
         /** Name of a libGDX interpolation function, see {@link InterpolationMap}. */
@@ -82,7 +92,33 @@ public class WidgetPartComponent extends PooledComponent {
         patch.remove(key);
         if (patch.size == 0) overrides.remove(state);
         removeTransition(state, key);
+        removeSequence(state, key);
         dirty = true;
+    }
+
+    public Sequence getSequence(String state, String key) {
+        if (state == null) return null;
+        ObjectMap<String, Sequence> stateSequences = sequences.get(state);
+        return stateSequences == null ? null : stateSequences.get(key);
+    }
+
+    public void setSequence(String state, String key, String enter, String exit) {
+        ObjectMap<String, Sequence> stateSequences = sequences.get(state);
+        if (stateSequences == null) {
+            stateSequences = new ObjectMap<>(2);
+            sequences.put(state, stateSequences);
+        }
+        Sequence sequence = new Sequence();
+        sequence.enter = enter == null ? "" : enter;
+        sequence.exit = exit == null ? "" : exit;
+        stateSequences.put(key, sequence);
+    }
+
+    public void removeSequence(String state, String key) {
+        ObjectMap<String, Sequence> stateSequences = sequences.get(state);
+        if (stateSequences == null) return;
+        stateSequences.remove(key);
+        if (stateSequences.size == 0) sequences.remove(state);
     }
 
     public Transition getTransition(String state, String key) {
@@ -115,6 +151,7 @@ public class WidgetPartComponent extends PooledComponent {
         role = "";
         overrides.clear();
         transitions.clear();
+        sequences.clear();
         tweens.clear();
         snapNext = false;
         appliedState = null;

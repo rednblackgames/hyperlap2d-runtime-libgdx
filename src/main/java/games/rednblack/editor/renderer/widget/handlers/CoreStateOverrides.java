@@ -17,7 +17,10 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.utils.ABAtlasRegion;
+import com.badlogic.gdx.utils.Array;
+import games.rednblack.editor.renderer.widget.ChoiceOverrideHandler;
 import games.rednblack.editor.renderer.widget.InterpolableOverrideHandler;
+import games.rednblack.editor.renderer.widget.SequencedOverrideHandler;
 import games.rednblack.editor.renderer.widget.StateOverrideHandler;
 
 /**
@@ -258,7 +261,7 @@ public final class CoreStateOverrides {
     }
 
     /** Value is the name of one of the frame ranges of the sprite animation. */
-    public static class SpriteAnimation implements StateOverrideHandler {
+    public static class SpriteAnimation implements SequencedOverrideHandler, ChoiceOverrideHandler {
         protected ComponentMapper<SpriteAnimationComponent> spriteAnimationCM;
         protected ComponentMapper<SpriteAnimationStateComponent> spriteAnimationStateCM;
 
@@ -274,13 +277,44 @@ public final class CoreStateOverrides {
 
         @Override
         public void apply(int entity, String value) {
+            applySequence(entity, value, null, null);
+        }
+
+        /**
+         * The animation the state settles on is the one the component reports, whatever is playing
+         * on the way there, so what gets captured and saved is never a passing frame range.
+         */
+        @Override
+        public void applySequence(int entity, String value, String enter, String exit) {
             SpriteAnimationComponent animation = spriteAnimationCM.get(entity);
-            if (value == null || !animation.frameRangeMap.containsKey(value)) {
+            if (!has(animation, value)) {
                 Gdx.app.error("WidgetState", "unknown sprite animation override: " + value);
                 return;
             }
             animation.currentAnimation = value;
-            spriteAnimationStateCM.get(entity).set(animation);
+
+            SpriteAnimationStateComponent state = spriteAnimationStateCM.get(entity);
+            state.queue.clear();
+            if (has(animation, exit)) state.queue.add(exit);
+            if (has(animation, enter)) state.queue.add(enter);
+            state.queue.add(value);
+
+            String first = state.queue.removeIndex(0);
+            boolean last = state.queue.size == 0;
+            state.set(animation.frameRangeMap.get(first), animation.fps,
+                    last ? animation.playMode : com.badlogic.gdx.graphics.g2d.Animation.PlayMode.NORMAL);
+        }
+
+        @Override
+        public Array<String> getChoices(int entity) {
+            Array<String> names = new Array<>();
+            for (String name : spriteAnimationCM.get(entity).frameRangeMap.keySet()) names.add(name);
+            names.sort();
+            return names;
+        }
+
+        private boolean has(SpriteAnimationComponent animation, String name) {
+            return name != null && !name.isEmpty() && animation.frameRangeMap.containsKey(name);
         }
     }
 
