@@ -14,6 +14,9 @@ public class ParticleComponent extends PooledComponent {
 
     public transient ParticleEffect particleEffect;
 
+    /** False while the emitters are letting their last particles die out instead of making new ones. */
+    public transient boolean emitting = true;
+
     public void scaleEffect(float scale) {
         scaleFactor = scale;
         particleEffect.scaleEffect(scaleFactor * worldMultiplier);
@@ -30,6 +33,7 @@ public class ParticleComponent extends PooledComponent {
         autoStart = true;
         worldMultiplier = 1f;
         scaleFactor = 1f;
+        emitting = true;
 
         if (particleEffect instanceof ParticleEffectPool.PooledEffect) {
             ParticleEffectPool.PooledEffect pooledEffect = (ParticleEffectPool.PooledEffect) particleEffect;
