@@ -21,6 +21,7 @@ import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.utils.ABAtlasRegion;
 import com.badlogic.gdx.utils.Array;
 import games.rednblack.editor.renderer.widget.ChoiceOverrideHandler;
+import games.rednblack.editor.renderer.widget.ColorPreviewHandler;
 import games.rednblack.editor.renderer.widget.InterpolableOverrideHandler;
 import games.rednblack.editor.renderer.widget.SequencedOverrideHandler;
 import games.rednblack.editor.renderer.widget.StateOverrideHandler;
@@ -93,9 +94,19 @@ public final class CoreStateOverrides {
     }
 
     /** Value is an {@code rrggbbaa} hex string. */
-    public static class Tint implements InterpolableOverrideHandler {
+    public static class Tint implements InterpolableOverrideHandler, ColorPreviewHandler {
         protected ComponentMapper<TintComponent> tintCM;
         private final Color tmpColor = new Color();
+
+        @Override
+        public boolean toColor(int entity, String value, Color out) {
+            try {
+                Color.valueOf(value, out);
+                return true;
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
 
         @Override
         public int getChannelCount() {
