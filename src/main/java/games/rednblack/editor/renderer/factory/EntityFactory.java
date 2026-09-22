@@ -25,6 +25,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.systems.strategy.HyperLap2dInvocationStrategy;
 import games.rednblack.editor.renderer.utils.AsyncEntityFactoryCallback;
 import games.rednblack.editor.renderer.utils.HyperJson;
+import games.rednblack.editor.renderer.widget.WidgetBehaviour;
 import games.rednblack.editor.renderer.widget.WidgetType;
 import games.rednblack.editor.renderer.widget.WidgetTypes;
 
@@ -256,7 +257,11 @@ public class EntityFactory {
         for (int i = 0; i < type.behaviourComponents.size; i++) {
             Class<? extends Component> behaviour = type.behaviourComponents.get(i);
             ComponentMapper<? extends Component> behaviourMapper = engine.getMapper(behaviour);
-            if (!behaviourMapper.has(entity)) behaviourMapper.create(entity);
+            if (behaviourMapper.has(entity)) continue;
+
+            Component component = behaviourMapper.create(entity);
+            // set up from the settings now, before any game code can act on it
+            if (component instanceof WidgetBehaviour) ((WidgetBehaviour) component).initialise(widgetComponent);
         }
     }
 

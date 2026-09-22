@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.widget;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
 import games.rednblack.editor.renderer.ecs.Component;
 
@@ -13,15 +14,22 @@ import games.rednblack.editor.renderer.ecs.Component;
  */
 public class WidgetType {
 
-    public enum PropertyKind {BOOLEAN, INT, FLOAT, STRING}
+    /** INTERPOLATION is the name of a libGDX interpolation function, offered as a list by the editor. */
+    public enum PropertyKind {BOOLEAN, INT, FLOAT, STRING, INTERPOLATION}
 
     public static class Part {
         public final String role;
         public final boolean required;
+        /**
+         * Properties of the part the widget sets itself, such as the position of a knob: they are
+         * never recorded as state overrides, since the widget would overwrite them anyway.
+         */
+        public final Array<String> drivenKeys = new Array<>(true, 2, String.class);
 
-        public Part(String role, boolean required) {
+        public Part(String role, boolean required, String... drivenKeys) {
             this.role = role;
             this.required = required;
+            this.drivenKeys.addAll(drivenKeys);
         }
     }
 
@@ -43,6 +51,10 @@ public class WidgetType {
     public final Array<Part> parts = new Array<>(true, 2, Part.class);
     public final Array<Property> properties = new Array<>(true, 2, Property.class);
     public final Array<Class<? extends Component>> behaviourComponents = new Array<>(true, 1);
+    /** child state -> the state it builds on: showing the child applies the parent's look first. */
+    public final ObjectMap<String, String> parents = new ObjectMap<>(0);
+    /** True for a widget a click checks and unchecks. */
+    public boolean checkable = false;
 
     /**
      * @param states the first one is the default state
@@ -54,8 +66,19 @@ public class WidgetType {
         this.states.addAll(states);
     }
 
-    public WidgetType part(String role, boolean required) {
-        parts.add(new Part(role, required));
+    public WidgetType part(String role, boolean required, String... drivenKeys) {
+        parts.add(new Part(role, required, drivenKeys));
+        return this;
+    }
+
+    /** Makes a state build on another one: it shows the parent's look plus its own overrides. */
+    public WidgetType inherit(String child, String parent) {
+        parents.put(child, parent);
+        return this;
+    }
+
+    public WidgetType checkable() {
+        checkable = true;
         return this;
     }
 
@@ -83,6 +106,8 @@ public class WidgetType {
         component.states.addAll(states);
         component.defaultState = defaultState;
         component.currentState = null;
+        component.parents.clear();
+        component.parents.putAll(parents);
         component.properties.clear();
         for (int i = 0; i < properties.size; i++) {
             Property property = properties.get(i);

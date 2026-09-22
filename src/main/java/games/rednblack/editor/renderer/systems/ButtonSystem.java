@@ -11,6 +11,7 @@ import games.rednblack.editor.renderer.components.*;
 import com.badlogic.gdx.Application;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
+import games.rednblack.editor.renderer.widget.WidgetType;
 import games.rednblack.editor.renderer.widget.WidgetTypes;
 import games.rednblack.editor.renderer.utils.TransformMathUtils;
 import games.rednblack.editor.renderer.utils.ZSortComparator;
@@ -110,6 +111,8 @@ public class ButtonSystem extends BaseEntitySystem {
             return;
         }
 
+        if (widget != null) followCheckedSetting(widget, buttonComponent);
+
         boolean isTouched = updateTouch(entity, buttonComponent);
         boolean isChecked = buttonComponent.isChecked;
 
@@ -147,11 +150,85 @@ public class ButtonSystem extends BaseEntitySystem {
      * Picks the most relevant state the widget declares: disabled, pressed, checked, hover, default.
      */
     protected void updateWidgetState(int entity, WidgetComponent widget, ButtonComponent buttonComponent) {
-        if (!buttonComponent.isTouchEnabled && widget.setState(WidgetTypes.STATE_DISABLED)) return;
-        if (buttonComponent.isTouched && widget.setState(WidgetTypes.STATE_PRESSED)) return;
-        if (buttonComponent.isChecked && widget.setState(WidgetTypes.STATE_CHECKED)) return;
+        boolean checked = buttonComponent.isChecked;
+
+        // A checked widget prefers the checked variant of a state, where it declares one: a plain
+        // button has none, so a press still beats checked and checked still beats hover for it.
+        if (!buttonComponent.isTouchEnabled) {
+            if (checked && widget.setState(WidgetTypes.STATE_CHECKED_DISABLED)) return;
+            if (widget.setState(WidgetTypes.STATE_DISABLED)) return;
+        }
+        if (buttonComponent.isTouched) {
+            if (checked && widget.setState(WidgetTypes.STATE_CHECKED_PRESSED)) return;
+            if (widget.setState(WidgetTypes.STATE_PRESSED)) return;
+        }
+        if (checked) {
+            if (buttonComponent.isHovered && widget.setState(WidgetTypes.STATE_CHECKED_HOVER)) return;
+            if (widget.setState(WidgetTypes.STATE_CHECKED)) return;
+        }
         if (buttonComponent.isHovered && widget.setState(WidgetTypes.STATE_HOVER)) return;
         widget.currentState = null; //back to the default state
+    }
+
+    private boolean isCheckable(WidgetComponent widget) {
+        WidgetType type = widget == null ? null : WidgetTypes.get(widget.widgetType);
+        return type != null && type.checkable;
+    }
+
+    /**
+     * The checked setting is where a checkable widget starts, and what the editor shows: a change of
+     * it is followed, while a click in between is left alone.
+     */
+    private void followCheckedSetting(WidgetComponent widget, ButtonComponent buttonComponent) {
+        if (!isCheckable(widget)) return;
+
+        String setting = widget.properties.get(WidgetTypes.PROPERTY_CHECKED);
+        if (setting == null ? buttonComponent.checkedSetting == null : setting.equals(buttonComponent.checkedSetting)) return;
+
+        buttonComponent.checkedSetting = setting;
+        buttonComponent.isChecked = Boolean.parseBoolean(setting);
+    }
+
+    /**
+     * A click on a checkable widget flips it. In a radio group, the buttons sharing the group name
+     * among its siblings, it checks this one and unchecks the others, and a checked one stays checked.
+     */
+    private void toggle(int entity, ButtonComponent buttonComponent) {
+        WidgetComponent widget = widgetMapper.get(entity);
+        if (!isCheckable(widget)) return;
+
+        String group = widget.properties.get(WidgetTypes.PROPERTY_GROUP, "");
+        if (group.isEmpty()) {
+            setChecked(entity, buttonComponent, !buttonComponent.isChecked);
+            return;
+        }
+        if (buttonComponent.isChecked) return;
+
+        ParentNodeComponent parentNode = parentMapper.get(entity);
+        NodeComponent siblings = parentNode == null ? null : nodeComponentMapper.get(parentNode.parentEntity);
+        if (siblings != null) {
+            for (int i = 0; i < siblings.children.size; i++) {
+                int sibling = siblings.children.get(i);
+                if (sibling == entity) continue;
+
+                WidgetComponent siblingWidget = widgetMapper.get(sibling);
+                ButtonComponent siblingButton = buttonComponentMapper.get(sibling);
+                if (siblingButton == null || !isCheckable(siblingWidget)) continue;
+                if (group.equals(siblingWidget.properties.get(WidgetTypes.PROPERTY_GROUP, ""))) {
+                    setChecked(sibling, siblingButton, false);
+                }
+            }
+        }
+        setChecked(entity, buttonComponent, true);
+    }
+
+    private void setChecked(int entity, ButtonComponent buttonComponent, boolean checked) {
+        if (buttonComponent.isChecked == checked) return;
+
+        buttonComponent.isChecked = checked;
+        for (int i = 0; i < buttonComponent.listeners.size; i++) {
+            buttonComponent.listeners.get(i).checkedChanged(entity, checked);
+        }
     }
 
     /**
@@ -220,6 +297,7 @@ public class ButtonSystem extends BaseEntitySystem {
             buttonComponent.listeners.get(i).touchUp(entity);
             if (over) buttonComponent.listeners.get(i).clicked(entity);
         }
+        if (over) toggle(entity, buttonComponent);
         return false;
     }
 

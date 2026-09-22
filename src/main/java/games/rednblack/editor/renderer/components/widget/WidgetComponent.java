@@ -25,6 +25,9 @@ public class WidgetComponent extends PooledComponent {
     /** The state whose look is the base (un-overridden) look of the parts. */
     public String defaultState = "normal";
 
+    /** child state -> the state it builds on: showing the child applies the parent's look first. */
+    public ObjectMap<String, String> parents = new ObjectMap<>(0);
+
     /** Widget type specific settings (e.g. min/max of a progress bar), stored as strings. */
     public ObjectMap<String, String> properties = new ObjectMap<>(0);
 
@@ -44,6 +47,11 @@ public class WidgetComponent extends PooledComponent {
         return true;
     }
 
+    /** @return the state this one builds on, null if it stands on its own */
+    public String parentOf(String state) {
+        return state == null ? null : parents.get(state);
+    }
+
     public boolean hasState(String state) {
         return state != null && states.contains(state, false);
     }
@@ -53,6 +61,7 @@ public class WidgetComponent extends PooledComponent {
         widgetType = "";
         states.clear();
         defaultState = "normal";
+        parents.clear();
         properties.clear();
         currentState = null;
     }

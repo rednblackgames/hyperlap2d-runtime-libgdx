@@ -38,6 +38,10 @@ public class WidgetStateSystem extends IteratingSystem {
     private boolean initialized = false;
 
     private final Array<String> tmpKeys = new Array<>();
+    private final Array<String> chain = new Array<>();
+    private final ObjectMap<String, String> mergedPatch = new ObjectMap<>();
+    /** How far up a state may build on others, well beyond anything sensible. */
+    private static final int MAX_INHERITANCE = 8;
     private final Pool<StateTween> tweenPool = new Pool<StateTween>() {
         @Override
         protected StateTween newObject() {
@@ -84,10 +88,11 @@ public class WidgetStateSystem extends IteratingSystem {
         WidgetPartComponent part = partCM.get(entity);
 
         int widgetEntity = findWidget(entity);
-        String state = widgetEntity == -1 ? null : widgetCM.get(widgetEntity).getState();
+        WidgetComponent widget = widgetEntity == -1 ? null : widgetCM.get(widgetEntity);
+        String state = widget == null ? null : widget.getState();
 
         if (part.dirty || !Objects.equals(state, part.appliedState)) {
-            applyState(entity, part, state, animate && !part.snapNext);
+            applyState(entity, part, widget, state, animate && !part.snapNext);
         }
         part.snapNext = false;
 
@@ -125,7 +130,7 @@ public class WidgetStateSystem extends IteratingSystem {
     public void restoreBase(int entity) {
         WidgetPartComponent part = partCM.get(entity);
         if (part == null) return;
-        applyState(entity, part, null, false);
+        applyState(entity, part, null, null, false);
         part.dirty = true;
         part.snapNext = true;
     }
@@ -151,8 +156,8 @@ public class WidgetStateSystem extends IteratingSystem {
      * made of numbers and a transition applies, the one of the new state or else, on the way back
      * to a value the new state has nothing to say about, the one of the state being left.
      */
-    private void applyState(int entity, WidgetPartComponent part, String state, boolean animate) {
-        ObjectMap<String, String> patch = part.getOverrides(state);
+    private void applyState(int entity, WidgetPartComponent part, WidgetComponent widget, String state, boolean animate) {
+        ObjectMap<String, String> patch = overridesOf(part, widget, state);
         String previousState = part.appliedState;
 
         tmpKeys.clear();
@@ -183,8 +188,8 @@ public class WidgetStateSystem extends IteratingSystem {
 
             // What plays around the value: the entry of the state coming in, and the exit of the one
             // going out, which is why a press can read as start, loop and then end.
-            String enter = overridden ? enterOf(part.getSequence(state, key)) : null;
-            String exit = Objects.equals(previousState, state) ? null : exitOf(part.getSequence(previousState, key));
+            String enter = overridden ? enterOf(sequenceOf(part, widget, state, key)) : null;
+            String exit = Objects.equals(previousState, state) ? null : exitOf(sequenceOf(part, widget, previousState, key));
             boolean sequenced = handler instanceof SequencedOverrideHandler && (enter != null || exit != null);
 
             // already there (a state applied again after its look was taken off to be read, or two
@@ -194,8 +199,8 @@ public class WidgetStateSystem extends IteratingSystem {
                 continue;
             }
 
-            WidgetPartComponent.Transition transition = part.getTransition(state, key);
-            if (transition == null && !overridden) transition = part.getTransition(previousState, key);
+            WidgetPartComponent.Transition transition = transitionOf(part, widget, state, key);
+            if (transition == null && !overridden) transition = transitionOf(part, widget, previousState, key);
 
             if (running != null) removeTween(part, running);
 
@@ -212,6 +217,50 @@ public class WidgetStateSystem extends IteratingSystem {
 
         part.appliedState = state;
         part.dirty = false;
+    }
+
+    /**
+     * What a state overrides, its own overrides laid over the ones of the state it builds on, and so
+     * on up: a checked hover shows the check mark of checked plus the tint of its own.
+     *
+     * @return null when the state, and everything it builds on, overrides nothing
+     */
+    private ObjectMap<String, String> overridesOf(WidgetPartComponent part, WidgetComponent widget, String state) {
+        if (state == null) return null;
+        if (widget == null || widget.parentOf(state) == null) return part.getOverrides(state);
+
+        chain.clear();
+        for (String link = state; link != null && chain.size < MAX_INHERITANCE; link = widget.parentOf(link)) {
+            if (chain.contains(link, false)) break; // a state inheriting from itself
+            chain.add(link);
+        }
+
+        mergedPatch.clear();
+        for (int i = chain.size - 1; i >= 0; i--) {
+            ObjectMap<String, String> overrides = part.getOverrides(chain.get(i));
+            if (overrides != null) mergedPatch.putAll(overrides);
+        }
+        return mergedPatch.size == 0 ? null : mergedPatch;
+    }
+
+    /** The transition of the nearest state, from this one up, that says how the property travels. */
+    private WidgetPartComponent.Transition transitionOf(WidgetPartComponent part, WidgetComponent widget, String state, String key) {
+        int depth = 0;
+        for (String link = state; link != null && depth++ < MAX_INHERITANCE; link = widget == null ? null : widget.parentOf(link)) {
+            WidgetPartComponent.Transition transition = part.getTransition(link, key);
+            if (transition != null) return transition;
+        }
+        return null;
+    }
+
+    /** What plays around the value, taken from the nearest state, from this one up, that says so. */
+    private WidgetPartComponent.Sequence sequenceOf(WidgetPartComponent part, WidgetComponent widget, String state, String key) {
+        int depth = 0;
+        for (String link = state; link != null && depth++ < MAX_INHERITANCE; link = widget == null ? null : widget.parentOf(link)) {
+            WidgetPartComponent.Sequence sequence = part.getSequence(link, key);
+            if (sequence != null) return sequence;
+        }
+        return null;
     }
 
     private static String enterOf(WidgetPartComponent.Sequence sequence) {

@@ -11,6 +11,8 @@ public class WidgetVO {
     public Array<String> states = new Array<>(true, 4, String.class);
     public String defaultState = "normal";
     public ObjectMap<String, String> properties = new ObjectMap<>(0);
+    /** child state -> the state it builds on */
+    public ObjectMap<String, String> parents = new ObjectMap<>(0);
 
     public WidgetVO() {
     }
@@ -21,6 +23,7 @@ public class WidgetVO {
         states.addAll(vo.states);
         defaultState = vo.defaultState;
         properties.putAll(vo.properties);
+        parents.putAll(vo.parents);
     }
 
     public void loadFromComponent(WidgetComponent component) {
@@ -30,6 +33,8 @@ public class WidgetVO {
         defaultState = component.defaultState;
         properties.clear();
         properties.putAll(component.properties);
+        parents.clear();
+        parents.putAll(component.parents);
     }
 
     public void applyToComponent(WidgetComponent component) {
@@ -39,6 +44,8 @@ public class WidgetVO {
         component.defaultState = defaultState;
         component.properties.clear();
         component.properties.putAll(properties);
+        component.parents.clear();
+        component.parents.putAll(parents);
         if (!component.hasState(component.currentState)) component.currentState = null;
     }
 
@@ -50,11 +57,12 @@ public class WidgetVO {
         return Objects.equals(widgetType, that.widgetType)
                 && Objects.equals(defaultState, that.defaultState)
                 && states.equals(that.states)
-                && properties.equals(that.properties);
+                && properties.equals(that.properties)
+                && parents.equals(that.parents);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(widgetType, defaultState, states, properties);
+        return Objects.hash(widgetType, defaultState, states, properties, parents);
     }
 }

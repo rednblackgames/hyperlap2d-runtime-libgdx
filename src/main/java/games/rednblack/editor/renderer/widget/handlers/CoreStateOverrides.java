@@ -166,6 +166,16 @@ public final class CoreStateOverrides {
         public enum Field {X, Y, SCALE_X, SCALE_Y, ROTATION}
 
         protected ComponentMapper<TransformComponent> transformCM;
+
+        /**
+         * The item's real transform. The editor zeroes the transform of the composite it is showing
+         * from the inside, keeping the real one aside: reading the zeroed one would take entering a
+         * composite for an edit, and writing into it would move the view and throw every click off.
+         * Outside that, the real transform is the transform itself.
+         */
+        private TransformComponent transform(int entity) {
+            return transformCM.get(entity).getRealComponent();
+        }
         private final Field field;
 
         public Transform(Field field) {
@@ -179,7 +189,7 @@ public final class CoreStateOverrides {
 
         @Override
         public String capture(int entity) {
-            TransformComponent t = transformCM.get(entity);
+            TransformComponent t = transform(entity);
             switch (field) {
                 case X: return Float.toString(t.x);
                 case Y: return Float.toString(t.y);
@@ -208,7 +218,7 @@ public final class CoreStateOverrides {
 
         @Override
         public void captureChannels(int entity, float[] out) {
-            TransformComponent t = transformCM.get(entity);
+            TransformComponent t = transform(entity);
             switch (field) {
                 case X: out[0] = t.x; break;
                 case Y: out[0] = t.y; break;
@@ -234,7 +244,7 @@ public final class CoreStateOverrides {
         }
 
         private void set(int entity, float v) {
-            TransformComponent t = transformCM.get(entity);
+            TransformComponent t = transform(entity);
             switch (field) {
                 case X: t.x = v; break;
                 case Y: t.y = v; break;

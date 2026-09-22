@@ -34,6 +34,7 @@ import games.rednblack.editor.renderer.components.shape.PolygonShapeComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
+import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.ecs.*;
 
@@ -115,6 +116,7 @@ public class ComponentRetriever {
 
         mappers.put(WidgetComponent.class, ComponentMapper.getFor(WidgetComponent.class, engine));
         mappers.put(WidgetPartComponent.class, ComponentMapper.getFor(WidgetPartComponent.class, engine));
+        mappers.put(ProgressBarComponent.class, ComponentMapper.getFor(ProgressBarComponent.class, engine));
     }
 
     public static void initialize(Engine engine) {
