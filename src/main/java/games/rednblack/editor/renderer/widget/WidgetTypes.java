@@ -3,6 +3,7 @@ package games.rednblack.editor.renderer.widget;
 import com.badlogic.gdx.utils.OrderedMap;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
+import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
 
 /**
@@ -18,6 +19,7 @@ public final class WidgetTypes {
     public static final String STATE_PRESSED = "pressed";
     public static final String STATE_CHECKED = "checked";
     public static final String STATE_DISABLED = "disabled";
+    public static final String STATE_DRAGGED = "dragged";
 
     public static final String STATE_CHECKED_HOVER = "checkedHover";
     public static final String STATE_CHECKED_PRESSED = "checkedPressed";
@@ -26,6 +28,7 @@ public final class WidgetTypes {
     public static final String BUTTON = "button";
     public static final String CHECKBOX = "checkBox";
     public static final String PROGRESS_BAR = "progressBar";
+    public static final String SLIDER = "slider";
 
     public static final String ROLE_BACKGROUND = "background";
     public static final String ROLE_FILL = "fill";
@@ -76,6 +79,22 @@ public final class WidgetTypes {
                 .property(PROPERTY_ANIMATE_DURATION, WidgetType.PropertyKind.FLOAT, "0")
                 .property(PROPERTY_ANIMATE_INTERPOLATION, WidgetType.PropertyKind.INTERPOLATION, "linear")
                 .behaviour(ProgressBarComponent.class));
+
+        // A progress bar the pointer drives: pressing the track puts the knob there and dragging
+        // carries it along. The value itself still belongs to the bar underneath.
+        register(new WidgetType(SLIDER, STATE_NORMAL, STATE_HOVER, STATE_DRAGGED, STATE_DISABLED)
+                .part(ROLE_BACKGROUND, true)
+                .part(ROLE_KNOB, true, CoreStateOverrides.X, CoreStateOverrides.Y)
+                .part(ROLE_FILL, false, CoreStateOverrides.X, CoreStateOverrides.Y)
+                .property(PROPERTY_MIN, WidgetType.PropertyKind.FLOAT, "0")
+                .property(PROPERTY_MAX, WidgetType.PropertyKind.FLOAT, "100")
+                .property(PROPERTY_STEP, WidgetType.PropertyKind.FLOAT, "1")
+                .property(PROPERTY_VALUE, WidgetType.PropertyKind.FLOAT, "0")
+                .property(PROPERTY_VERTICAL, WidgetType.PropertyKind.BOOLEAN, "false")
+                .property(PROPERTY_ANIMATE_DURATION, WidgetType.PropertyKind.FLOAT, "0")
+                .property(PROPERTY_ANIMATE_INTERPOLATION, WidgetType.PropertyKind.INTERPOLATION, "linear")
+                .behaviour(ProgressBarComponent.class)
+                .behaviour(SliderComponent.class));
     }
 
     public static void register(WidgetType type) {

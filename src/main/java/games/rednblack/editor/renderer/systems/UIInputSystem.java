@@ -260,7 +260,8 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
             }
         }
         touchFocuses.end();
-        return handled || (release && held);
+        //the pointer belongs to whoever took the press: the whole gesture is the interface's
+        return held || handled;
     }
 
     // ------------------------------------------------------------ hit testing

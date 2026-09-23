@@ -20,6 +20,11 @@ public class InputTargetComponent extends PooledComponent {
     public Touchable touchable = Touchable.ENABLED;
     /** True for an entity a click gives the keyboard focus to, such as a text field. */
     public boolean focusable = false;
+    /**
+     * True for a handle whose press starts a drag of its own, such as the knob of a slider, so a
+     * host holding the scene - the editor - knows not to drag anything else with the same pointer.
+     */
+    public boolean dragHandle = false;
 
     public final Array<UIInputListener> listeners = new Array<>(true, 1, UIInputListener[]::new);
     public final Array<UIInputListener> captureListeners = new Array<>(true, 0, UIInputListener[]::new);
@@ -44,6 +49,7 @@ public class InputTargetComponent extends PooledComponent {
     public void reset() {
         touchable = Touchable.ENABLED;
         focusable = false;
+        dragHandle = false;
         listeners.clear();
         captureListeners.clear();
     }

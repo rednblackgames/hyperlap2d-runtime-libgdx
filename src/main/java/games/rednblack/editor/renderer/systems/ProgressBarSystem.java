@@ -2,6 +2,8 @@ package games.rednblack.editor.renderer.systems;
 
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NodeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
@@ -36,6 +38,9 @@ public class ProgressBarSystem extends IteratingSystem {
     protected ComponentMapper<NodeComponent> nodeCM;
     protected ComponentMapper<TransformComponent> transformCM;
     protected ComponentMapper<DimensionsComponent> dimensionsCM;
+
+    private final Rectangle track = new Rectangle();
+    private final Vector2 knobSize = new Vector2();
 
     @Override
     protected void process(int entity) {
@@ -87,18 +92,10 @@ public class ProgressBarSystem extends IteratingSystem {
     }
 
     private void layoutParts(int entity, ProgressBarComponent bar, WidgetComponent widget) {
-        int background = findPart(entity, WidgetTypes.ROLE_BACKGROUND);
-        if (background == -1) return;
+        if (!track(entity, track)) return;
 
-        TransformComponent backgroundTransform = transformOf(background);
-        DimensionsComponent backgroundDimensions = dimensionsCM.get(background);
-        if (backgroundTransform == null || backgroundDimensions == null) return;
-
-        // the background's rectangle as drawn, scale around its origin included
-        float trackX = backgroundTransform.x + backgroundTransform.originX * (1 - backgroundTransform.scaleX);
-        float trackY = backgroundTransform.y + backgroundTransform.originY * (1 - backgroundTransform.scaleY);
-        float trackWidth = backgroundDimensions.width * backgroundTransform.scaleX;
-        float trackHeight = backgroundDimensions.height * backgroundTransform.scaleY;
+        float trackX = track.x, trackY = track.y;
+        float trackWidth = track.width, trackHeight = track.height;
 
         boolean vertical = Boolean.parseBoolean(widget.properties.get(WidgetTypes.PROPERTY_VERTICAL));
         float percent = MathUtils.clamp(bar.getVisualPercent(), 0, 1);
@@ -111,17 +108,55 @@ public class ProgressBarSystem extends IteratingSystem {
         }
 
         int knob = findPart(entity, WidgetTypes.ROLE_KNOB);
-        if (knob != -1) {
-            TransformComponent knobTransform = transformOf(knob);
-            DimensionsComponent knobDimensions = dimensionsCM.get(knob);
-            if (knobTransform != null && knobDimensions != null) {
-                float knobWidth = knobDimensions.width * knobTransform.scaleX;
-                float knobHeight = knobDimensions.height * knobTransform.scaleY;
-                float x = vertical ? trackX + (trackWidth - knobWidth) / 2 : trackX + percent * (trackWidth - knobWidth);
-                float y = vertical ? trackY + percent * (trackHeight - knobHeight) : trackY + (trackHeight - knobHeight) / 2;
-                setVisualPosition(knobTransform, x, y);
-            }
+        if (knob != -1 && knobSize(entity, knobSize)) {
+            float knobWidth = knobSize.x;
+            float knobHeight = knobSize.y;
+            float x = vertical ? trackX + (trackWidth - knobWidth) / 2 : trackX + percent * (trackWidth - knobWidth);
+            float y = vertical ? trackY + percent * (trackHeight - knobHeight) : trackY + (trackHeight - knobHeight) / 2;
+            setVisualPosition(transformOf(knob), x, y);
         }
+    }
+
+    /**
+     * The rectangle the bar runs along, in the widget's own coordinates: the background as drawn,
+     * its own scale included. It is what places the fill and the knob, and what turns a pointer
+     * into a value for a slider.
+     *
+     * @return false if the widget has no background to run along
+     */
+    public boolean track(int widget, Rectangle out) {
+        int background = findPart(widget, WidgetTypes.ROLE_BACKGROUND);
+        if (background == -1) return false;
+
+        TransformComponent transform = transformOf(background);
+        DimensionsComponent dimensions = dimensionsCM.get(background);
+        if (transform == null || dimensions == null) return false;
+
+        out.x = transform.x + transform.originX * (1 - transform.scaleX);
+        out.y = transform.y + transform.originY * (1 - transform.scaleY);
+        out.width = dimensions.width * transform.scaleX;
+        out.height = dimensions.height * transform.scaleY;
+        return true;
+    }
+
+    /**
+     * The knob as drawn, which is the part of the track the value cannot reach: the knob travels
+     * within the background, so its own length is taken off the run.
+     *
+     * @return false if the widget has no knob, leaving the size at zero
+     */
+    public boolean knobSize(int widget, Vector2 out) {
+        out.setZero();
+
+        int knob = findPart(widget, WidgetTypes.ROLE_KNOB);
+        if (knob == -1) return false;
+
+        TransformComponent transform = transformOf(knob);
+        DimensionsComponent dimensions = dimensionsCM.get(knob);
+        if (transform == null || dimensions == null) return false;
+
+        out.set(dimensions.width * transform.scaleX, dimensions.height * transform.scaleY);
+        return true;
     }
 
     /** Puts a part's drawn rectangle exactly there, compensating for its own scale. */
@@ -157,7 +192,7 @@ public class ProgressBarSystem extends IteratingSystem {
     }
 
     /** @return the direct child playing that role, -1 if none does */
-    private int findPart(int widget, String role) {
+    int findPart(int widget, String role) {
         NodeComponent node = nodeCM.get(widget);
         if (node == null) return -1;
 
@@ -169,11 +204,11 @@ public class ProgressBarSystem extends IteratingSystem {
         return -1;
     }
 
-    private static float setting(WidgetComponent widget, String key, float fallback) {
+    static float setting(WidgetComponent widget, String key, float fallback) {
         return parse(widget.properties.get(key), fallback);
     }
 
-    private static float parse(String value, float fallback) {
+    static float parse(String value, float fallback) {
         if (value == null) return fallback;
         try {
             return Float.parseFloat(value.trim());
@@ -182,7 +217,7 @@ public class ProgressBarSystem extends IteratingSystem {
         }
     }
 
-    private static float snap(float value, float min, float step) {
+    static float snap(float value, float min, float step) {
         if (step <= 0) return value;
         return min + Math.round((value - min) / step) * step;
     }

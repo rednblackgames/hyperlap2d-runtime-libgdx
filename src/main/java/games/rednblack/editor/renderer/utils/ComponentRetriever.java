@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
+import games.rednblack.editor.renderer.components.additional.InputTargetComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
@@ -35,6 +36,7 @@ import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponen
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
+import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.ecs.*;
 
@@ -117,6 +119,8 @@ public class ComponentRetriever {
         mappers.put(WidgetComponent.class, ComponentMapper.getFor(WidgetComponent.class, engine));
         mappers.put(WidgetPartComponent.class, ComponentMapper.getFor(WidgetPartComponent.class, engine));
         mappers.put(ProgressBarComponent.class, ComponentMapper.getFor(ProgressBarComponent.class, engine));
+        mappers.put(SliderComponent.class, ComponentMapper.getFor(SliderComponent.class, engine));
+        mappers.put(InputTargetComponent.class, ComponentMapper.getFor(InputTargetComponent.class, engine));
     }
 
     public static void initialize(Engine engine) {
