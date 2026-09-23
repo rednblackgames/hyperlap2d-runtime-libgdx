@@ -24,7 +24,7 @@ public class WidgetType {
          * Properties of the part the widget sets itself, such as the position of a knob: they are
          * never recorded as state overrides, since the widget would overwrite them anyway.
          */
-        public final Array<String> drivenKeys = new Array<>(true, 2, String.class);
+        public final Array<String> drivenKeys = new Array<>(true, 2, String[]::new);
 
         public Part(String role, boolean required, String... drivenKeys) {
             this.role = role;
@@ -47,9 +47,9 @@ public class WidgetType {
 
     public final String name;
     public final String defaultState;
-    public final Array<String> states = new Array<>(true, 4, String.class);
-    public final Array<Part> parts = new Array<>(true, 2, Part.class);
-    public final Array<Property> properties = new Array<>(true, 2, Property.class);
+    public final Array<String> states = new Array<>(true, 4, String[]::new);
+    public final Array<Part> parts = new Array<>(true, 2, Part[]::new);
+    public final Array<Property> properties = new Array<>(true, 2, Property[]::new);
     public final Array<Class<? extends Component>> behaviourComponents = new Array<>(true, 1);
     /** child state -> the state it builds on: showing the child applies the parent's look first. */
     public final ObjectMap<String, String> parents = new ObjectMap<>(0);

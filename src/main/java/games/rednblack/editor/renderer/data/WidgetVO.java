@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class WidgetVO {
     public String widgetType = "";
-    public Array<String> states = new Array<>(true, 4, String.class);
+    public Array<String> states = new Array<>(true, 4, String[]::new);
     public String defaultState = "normal";
     public ObjectMap<String, String> properties = new ObjectMap<>(0);
     /** child state -> the state it builds on */

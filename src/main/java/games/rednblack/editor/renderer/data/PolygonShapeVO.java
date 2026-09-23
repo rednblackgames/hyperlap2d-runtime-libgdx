@@ -12,7 +12,7 @@ public class PolygonShapeVO {
     public PolygonShapeVO clone() {
         PolygonShapeVO newVo = new PolygonShapeVO();
         Vector2[][] target = new Vector2[polygonizedVertices.length][];
-        Array<Vector2> targetVertices = new Array<>(true, vertices.size, Vector2.class);
+        Array<Vector2> targetVertices = new Array<>(true, vertices.size, Vector2[]::new);
 
         for (int i = 0; i < polygonizedVertices.length; i++) {
             target[i] = new Vector2[polygonizedVertices[i].length];
@@ -31,7 +31,7 @@ public class PolygonShapeVO {
 
     public static PolygonShapeVO createRect(float width, float height) {
         PolygonShapeVO vo = new PolygonShapeVO();
-        vo.vertices = new Array<>(true, 4, Vector2.class);
+        vo.vertices = new Array<>(true, 4, Vector2[]::new);
         vo.polygonizedVertices = new Vector2[1][];
         vo.vertices.add(new Vector2(0, 0), new Vector2(0, height), new Vector2(width, height), new Vector2(width, 0));
 

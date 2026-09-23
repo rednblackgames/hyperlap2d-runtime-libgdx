@@ -29,6 +29,7 @@ import games.rednblack.editor.renderer.resources.IResourceRetriever;
 import games.rednblack.editor.renderer.scripts.BasicScript;
 import games.rednblack.editor.renderer.scripts.IScript;
 import games.rednblack.editor.renderer.systems.PhysicsSystem;
+import games.rednblack.editor.renderer.systems.UIInputSystem;
 import games.rednblack.editor.renderer.systems.WidgetStateSystem;
 import games.rednblack.editor.renderer.systems.action.Actions;
 import games.rednblack.editor.renderer.systems.action.data.ActionData;
@@ -488,6 +489,16 @@ public class SceneLoader {
 
     public Engine getEngine() {
         return engine;
+    }
+
+    /**
+     * The input of the scene, to be given to libGDX by the game, usually first in its multiplexer:
+     * whatever the interface takes never reaches what comes after it.
+     *
+     * @return null if the scene was configured without {@link UIInputSystem}
+     */
+    public UIInputSystem getUIInput() {
+        return engine.getSystem(UIInputSystem.class);
     }
 
     public RayHandler getRayHandler() {

@@ -72,6 +72,8 @@ public class SceneConfiguration {
         addSystem(new CullingSystem());
         rendererSystem = new HyperLap2dRenderer(batch, hasStencil, msaaSamples);
         rendererClass = HyperLap2dRenderer.class;
+        // before the systems reading what input did, so a press is seen the frame it happens
+        addSystem(new UIInputSystem());
         addSystem(new ButtonSystem());
         // right after the systems that change widget states, so a new state is drawn the same frame
         addSystem(new WidgetStateSystem());

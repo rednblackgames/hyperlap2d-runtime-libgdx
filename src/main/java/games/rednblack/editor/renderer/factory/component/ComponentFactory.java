@@ -230,7 +230,7 @@ public abstract class ComponentFactory {
                 polygonShapeComponent.polygonizedVertices[i] = new Vector2[vo.shape.polygonizedVertices[i].length];
                 System.arraycopy(vo.shape.polygonizedVertices[i], 0, polygonShapeComponent.polygonizedVertices[i], 0, vo.shape.polygonizedVertices[i].length);
             }
-            polygonShapeComponent.vertices = new Array<>(true, vo.shape.vertices.size, Vector2.class);
+            polygonShapeComponent.vertices = new Array<>(true, vo.shape.vertices.size, Vector2[]::new);
             polygonShapeComponent.vertices.addAll(vo.shape.vertices);
             polygonShapeComponent.openEnded = vo.shape.openEnded;
         }

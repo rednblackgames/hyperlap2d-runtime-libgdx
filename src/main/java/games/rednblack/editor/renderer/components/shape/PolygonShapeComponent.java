@@ -11,7 +11,7 @@ public class PolygonShapeComponent extends PooledComponent {
     public boolean openEnded = false;
 
     public void makeRectangle(float width, float height) {
-        vertices = new Array<>(true, 4, Vector2.class);
+        vertices = new Array<>(true, 4, Vector2[]::new);
         vertices.add(new Vector2(0, 0), new Vector2(0, height), new Vector2(width, height), new Vector2(width, 0));
 
         polygonizedVertices = new Vector2[1][4];
@@ -19,7 +19,7 @@ public class PolygonShapeComponent extends PooledComponent {
     }
 
     public void makeRectangle(float x, float y, float width, float height) {
-        vertices = new Array<>(true, 4, Vector2.class);
+        vertices = new Array<>(true, 4, Vector2[]::new);
         vertices.add(new Vector2(x, y), new Vector2(x, y + height), new Vector2(x + width, y + height), new Vector2(x + width, y));
 
         polygonizedVertices = new Vector2[1][4];

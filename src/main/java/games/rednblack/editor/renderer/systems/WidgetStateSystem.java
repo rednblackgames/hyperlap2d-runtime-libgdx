@@ -76,7 +76,7 @@ public class WidgetStateSystem extends IteratingSystem {
 
     /** @return registered property keys, in registration order */
     public String[] getHandlerKeys() {
-        return handlers.orderedKeys().toArray(String.class);
+        return handlers.orderedKeys().toArray(String[]::new);
     }
 
     @Override

@@ -95,7 +95,7 @@ public final class WidgetTypes {
     /** @return registered type names, in registration order */
     public static String[] names() {
         synchronized (types) {
-            return types.orderedKeys().toArray(String.class);
+            return types.orderedKeys().toArray(String[]::new);
         }
     }
 }

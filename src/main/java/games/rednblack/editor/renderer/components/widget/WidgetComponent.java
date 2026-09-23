@@ -20,7 +20,7 @@ public class WidgetComponent extends PooledComponent {
     public String widgetType = "";
 
     /** Declared states, the first one usually being {@link #defaultState}. */
-    public Array<String> states = new Array<>(true, 4, String.class);
+    public Array<String> states = new Array<>(true, 4, String[]::new);
 
     /** The state whose look is the base (un-overridden) look of the parts. */
     public String defaultState = "normal";

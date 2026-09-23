@@ -30,7 +30,7 @@ public class PolygonRuntimeUtils {
     }
 
     public static Array<Vector2> cloneData(Array<Vector2> data) {
-        Array<Vector2> clone = new Array<>(true, data.size, Vector2.class);
+        Array<Vector2> clone = new Array<>(true, data.size, Vector2[]::new);
         for (Vector2 vector2 : data) {
             clone.add(vector2.cpy());
         }

@@ -6,7 +6,7 @@ import games.rednblack.editor.renderer.ecs.utils.IntBag;
 import com.badlogic.gdx.utils.SnapshotArray;
 
 public class NodeComponent extends PooledComponent {
-    public transient SnapshotArray<Integer> children = new SnapshotArray<>(true, 1, Integer.class);
+    public transient SnapshotArray<Integer> children = new SnapshotArray<>(true, 1, Integer[]::new);
     @EntityId public IntBag persistentChildren = new IntBag();
 
     public void removeChild(int entity) {

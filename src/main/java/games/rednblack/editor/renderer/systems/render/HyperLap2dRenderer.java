@@ -79,7 +79,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
         }
     };
 
-    protected final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer.class);
+    protected final SnapshotArray<Integer> screenReadingEntities = new SnapshotArray<>(true, 1, Integer[]::new);
 
     protected ShaderUniformProvider shaderUniformProvider;
 
