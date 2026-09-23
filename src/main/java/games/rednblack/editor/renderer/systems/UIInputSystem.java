@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.SnapshotArray;
+import games.rednblack.editor.renderer.components.CompositeTransformComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.LayerMapComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
@@ -53,6 +54,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     protected ComponentMapper<ZIndexComponent> zIndexMapper;
     protected ComponentMapper<LayerMapComponent> layerMapMapper;
     protected ComponentMapper<InputTargetComponent> inputTargetMapper;
+    protected ComponentMapper<CompositeTransformComponent> compositeMapper;
 
     /** A pointer whose touch down was taken by a listener: it is that listener's until released. */
     private static class TouchFocus implements Pool.Poolable {
@@ -318,12 +320,28 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
             TransformMathUtils.parentToLocalCoordinates(child, local, transformMapper);
             float localX = local.x, localY = local.y;
 
+            if (clipsAway(child, localX, localY)) continue;
+
             int inside = hitChildren(child, localX, localY, depth + 1);
             if (inside != -1) return inside;
 
             if (hits(child, localX, localY)) return child;
         }
         return -1;
+    }
+
+    /**
+     * Whether a clipping composite leaves the point outside: what it does not draw there, it does
+     * not hand to anybody either, itself included.
+     */
+    private boolean clipsAway(int entity, float localX, float localY) {
+        CompositeTransformComponent composite = compositeMapper.get(entity);
+        if (composite == null || !composite.scissorsEnabled) return false;
+
+        DimensionsComponent dimensions = dimensionsMapper.get(entity);
+        if (dimensions == null) return false;
+
+        return localX < 0 || localY < 0 || localX >= dimensions.width || localY >= dimensions.height;
     }
 
     /** Whether the entity itself takes a point given in its own coordinates. */
@@ -386,10 +404,13 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         for (int i = 0; i < listeners.size; i++) {
             UIInputListener listener = listeners.get(i);
             call(listener, event);
-            if (!event.isHandled()) continue;
 
-            if (takesPointer) addTouchFocus(event.pointer, event.button, entity, listener);
-            break;
+            //taking the event, or only asking to follow the pointer, both earn the pointer
+            if (takesPointer && (event.isHandled() || event.follow)) {
+                addTouchFocus(event.pointer, event.button, entity, listener);
+            }
+            event.follow = false;
+            if (event.isHandled()) break;
         }
     }
 
@@ -551,6 +572,33 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
             entity = parent == null ? -1 : parent.parentEntity;
         }
         setKeyboardFocus(-1);
+    }
+
+    /**
+     * Takes a pointer away from everybody but one entity, telling the others the press was
+     * cancelled. This is how something that follows a pointer takes it over: a scroll pane turning
+     * a press into a drag leaves the button underneath unpressed rather than clicked.
+     */
+    public void cancelTouchFocus(int pointer, int keepEntity) {
+        TouchFocus[] focuses = touchFocuses.begin();
+        for (int i = 0, n = touchFocuses.size; i < n; i++) {
+            TouchFocus focus = focuses[i];
+            if (focus.pointer != pointer || focus.entity == keepEntity) continue;
+
+            touchFocuses.removeValue(focus, true);
+            if (stillListening(focus)) {
+                UIEvent event = obtain(UIEvent.Type.touchUp, mouseScreenX, mouseScreenY, focus.entity);
+                event.pointer = pointer;
+                event.button = focus.button;
+                event.cancelled = true;
+                event.listenerEntity = focus.entity;
+                toLocal(focus.entity, event);
+                call(focus.listener, event);
+                eventPool.free(event);
+            }
+            focusPool.free(focus);
+        }
+        touchFocuses.end();
     }
 
     /** Drops the pointers pressed on the entity, and the keyboard focus if it holds it. */

@@ -66,6 +66,7 @@ public class SceneConfiguration {
         addSystem(new LayoutSystem());
         addSystem(new ProgressBarSystem());
         addSystem(new SliderSystem());
+        addSystem(new ScrollPaneSystem());
         addSystem(new LabelSystem());
         addSystem(new ScriptSystem());
         addSystem(new ActionSystem());

@@ -55,6 +55,16 @@ public class WidgetType {
     public final ObjectMap<String, String> parents = new ObjectMap<>(0);
     /** True for a widget a click checks and unchecks. */
     public boolean checkable = false;
+    /**
+     * True for a widget that owns the clipping and the size of its composite: it draws only what
+     * fits in its own rectangle and never grows to its children, and the editor locks both switches.
+     */
+    public boolean clipsContent = false;
+    /**
+     * Role the items the widget is made from are wrapped into when the editor creates it, null when
+     * they stay as they are. A scroll pane puts them in its content, which is what slides.
+     */
+    public String wrapRole = null;
 
     /**
      * @param states the first one is the default state
@@ -79,6 +89,18 @@ public class WidgetType {
 
     public WidgetType checkable() {
         checkable = true;
+        return this;
+    }
+
+    /** The widget clips what it holds to its own rectangle, and keeps that rectangle. */
+    public WidgetType clips() {
+        clipsContent = true;
+        return this;
+    }
+
+    /** What the widget is made from goes into a part of this role, instead of straight inside it. */
+    public WidgetType wrapsInto(String role) {
+        wrapRole = role;
         return this;
     }
 

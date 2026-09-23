@@ -44,10 +44,21 @@ public class UIEvent implements Pool.Poolable {
     public boolean cancelled;
 
     private boolean handled;
+    /** Set by a listener that wants the pointer without taking the event away from the others. */
+    public boolean follow;
 
     /** Takes the event: nobody further along the chain sees it. */
     public void handle() {
         handled = true;
+    }
+
+    /**
+     * Asks for the pointer without taking the event: the listener is given the drags and the
+     * release as well, while whatever is inside still gets its turn. A scroll pane watching a press
+     * that started on a button does this, and takes the pointer for itself once it becomes a drag.
+     */
+    public void followPointer() {
+        follow = true;
     }
 
     public boolean isHandled() {
@@ -71,5 +82,6 @@ public class UIEvent implements Pool.Poolable {
         capture = false;
         cancelled = false;
         handled = false;
+        follow = false;
     }
 }

@@ -238,7 +238,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             batch.begin();
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         } else {
-            if (transform.shouldTransform()) {
+            if (transforms(transform, curCompositeTransformComponent)) {
                 computeTransform(rootEntity);
                 applyTransform(transform, batch);
             }
@@ -301,7 +301,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
                 ScissorStack.popScissors();
             }
 
-            if (transform.shouldTransform())
+            if (transforms(transform, curCompositeTransformComponent))
                 resetTransform(transform, batch);
         }
     }
@@ -320,6 +320,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
             offsetX = 0;
             offsetY = 0;
         }
+
+        boolean transforms = transforms(transform, curCompositeTransformComponent);
 
         for (int i = 0, n = nodeComponent.children.size; i < n; i++) {
             int child = children[i];
@@ -343,7 +345,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
             float cx = childTransformComponent.x, cy = childTransformComponent.y;
             NodeComponent childNodeComponent = nodeMapper.get(child);
 
-            if (!transform.shouldTransform() || curCompositeTransformComponent.renderToFBO) {
+            if (!transforms || curCompositeTransformComponent.renderToFBO) {
                 // The group doesn't need matrix transformation. Just offset child in screen coordinates.
                 childTransformComponent.x = cx + offsetX;
                 childTransformComponent.y = cy + offsetY;
@@ -357,7 +359,7 @@ public class HyperLap2dRenderer extends IteratingSystem {
                 drawRecursively(child, parentAlpha, renderingType);
             }
 
-            if (!transform.shouldTransform() || curCompositeTransformComponent.renderToFBO) {
+            if (!transforms || curCompositeTransformComponent.renderToFBO) {
                 //Restore composite relative position.
                 childTransformComponent.x = cx;
                 childTransformComponent.y = cy;
@@ -416,12 +418,21 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
         if (parentEntity != -1) {
             TransformComponent transform = transformMapper.get(parentEntity);
-            if (transform.shouldTransform())
+            if (transforms(transform, compositeTransformMapper.get(parentEntity)))
                 worldTransform.preMul(transform.worldTransform);
         }
 
         curTransform.computedTransform.set(worldTransform);
         return curTransform.computedTransform;
+    }
+
+    /**
+     * Whether the composite is drawn through a matrix of its own rather than by offsetting its
+     * children. A clipping composite always is: the scissor rectangle is worked out from the matrix
+     * the children are drawn with, so without one the clip would only be right at the root.
+     */
+    protected boolean transforms(TransformComponent transform, CompositeTransformComponent composite) {
+        return transform.shouldTransform() || (composite != null && composite.scissorsEnabled);
     }
 
     protected void applyTransform(TransformComponent curTransform, Batch batch) {
