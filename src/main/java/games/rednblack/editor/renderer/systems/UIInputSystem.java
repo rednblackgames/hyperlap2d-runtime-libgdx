@@ -585,20 +585,40 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
             TouchFocus focus = focuses[i];
             if (focus.pointer != pointer || focus.entity == keepEntity) continue;
 
-            touchFocuses.removeValue(focus, true);
-            if (stillListening(focus)) {
-                UIEvent event = obtain(UIEvent.Type.touchUp, mouseScreenX, mouseScreenY, focus.entity);
-                event.pointer = pointer;
-                event.button = focus.button;
-                event.cancelled = true;
-                event.listenerEntity = focus.entity;
-                toLocal(focus.entity, event);
-                call(focus.listener, event);
-                eventPool.free(event);
-            }
-            focusPool.free(focus);
+            drop(focus);
         }
         touchFocuses.end();
+    }
+
+    /**
+     * Lets go of everything: the pointers being followed, whatever is hovered and whatever has the
+     * keys. A host taking its input back calls this, so a gesture it will not deliver the rest of
+     * ends as a cancelled press instead of hanging half done.
+     */
+    public void clearFocus() {
+        TouchFocus[] focuses = touchFocuses.begin();
+        for (int i = 0, n = touchFocuses.size; i < n; i++) drop(focuses[i]);
+        touchFocuses.end();
+
+        downPointers.clear();
+        keyboardFocus = -1;
+        clearHover();
+    }
+
+    /** Takes the pointer away from the focus, telling its listener the press was cancelled. */
+    private void drop(TouchFocus focus) {
+        touchFocuses.removeValue(focus, true);
+        if (stillListening(focus)) {
+            UIEvent event = obtain(UIEvent.Type.touchUp, mouseScreenX, mouseScreenY, focus.entity);
+            event.pointer = focus.pointer;
+            event.button = focus.button;
+            event.cancelled = true;
+            event.listenerEntity = focus.entity;
+            toLocal(focus.entity, event);
+            call(focus.listener, event);
+            eventPool.free(event);
+        }
+        focusPool.free(focus);
     }
 
     /** Drops the pointers pressed on the entity, and the keyboard focus if it holds it. */
