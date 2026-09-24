@@ -37,6 +37,7 @@ import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateCom
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
+import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.ecs.*;
 
@@ -120,6 +121,7 @@ public class ComponentRetriever {
         mappers.put(WidgetPartComponent.class, ComponentMapper.getFor(WidgetPartComponent.class, engine));
         mappers.put(ProgressBarComponent.class, ComponentMapper.getFor(ProgressBarComponent.class, engine));
         mappers.put(SliderComponent.class, ComponentMapper.getFor(SliderComponent.class, engine));
+        mappers.put(TextFieldComponent.class, ComponentMapper.getFor(TextFieldComponent.class, engine));
         mappers.put(InputTargetComponent.class, ComponentMapper.getFor(InputTargetComponent.class, engine));
     }
 

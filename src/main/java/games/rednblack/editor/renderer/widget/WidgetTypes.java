@@ -1,10 +1,12 @@
 package games.rednblack.editor.renderer.widget;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.OrderedMap;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
 import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
+import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
 
 /**
@@ -21,6 +23,14 @@ public final class WidgetTypes {
     public static final String STATE_CHECKED = "checked";
     public static final String STATE_DISABLED = "disabled";
     public static final String STATE_DRAGGED = "dragged";
+    /** The widget has the keyboard: what a text field being typed into looks like. */
+    public static final String STATE_FOCUSED = "focused";
+
+    /** What is written does not make sense. Authored once, the variants adding only their own touch. */
+    public static final String STATE_INVALID = "invalid";
+    public static final String STATE_INVALID_HOVER = "invalidHover";
+    public static final String STATE_INVALID_FOCUSED = "invalidFocused";
+    public static final String STATE_INVALID_DISABLED = "invalidDisabled";
 
     public static final String STATE_CHECKED_HOVER = "checkedHover";
     public static final String STATE_CHECKED_PRESSED = "checkedPressed";
@@ -30,6 +40,8 @@ public final class WidgetTypes {
     public static final String CHECKBOX = "checkBox";
     public static final String PROGRESS_BAR = "progressBar";
     public static final String SLIDER = "slider";
+    public static final String TEXT_FIELD = "textField";
+    public static final String TEXT_AREA = "textArea";
     public static final String SCROLL_PANE = "scrollPane";
 
     public static final String ROLE_BACKGROUND = "background";
@@ -41,6 +53,19 @@ public final class WidgetTypes {
     public static final String ROLE_SCROLL_BAR_Y = "scrollBarY";
     public static final String ROLE_KNOB_Y = "knobY";
     public static final String ROLE_CORNER = "corner";
+    /** The label a text field writes into: its rectangle is where the characters live. */
+    public static final String ROLE_TEXT = "text";
+    public static final String ROLE_CURSOR = "cursor";
+    public static final String ROLE_SELECTION = "selection";
+    /**
+     * A selection running over several lines is drawn as three bands: what is left of the first
+     * line, the whole lines in between, and the beginning of the last one. On one line only the
+     * first is used.
+     */
+    public static final String ROLE_SELECTION_MIDDLE = "selectionMiddle";
+    public static final String ROLE_SELECTION_END = "selectionEnd";
+    /** A second label, shown only while the field is empty. */
+    public static final String ROLE_MESSAGE = "message";
 
     public static final String PROPERTY_MIN = "min";
     public static final String PROPERTY_MAX = "max";
@@ -76,6 +101,33 @@ public final class WidgetTypes {
     public static final String PROPERTY_BARS_ON_BOTTOM = "barsOnBottom";
     public static final String PROPERTY_MOUSE_WHEEL_X = "mouseWheelX";
     public static final String PROPERTY_MOUSE_WHEEL_Y = "mouseWheelY";
+
+    public static final String PROPERTY_TEXT = "text";
+    public static final String PROPERTY_MESSAGE_TEXT = "messageText";
+    /** Longest text that can be typed, 0 for no limit. */
+    public static final String PROPERTY_MAX_LENGTH = "maxLength";
+    public static final String PROPERTY_PASSWORD_MODE = "passwordMode";
+    public static final String PROPERTY_PASSWORD_CHARACTER = "passwordCharacter";
+    /** How long the caret stays on, and off, 0 for a caret that never blinks. */
+    public static final String PROPERTY_CURSOR_BLINK_TIME = "cursorBlinkTime";
+    public static final String PROPERTY_SELECT_ALL_ON_FOCUS = "selectAllOnFocus";
+    /** What may be typed into the field, one of the {@link TextFilters} constants. */
+    public static final String PROPERTY_FILTER = "filter";
+    /** What counts as written properly, one of the {@link TextValidators} constants. */
+    public static final String PROPERTY_VALIDATOR = "validator";
+    /** Whether a field nobody has written in yet is already wrong. */
+    public static final String PROPERTY_VALIDATE_EMPTY = "validateEmpty";
+    /** Whether a text area breaks a long line to its width, or lets it run on to the next newline. */
+    public static final String PROPERTY_WRAP = "wrap";
+
+    /**
+     * Driven key of a part whose words belong to the widget: the label of a text field reads what
+     * is being typed, so the editor offers no text of its own for it.
+     */
+    public static final String DRIVEN_TEXT = "text";
+
+    /** The one image every project is given, which the shapes a widget needs are drawn from. */
+    public static final String REGION_WHITE_PIXEL = "white-pixel";
 
     /** Setting of a checkable widget: whether it starts checked. */
     public static final String PROPERTY_CHECKED = "checked";
@@ -170,6 +222,73 @@ public final class WidgetTypes {
                 .property(PROPERTY_MOUSE_WHEEL_X, WidgetType.PropertyKind.FLOAT, "40")
                 .property(PROPERTY_MOUSE_WHEEL_Y, WidgetType.PropertyKind.FLOAT, "40")
                 .behaviour(ScrollPaneComponent.class));
+
+        // A line of text the keyboard writes into. The characters live in the label part, and the
+        // field gives it only the ones that fit: what does not fit is never drawn, so there is
+        // nothing to clip. The caret and the selection are placed over them.
+        register(new WidgetType(TEXT_FIELD, STATE_NORMAL, STATE_HOVER, STATE_FOCUSED, STATE_DISABLED,
+                STATE_INVALID, STATE_INVALID_HOVER, STATE_INVALID_FOCUSED, STATE_INVALID_DISABLED)
+                .inherit(STATE_INVALID_HOVER, STATE_INVALID)
+                .inherit(STATE_INVALID_FOCUSED, STATE_INVALID)
+                .inherit(STATE_INVALID_DISABLED, STATE_INVALID)
+                .part(ROLE_TEXT, true, CoreStateOverrides.X, DRIVEN_TEXT)
+                .part(ROLE_BACKGROUND, false, CoreStateOverrides.X, CoreStateOverrides.Y)
+                .part(ROLE_CURSOR, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_SELECTION, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_MESSAGE, false, CoreStateOverrides.VISIBLE, DRIVEN_TEXT)
+                .property(PROPERTY_TEXT, WidgetType.PropertyKind.STRING, "")
+                .property(PROPERTY_MESSAGE_TEXT, WidgetType.PropertyKind.STRING, "")
+                .property(PROPERTY_MAX_LENGTH, WidgetType.PropertyKind.INT, "0")
+                .property(PROPERTY_PASSWORD_MODE, WidgetType.PropertyKind.BOOLEAN, "false")
+                .property(PROPERTY_PASSWORD_CHARACTER, WidgetType.PropertyKind.STRING, "*")
+                .property(PROPERTY_CURSOR_BLINK_TIME, WidgetType.PropertyKind.FLOAT, "0.45")
+                .property(PROPERTY_SELECT_ALL_ON_FOCUS, WidgetType.PropertyKind.BOOLEAN, "false")
+                .choice(PROPERTY_FILTER, TextFilters.NONE, TextFilters.values())
+                .choice(PROPERTY_VALIDATOR, TextValidators.NONE, TextValidators.values())
+                .property(PROPERTY_VALIDATE_EMPTY, WidgetType.PropertyKind.BOOLEAN, "false")
+                .defaultPart(ROLE_SELECTION, REGION_WHITE_PIXEL, 20, 20,
+                        new Color(0.105f, 0.631f, 0.886f, 0.4f), 0)
+                .defaultPart(ROLE_CURSOR, REGION_WHITE_PIXEL, 2, 20, null, 1000)
+                .behaviour(TextFieldComponent.class));
+
+        // The same field over several lines: Enter makes a new one, the text is broken to the width
+        // it was given, and only the lines that fit are handed to the label.
+        register(new WidgetType(TEXT_AREA, STATE_NORMAL, STATE_HOVER, STATE_FOCUSED, STATE_DISABLED,
+                STATE_INVALID, STATE_INVALID_HOVER, STATE_INVALID_FOCUSED, STATE_INVALID_DISABLED)
+                .inherit(STATE_INVALID_HOVER, STATE_INVALID)
+                .inherit(STATE_INVALID_FOCUSED, STATE_INVALID)
+                .inherit(STATE_INVALID_DISABLED, STATE_INVALID)
+                .multiline()
+                .part(ROLE_TEXT, true, CoreStateOverrides.X, CoreStateOverrides.Y, DRIVEN_TEXT)
+                .part(ROLE_BACKGROUND, false, CoreStateOverrides.X, CoreStateOverrides.Y)
+                .part(ROLE_CURSOR, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_SELECTION, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_SELECTION_MIDDLE, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_SELECTION_END, false, CoreStateOverrides.X, CoreStateOverrides.Y,
+                        CoreStateOverrides.VISIBLE)
+                .part(ROLE_MESSAGE, false, CoreStateOverrides.VISIBLE, DRIVEN_TEXT)
+                .property(PROPERTY_TEXT, WidgetType.PropertyKind.STRING, "")
+                .property(PROPERTY_MESSAGE_TEXT, WidgetType.PropertyKind.STRING, "")
+                .property(PROPERTY_MAX_LENGTH, WidgetType.PropertyKind.INT, "0")
+                .property(PROPERTY_WRAP, WidgetType.PropertyKind.BOOLEAN, "true")
+                .property(PROPERTY_CURSOR_BLINK_TIME, WidgetType.PropertyKind.FLOAT, "0.45")
+                .property(PROPERTY_SELECT_ALL_ON_FOCUS, WidgetType.PropertyKind.BOOLEAN, "false")
+                .choice(PROPERTY_FILTER, TextFilters.NONE, TextFilters.values())
+                .choice(PROPERTY_VALIDATOR, TextValidators.NONE, TextValidators.values())
+                .property(PROPERTY_VALIDATE_EMPTY, WidgetType.PropertyKind.BOOLEAN, "false")
+                .defaultPart(ROLE_SELECTION, REGION_WHITE_PIXEL, 20, 20,
+                        new Color(0.105f, 0.631f, 0.886f, 0.4f), 0)
+                .defaultPart(ROLE_SELECTION_MIDDLE, REGION_WHITE_PIXEL, 20, 20,
+                        new Color(0.105f, 0.631f, 0.886f, 0.4f), 0)
+                .defaultPart(ROLE_SELECTION_END, REGION_WHITE_PIXEL, 20, 20,
+                        new Color(0.105f, 0.631f, 0.886f, 0.4f), 0)
+                .defaultPart(ROLE_CURSOR, REGION_WHITE_PIXEL, 2, 20, null, 1000)
+                .behaviour(TextFieldComponent.class));
     }
 
     public static void register(WidgetType type) {
