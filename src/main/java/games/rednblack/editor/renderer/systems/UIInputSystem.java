@@ -1,5 +1,7 @@
 package games.rednblack.editor.renderer.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -115,6 +117,10 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     private int keyboardFocus = -1;
     /** True when a touch down moves the keyboard focus to whatever was clicked. */
     private boolean focusOnTouch = true;
+    /** True when tab walks the keyboard from one focusable to the next. */
+    private boolean focusTraversal = true;
+    /** The focusables of the scene, gathered afresh every time tab is pressed. */
+    private final IntArray focusStops = new IntArray(8);
 
     @Override
     protected void processSystem() {
@@ -199,7 +205,11 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        return toFocusedKey(UIEvent.Type.keyDown, keycode, (char) 0);
+        boolean handled = toFocusedKey(UIEvent.Type.keyDown, keycode, (char) 0);
+        //whoever holds the keys has the first word on tab: only a key nobody wanted moves the focus
+        if (handled || keycode != Input.Keys.TAB || !focusTraversal) return handled;
+
+        return moveFocus(shift() ? -1 : 1);
     }
 
     @Override
@@ -559,6 +569,81 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     /** Whether a click moves the keyboard focus to what was clicked. On by default. */
     public void setFocusOnTouch(boolean focusOnTouch) {
         this.focusOnTouch = focusOnTouch;
+    }
+
+    /** Whether tab walks from one focusable to the next. On by default. */
+    public void setFocusTraversal(boolean focusTraversal) {
+        this.focusTraversal = focusTraversal;
+    }
+
+    public boolean isFocusTraversal() {
+        return focusTraversal;
+    }
+
+    /**
+     * Hands the keyboard to the focusable after the one that holds it, in the order the scene tree
+     * reads: what tab does, and what a game does to move on by itself. The ends wrap around, and
+     * with nothing focused the first one is taken.
+     *
+     * @param direction 1 for the next one, -1 for the one before
+     * @return whether there was somewhere for the keyboard to go
+     */
+    public boolean moveFocus(int direction) {
+        focusStops.clear();
+        if (keyboardFocus == -1) {
+            IntBag roots = subscription.getEntities();
+            int[] ids = roots.getData();
+            for (int i = 0, n = roots.size(); i < n; i++) collectStops(ids[i], 0);
+        } else {
+            collectStops(rootOf(keyboardFocus), 0);
+        }
+        if (focusStops.size == 0) return false;
+
+        int current = focusStops.indexOf(keyboardFocus);
+        int next;
+        if (current == -1) {
+            next = direction > 0 ? 0 : focusStops.size - 1;
+        } else {
+            next = (current + direction + focusStops.size) % focusStops.size;
+        }
+
+        setKeyboardFocus(focusStops.get(next));
+        return true;
+    }
+
+    /**
+     * Gathers the focusables of a branch, the entity itself before the ones inside it and children
+     * in the order they are kept. What input cannot reach is left out, together with everything it
+     * holds: the keyboard does not land where a click could not.
+     */
+    private void collectStops(int entity, int depth) {
+        if (depth > MAX_DEPTH) return;
+
+        MainItemComponent mainItem = mainItemMapper.get(entity);
+        if (mainItem != null && (!mainItem.visible || mainItem.culled)) return;
+
+        InputTargetComponent target = inputTargetMapper.get(entity);
+        if (target != null && target.touchable == Touchable.DISABLED) return;
+        if (target != null && target.focusable && target.touchable == Touchable.ENABLED) focusStops.add(entity);
+
+        NodeComponent node = nodeMapper.get(entity);
+        if (node == null) return;
+
+        LayerMapComponent layers = layerMapMapper.get(entity);
+        for (int i = 0; i < node.children.size; i++) {
+            int child = node.children.get(i);
+
+            ZIndexComponent zIndex = zIndexMapper.get(child);
+            if (layers != null && zIndex != null && !layers.isVisible(zIndex.layerHash)) continue;
+
+            collectStops(child, depth + 1);
+        }
+    }
+
+    /** Whether a shift key is down. Tests have no {@link Gdx#input}, so they say it themselves. */
+    protected boolean shift() {
+        if (Gdx.input == null) return false;
+        return Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
     }
 
     private void updateKeyboardFocus(int target) {

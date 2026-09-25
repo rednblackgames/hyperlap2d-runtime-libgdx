@@ -121,6 +121,7 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
         if (viewPortCM.has(entity) || !field.isTouchEnabled) releaseSilently(entity, field);
 
         keepItsRectangle(entity);
+        followTouchable(entity, field);
         followTextSetting(field, widget);
         followFocus(entity, field, widget);
         clampCursor(field);
@@ -143,6 +144,15 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
     private void keepItsRectangle(int entity) {
         CompositeTransformComponent composite = compositeCM.get(entity);
         if (composite != null) composite.automaticResize = false;
+    }
+
+    /**
+     * A field nobody may type in is nowhere for the keyboard to land: it is passed over by tab, and
+     * a click on it takes the keys away from whatever had them rather than going nowhere.
+     */
+    private void followTouchable(int entity, TextFieldComponent field) {
+        InputTargetComponent target = inputTargetCM.get(entity);
+        if (target != null) target.focusable = field.isTouchEnabled;
     }
 
     /** Follows the text setting when it changes, without undoing what has been typed since. */
@@ -831,6 +841,7 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
     /** Whether holding it down should go on doing what it did. */
     private static boolean repeats(int keyCode) {
         return keyCode == Input.Keys.LEFT || keyCode == Input.Keys.RIGHT
+                || keyCode == Input.Keys.UP || keyCode == Input.Keys.DOWN
                 || keyCode == Input.Keys.BACKSPACE || keyCode == Input.Keys.FORWARD_DEL;
     }
 
@@ -868,13 +879,15 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
             case Input.Keys.RIGHT:
                 moveCursor(field, control ? wordRight(field) : field.cursor + 1, shift);
                 break;
+            //one line has nothing above or below it, so the caret runs to the end it was sent to,
+            //which is what walking out of an area's first or last line does as well
             case Input.Keys.UP:
-                if (!multiline) return false;
-                moveLine(field, -1, shift);
+                if (multiline) moveLine(field, -1, shift);
+                else moveCursor(field, 0, shift);
                 break;
             case Input.Keys.DOWN:
-                if (!multiline) return false;
-                moveLine(field, 1, shift);
+                if (multiline) moveLine(field, 1, shift);
+                else moveCursor(field, field.text.length(), shift);
                 break;
             case Input.Keys.HOME:
                 moveCursor(field, multiline ? field.lineStart(field.lineOf(field.cursor)) : 0, shift);
@@ -1089,7 +1102,8 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
 
     /** Drops the pointer and the focus the field may be holding, without a word to the listeners. */
     private void releaseSilently(int entity, TextFieldComponent field) {
-        if (field.touchPointer != -1 && inputSystem != null) inputSystem.cancelTouchFocus(entity);
+        //the keys go too: a field that cannot be typed in must not sit there holding them
+        if (inputSystem != null) inputSystem.cancelTouchFocus(entity);
         field.touchPointer = -1;
         field.repeatKey = -1;
         field.isHovered = false;
