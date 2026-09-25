@@ -756,6 +756,6 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
     }
 
     private static float number(WidgetComponent widget, String key, float fallback) {
-        return ProgressBarSystem.parse(widget.properties.get(key), fallback);
+        return widget.number(key, fallback);
     }
 }

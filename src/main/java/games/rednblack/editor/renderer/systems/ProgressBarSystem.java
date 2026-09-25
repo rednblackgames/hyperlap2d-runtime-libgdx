@@ -57,7 +57,7 @@ public class ProgressBarSystem extends IteratingSystem {
         String valueSetting = widget.properties.get(WidgetTypes.PROPERTY_VALUE);
         if (valueSetting == null ? bar.valueSetting != null : !valueSetting.equals(bar.valueSetting)) {
             bar.valueSetting = valueSetting;
-            bar.value = parse(valueSetting, min);
+            bar.value = WidgetComponent.parse(valueSetting, min);
         }
         bar.value = snap(MathUtils.clamp(bar.value, min, max), min, step);
 
@@ -205,16 +205,7 @@ public class ProgressBarSystem extends IteratingSystem {
     }
 
     static float setting(WidgetComponent widget, String key, float fallback) {
-        return parse(widget.properties.get(key), fallback);
-    }
-
-    static float parse(String value, float fallback) {
-        if (value == null) return fallback;
-        try {
-            return Float.parseFloat(value.trim());
-        } catch (NumberFormatException e) {
-            return fallback;
-        }
+        return widget.number(key, fallback);
     }
 
     static float snap(float value, float min, float step) {

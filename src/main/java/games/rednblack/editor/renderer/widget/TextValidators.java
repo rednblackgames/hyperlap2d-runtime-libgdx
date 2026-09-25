@@ -82,10 +82,13 @@ public enum TextValidators implements TextValidator {
         return id;
     }
 
+    /** {@link #values()} copies its array on every call, and this is read every frame. */
+    private static final TextValidators[] ALL = values();
+
     public static TextValidators from(String id, TextValidators fallback) {
         if (id == null || id.isEmpty()) return fallback;
 
-        for (TextValidators validator : values()) {
+        for (TextValidators validator : ALL) {
             if (validator.id.equals(id)) return validator;
         }
         return fallback;

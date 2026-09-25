@@ -31,11 +31,7 @@ public class ProgressBarComponent extends PooledComponent implements WidgetBehav
     @Override
     public void initialise(WidgetComponent widget) {
         valueSetting = widget.properties.get(WidgetTypes.PROPERTY_VALUE);
-        try {
-            value = valueSetting == null ? 0 : Float.parseFloat(valueSetting.trim());
-        } catch (NumberFormatException e) {
-            value = 0;
-        }
+        value = WidgetComponent.parse(valueSetting, 0);
     }
 
     public void setValue(float value) {

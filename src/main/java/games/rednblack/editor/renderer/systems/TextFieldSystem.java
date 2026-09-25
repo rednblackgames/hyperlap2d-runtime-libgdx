@@ -77,6 +77,8 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
     private final StringBuilder display = new StringBuilder();
     /** The lines on screen, which is all a text area's label is ever given. */
     private final StringBuilder shown = new StringBuilder();
+    /** The characters handed to the label, kept so a window is not copied out anew every frame. */
+    private final StringBuilder windowText = new StringBuilder();
     /** Time since the engine started, for telling a double click from two clicks. */
     private float elapsed = 0;
 
@@ -265,7 +267,9 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
 
         float width = area.width;
         window(field, width);
-        label.setText(display.subSequence(field.visibleStart, field.visibleEnd));
+        windowText.setLength(0);
+        windowText.append(display, field.visibleStart, field.visibleEnd);
+        label.setText(windowText);
 
         float offset = field.glyphPositions.get(field.visibleStart);
         float visibleWidth = field.glyphPositions.get(field.visibleEnd) - offset;
@@ -642,17 +646,18 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
      * so an untouched form does not open covered in mistakes.
      */
     private void validate(int entity, TextFieldComponent field, WidgetComponent widget) {
-        String text = field.getText();
         TextValidator rule = field.validator != null ? field.validator
                 : TextValidators.from(widget == null ? null : widget.properties.get(WidgetTypes.PROPERTY_VALIDATOR),
                 TextValidators.NONE);
         boolean judgeEmpty = flag(widget, WidgetTypes.PROPERTY_VALIDATE_EMPTY, false);
 
-        //the rule and the setting may change under a text that has not
-        if (text.equals(field.validatedText) && rule == field.validatedBy && judgeEmpty == field.validatedEmpty) {
+        //the rule and the setting may change under a text that has not; nothing is written out
+        //until one of the three really did, since this is asked of every field every frame
+        if (rule == field.validatedBy && judgeEmpty == field.validatedEmpty && field.textEquals(field.validatedText)) {
             return;
         }
 
+        String text = field.getText();
         field.validatedText = text;
         field.validatedBy = rule;
         field.validatedEmpty = judgeEmpty;
@@ -666,13 +671,15 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
 
     /** Tells the listeners once per change, whoever made it: typing, the settings or game code. */
     private void notifyText(int entity, TextFieldComponent field) {
+        //asked every frame, so what is written is compared where it lies instead of being copied out
+        if (field.notified && field.textEquals(field.notifiedText)) return;
+
         String text = field.getText();
         if (!field.notified) {
             field.notified = true;
             field.notifiedText = text;
             return;
         }
-        if (text.equals(field.notifiedText)) return;
 
         field.notifiedText = text;
         for (int i = 0; i < field.listeners.size; i++) {
@@ -1178,7 +1185,7 @@ public class TextFieldSystem extends BaseEntitySystem implements UIInputListener
     }
 
     private static float number(WidgetComponent widget, String key, float fallback) {
-        return widget == null ? fallback : ProgressBarSystem.parse(widget.properties.get(key), fallback);
+        return widget == null ? fallback : widget.number(key, fallback);
     }
 
     /** Whether shift is held: asked of the platform, and of a test that wants to pretend. */

@@ -63,10 +63,13 @@ public enum TextFilters implements TextFilter {
      * @param id       what the setting holds, empty or unknown being nothing in particular
      * @param fallback what to make of a setting that says nothing this knows
      */
+    /** {@link #values()} copies its array on every call, and this is read every frame. */
+    private static final TextFilters[] ALL = values();
+
     public static TextFilters from(String id, TextFilters fallback) {
         if (id == null || id.isEmpty()) return fallback;
 
-        for (TextFilters filter : values()) {
+        for (TextFilters filter : ALL) {
             if (filter.id.equals(id)) return filter;
         }
         return fallback;

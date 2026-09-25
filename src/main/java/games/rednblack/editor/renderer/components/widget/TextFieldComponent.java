@@ -132,6 +132,24 @@ public class TextFieldComponent extends PooledComponent implements WidgetBehavio
         return text.toString();
     }
 
+    /**
+     * Whether what is written is still the given text, without building a string to find out. The
+     * systems ask this every frame, and {@link StringBuilder#toString()} copies the characters.
+     *
+     * Deliberately a loop of our own rather than {@link String#contentEquals(CharSequence)}: that
+     * one only avoids the copy where the class library gives a builder its own path, which differs
+     * between desktop, Android and the MobiVM fork, while this reads the same everywhere.
+     */
+    public boolean textEquals(String other) {
+        if (other == null) return false;
+        if (other.length() != text.length()) return false;
+
+        for (int i = 0, n = text.length(); i < n; i++) {
+            if (other.charAt(i) != text.charAt(i)) return false;
+        }
+        return true;
+    }
+
     /** Replaces everything, putting the caret at the end and dropping any selection. */
     public void setText(String value) {
         text.setLength(0);
