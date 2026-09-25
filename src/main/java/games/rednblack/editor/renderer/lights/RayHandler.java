@@ -290,6 +290,36 @@ public class RayHandler implements Disposable {
         this.culling = culling;
     }
 
+    /** How many lights are on. What a light pass costs is read from here first. */
+    public int getLightCount() {
+        return lightList.size;
+    }
+
+    public int getDisabledLightCount() {
+        return disabledLights.size;
+    }
+
+    /** Of the lights that are on, how many are soft: the ones that pay twice at the edges. */
+    public int getSoftLightCount() {
+        int soft = 0;
+        for (int i = 0; i < lightList.size; i++) {
+            if (lightList.get(i).isSoft()) soft++;
+        }
+        return soft;
+    }
+
+    public boolean isCulling() {
+        return culling;
+    }
+
+    public boolean isShadows() {
+        return shadows;
+    }
+
+    public boolean isBlur() {
+        return blur;
+    }
+
     public void setBlur(boolean blur) {
         this.blur = blur;
     }

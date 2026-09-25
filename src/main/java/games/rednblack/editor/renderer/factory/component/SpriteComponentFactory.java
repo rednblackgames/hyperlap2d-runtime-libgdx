@@ -4,6 +4,7 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.ecs.EntityTransmuter;
 import games.rednblack.editor.renderer.ecs.EntityTransmuterFactory;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
@@ -85,6 +86,12 @@ public class SpriteComponentFactory extends ComponentFactory {
         Array<TextureAtlas.AtlasRegion> regions = rm.getSpriteAnimation(spriteAnimationComponent.animationName);
         SpriteAnimationStateComponent stateComponent = spriteAnimationStateCM.get(entity);
         stateComponent.setAllRegions(regions);
+
+        if (regions == null || regions.size == 0) {
+            Gdx.app.error("SpriteComponentFactory", "Sprite animation '" + spriteAnimationComponent.animationName
+                    + "' has no frames, the item stays as it is");
+            return;
+        }
 
         if (spriteAnimationComponent.frameRangeMap.isEmpty()) {
             spriteAnimationComponent.frameRangeMap.put("Default", new FrameRange("Default", 0, regions.size - 1));

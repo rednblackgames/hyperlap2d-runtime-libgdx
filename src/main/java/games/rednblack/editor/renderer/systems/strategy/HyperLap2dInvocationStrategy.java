@@ -4,6 +4,7 @@ import games.rednblack.editor.renderer.ecs.BaseSystem;
 import games.rednblack.editor.renderer.ecs.SystemInvocationStrategy;
 import games.rednblack.editor.renderer.ecs.utils.Bag;
 import games.rednblack.editor.renderer.ecs.utils.BitVector;
+import games.rednblack.editor.renderer.utils.profiling.SystemProfiler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -35,6 +36,10 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
     private long currentTime;
     private long accumulator = 0;
 
+    /** Off unless someone is watching: null costs one check per system per frame. */
+    private SystemProfiler profiler;
+    private int logicOffset, interpolationOffset, renderOffset;
+
     public static final Object updateEntities = new Object();
 
     @Override
@@ -53,10 +58,43 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
         }
 
         currentTime = TimeUtils.nanoTime();
+
+        if (profiler != null) describeSystems();
+    }
+
+    /**
+     * Hands the systems over to a profiler, or takes them back with {@code null}. A system that runs both
+     * on the fixed step and as an interpolation is reported twice, once for each kind of work.
+     */
+    public void setProfiler(SystemProfiler profiler) {
+        this.profiler = profiler;
+        if (profiler != null && systems != null) describeSystems();
+    }
+
+    public SystemProfiler getProfiler() {
+        return profiler;
+    }
+
+    private void describeSystems() {
+        profiler.describeBegin();
+
+        logicOffset = 0;
+        for (int i = 0; i < logicSystems.size(); i++)
+            profiler.describeSystem(logicSystems.get(i).getClass().getSimpleName(), SystemProfiler.BUCKET_LOGIC);
+
+        interpolationOffset = logicSystems.size();
+        for (int i = 0; i < interpolationSystems.size(); i++)
+            profiler.describeSystem(interpolationSystems.get(i).getClass().getSimpleName() + " (interpolate)", SystemProfiler.BUCKET_INTERPOLATION);
+
+        renderOffset = interpolationOffset + interpolationSystems.size();
+        for (int i = 0; i < renderSystems.size(); i++)
+            profiler.describeSystem(renderSystems.get(i).getClass().getSimpleName(), SystemProfiler.BUCKET_RENDER);
     }
 
     @Override
     protected void process() {
+        if (profiler != null) profiler.beginFrame();
+
         long newTime = TimeUtils.nanoTime();
         long frameTime = Math.min(newTime - currentTime, 250000000);
         currentTime = newTime;
@@ -72,7 +110,9 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
                     continue;
 
                 updateEntitySateSync();
+                if (profiler != null) profiler.begin();
                 logicSystems.get(i).process();
+                if (profiler != null) profiler.end(logicOffset + i);
             }
 
             accumulator -= TIME_STEP_NANO;
@@ -84,7 +124,9 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
                 continue;
 
             float alpha = accumulator * INV_TIME_STEP_NANO;
+            if (profiler != null) profiler.begin();
             interpolationSystems.get(i).interpolate(alpha);
+            if (profiler != null) profiler.end(interpolationOffset + i);
         }
 
         engine.setDelta(Gdx.graphics.getDeltaTime() * TIME_SCALE);
@@ -95,16 +137,22 @@ public class HyperLap2dInvocationStrategy extends SystemInvocationStrategy {
                 continue;
 
             updateEntitySateSync();
+            if (profiler != null) profiler.begin();
             renderSystems.get(i).process();
+            if (profiler != null) profiler.end(renderOffset + i);
         }
 
         updateEntitySateSync();
+
+        if (profiler != null) profiler.endFrame();
     }
 
     public void updateEntitySateSync() {
+        if (profiler != null) profiler.beginSync();
         synchronized (updateEntities) {
             updateEntityStates();
         }
+        if (profiler != null) profiler.endSync();
     }
 
     @Override

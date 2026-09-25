@@ -32,7 +32,8 @@ public class SpriteAnimationStateComponent  extends PooledComponent {
     }
 
     public void setAllRegions(Array<TextureAtlas.AtlasRegion> allRegions) {
-        this.allRegions = sortAndGetRegions(allRegions);
+        //a resource that failed to load leaves nothing to sort, and nothing to play
+        this.allRegions = allRegions == null ? null : sortAndGetRegions(allRegions);
     }
 
 	public Animation<TextureRegion> get() {
@@ -44,6 +45,11 @@ public class SpriteAnimationStateComponent  extends PooledComponent {
     }
 
     public void set(FrameRange range, int fps, Animation.PlayMode playMode) {
+        if (range == null || allRegions == null || allRegions.size == 0) {
+            currentAnimation = null;
+            return;
+        }
+
         if (Objects.equals(range, lastFrameRange) && fps == lastFPS && Objects.equals(playMode, lastPlayMode) && currentAnimation != null)
             return;
 

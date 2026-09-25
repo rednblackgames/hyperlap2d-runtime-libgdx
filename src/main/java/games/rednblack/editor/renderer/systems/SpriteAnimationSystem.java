@@ -16,8 +16,11 @@ public class SpriteAnimationSystem extends IteratingSystem {
 
     @Override
     protected void process(int entityId) {
-        TextureRegionComponent tex = tm.get(entityId);
         SpriteAnimationStateComponent state = sm.get(entityId);
+        //frames that never loaded leave nothing to advance: the item keeps whatever region it has
+        if (state.currentAnimation == null) return;
+
+        TextureRegionComponent tex = tm.get(entityId);
         state.currentAnimation.setFrameDuration(1f / sa.get(entityId).fps);
         tex.region = state.currentAnimation.getKeyFrame(state.time);
 

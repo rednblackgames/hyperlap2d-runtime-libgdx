@@ -4,6 +4,7 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.annotations.All;
 import games.rednblack.editor.renderer.ecs.systems.IteratingSystem;
 import com.badlogic.gdx.utils.SnapshotArray;
+import com.badlogic.gdx.utils.Sort;
 import games.rednblack.editor.renderer.components.*;
 
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.Comparator;
 public class LayerSystem extends IteratingSystem {
 
     private final Comparator<Integer> comparator = new ZComparator();
+    private final Sort sorter = new Sort();
 
     protected ComponentMapper<ZIndexComponent> zIndexMapper;
     protected ComponentMapper<LayerMapComponent> layerMapper;
@@ -74,7 +76,9 @@ public class LayerSystem extends IteratingSystem {
     }
 
     private void sort(SnapshotArray<Integer> children) {
-        children.sort(comparator);
+        //its own sorter: Array.sort goes through a static one shared with whatever else is sorting,
+        //including work handed to background threads, and that instance is not safe to share
+        sorter.sort(children.items, comparator, 0, children.size);
     }
 
     private int getLayerIndexByName(int layerNameHashCode, LayerMapComponent layerMapComponent) {
