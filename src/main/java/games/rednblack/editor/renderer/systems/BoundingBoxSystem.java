@@ -18,6 +18,7 @@ public class BoundingBoxSystem extends IteratingSystem {
     protected ComponentMapper<MainItemComponent> mainItemMapper;
     protected ComponentMapper<TransformComponent> transformMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsMapper;
+    protected ComponentMapper<ViewPortComponent> viewPortMapper;
 
     @Override
     protected void process(int entity) {
@@ -49,7 +50,10 @@ public class BoundingBoxSystem extends IteratingSystem {
             t.y += rectangle.y;
         }
 
-        int checksum = calcCheckSum(entity, parentNode, t, d);
+        // Boxes are in the coordinates the viewport draws in: it draws what it holds from its own
+        // origin, without its own transform, so that transform is left out here too.
+        int viewPort = viewPortOf(parentNode);
+        int checksum = calcCheckSum(entity, parentNode, t, d, viewPort);
         if (checksum != b.checksum) {
             // parentLocalAABB is filled earlier by ParentLocalAABBSystem; these scene-space
             // corners need the position the layout has just decided.
@@ -58,7 +62,7 @@ public class BoundingBoxSystem extends IteratingSystem {
             b.points[2].set(d.width, d.height);
             b.points[3].set(0, d.height);
 
-            TransformMathUtils.localToSceneCoordinates(entity, b.points, transformMapper, parentNodeMapper);
+            TransformMathUtils.localToAscendantCoordinates(viewPort, entity, b.points, transformMapper, parentNodeMapper);
 
             b.checksum = checksum;
 
@@ -78,7 +82,16 @@ public class BoundingBoxSystem extends IteratingSystem {
         }
     }
 
-    private int calcCheckSum(int entity, ParentNodeComponent parentNode, TransformComponent t, DimensionsComponent d) {
+    /** The nearest ancestor holding the viewport, -1 when there is none. */
+    private int viewPortOf(ParentNodeComponent parentNode) {
+        while (parentNode != null && parentNode.parentEntity != -1) {
+            if (viewPortMapper.has(parentNode.parentEntity)) return parentNode.parentEntity;
+            parentNode = parentNodeMapper.get(parentNode.parentEntity);
+        }
+        return -1;
+    }
+
+    private int calcCheckSum(int entity, ParentNodeComponent parentNode, TransformComponent t, DimensionsComponent d, int viewPort) {
         PhysicsBodyComponent p = physicsMapper.get(entity);
 
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
@@ -93,9 +106,10 @@ public class BoundingBoxSystem extends IteratingSystem {
                 + Float.floatToRawIntBits(t.originY) * 19
                 + Float.floatToRawIntBits(d.width) * 23
                 + Float.floatToRawIntBits(d.height) * 29
-                + (p != null && p.fineBoundBox ? 31 : 0);
+                + (p != null && p.fineBoundBox ? 31 : 0)
+                + viewPort * 79;
 
-        while (parentNode != null && parentNode.parentEntity != -1) {
+        while (parentNode != null && parentNode.parentEntity != -1 && parentNode.parentEntity != viewPort) {
             TransformComponent pt = transformMapper.get(parentNode.parentEntity);
             DimensionsComponent dt = dimensionsMapper.get(parentNode.parentEntity);
             if (pt == null || dt == null)
