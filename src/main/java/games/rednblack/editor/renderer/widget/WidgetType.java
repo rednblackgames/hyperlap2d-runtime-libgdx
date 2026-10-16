@@ -78,6 +78,9 @@ public class WidgetType {
          */
         public boolean matchWidth, matchHeight;
         public float marginX, marginY;
+        /** Whether it is held to the top, or the right, edge of what holds it, at the given distance. */
+        public boolean pinTop, pinRight;
+        public float marginTop, marginRight;
 
         public DefaultPart(String role, String region, float width, float height, Color tint, int zIndex) {
             this(role, Kind.IMAGE, width, height);
@@ -149,6 +152,20 @@ public class WidgetType {
             return this;
         }
 
+        /** Keeps it at the given distance from the top edge of what holds it, whatever that edge does. */
+        public DefaultPart pinTop(float margin) {
+            pinTop = true;
+            marginTop = margin;
+            return this;
+        }
+
+        /** Keeps it at the given distance from the right edge of what holds it. */
+        public DefaultPart pinRight(float margin) {
+            pinRight = true;
+            marginRight = margin;
+            return this;
+        }
+
         public DefaultPart override(String state, String key, String value) {
             ObjectMap<String, String> values = overrides.get(state);
             if (values == null) {
@@ -210,6 +227,11 @@ public class WidgetType {
      * they stay as they are. A scroll pane puts them in its content, which is what slides.
      */
     public String wrapRole = null;
+    /**
+     * Role the item plays when it alone is made into the widget, null for none: the image a window
+     * is made from is its background. It is stretched to the widget's size with constraints.
+     */
+    public String convertedItemRole = null;
 
     /**
      * @param states the first one is the default state
@@ -258,6 +280,12 @@ public class WidgetType {
     /** A part the editor makes for you when the widget is made. See {@link DefaultPart}. */
     public WidgetType defaultPart(DefaultPart part) {
         defaultParts.add(part);
+        return this;
+    }
+
+    /** The one item the widget is made from plays this role. See {@link #convertedItemRole}. */
+    public WidgetType convertedItemPlays(String role) {
+        convertedItemRole = role;
         return this;
     }
 

@@ -8,6 +8,7 @@ import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
 import games.rednblack.editor.renderer.components.widget.SelectBoxComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
+import games.rednblack.editor.renderer.components.widget.WindowComponent;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
 
 /**
@@ -38,6 +39,11 @@ public final class WidgetTypes {
     public static final String STATE_CHECKED_DISABLED = "checkedDisabled";
     /** A select box with its list showing. */
     public static final String STATE_OPEN = "open";
+    /**
+     * A window that is closed, or closing: its look is what the window goes to when it closes and
+     * comes back from when it opens, transitions included, so a backdrop can fade in and out.
+     */
+    public static final String STATE_CLOSED = "closed";
 
     public static final String BUTTON = "button";
     public static final String CHECKBOX = "checkBox";
@@ -47,6 +53,7 @@ public final class WidgetTypes {
     public static final String TEXT_AREA = "textArea";
     public static final String SCROLL_PANE = "scrollPane";
     public static final String SELECT_BOX = "selectBox";
+    public static final String WINDOW = "window";
 
     public static final String ROLE_BACKGROUND = "background";
     public static final String ROLE_FILL = "fill";
@@ -74,6 +81,14 @@ public final class WidgetTypes {
     public static final String ROLE_LIST = "list";
     /** One row of a select box, drawn once and copied for every item. */
     public static final String ROLE_ROW = "row";
+    /** Where a window is dragged from. */
+    public static final String ROLE_TITLE_BAR = "titleBar";
+    /** The label a window writes its title into. */
+    public static final String ROLE_TITLE = "title";
+    /** What closes a window when clicked; a button keeps its own looks. */
+    public static final String ROLE_CLOSE = "close";
+    /** Stretched over the whole visible viewport, behind the window, while it is open. */
+    public static final String ROLE_BACKDROP = "backdrop";
 
     public static final String PROPERTY_MIN = "min";
     public static final String PROPERTY_MAX = "max";
@@ -135,6 +150,16 @@ public final class WidgetTypes {
     /** How many rows the list shows before it has to scroll, 0 for all of them. */
     public static final String PROPERTY_MAX_LIST_COUNT = "maxListCount";
 
+    public static final String PROPERTY_TITLE = "title";
+    /** A modal window keeps the pointer, the wheel, the hover and the keys from everything behind it. */
+    public static final String PROPERTY_MODAL = "modal";
+    public static final String PROPERTY_MOVABLE = "movable";
+    public static final String PROPERTY_KEEP_WITHIN_VIEWPORT = "keepWithinViewport";
+    public static final String PROPERTY_CLOSE_ON_ESCAPE = "closeOnEscape";
+    public static final String PROPERTY_CLOSE_ON_BACKDROP_TAP = "closeOnBackdropTap";
+    /** Whether the window starts open. */
+    public static final String PROPERTY_OPEN = "open";
+
     /**
      * Driven key of a part whose words belong to the widget: the label of a text field reads what
      * is being typed, so the editor offers no text of its own for it.
@@ -156,6 +181,12 @@ public final class WidgetTypes {
     private static final Color DEFAULT_ROW = new Color(0.2f, 0.2f, 0.2f, 1f);
     private static final Color DEFAULT_ROW_HOVER = new Color(0.3f, 0.3f, 0.3f, 1f);
     private static final Color DEFAULT_ROW_CHECKED = new Color(0.105f, 0.631f, 0.886f, 1f);
+
+    private static final float DEFAULT_TITLE_HEIGHT = 30;
+    private static final Color DEFAULT_BACKDROP = new Color(0f, 0f, 0f, 0.5f);
+    private static final Color DEFAULT_CLOSE = new Color(1f, 1f, 1f, 0f);
+    private static final Color DEFAULT_CLOSE_HOVER = new Color(1f, 1f, 1f, 0.15f);
+    private static final Color DEFAULT_CLOSE_PRESSED = new Color(1f, 1f, 1f, 0.3f);
 
     static {
         register(new WidgetType(BUTTON, STATE_NORMAL, STATE_HOVER, STATE_PRESSED, STATE_CHECKED, STATE_DISABLED)
@@ -329,6 +360,30 @@ public final class WidgetTypes {
                         DEFAULT_ROW_HEIGHT).at(0, -2 * DEFAULT_ROW_HEIGHT - DEFAULT_ROW_PADDING).matchWidth(0))
                 .defaultPart(defaultRow())
                 .behaviour(SelectBoxComponent.class));
+
+        // A panel the title bar drags around, that comes to the front when pressed and closes from
+        // its close part. A modal one is opened over everything and keeps all input to itself; the
+        // backdrop, when there is one, covers the viewport behind it either way.
+        register(new WidgetType(WINDOW, STATE_NORMAL, STATE_DRAGGED, STATE_CLOSED)
+                .part(ROLE_BACKGROUND, false)
+                .part(ROLE_TITLE_BAR, false)
+                .part(ROLE_TITLE, false, DRIVEN_TEXT)
+                .part(ROLE_CLOSE, false)
+                .part(ROLE_CONTENT, false)
+                .part(ROLE_BACKDROP, false, CoreStateOverrides.X, CoreStateOverrides.Y, CoreStateOverrides.VISIBLE)
+                .property(PROPERTY_TITLE, WidgetType.PropertyKind.STRING, "Window")
+                .property(PROPERTY_OPEN, WidgetType.PropertyKind.BOOLEAN, "true")
+                .property(PROPERTY_MODAL, WidgetType.PropertyKind.BOOLEAN, "false")
+                .property(PROPERTY_MOVABLE, WidgetType.PropertyKind.BOOLEAN, "true")
+                .property(PROPERTY_KEEP_WITHIN_VIEWPORT, WidgetType.PropertyKind.BOOLEAN, "true")
+                .property(PROPERTY_CLOSE_ON_ESCAPE, WidgetType.PropertyKind.BOOLEAN, "false")
+                .property(PROPERTY_CLOSE_ON_BACKDROP_TAP, WidgetType.PropertyKind.BOOLEAN, "false")
+                .convertedItemPlays(ROLE_BACKGROUND)
+                .defaultPart(WidgetType.DefaultPart.image(ROLE_BACKDROP, REGION_WHITE_PIXEL,
+                        WidgetType.DefaultPart.WIDGET_SIZE, WidgetType.DefaultPart.WIDGET_SIZE)
+                        .tint(DEFAULT_BACKDROP).zIndex(0))
+                .defaultPart(defaultTitleBar())
+                .behaviour(WindowComponent.class));
     }
 
     public static void register(WidgetType type) {
@@ -372,6 +427,42 @@ public final class WidgetTypes {
                 .child(WidgetType.DefaultPart.label(null, "Item", WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_ROW_HEIGHT)
                         .at(DEFAULT_ROW_PADDING, 0)
                         .matchWidth(DEFAULT_ROW_PADDING).matchHeight(0)
+                        .zIndex(1));
+    }
+
+    /**
+     * The title bar a new window is given: a composite along its top edge, holding the title and the
+     * close button, drawn by nothing of its own so the window's image shows through. Both keep to the
+     * title bar with their constraints, and it keeps to the window.
+     */
+    private static WidgetType.DefaultPart defaultTitleBar() {
+        return WidgetType.DefaultPart.composite(ROLE_TITLE_BAR, WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_TITLE_HEIGHT)
+                .matchWidth(0).pinTop(0)
+                //in front of the image the window was made from, wherever that sits
+                .zIndex(1000)
+                .child(WidgetType.DefaultPart.label(ROLE_TITLE, "Window",
+                        WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_TITLE_HEIGHT)
+                        .at(DEFAULT_ROW_PADDING, 0).matchWidth(DEFAULT_ROW_PADDING).matchHeight(0))
+                .child(defaultCloseButton());
+    }
+
+    /**
+     * The close part a new window is given: a square button in the top right corner of the title bar,
+     * an X on a band that only shows under the pointer and when pressed.
+     */
+    private static WidgetType.DefaultPart defaultCloseButton() {
+        return WidgetType.DefaultPart.composite(ROLE_CLOSE, DEFAULT_TITLE_HEIGHT, DEFAULT_TITLE_HEIGHT)
+                .pinTop(0).pinRight(0)
+                .zIndex(1)
+                .widget(BUTTON)
+                .child(WidgetType.DefaultPart.image(null, REGION_WHITE_PIXEL, DEFAULT_TITLE_HEIGHT, DEFAULT_TITLE_HEIGHT)
+                        .matchWidth(0).matchHeight(0)
+                        .tint(DEFAULT_CLOSE)
+                        .override(STATE_HOVER, CoreStateOverrides.TINT, DEFAULT_CLOSE_HOVER.toString())
+                        .override(STATE_PRESSED, CoreStateOverrides.TINT, DEFAULT_CLOSE_PRESSED.toString()))
+                .child(WidgetType.DefaultPart.label(null, "X", DEFAULT_TITLE_HEIGHT - DEFAULT_ROW_PADDING * 2, DEFAULT_TITLE_HEIGHT)
+                        .at(DEFAULT_ROW_PADDING + 2, 0)
+                        .matchHeight(0)
                         .zIndex(1));
     }
 }
