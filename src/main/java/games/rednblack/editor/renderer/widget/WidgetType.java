@@ -17,9 +17,10 @@ public class WidgetType {
 
     /**
      * INTERPOLATION is the name of a libGDX interpolation function, offered as a list by the
-     * editor; CHOICE is one of the values the property was declared with, offered the same way.
+     * editor; CHOICE is one of the values the property was declared with, offered the same way;
+     * LIST is several values, one per line, such as the items of a select box.
      */
-    public enum PropertyKind {BOOLEAN, INT, FLOAT, STRING, INTERPOLATION, CHOICE}
+    public enum PropertyKind {BOOLEAN, INT, FLOAT, STRING, INTERPOLATION, CHOICE, LIST}
 
     public static class Part {
         public final String role;
@@ -38,27 +39,133 @@ public class WidgetType {
     }
 
     /**
-     * A part the editor draws for you when the widget is made, out of an image every project has:
-     * a caret and a selection band are shapes nobody wants to draw by hand. It becomes an ordinary
-     * item, so it can be restyled, retinted, replaced with real art or deleted.
+     * A part the editor makes for you when the widget is made, so a new widget works at once: a caret
+     * and a selection band are shapes nobody wants to draw by hand, and a select box needs a list and
+     * a row before it can show anything. It becomes an ordinary item, so it can be restyled, retinted,
+     * replaced with real art or deleted.
+     *
+     * An image is cut from a region every project has; a composite may hold further default items and
+     * be made a widget of its own, with the looks of its states already set on what it holds.
      */
     public static class DefaultPart {
+        public enum Kind {IMAGE, COMPOSITE, LABEL}
+
+        /** A width or height that is the widget's own, whatever size it was made at. */
+        public static final float WIDGET_SIZE = -1;
+
+        /** Role it plays in the widget, null for an item inside a default part that plays none. */
         public final String role;
-        /** Region in the project's atlas, `white-pixel` being the one every project is given. */
-        public final String region;
+        public final Kind kind;
+        /** Region in the project's atlas for an image, `white-pixel` being the one every project is given. */
+        public String region;
+        /** What a label says. */
+        public String text = "";
+        public float x, y;
         public final float width, height;
         /** Colour to give it, null to leave it as it was drawn. */
-        public final Color tint;
+        public Color tint;
         /** Where it sits among its siblings: a selection band goes behind the text, a caret over it. */
-        public final int zIndex;
+        public int zIndex;
+        /** Widget type a composite is made, null for a plain one. */
+        public String widgetType;
+        /** What a composite holds. */
+        public final Array<DefaultPart> children = new Array<>(true, 0, DefaultPart[]::new);
+        /** state -> (property key -> value): how it looks in the states of the widget it is in. */
+        public final ObjectMap<String, ObjectMap<String, String>> overrides = new ObjectMap<>(0);
+        /**
+         * Whether it is constrained to the width, or the height, of what holds it, so it follows
+         * when that is resized; the margin is left free on both sides.
+         */
+        public boolean matchWidth, matchHeight;
+        public float marginX, marginY;
 
         public DefaultPart(String role, String region, float width, float height, Color tint, int zIndex) {
-            this.role = role;
+            this(role, Kind.IMAGE, width, height);
             this.region = region;
-            this.width = width;
-            this.height = height;
             this.tint = tint;
             this.zIndex = zIndex;
+        }
+
+        public DefaultPart(String role, Kind kind, float width, float height) {
+            this.role = role;
+            this.kind = kind;
+            this.width = width;
+            this.height = height;
+        }
+
+        public static DefaultPart image(String role, String region, float width, float height) {
+            DefaultPart part = new DefaultPart(role, Kind.IMAGE, width, height);
+            part.region = region;
+            return part;
+        }
+
+        public static DefaultPart composite(String role, float width, float height) {
+            return new DefaultPart(role, Kind.COMPOSITE, width, height);
+        }
+
+        public static DefaultPart label(String role, String text, float width, float height) {
+            DefaultPart part = new DefaultPart(role, Kind.LABEL, width, height);
+            part.text = text;
+            return part;
+        }
+
+        public DefaultPart at(float x, float y) {
+            this.x = x;
+            this.y = y;
+            return this;
+        }
+
+        public DefaultPart tint(Color tint) {
+            this.tint = tint;
+            return this;
+        }
+
+        public DefaultPart zIndex(int zIndex) {
+            this.zIndex = zIndex;
+            return this;
+        }
+
+        public DefaultPart widget(String widgetType) {
+            this.widgetType = widgetType;
+            return this;
+        }
+
+        public DefaultPart child(DefaultPart child) {
+            children.add(child);
+            return this;
+        }
+
+        /** Stretches it between the left and right edges of what holds it, the margin in from each. */
+        public DefaultPart matchWidth(float margin) {
+            matchWidth = true;
+            marginX = margin;
+            return this;
+        }
+
+        /** Stretches it between the bottom and top edges of what holds it, the margin in from each. */
+        public DefaultPart matchHeight(float margin) {
+            matchHeight = true;
+            marginY = margin;
+            return this;
+        }
+
+        public DefaultPart override(String state, String key, String value) {
+            ObjectMap<String, String> values = overrides.get(state);
+            if (values == null) {
+                values = new ObjectMap<>(1);
+                overrides.put(state, values);
+            }
+            values.put(key, value);
+            return this;
+        }
+
+        /** @return the size asked for, or the widget's own when {@link #WIDGET_SIZE} was */
+        public float width(float widgetWidth) {
+            return width == WIDGET_SIZE ? widgetWidth : width;
+        }
+
+        public float height(float widgetHeight) {
+            return height == WIDGET_SIZE ? widgetHeight : height;
         }
     }
 
@@ -145,6 +252,12 @@ public class WidgetType {
     /** A part the editor draws for you when the widget is made. See {@link DefaultPart}. */
     public WidgetType defaultPart(String role, String region, float width, float height, Color tint, int zIndex) {
         defaultParts.add(new DefaultPart(role, region, width, height, tint, zIndex));
+        return this;
+    }
+
+    /** A part the editor makes for you when the widget is made. See {@link DefaultPart}. */
+    public WidgetType defaultPart(DefaultPart part) {
+        defaultParts.add(part);
         return this;
     }
 

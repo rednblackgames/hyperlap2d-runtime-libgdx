@@ -22,7 +22,10 @@ public class UIEvent implements Pool.Poolable {
     public int target = -1;
     /** Entity whose listener is being called, somewhere between the target and the root. */
     public int listenerEntity = -1;
-    /** enter and exit only: the entity the pointer came from, or is going to. */
+    /**
+     * enter and exit: the entity the pointer came from, or is going to. A press an overlay missed:
+     * what the press landed on instead, -1 for nothing.
+     */
     public int relatedEntity = -1;
 
     public int pointer = -1;

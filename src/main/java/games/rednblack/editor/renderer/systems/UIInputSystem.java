@@ -18,10 +18,12 @@ import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.ViewPortComponent;
 import games.rednblack.editor.renderer.components.ZIndexComponent;
 import games.rednblack.editor.renderer.components.additional.InputTargetComponent;
+import games.rednblack.editor.renderer.components.additional.OverlayComponent;
 import games.rednblack.editor.renderer.ecs.BaseEntitySystem;
 import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.annotations.All;
 import games.rednblack.editor.renderer.ecs.utils.IntBag;
+import games.rednblack.editor.renderer.input.OverlayListener;
 import games.rednblack.editor.renderer.input.Touchable;
 import games.rednblack.editor.renderer.input.UIEvent;
 import games.rednblack.editor.renderer.input.UIInputListener;
@@ -40,6 +42,10 @@ import games.rednblack.editor.renderer.utils.TransformMathUtils;
  * Events are handled as they arrive, the way scene2d does it, so that a touch down can say straight
  * away whether the UI took it. What the system does every frame is keep the hover right, since an
  * entity may well move under a pointer that never moved.
+ *
+ * Overlays - a drop down list, a window - are opened with {@link #openOverlay}: they are found before
+ * anything else, whatever clips the composites they sit in, the last one opened first. A modal one
+ * keeps the pointer, the wheel, the hover and the keys from everything behind it.
  */
 @All(ViewPortComponent.class)
 public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
@@ -57,6 +63,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     protected ComponentMapper<LayerMapComponent> layerMapMapper;
     protected ComponentMapper<InputTargetComponent> inputTargetMapper;
     protected ComponentMapper<CompositeTransformComponent> compositeMapper;
+    protected ComponentMapper<OverlayComponent> overlayMapper;
 
     /** A pointer whose touch down was taken by a listener: it is that listener's until released. */
     private static class TouchFocus implements Pool.Poolable {
@@ -122,6 +129,14 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     /** The focusables of the scene, gathered afresh every time tab is pressed. */
     private final IntArray focusStops = new IntArray(8);
 
+    /** The overlays open, in the order they were opened: the last one is in front. */
+    private final IntArray overlays = new IntArray(4);
+    private int overlayOrder = 0;
+    /** Set by {@link #hit}: the point missed the modal overlay in front, so it reaches nothing. */
+    private boolean blocked = false;
+    /** The overlays a press missed, copied out since their listeners may well close them. */
+    private final IntArray missed = new IntArray(4);
+
     @Override
     protected void processSystem() {
         updateHover();
@@ -135,11 +150,14 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         pointerAt(screenX, screenY);
 
         int target = hit(screenX, screenY);
-        if (focusOnTouch) updateKeyboardFocus(target);
+        //a press behind a modal is not a press at all: it moves no focus either
+        boolean swallowed = blocked;
+        tellMissedOverlays(target, screenX, screenY, pointer, button);
+        if (focusOnTouch && !swallowed) updateKeyboardFocus(target);
         //a pointer on its way somewhere is not hovering anything
         updateHover();
 
-        if (target == -1) return false;
+        if (target == -1) return swallowed;
 
         UIEvent event = obtain(UIEvent.Type.touchDown, screenX, screenY, target);
         event.pointer = pointer;
@@ -180,7 +198,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
 
         updateHover();
 
-        if (hovered == -1) return false;
+        if (hovered == -1) return behindModal(screenX, screenY);
 
         UIEvent event = obtain(UIEvent.Type.mouseMoved, screenX, screenY, hovered);
         boolean handled = dispatch(event, hovered, false);
@@ -193,7 +211,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         if (!mouseKnown) return false;
 
         int target = hit(mouseScreenX, mouseScreenY);
-        if (target == -1) return false;
+        if (target == -1) return blocked;
 
         UIEvent event = obtain(UIEvent.Type.scrolled, mouseScreenX, mouseScreenY, target);
         event.amountX = amountX;
@@ -224,6 +242,9 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
 
     private boolean toFocusedKey(UIEvent.Type type, int keycode, char character) {
         if (keyboardFocus == -1) return false;
+        //a field left focused behind a modal keeps the focus, but hears nothing until it closes
+        int modal = topModal();
+        if (modal != -1 && !isInside(keyboardFocus, modal)) return false;
 
         UIEvent event = obtain(type, mouseScreenX, mouseScreenY, keyboardFocus);
         event.keyCode = keycode;
@@ -282,6 +303,24 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
      * @return the entity under the given screen point, -1 if none takes input there
      */
     public int hit(float screenX, float screenY) {
+        blocked = false;
+        for (int i = overlays.size - 1; i >= 0; i--) {
+            int overlay = overlays.get(i);
+            if (!overlayMapper.has(overlay)) {
+                //deleted while open
+                overlays.removeIndex(i);
+                continue;
+            }
+            if (!reachable(overlay)) continue;
+
+            int hit = hitOverlay(overlay, screenX, screenY);
+            if (hit != -1) return hit;
+            if (overlayMapper.get(overlay).modal) {
+                blocked = true;
+                return -1;
+            }
+        }
+
         IntBag roots = subscription.getEntities();
         int[] ids = roots.getData();
         for (int i = roots.size() - 1; i >= 0; i--) {
@@ -305,6 +344,49 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         return hits(root, coords.x, coords.y) ? root : -1;
     }
 
+    /** Hit tests an overlay on its own, from the screen down, whatever clips the composites above it. */
+    private int hitOverlay(int overlay, float screenX, float screenY) {
+        if (!transformMapper.has(overlay)) return -1;
+
+        Vector2 local = coordinatesAt(0).set(screenX, screenY);
+        TransformMathUtils.globalToLocalCoordinates(overlay, local, transformMapper, parentMapper, viewPortMapper);
+        float localX = local.x, localY = local.y;
+
+        if (clipsAway(overlay, localX, localY)) return -1;
+
+        int inside = hitChildren(overlay, localX, localY, 1);
+        if (inside != -1) return inside;
+
+        return hits(overlay, localX, localY) ? overlay : -1;
+    }
+
+    /**
+     * Whether input could reach the entity by walking the tree: it and everything it sits in are
+     * visible, on a shown layer and not switched off. An overlay in a hidden branch is not drawn,
+     * so it takes nothing either.
+     */
+    private boolean reachable(int entity) {
+        for (int depth = 0; entity != -1 && depth < MAX_DEPTH; depth++) {
+            if (viewPortMapper.has(entity)) return true;
+
+            MainItemComponent mainItem = mainItemMapper.get(entity);
+            if (mainItem != null && (!mainItem.visible || mainItem.culled)) return false;
+
+            InputTargetComponent target = inputTargetMapper.get(entity);
+            if (target != null && target.touchable == Touchable.DISABLED) return false;
+
+            ParentNodeComponent parent = parentMapper.get(entity);
+            int parentEntity = parent == null ? -1 : parent.parentEntity;
+            if (parentEntity != -1) {
+                LayerMapComponent layers = layerMapMapper.get(parentEntity);
+                ZIndexComponent zIndex = zIndexMapper.get(entity);
+                if (layers != null && zIndex != null && !layers.isVisible(zIndex.layerHash)) return false;
+            }
+            entity = parentEntity;
+        }
+        return true;
+    }
+
     private int hitChildren(int parent, float x, float y, int depth) {
         if (depth > MAX_DEPTH) return -1;
 
@@ -324,6 +406,9 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
 
             InputTargetComponent target = inputTargetMapper.get(child);
             if (target != null && target.touchable == Touchable.DISABLED) continue;
+
+            //an open overlay was tested before the tree, in front of everything
+            if (overlayMapper.has(child)) continue;
 
             if (!transformMapper.has(child)) continue;
             Vector2 local = coordinatesAt(depth).set(x, y);
@@ -553,6 +638,95 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         mouseScreenY = screenY;
     }
 
+    // ---------------------------------------------------------------- overlays
+
+    /**
+     * Opens an entity over the rest of the scene: it is drawn after everything else, outside the
+     * clipping of the composites it sits in, and input finds it first. Opening one that is already
+     * open brings it to the front with the new settings.
+     *
+     * @param modal    true to keep the pointer, the wheel, the hover and the keys from everything behind it
+     * @param listener told of a press landing outside it, null for none
+     */
+    public OverlayComponent openOverlay(int entity, boolean modal, OverlayListener listener) {
+        OverlayComponent overlay = overlayMapper.create(entity);
+        overlay.modal = modal;
+        overlay.listener = listener;
+        overlay.order = ++overlayOrder;
+
+        overlays.removeValue(entity);
+        overlays.add(entity);
+        return overlay;
+    }
+
+    /** Puts an overlay back in its place in the scene. Nothing happens if it was not open. */
+    public void closeOverlay(int entity) {
+        overlays.removeValue(entity);
+        if (overlayMapper.has(entity)) overlayMapper.remove(entity);
+    }
+
+    public boolean isOverlayOpen(int entity) {
+        return overlays.contains(entity) && overlayMapper.has(entity);
+    }
+
+    /** @return the modal overlay in front, -1 when none is open */
+    public int topModal() {
+        for (int i = overlays.size - 1; i >= 0; i--) {
+            int overlay = overlays.get(i);
+            OverlayComponent component = overlayMapper.get(overlay);
+            if (component != null && component.modal && reachable(overlay)) return overlay;
+        }
+        return -1;
+    }
+
+    /**
+     * Tells every overlay a press missed, the one in front first. The press is not stopped: it goes
+     * on to what it landed on, if anything.
+     */
+    private void tellMissedOverlays(int target, float screenX, float screenY, int pointer, int button) {
+        missed.clear();
+        for (int i = overlays.size - 1; i >= 0; i--) {
+            int overlay = overlays.get(i);
+            OverlayComponent component = overlayMapper.get(overlay);
+            if (component == null || component.listener == null) continue;
+            if (target != -1 && isInside(target, overlay)) continue;
+            missed.add(overlay);
+        }
+
+        for (int i = 0; i < missed.size; i++) {
+            int overlay = missed.get(i);
+            OverlayComponent component = overlayMapper.get(overlay);
+            //an earlier listener may have closed it
+            if (component == null || component.listener == null || !overlays.contains(overlay)) continue;
+
+            UIEvent event = obtain(UIEvent.Type.touchDown, screenX, screenY, overlay);
+            event.pointer = pointer;
+            event.button = button;
+            event.listenerEntity = overlay;
+            //what the press landed on instead, -1 for nothing
+            event.relatedEntity = target;
+            toLocal(overlay, event);
+            component.listener.touchedOutside(overlay, event);
+            eventPool.free(event);
+        }
+    }
+
+    /** Whether the pointer would reach nothing but a modal's backdrop there. */
+    private boolean behindModal(float screenX, float screenY) {
+        if (topModal() == -1) return false;
+        return hit(screenX, screenY) == -1 && blocked;
+    }
+
+    /** Whether the entity is the ancestor or sits somewhere inside it. */
+    private boolean isInside(int entity, int ancestor) {
+        for (int depth = 0; entity != -1 && depth < MAX_DEPTH; depth++) {
+            if (entity == ancestor) return true;
+            ParentNodeComponent parent = parentMapper.get(entity);
+            entity = parent == null ? -1 : parent.parentEntity;
+        }
+        return false;
+    }
+
     // ------------------------------------------------------------------- focus
 
     /**
@@ -590,7 +764,11 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
      */
     public boolean moveFocus(int direction) {
         focusStops.clear();
-        if (keyboardFocus == -1) {
+        int modal = topModal();
+        if (modal != -1) {
+            //the keyboard goes round the modal and never leaves it
+            collectStops(modal, 0);
+        } else if (keyboardFocus == -1) {
             IntBag roots = subscription.getEntities();
             int[] ids = roots.getData();
             for (int i = 0, n = roots.size(); i < n; i++) collectStops(ids[i], 0);

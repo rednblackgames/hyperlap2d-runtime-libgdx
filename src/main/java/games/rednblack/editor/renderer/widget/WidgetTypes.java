@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.OrderedMap;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
 import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
+import games.rednblack.editor.renderer.components.widget.SelectBoxComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
@@ -35,6 +36,8 @@ public final class WidgetTypes {
     public static final String STATE_CHECKED_HOVER = "checkedHover";
     public static final String STATE_CHECKED_PRESSED = "checkedPressed";
     public static final String STATE_CHECKED_DISABLED = "checkedDisabled";
+    /** A select box with its list showing. */
+    public static final String STATE_OPEN = "open";
 
     public static final String BUTTON = "button";
     public static final String CHECKBOX = "checkBox";
@@ -43,6 +46,7 @@ public final class WidgetTypes {
     public static final String TEXT_FIELD = "textField";
     public static final String TEXT_AREA = "textArea";
     public static final String SCROLL_PANE = "scrollPane";
+    public static final String SELECT_BOX = "selectBox";
 
     public static final String ROLE_BACKGROUND = "background";
     public static final String ROLE_FILL = "fill";
@@ -66,6 +70,10 @@ public final class WidgetTypes {
     public static final String ROLE_SELECTION_END = "selectionEnd";
     /** A second label, shown only while the field is empty. */
     public static final String ROLE_MESSAGE = "message";
+    /** What a select box opens: the rows go in it, or in its content when it is a scroll pane. */
+    public static final String ROLE_LIST = "list";
+    /** One row of a select box, drawn once and copied for every item. */
+    public static final String ROLE_ROW = "row";
 
     public static final String PROPERTY_MIN = "min";
     public static final String PROPERTY_MAX = "max";
@@ -120,6 +128,13 @@ public final class WidgetTypes {
     /** Whether a text area breaks a long line to its width, or lets it run on to the next newline. */
     public static final String PROPERTY_WRAP = "wrap";
 
+    /** The choices of a select box, one per line. */
+    public static final String PROPERTY_ITEMS = "items";
+    /** Index of the item a select box shows, -1 for none. */
+    public static final String PROPERTY_SELECTED = "selected";
+    /** How many rows the list shows before it has to scroll, 0 for all of them. */
+    public static final String PROPERTY_MAX_LIST_COUNT = "maxListCount";
+
     /**
      * Driven key of a part whose words belong to the widget: the label of a text field reads what
      * is being typed, so the editor offers no text of its own for it.
@@ -135,6 +150,12 @@ public final class WidgetTypes {
     public static final String PROPERTY_GROUP = "group";
 
     private static final OrderedMap<String, WidgetType> types = new OrderedMap<>();
+
+    private static final float DEFAULT_ROW_HEIGHT = 30;
+    private static final float DEFAULT_ROW_PADDING = 8;
+    private static final Color DEFAULT_ROW = new Color(0.2f, 0.2f, 0.2f, 1f);
+    private static final Color DEFAULT_ROW_HOVER = new Color(0.3f, 0.3f, 0.3f, 1f);
+    private static final Color DEFAULT_ROW_CHECKED = new Color(0.105f, 0.631f, 0.886f, 1f);
 
     static {
         register(new WidgetType(BUTTON, STATE_NORMAL, STATE_HOVER, STATE_PRESSED, STATE_CHECKED, STATE_DISABLED)
@@ -289,6 +310,25 @@ public final class WidgetTypes {
                         new Color(0.105f, 0.631f, 0.886f, 0.4f), 0)
                 .defaultPart(ROLE_CURSOR, REGION_WHITE_PIXEL, 2, 20, null, 1000)
                 .behaviour(TextFieldComponent.class));
+
+        // The box shows the chosen item; the list opens over everything else. The row is drawn
+        // once, stays hidden, and is copied for every item into the list - into its content when
+        // the list is a scroll pane, which is how a long list scrolls.
+        register(new WidgetType(SELECT_BOX, STATE_NORMAL, STATE_HOVER, STATE_OPEN, STATE_DISABLED)
+                .part(ROLE_TEXT, true, DRIVEN_TEXT)
+                .part(ROLE_BACKGROUND, false)
+                .part(ROLE_LIST, true, CoreStateOverrides.X, CoreStateOverrides.Y, CoreStateOverrides.VISIBLE)
+                .part(ROLE_ROW, true, CoreStateOverrides.VISIBLE)
+                .property(PROPERTY_ITEMS, WidgetType.PropertyKind.LIST, "")
+                .property(PROPERTY_SELECTED, WidgetType.PropertyKind.INT, "0")
+                .property(PROPERTY_MAX_LIST_COUNT, WidgetType.PropertyKind.INT, "0")
+                .defaultPart(WidgetType.DefaultPart.label(ROLE_TEXT, "", WidgetType.DefaultPart.WIDGET_SIZE,
+                        WidgetType.DefaultPart.WIDGET_SIZE).at(DEFAULT_ROW_PADDING, 0).zIndex(1)
+                        .matchWidth(DEFAULT_ROW_PADDING).matchHeight(0))
+                .defaultPart(WidgetType.DefaultPart.composite(ROLE_LIST, WidgetType.DefaultPart.WIDGET_SIZE,
+                        DEFAULT_ROW_HEIGHT).at(0, -2 * DEFAULT_ROW_HEIGHT - DEFAULT_ROW_PADDING).matchWidth(0))
+                .defaultPart(defaultRow())
+                .behaviour(SelectBoxComponent.class));
     }
 
     public static void register(WidgetType type) {
@@ -310,5 +350,28 @@ public final class WidgetTypes {
         synchronized (types) {
             return types.orderedKeys().toArray(String[]::new);
         }
+    }
+
+    /**
+     * The row a new select box is given: a button, so the list lights up the row under the pointer
+     * and the item it points at, with a band behind a label whose colour tells the two apart. It is
+     * constrained to the width of what holds it, so the template follows the box and its copies the
+     * list; the band and the label follow the row.
+     */
+    private static WidgetType.DefaultPart defaultRow() {
+        return WidgetType.DefaultPart.composite(ROLE_ROW, WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_ROW_HEIGHT)
+                .at(0, -DEFAULT_ROW_HEIGHT)
+                .matchWidth(0)
+                .widget(BUTTON)
+                .child(WidgetType.DefaultPart.image(null, REGION_WHITE_PIXEL, WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_ROW_HEIGHT)
+                        .matchWidth(0).matchHeight(0)
+                        .tint(DEFAULT_ROW)
+                        .override(STATE_HOVER, CoreStateOverrides.TINT, DEFAULT_ROW_HOVER.toString())
+                        .override(STATE_PRESSED, CoreStateOverrides.TINT, DEFAULT_ROW_CHECKED.toString())
+                        .override(STATE_CHECKED, CoreStateOverrides.TINT, DEFAULT_ROW_CHECKED.toString()))
+                .child(WidgetType.DefaultPart.label(null, "Item", WidgetType.DefaultPart.WIDGET_SIZE, DEFAULT_ROW_HEIGHT)
+                        .at(DEFAULT_ROW_PADDING, 0)
+                        .matchWidth(DEFAULT_ROW_PADDING).matchHeight(0)
+                        .zIndex(1));
     }
 }

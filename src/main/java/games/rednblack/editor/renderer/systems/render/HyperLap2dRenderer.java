@@ -13,12 +13,14 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.editor.renderer.lights.RayHandler;
 import games.rednblack.editor.renderer.commons.IExternalItemType;
 import games.rednblack.editor.renderer.components.*;
+import games.rednblack.editor.renderer.components.additional.OverlayComponent;
 import games.rednblack.editor.renderer.components.normal.NormalMapRendering;
 import games.rednblack.editor.renderer.data.MainItemVO;
 import games.rednblack.editor.renderer.data.ShaderUniformVO;
@@ -45,6 +47,11 @@ public class HyperLap2dRenderer extends IteratingSystem {
     protected ComponentMapper<ZIndexComponent> zIndexComponentMapper;
     protected ComponentMapper<TextureRegionComponent> textureRegionComponentMapper;
     protected ComponentMapper<ChainedEntitiesComponent> chainedEntitiesMapper;
+    protected ComponentMapper<OverlayComponent> overlayMapper;
+
+    /** Overlays met while drawing, drawn when the scene is done. */
+    protected final OverlayQueue overlayQueue = new OverlayQueue();
+    private final Matrix4 overlaySceneMatrix = new Matrix4();
 
     protected DrawableLogicMapper drawableLogicMapper;
     protected RayHandler rayHandler;
@@ -304,6 +311,49 @@ public class HyperLap2dRenderer extends IteratingSystem {
             if (transforms(transform, curCompositeTransformComponent))
                 resetTransform(transform, batch);
         }
+
+        //the scene is done: now what was opened over it
+        if (viewPortMapper.has(rootEntity)) drawOverlays(renderingType);
+    }
+
+    /**
+     * Draws the overlays met on the way, in front of the scene and outside every clip, each with the
+     * matrix, offset and alpha it would have had where it sits.
+     */
+    protected void drawOverlays(DrawableLogic.RenderingType renderingType) {
+        if (overlayQueue.isEmpty()) return;
+        overlaySceneMatrix.set(batch.getTransformMatrix());
+
+        Array<OverlayQueue.Entry> round;
+        while ((round = overlayQueue.next()).size > 0) {
+            for (int i = 0; i < round.size; i++) {
+                drawOverlay(round.get(i), renderingType);
+            }
+        }
+
+        batch.setTransformMatrix(overlaySceneMatrix);
+    }
+
+    private void drawOverlay(OverlayQueue.Entry entry, DrawableLogic.RenderingType renderingType) {
+        int overlay = entry.entity;
+        //deleted since it was met
+        if (!mainItemComponentMapper.has(overlay)) return;
+
+        batch.setTransformMatrix(entry.matrix);
+
+        TransformComponent transform = transformMapper.get(overlay);
+        float x = transform.x, y = transform.y;
+        transform.x = x + entry.offsetX;
+        transform.y = y + entry.offsetY;
+
+        if (nodeMapper.has(overlay)) {
+            drawRecursively(overlay, entry.parentAlpha, renderingType);
+        } else if (checkRenderingLayer(overlay)) {
+            drawEntity(batch, overlay, entry.parentAlpha, renderingType);
+        }
+
+        transform.x = x;
+        transform.y = y;
     }
 
     private void drawChildren(int rootEntity, Batch batch, CompositeTransformComponent curCompositeTransformComponent, float parentAlpha,
@@ -339,6 +389,15 @@ public class HyperLap2dRenderer extends IteratingSystem {
                 if (enableCull) {
                     continue;
                 }
+            }
+
+            //an open overlay is drawn after the scene, unless a frame buffer has coordinates of its own
+            OverlayComponent overlay = overlayMapper.get(child);
+            if (overlay != null && fboM4Stack.isEmpty()) {
+                boolean offsets = !transforms || curCompositeTransformComponent.renderToFBO;
+                overlayQueue.defer(child, overlay.order, batch.getTransformMatrix(),
+                        offsets ? offsetX : 0, offsets ? offsetY : 0, parentAlpha);
+                continue;
             }
 
             TransformComponent childTransformComponent = transformMapper.get(child);
