@@ -63,7 +63,9 @@ public class SceneConfiguration {
         addSystem(new LightSystem());
         addSystem(new CompositeSystem());
         addSystem(new ParentLocalAABBSystem());
+        addSystem(new AutoLayoutMeasureSystem());
         addSystem(new LayoutSystem());
+        addSystem(new AutoLayoutSystem());
         addSystem(new ProgressBarSystem());
         addSystem(new SliderSystem());
         addSystem(new SelectBoxSystem());

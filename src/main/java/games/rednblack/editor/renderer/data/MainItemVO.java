@@ -48,6 +48,8 @@ public abstract class MainItemVO {
 	public SensorDataVO sensor = null;
 	public Circle circle = null;
 	public LayoutConstraintVO layout = null;
+	public AutoLayoutVO autoLayout = null;
+	public AutoLayoutItemVO autoLayoutItem = null;
 	public WidgetVO widget = null;
 	public WidgetPartVO widgetPart = null;
 	
@@ -97,6 +99,14 @@ public abstract class MainItemVO {
 
 		if(vo.layout != null){
 			layout = new LayoutConstraintVO(vo.layout);
+		}
+
+		if (vo.autoLayout != null) {
+			autoLayout = new AutoLayoutVO(vo.autoLayout);
+		}
+
+		if (vo.autoLayoutItem != null) {
+			autoLayoutItem = new AutoLayoutItemVO(vo.autoLayoutItem);
 		}
 
 		if (vo.widget != null) {
@@ -202,6 +212,18 @@ public abstract class MainItemVO {
 		if(layoutComponent != null) {
 			layout = new LayoutConstraintVO();
 			layout.loadFromComponent(layoutComponent, engine);
+		}
+
+		AutoLayoutComponent autoLayoutComponent = ComponentRetriever.get(entity, AutoLayoutComponent.class, engine);
+		if (autoLayoutComponent != null) {
+			autoLayout = new AutoLayoutVO();
+			autoLayout.loadFromComponent(autoLayoutComponent);
+		}
+
+		AutoLayoutItemComponent autoLayoutItemComponent = ComponentRetriever.get(entity, AutoLayoutItemComponent.class, engine);
+		if (autoLayoutItemComponent != null && !autoLayoutItemComponent.isDefault()) {
+			autoLayoutItem = new AutoLayoutItemVO();
+			autoLayoutItem.loadFromComponent(autoLayoutItemComponent);
 		}
 
 		WidgetComponent widgetComponent = ComponentRetriever.get(entity, WidgetComponent.class, engine);

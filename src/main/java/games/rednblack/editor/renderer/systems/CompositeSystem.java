@@ -17,6 +17,7 @@ public class CompositeSystem extends IteratingSystem {
     protected ComponentMapper<NodeComponent> nodeMapper;
     protected ComponentMapper<CompositeTransformComponent> compositeMapper;
     protected ComponentMapper<ViewPortComponent> viewPortComponentMapper;
+    protected ComponentMapper<AutoLayoutComponent> autoLayoutMapper;
 
     private DimensionsComponent dimensionsComponent;
     private NodeComponent nodeComponent;
@@ -47,7 +48,8 @@ public class CompositeSystem extends IteratingSystem {
         ViewPortComponent viewPortComponent = viewPortComponentMapper.get(entity);
         if (compositeTransformComponent != null) {
 
-            if (compositeTransformComponent.automaticResize && viewPortComponent == null) {
+            // an auto layout decides its own size, and would have its children moved back otherwise
+            if (compositeTransformComponent.automaticResize && viewPortComponent == null && !autoLayoutMapper.has(entity)) {
                 int checksum = calcCheckSum(transformComponent);
                 if (checksum != compositeTransformComponent.checksum) {
                     compositeTransformComponent.checksum = checksum;

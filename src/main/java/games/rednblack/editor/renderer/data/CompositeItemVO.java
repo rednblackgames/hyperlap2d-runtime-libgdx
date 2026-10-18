@@ -106,8 +106,10 @@ public class CompositeItemVO extends MainItemVO {
 		DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
 		CompositeTransformComponent compositeTransformComponent = ComponentRetriever.get(entity, CompositeTransformComponent.class, engine);
 
-		width = dimensionsComponent.width;
-		height = dimensionsComponent.height;
+		// the size of its own, not the one an auto layout is giving it
+		AutoLayoutOwnSizeComponent ownSize = ComponentRetriever.get(entity, AutoLayoutOwnSizeComponent.class, engine);
+		width = AutoLayoutOwnSizeComponent.ownWidth(ownSize, dimensionsComponent);
+		height = AutoLayoutOwnSizeComponent.ownHeight(ownSize, dimensionsComponent);
 		automaticResize = compositeTransformComponent.automaticResize;
 		scissorsEnabled = compositeTransformComponent.scissorsEnabled;
 		renderToFBO = compositeTransformComponent.renderToFBO;

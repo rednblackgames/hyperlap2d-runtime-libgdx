@@ -39,6 +39,8 @@ public abstract class ComponentFactory {
     protected ComponentMapper<TintComponent> tintCM;
     protected ComponentMapper<TransformComponent> transformCM;
     protected ComponentMapper<LayoutComponent> layoutCM;
+    protected ComponentMapper<AutoLayoutComponent> autoLayoutCM;
+    protected ComponentMapper<AutoLayoutItemComponent> autoLayoutItemCM;
     protected ComponentMapper<ZIndexComponent> zIndexCM;
     protected ComponentMapper<WidgetComponent> widgetCM;
     protected ComponentMapper<WidgetPartComponent> widgetPartCM;
@@ -341,6 +343,14 @@ public abstract class ComponentFactory {
                 layoutComponent.bottom.margin = vo.layout.bottom.margin;
                 layoutComponent.bottom.targetEntity = -1;
             }
+        }
+
+        if (vo.autoLayout != null) {
+            vo.autoLayout.applyToComponent(autoLayoutCM.create(entity));
+        }
+
+        if (vo.autoLayoutItem != null) {
+            vo.autoLayoutItem.applyToComponent(autoLayoutItemCM.create(entity));
         }
 
         if (vo.widget != null) {

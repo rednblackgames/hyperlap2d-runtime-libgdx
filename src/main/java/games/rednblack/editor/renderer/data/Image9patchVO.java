@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.data;
 
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.ecs.Engine;
+import games.rednblack.editor.renderer.components.AutoLayoutOwnSizeComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.NinePatchComponent;
 import games.rednblack.editor.renderer.factory.EntityFactory;
@@ -47,8 +48,10 @@ public class Image9patchVO extends MainItemVO {
         DimensionsComponent dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class, engine);
         imageName = ninePatchComponent.textureRegionName;
 
-        width = dimensionsComponent.width;
-        height = dimensionsComponent.height;
+        // the size of its own, not the one an auto layout is giving it
+        AutoLayoutOwnSizeComponent ownSize = ComponentRetriever.get(entity, AutoLayoutOwnSizeComponent.class, engine);
+        width = AutoLayoutOwnSizeComponent.ownWidth(ownSize, dimensionsComponent);
+        height = AutoLayoutOwnSizeComponent.ownHeight(ownSize, dimensionsComponent);
 
         SpriteAnimationComponent spriteAnimationComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class, engine);
         frameRangeMap = new ArrayList<>();

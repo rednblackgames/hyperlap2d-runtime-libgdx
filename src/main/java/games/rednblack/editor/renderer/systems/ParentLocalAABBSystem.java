@@ -42,7 +42,7 @@ public class ParentLocalAABBSystem extends IteratingSystem {
 
     /** AABB in parent space, as offsets from (t.x, t.y). Uses plain dimensions, not the
      * polygon-adjusted ones, so constraints reference the entity's logical bounds. */
-    private void computeParentLocalAABB(TransformComponent t, float width, float height, BoundingBoxComponent b) {
+    public static void computeParentLocalAABB(TransformComponent t, float width, float height, BoundingBoxComponent b) {
         float rotation = -t.rotation;
         float scaleX = t.scaleX * (t.flipX ? -1 : 1);
         float scaleY = t.scaleY * (t.flipY ? -1 : 1);

@@ -116,6 +116,9 @@ public class ComponentRetriever {
         mappers.put(NormalMapRendering.class, ComponentMapper.getFor(NormalMapRendering.class, engine));
 
         mappers.put(LayoutComponent.class, ComponentMapper.getFor(LayoutComponent.class, engine));
+        mappers.put(AutoLayoutComponent.class, ComponentMapper.getFor(AutoLayoutComponent.class, engine));
+        mappers.put(AutoLayoutItemComponent.class, ComponentMapper.getFor(AutoLayoutItemComponent.class, engine));
+        mappers.put(AutoLayoutOwnSizeComponent.class, ComponentMapper.getFor(AutoLayoutOwnSizeComponent.class, engine));
 
         mappers.put(WidgetComponent.class, ComponentMapper.getFor(WidgetComponent.class, engine));
         mappers.put(WidgetPartComponent.class, ComponentMapper.getFor(WidgetPartComponent.class, engine));

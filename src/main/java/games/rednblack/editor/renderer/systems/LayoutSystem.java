@@ -39,6 +39,8 @@ public class LayoutSystem extends BaseEntitySystem {
     protected ComponentMapper<NodeComponent> nodeMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
     protected ComponentMapper<BoundingBoxComponent> boundingBoxMapper;
+    protected ComponentMapper<AutoLayoutComponent> autoLayoutMapper;
+    protected ComponentMapper<AutoLayoutItemComponent> autoLayoutItemMapper;
 
     // Topological sort structures – reused to avoid allocations
     private final IntArray sortedEntities = new IntArray();
@@ -269,6 +271,12 @@ public class LayoutSystem extends BaseEntitySystem {
 
         DimensionsComponent parentDimensions = dimensionsMapper.get(parent);
         if (parentDimensions == null) return;
+
+        // the parent's auto layout places it, unless it asked to be left alone
+        if (autoLayoutMapper.has(parent)) {
+            AutoLayoutItemComponent item = autoLayoutItemMapper.get(entity);
+            if (item == null || !item.ignore) return;
+        }
 
         LayoutComponent layout = layoutMapper.get(entity);
         TransformComponent transform = transformMapper.get(entity);
