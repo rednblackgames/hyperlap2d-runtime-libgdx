@@ -30,6 +30,8 @@ public class SceneConfiguration {
     private RayHandler rayHandler;
     private SystemInvocationStrategy invocationStrategy;
     private boolean cullingEnabled = true;
+    private boolean physicsEnabled = true;
+    private boolean lightsEnabled = true;
     private final int msaaSamples;
     private ExternalTypesConfiguration externalItemTypes;
 
@@ -125,6 +127,19 @@ public class SceneConfiguration {
         this.cullingEnabled = cullingEnabled;
     }
 
+    /**
+     * A scene without physics has no Box2D world and no {@link PhysicsSystem}, and no lights either:
+     * they cast their rays against the world.
+     */
+    public void setPhysicsEnabled(boolean physicsEnabled) {
+        this.physicsEnabled = physicsEnabled;
+    }
+
+    /** A scene without lights has no {@link RayHandler} and no {@link LightSystem}. */
+    public void setLightsEnabled(boolean lightsEnabled) {
+        this.lightsEnabled = lightsEnabled;
+    }
+
     public void setExternalItemTypes(ExternalTypesConfiguration externalTypesConfiguration) {
         if (externalTypesConfiguration == null) return;
 
@@ -198,14 +213,20 @@ public class SceneConfiguration {
         return iResourceRetriever;
     }
 
+    @Null
     World getWorld() {
+        if (!physicsEnabled) return null;
+
         if (world == null)
             setWorld(new World(new Vector2(0, -10), true));
 
         return world;
     }
 
+    @Null
     RayHandler getRayHandler() {
+        if (!isLightsEnabled()) return null;
+
         if (rayHandler == null) {
             RayHandlerOptions rayHandlerOptions = new RayHandlerOptions();
             rayHandlerOptions.setGammaCorrection(false);
@@ -236,6 +257,14 @@ public class SceneConfiguration {
         return cullingEnabled;
     }
 
+    public boolean isPhysicsEnabled() {
+        return physicsEnabled;
+    }
+
+    public boolean isLightsEnabled() {
+        return lightsEnabled && physicsEnabled;
+    }
+
     @Null
     public ExternalTypesConfiguration getExternalItemTypes() {
         return externalItemTypes;
@@ -246,6 +275,8 @@ public class SceneConfiguration {
             removeSystem(BoundingBoxSystem.class);
             removeSystem(CullingSystem.class);
         }
+        if (!physicsEnabled) removeSystem(PhysicsSystem.class);
+        if (!isLightsEnabled()) removeSystem(LightSystem.class);
         return systems;
     }
 

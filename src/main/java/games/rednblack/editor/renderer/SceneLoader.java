@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -226,7 +227,8 @@ public class SceneLoader {
         pixelsPerWU = rm.getProjectVO().pixelToWorld;
 
         sceneVO = vo;
-        world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));
+        if (world != null)
+            world.setGravity(new Vector2(sceneVO.physicsPropertiesVO.gravityX, sceneVO.physicsPropertiesVO.gravityY));
         PhysicsSystem physicsSystem = engine.getSystem(PhysicsSystem.class);
         if (physicsSystem != null)
             physicsSystem.setPhysicsOn(sceneVO.physicsPropertiesVO.enabled);
@@ -427,6 +429,9 @@ public class SceneLoader {
         renderer.setUseLights(vo.lightsPropertiesVO.enabled);
         renderer.setSceneShader(rm.getShaderProgram(vo.shaderVO.shaderName));
 
+        //a scene configured without lights has nothing to set them on
+        if (rayHandler == null) return;
+
         if (override || !vo.lightsPropertiesVO.enabled) {
             isDiffuse = true;
             if (isDiffuse != RayHandler.isDiffuseLight()) {
@@ -467,16 +472,17 @@ public class SceneLoader {
     }
 
     public void resize(int width, int height) {
-        rayHandler.resizeFBO(width, height);
+        if (rayHandler != null) rayHandler.resizeFBO(width, height);
         renderer.resize(width, height);
     }
 
     public void dispose() {
         renderer.dispose();
-        rayHandler.dispose();
-        world.dispose();
+        if (rayHandler != null) rayHandler.dispose();
+        if (world != null) world.dispose();
         entityFactory.dispose();
         Actions.dispose();
+        ComponentRetriever.dispose(engine);
     }
 
     public EntityFactory getEntityFactory() {
@@ -501,10 +507,14 @@ public class SceneLoader {
         return engine.getSystem(UIInputSystem.class);
     }
 
+    /** @return null if the scene was configured without lights */
+    @Null
     public RayHandler getRayHandler() {
         return rayHandler;
     }
 
+    /** @return null if the scene was configured without physics */
+    @Null
     public World getWorld() {
         return world;
     }

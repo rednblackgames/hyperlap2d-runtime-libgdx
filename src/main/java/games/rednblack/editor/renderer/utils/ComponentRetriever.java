@@ -136,6 +136,13 @@ public class ComponentRetriever {
         self().init(engine);
     }
 
+    /** Forgets the mappers of an engine that is gone, so another one can be made and dropped freely. */
+    public static void dispose(Engine engine) {
+        if (instance == null) return;
+
+        self().engineMappers.remove(engine);
+    }
+
     /**
      * Short version of getInstance singleton variation, but with private access,
      * as there is no reason to get instance of this class, but only use it's public methods
