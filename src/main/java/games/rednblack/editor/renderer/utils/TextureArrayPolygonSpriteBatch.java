@@ -150,15 +150,18 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
         }
         textureUnitIndicesBuffer.flip();
 
-        Mesh.VertexDataType vertexDataType = Mesh.VertexDataType.VertexBufferObject;
-        if (Gdx.gl30 != null) {
-            vertexDataType = Mesh.VertexDataType.VertexBufferObjectWithVAO;
-        }
-        mesh = new Mesh(vertexDataType, false, maxVertices, maxTriangles * 3,
+        VertexAttributes attributes = new VertexAttributes(
                 new VertexAttribute(VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
                 new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
                 new VertexAttribute(VertexAttributes.Usage.Generic, 1, TEXTURE_INDEX_ATTRIBUTE));
+        if (Gdx.gl30 != null) {
+            // VAO vertices with a plain IndexBufferObject: indices change every flush, and glBufferSubData into a
+            // buffer the GPU is still drawing from makes mobile GPUs stall or copy it (libGDX PR #7871).
+            mesh = new Mesh(false, false, maxVertices, maxTriangles * 3, attributes);
+        } else {
+            mesh = new Mesh(Mesh.VertexDataType.VertexBufferObject, false, maxVertices, maxTriangles * 3, attributes);
+        }
 
         vertices = new float[maxVertices * VERTEX_SIZE];
         triangles = new short[maxTriangles * 3];
