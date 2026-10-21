@@ -318,15 +318,15 @@ public class LayoutSystem extends BaseEntitySystem {
             float rightPos = rightAnchor - layout.right.margin;
             if (layout.matchConstraintWidth) {
                 dimensions.width = Math.max(0, rightPos - leftPos);
-                transform.x = leftPos;
+                transform.placeX(leftPos);
             } else {
                 float availableSpace = rightPos - leftPos - aabbWidth;
-                transform.x = leftPos - aabbLeft + availableSpace * layout.horizontalBias;
+                transform.placeX(leftPos - aabbLeft + availableSpace * layout.horizontalBias);
             }
         } else if (!Float.isNaN(leftAnchor)) {
-            transform.x = leftAnchor + layout.left.margin - aabbLeft;
+            transform.placeX(leftAnchor + layout.left.margin - aabbLeft);
         } else if (!Float.isNaN(rightAnchor)) {
-            transform.x = rightAnchor - layout.right.margin - aabbRight;
+            transform.placeX(rightAnchor - layout.right.margin - aabbRight);
         }
     }
 
@@ -351,15 +351,15 @@ public class LayoutSystem extends BaseEntitySystem {
             float topPos = topAnchor - layout.top.margin;
             if (layout.matchConstraintHeight) {
                 dimensions.height = Math.max(0, topPos - bottomPos);
-                transform.y = bottomPos;
+                transform.placeY(bottomPos);
             } else {
                 float availableSpace = topPos - bottomPos - aabbHeight;
-                transform.y = bottomPos - aabbBottom + availableSpace * layout.verticalBias;
+                transform.placeY(bottomPos - aabbBottom + availableSpace * layout.verticalBias);
             }
         } else if (!Float.isNaN(bottomAnchor)) {
-            transform.y = bottomAnchor + layout.bottom.margin - aabbBottom;
+            transform.placeY(bottomAnchor + layout.bottom.margin - aabbBottom);
         } else if (!Float.isNaN(topAnchor)) {
-            transform.y = topAnchor - layout.top.margin - aabbTop;
+            transform.placeY(topAnchor - layout.top.margin - aabbTop);
         }
     }
 

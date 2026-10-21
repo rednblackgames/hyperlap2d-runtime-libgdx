@@ -163,12 +163,13 @@ public class AutoLayoutSystem extends BaseEntitySystem {
         footprintOf(child, transform, dimensions);
         float x = item.x - footprint.x;
         float y = item.y - footprint.y;
-        if (differs(transform.x, x)) {
-            transform.x = x;
+        // a child the editor is inside keeps its place for when it comes out
+        if (differs(transform.placedX(), x)) {
+            transform.placeX(x);
             changed = true;
         }
-        if (differs(transform.y, y)) {
-            transform.y = y;
+        if (differs(transform.placedY(), y)) {
+            transform.placeY(y);
             changed = true;
         }
         return changed;
