@@ -252,6 +252,8 @@ public class HyperLap2dRenderer extends IteratingSystem {
 
             if (curCompositeTransformComponent.scissorsEnabled) {
                 batch.flush();
+                //in the batch's space, which already holds the offset of a parent that does not transform
+                curCompositeTransformComponent.clipBounds.set(transform.x, transform.y, dimensions.width, dimensions.height);
                 ScissorStack.calculateScissors(camera, transform.oldTransform, curCompositeTransformComponent.clipBounds, curCompositeTransformComponent.scissors);
                 if (ScissorStack.pushScissors(curCompositeTransformComponent.scissors)) {
                     scissors = true;

@@ -56,8 +56,6 @@ public class CompositeSystem extends IteratingSystem {
                     recalculateSize();
                 }
             }
-
-            compositeTransformComponent.clipBounds.set(transformComponent.x, transformComponent.y, dimensionsComponent.width, dimensionsComponent.height);
         }
     }
 
