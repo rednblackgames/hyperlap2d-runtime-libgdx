@@ -18,6 +18,8 @@ public class LabelVO extends MainItemVO {
     public float height = 0;
 
     public boolean wrap = false;
+    /** As wide as its text: see {@link LabelComponent#fitWidth}. */
+    public boolean fitWidth = false;
     public boolean isTyping = false;
 	public boolean monoSpace = false;
 
@@ -36,6 +38,7 @@ public class LabelVO extends MainItemVO {
         width 	  = vo.width;
         height 	  = vo.height;
         wrap      = vo.wrap;
+        fitWidth  = vo.fitWidth;
 		isTyping  = vo.isTyping;
 		monoSpace = vo.monoSpace;
 		bitmapFont = vo.bitmapFont;
@@ -52,6 +55,7 @@ public class LabelVO extends MainItemVO {
 		size = labelComponent.fontSize;
 		align = labelComponent.labelAlign;
 		wrap = labelComponent.wrap;
+		fitWidth = labelComponent.fitWidth;
 		monoSpace = labelComponent.mono;
 		bitmapFont = labelComponent.bitmapFont;
 

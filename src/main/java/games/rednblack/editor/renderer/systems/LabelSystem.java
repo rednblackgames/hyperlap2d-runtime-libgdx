@@ -29,9 +29,13 @@ public class LabelSystem extends IteratingSystem {
 		float fontScaleY = labelComponent.fontScaleY;
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(fontScaleX, fontScaleY);
 		
+		//a label that fits its text is as wide as its longest line, measured before it is laid out in that width
+		boolean wrap = labelComponent.wrap && !labelComponent.fitWidth;
+		if (labelComponent.fitWidth) fitWidth(labelComponent, dimensionsComponent, font);
+
 		//horisontal Align
 
-		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, labelComponent.wrap, null);
+		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, wrap, null);
 
 		float textHeight = labelComponent.layout.height;
 		float textX = 0;
@@ -65,6 +69,15 @@ public class LabelSystem extends IteratingSystem {
 		labelComponent.cache.setText(labelComponent.layout, textX, textY);
 		
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(oldScaleX, oldScaleY);
+	}
+
+	/** The width of the text unwrapped, given to the label and to its bounds: an auto layout reads it from there. */
+	private void fitWidth(LabelComponent labelComponent, DimensionsComponent dimensionsComponent, BitmapFont font) {
+		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, 0, Align.left, false, null);
+		float width = labelComponent.layout.width;
+		if (dimensionsComponent.width == width) return;
+		dimensionsComponent.width = width;
+		if (dimensionsComponent.boundBox != null) dimensionsComponent.boundBox.width = width;
 	}
 	
 //	private void scaleAndComputePrefSize () {
