@@ -114,6 +114,8 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
     private final Array<Vector2> coordinates = new Array<>(true, 8, Vector2[]::new);
 
     private final IntArray downPointers = new IntArray(4);
+    /** The pointers pressed while a modal was open: the rest of their gesture is the modal's too. */
+    private final IntArray modalPointers = new IntArray(4);
 
     private float mouseScreenX, mouseScreenY;
     private boolean mouseKnown = false;
@@ -152,25 +154,30 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         int target = hit(screenX, screenY);
         //a press behind a modal is not a press at all: it moves no focus either
         boolean swallowed = blocked;
+        //a modal keeps the whole gesture, even one landing on a part of it nobody listens to,
+        //so no input processor after this one sees half of it
+        boolean modal = swallowed || topModal() != -1;
+        if (modal && !modalPointers.contains(pointer)) modalPointers.add(pointer);
         tellMissedOverlays(target, screenX, screenY, pointer, button);
         if (focusOnTouch && !swallowed) updateKeyboardFocus(target);
         //a pointer on its way somewhere is not hovering anything
         updateHover();
 
-        if (target == -1) return swallowed;
+        if (target == -1) return modal;
 
         UIEvent event = obtain(UIEvent.Type.touchDown, screenX, screenY, target);
         event.pointer = pointer;
         event.button = button;
         boolean handled = dispatch(event, target, true);
         eventPool.free(event);
-        return handled;
+        return handled || modal;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         pointerAt(screenX, screenY);
-        return toFocused(UIEvent.Type.touchDragged, screenX, screenY, pointer, -1, false);
+        boolean handled = toFocused(UIEvent.Type.touchDragged, screenX, screenY, pointer, -1, false);
+        return handled || modalPointers.contains(pointer);
     }
 
     @Override
@@ -181,7 +188,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         boolean handled = toFocused(UIEvent.Type.touchUp, screenX, screenY, pointer, button, false);
         //the pointer is free again, so whatever is under it is hovered once more
         updateHover();
-        return handled;
+        return modalPointers.removeValue(pointer) || handled;
     }
 
     @Override
@@ -189,7 +196,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         downPointers.removeValue(pointer);
         boolean handled = toFocused(UIEvent.Type.touchUp, screenX, screenY, pointer, button, true);
         updateHover();
-        return handled;
+        return modalPointers.removeValue(pointer) || handled;
     }
 
     @Override
@@ -864,6 +871,7 @@ public class UIInputSystem extends BaseEntitySystem implements InputProcessor {
         touchFocuses.end();
 
         downPointers.clear();
+        modalPointers.clear();
         keyboardFocus = -1;
         clearHover();
     }

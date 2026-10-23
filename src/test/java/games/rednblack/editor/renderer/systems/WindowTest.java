@@ -271,6 +271,30 @@ public class WindowTest {
         assertFalse(scene.input.isOverlayOpen(windowEntity));
     }
 
+    /** The whole gesture is the modal's, so an input processor after this one never sees half of it. */
+    @Test
+    public void aModalWindowKeepsTheWholeGesture() {
+        widget.properties.put(WidgetTypes.PROPERTY_MODAL, "true");
+        scene.frame();
+
+        //behind it
+        assertTrue(scene.press(600, 500));
+        assertTrue(scene.drag(650, 520));
+        assertTrue(scene.release(650, 520));
+
+        //on a part of it nobody listens to
+        assertTrue(scene.press(200, 150));
+        assertTrue(scene.drag(250, 160));
+        assertTrue(scene.release(250, 160));
+
+        //once it is closed, the input behind it is free again
+        window.close();
+        settle();
+        assertFalse(scene.press(600, 500));
+        assertFalse(scene.drag(650, 520));
+        assertFalse(scene.release(650, 520));
+    }
+
     /** Drawn over everything so its backdrop covers it all; what it does not cover stays reachable. */
     @Test
     public void aWindowWithABackdropIsAnOverlayEvenWhenNotModal() {
