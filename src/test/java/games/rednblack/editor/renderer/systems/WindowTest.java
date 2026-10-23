@@ -442,6 +442,69 @@ public class WindowTest {
         assertEquals(-1, scene.hitAt(200, 150));
     }
 
+    private List<String> hearHidden(WindowComponent of) {
+        List<String> heard = new ArrayList<>();
+        of.addListener(new WindowComponent.WindowListener() {
+            @Override public void hidden(int entity) { heard.add("hidden"); }
+        });
+        return heard;
+    }
+
+    @Test
+    public void itIsHiddenOnceItsClosedLookHasPlayedAndNotBefore() {
+        camera();
+        fadeBackdropWhenClosed();
+        List<String> heard = hearHidden(window);
+
+        window.close();
+        scene.frame();
+        tick(0.5f);
+        assertEquals("[]", heard.toString());
+
+        tick(0.6f);
+        scene.frame();
+        scene.frame();
+        assertEquals("[hidden]", heard.toString());
+    }
+
+    @Test
+    public void openedAgainBeforeItsClosedLookEndsItIsNotHidden() {
+        camera();
+        fadeBackdropWhenClosed();
+        List<String> heard = hearHidden(window);
+
+        window.close();
+        scene.frame();
+        tick(0.5f);
+        window.open();
+        tick(1f);
+        scene.frame();
+
+        assertEquals("[]", heard.toString());
+        assertTrue(visible(windowEntity));
+    }
+
+    @Test
+    public void aWindowThatStartsClosedIsHiddenOnlyAfterItHasBeenOpen() {
+        camera();
+        int other = window(scene.root, 450, 350);
+        WidgetComponent otherWidget = scene.engine.getMapper(WidgetComponent.class).get(other);
+        WindowComponent otherWindow = scene.engine.getMapper(WindowComponent.class).get(other);
+        otherWidget.properties.put(WidgetTypes.PROPERTY_OPEN, "false");
+        otherWindow.initialise(otherWidget);
+        otherWindow.notified = false;
+        List<String> heard = hearHidden(otherWindow);
+        settle();
+        assertEquals("[]", heard.toString());
+
+        otherWindow.open();
+        settle();
+        otherWindow.close();
+        settle();
+        scene.frame();
+        assertEquals("[hidden]", heard.toString());
+    }
+
     @Test
     public void aWindowThatStartsClosedIsHiddenAtOnce() {
         int other = window(scene.root, 450, 350);

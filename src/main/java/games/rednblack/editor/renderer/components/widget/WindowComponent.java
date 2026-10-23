@@ -30,6 +30,7 @@ public class WindowComponent extends PooledComponent implements WidgetBehaviour 
 
     /** What the listeners were last told, and whether they have been told at all. */
     public boolean notifiedOpen = false;
+    public boolean notifiedShown = true;
     public float notifiedX, notifiedY;
     public boolean notified = false;
 
@@ -41,6 +42,13 @@ public class WindowComponent extends PooledComponent implements WidgetBehaviour 
 
         /** The window was closed: by its close part, Escape, a tap on its backdrop or game code. */
         default void closed(int entity) {
+        }
+
+        /**
+         * A closed window has played its closed look and is out of sight: the moment to delete it,
+         * which on {@link #closed} would cut that look short. Not heard by one that starts closed.
+         */
+        default void hidden(int entity) {
         }
 
         /** The window was dragged, or kept within the viewport, to a new place in its parent. */
@@ -92,6 +100,7 @@ public class WindowComponent extends PooledComponent implements WidgetBehaviour 
         closePointer = -1;
         backdropPointer = -1;
         notifiedOpen = false;
+        notifiedShown = true;
         notifiedX = notifiedY = 0;
         notified = false;
         listeners.clear();

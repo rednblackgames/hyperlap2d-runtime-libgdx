@@ -225,7 +225,7 @@ public class WindowSystem extends BaseEntitySystem implements UIInputListener {
         if (live && window.isOpen && flag(widget, WidgetTypes.PROPERTY_KEEP_WITHIN_VIEWPORT, true)) keepWithinViewport(entity);
 
         updateWidgetState(entity, widget, window);
-        notifyListeners(entity, window);
+        notifyListeners(entity, window, shown);
     }
 
     /**
@@ -482,13 +482,14 @@ public class WindowSystem extends BaseEntitySystem implements UIInputListener {
     // ------------------------------------------------------------------ listeners
 
     /** Tells the listeners once per change, whoever made it; a closed window lets go of every input. */
-    private void notifyListeners(int entity, WindowComponent window) {
+    private void notifyListeners(int entity, WindowComponent window, boolean shown) {
         TransformComponent transform = transformCM.get(entity);
         float x = transform == null ? 0 : transform.x, y = transform == null ? 0 : transform.y;
 
         if (!window.notified) {
             window.notified = true;
             window.notifiedOpen = window.isOpen;
+            window.notifiedShown = shown;
             window.notifiedX = x;
             window.notifiedY = y;
             return;
@@ -500,6 +501,14 @@ public class WindowSystem extends BaseEntitySystem implements UIInputListener {
             for (int i = 0; i < window.listeners.size; i++) {
                 if (window.isOpen) window.listeners.get(i).opened(entity);
                 else window.listeners.get(i).closed(entity);
+            }
+        }
+
+        //after closed, once the closed look has played: shown again only by opening
+        if (shown != window.notifiedShown) {
+            window.notifiedShown = shown;
+            if (!shown) {
+                for (int i = 0; i < window.listeners.size; i++) window.listeners.get(i).hidden(entity);
             }
         }
 
