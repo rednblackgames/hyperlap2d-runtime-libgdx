@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.PoolManager;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import games.rednblack.editor.renderer.components.ActionComponent;
+import games.rednblack.editor.renderer.components.LayoutComponent;
 import games.rednblack.editor.renderer.systems.action.data.*;
 import games.rednblack.editor.renderer.systems.action.logic.*;
 
@@ -33,6 +34,7 @@ public class Actions {
     private static void initialize() throws ReflectionException {
         registerActionClass(MoveToData.class, MoveToData::new, MoveToAction.class);
         registerActionClass(MoveByData.class, MoveByData::new, MoveByAction.class);
+        registerActionClass(LayoutMarginToData.class, LayoutMarginToData::new, LayoutMarginToAction.class);
         registerActionClass(SizeToData.class, SizeToData::new, SizeToAction.class);
         registerActionClass(SizeByData.class, SizeByData::new, SizeByAction.class);
         registerActionClass(ScaleToData.class, ScaleToData::new, ScaleToAction.class);
@@ -99,6 +101,24 @@ public class Actions {
         actionData.setEndX(x);
         actionData.setEndY(y);
         return (actionData);
+    }
+
+    /** Takes the margin of the {@code side} constraint of the entity's layout to {@code margin}. */
+    public static LayoutMarginToData marginTo(LayoutComponent.ConstraintSide side, float margin) {
+        return marginTo(side, margin, 0, null);
+    }
+
+    public static LayoutMarginToData marginTo(LayoutComponent.ConstraintSide side, float margin, float duration) {
+        return marginTo(side, margin, duration, null);
+    }
+
+    public static LayoutMarginToData marginTo(LayoutComponent.ConstraintSide side, float margin, float duration, Interpolation interpolation) {
+        LayoutMarginToData actionData = actionData(LayoutMarginToData.class);
+        actionData.setDuration(duration);
+        actionData.setInterpolation(interpolation);
+        actionData.setSide(side);
+        actionData.setEnd(margin);
+        return actionData;
     }
 
     public static ActionData moveBy(float x, float y) {
