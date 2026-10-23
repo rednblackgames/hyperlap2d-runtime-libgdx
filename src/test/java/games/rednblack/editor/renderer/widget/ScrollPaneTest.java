@@ -399,6 +399,36 @@ public class ScrollPaneTest {
     }
 
     @Test
+    public void aWayThePaneDoesNotScrollHasNoOverscroll() {
+        // wider content, so X would scroll if it were not disabled
+        scene.engine.getMapper(DimensionsComponent.class).get(content).width = 400;
+        setting(WidgetTypes.PROPERTY_SCROLL_DISABLED_X, "true");
+        frame();
+
+        // a drag right and down pulls past the left and the top edges
+        scene.engine.setDelta(0.016f);
+        scene.press(50, 80);
+        scene.drag(70, 60);
+        scene.drag(90, 40);
+        frame(0.016f);
+        assertEquals("disabled X does not move", 0, state().scrollX, 0.001f);
+        assertTrue("Y still overscrolls", state().scrollY < 0);
+        scene.release(90, 40);
+    }
+
+    @Test
+    public void whatFitsHasNoOverscrollEither() {
+        // the content is as wide as the window: nothing to scroll sideways
+        scene.engine.setDelta(0.016f);
+        scene.press(50, 80);
+        scene.drag(70, 60);
+        scene.drag(90, 40);
+        frame(0.016f);
+        assertEquals(0, state().scrollX, 0.001f);
+        scene.release(90, 40);
+    }
+
+    @Test
     public void theStateFollowsTheDrag() {
         assertEquals("normal", scene.engine.getMapper(WidgetComponent.class).get(pane).getState());
 

@@ -172,8 +172,8 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
         if (pane.isDragging()) pane.dragIdle += delta;
 
         boolean overscroll = flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true);
-        float distance = overscroll
-                ? Math.max(0.0001f, number(widget, WidgetTypes.PROPERTY_OVERSCROLL_DISTANCE, 50)) : 0;
+        float distanceX = overscrollDistance(pane, widget, true);
+        float distanceY = overscrollDistance(pane, widget, false);
 
         if (pane.flingTimer > 0) {
             resetFade(pane, widget);
@@ -184,8 +184,8 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
             clamp(pane, widget);
 
             //a fling that has run as far as the content goes stops there
-            if (pane.scrollX <= -distance || pane.scrollX >= pane.maxX + distance) pane.velocityX = 0;
-            if (pane.scrollY <= -distance || pane.scrollY >= pane.maxY + distance) pane.velocityY = 0;
+            if (pane.scrollX <= -distanceX || pane.scrollX >= pane.maxX + distanceX) pane.velocityX = 0;
+            if (pane.scrollY <= -distanceY || pane.scrollY >= pane.maxY + distanceY) pane.velocityY = 0;
 
             pane.flingTimer -= delta;
             if (pane.flingTimer <= 0 || (pane.velocityX == 0 && pane.velocityY == 0)) stopFling(pane);
@@ -195,8 +195,8 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
             float speedMin = number(widget, WidgetTypes.PROPERTY_OVERSCROLL_SPEED_MIN, 30);
             float speedMax = number(widget, WidgetTypes.PROPERTY_OVERSCROLL_SPEED_MAX, 200);
 
-            pane.scrollX = springBack(pane.scrollX, pane.maxX, distance, speedMin, speedMax, delta);
-            pane.scrollY = springBack(pane.scrollY, pane.maxY, distance, speedMin, speedMax, delta);
+            pane.scrollX = springBack(pane.scrollX, pane.maxX, Math.max(0.0001f, distanceX), speedMin, speedMax, delta);
+            pane.scrollY = springBack(pane.scrollY, pane.maxY, Math.max(0.0001f, distanceY), speedMin, speedMax, delta);
         }
         clamp(pane, widget);
 
@@ -234,10 +234,29 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
     private void clamp(ScrollPaneComponent pane, WidgetComponent widget) {
         if (!flag(widget, WidgetTypes.PROPERTY_CLAMP, true)) return;
 
-        float distance = flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true)
-                ? number(widget, WidgetTypes.PROPERTY_OVERSCROLL_DISTANCE, 50) : 0;
-        pane.scrollX = MathUtils.clamp(pane.scrollX, -distance, pane.maxX + distance);
-        pane.scrollY = MathUtils.clamp(pane.scrollY, -distance, pane.maxY + distance);
+        float distanceX = overscrollDistance(pane, widget, true);
+        float distanceY = overscrollDistance(pane, widget, false);
+        pane.scrollX = MathUtils.clamp(pane.scrollX, -distanceX, pane.maxX + distanceX);
+        pane.scrollY = MathUtils.clamp(pane.scrollY, -distanceY, pane.maxY + distanceY);
+    }
+
+    /**
+     * Whether the pane scrolls that way at all: not when it is disabled, and not when the content fits
+     * unless the scroll is forced. As libGDX's pane does, disabled wins over forced.
+     */
+    private boolean scrolls(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal) {
+        if (horizontal) {
+            if (flag(widget, WidgetTypes.PROPERTY_SCROLL_DISABLED_X, false)) return false;
+            return pane.maxX > 0 || flag(widget, WidgetTypes.PROPERTY_FORCE_SCROLL_X, false);
+        }
+        if (flag(widget, WidgetTypes.PROPERTY_SCROLL_DISABLED_Y, false)) return false;
+        return pane.maxY > 0 || flag(widget, WidgetTypes.PROPERTY_FORCE_SCROLL_Y, false);
+    }
+
+    /** How far past its edges the pane may go that way: nothing along a way it does not scroll. */
+    private float overscrollDistance(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal) {
+        if (!flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true) || !scrolls(pane, widget, horizontal)) return 0;
+        return number(widget, WidgetTypes.PROPERTY_OVERSCROLL_DISTANCE, 50);
     }
 
     // -------------------------------------------------------------------- the look
@@ -614,12 +633,13 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
         pane.dragIdle = 0;
 
         float invDelta = 1f / Math.max(engine.getDelta(), 0.0001f);
-        pane.velocityX = dx * invDelta;
-        pane.velocityY = dy * invDelta;
-
-        //the content follows the pointer, so the window moves the other way
-        pane.scrollX -= dx;
-        pane.scrollY += dy;
+        //the content follows the pointer, so the window moves the other way, along the ways it scrolls
+        boolean scrollsX = scrolls(pane, widget, true);
+        boolean scrollsY = scrolls(pane, widget, false);
+        pane.velocityX = scrollsX ? dx * invDelta : 0;
+        pane.velocityY = scrollsY ? dy * invDelta : 0;
+        if (scrollsX) pane.scrollX -= dx;
+        if (scrollsY) pane.scrollY += dy;
         resetFade(pane, widget);
     }
 
