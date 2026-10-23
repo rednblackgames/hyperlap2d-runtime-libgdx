@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import games.rednblack.editor.renderer.components.*;
 import games.rednblack.editor.renderer.components.additional.ButtonComponent;
 import games.rednblack.editor.renderer.components.additional.InputTargetComponent;
+import games.rednblack.editor.renderer.components.additional.OverlayComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
 import games.rednblack.editor.renderer.components.light.LightBodyComponent;
 import games.rednblack.editor.renderer.components.light.LightObjectComponent;
@@ -36,9 +37,12 @@ import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponen
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetComponent;
 import games.rednblack.editor.renderer.components.widget.ProgressBarComponent;
+import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
+import games.rednblack.editor.renderer.components.widget.SelectBoxComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
+import games.rednblack.editor.renderer.components.widget.WindowComponent;
 import games.rednblack.editor.renderer.ecs.*;
 
 /**
@@ -125,7 +129,11 @@ public class ComponentRetriever {
         mappers.put(ProgressBarComponent.class, ComponentMapper.getFor(ProgressBarComponent.class, engine));
         mappers.put(SliderComponent.class, ComponentMapper.getFor(SliderComponent.class, engine));
         mappers.put(TextFieldComponent.class, ComponentMapper.getFor(TextFieldComponent.class, engine));
+        mappers.put(ScrollPaneComponent.class, ComponentMapper.getFor(ScrollPaneComponent.class, engine));
+        mappers.put(SelectBoxComponent.class, ComponentMapper.getFor(SelectBoxComponent.class, engine));
+        mappers.put(WindowComponent.class, ComponentMapper.getFor(WindowComponent.class, engine));
         mappers.put(InputTargetComponent.class, ComponentMapper.getFor(InputTargetComponent.class, engine));
+        mappers.put(OverlayComponent.class, ComponentMapper.getFor(OverlayComponent.class, engine));
     }
 
     public static void initialize(Engine engine) {
