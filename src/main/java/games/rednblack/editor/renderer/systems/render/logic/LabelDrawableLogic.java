@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
-import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TintComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.label.LabelComponent;
@@ -17,7 +16,6 @@ public class LabelDrawableLogic implements DrawableLogic {
 	protected ComponentMapper<TintComponent> tintComponentMapper;
 	protected ComponentMapper<DimensionsComponent> dimensionsComponentMapper;
 	protected ComponentMapper<TransformComponent> transformMapper;
-	protected ComponentMapper<ParentNodeComponent> parentNodeComponentComponentMapper;
 
 	private final Color tmpColor = new Color();
 
@@ -30,6 +28,9 @@ public class LabelDrawableLogic implements DrawableLogic {
 		TintComponent tint = tintComponentMapper.get(entity);
 
 		tmpColor.set(tint.color);
+		//the alpha of every composite it is in, not only of the one holding it: a scroll pane fading
+		//takes the rows of its content with it
+		tmpColor.a *= parentAlpha;
 
 		if (labelComponent.style.background != null) {
 			batch.setColor(tmpColor);
@@ -37,7 +38,6 @@ public class LabelDrawableLogic implements DrawableLogic {
 		}
 
 		if(labelComponent.style.fontColor != null) tmpColor.mul(labelComponent.style.fontColor);
-		tmpColor.a *= tintComponentMapper.get(parentNodeComponentComponentMapper.get(entity).parentEntity).color.a;
 
 		TransformMathUtils.computeTransform(entityTransformComponent).mulLeft(batch.getTransformMatrix());
 		TransformMathUtils.applyTransform(batch, entityTransformComponent);
