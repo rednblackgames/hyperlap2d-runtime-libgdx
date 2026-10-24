@@ -8,6 +8,7 @@ import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
 import games.rednblack.editor.renderer.components.widget.SelectBoxComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
+import games.rednblack.editor.renderer.components.widget.TooltipComponent;
 import games.rednblack.editor.renderer.components.widget.WindowComponent;
 import games.rednblack.editor.renderer.widget.handlers.CoreStateOverrides;
 
@@ -54,6 +55,7 @@ public final class WidgetTypes {
     public static final String SCROLL_PANE = "scrollPane";
     public static final String SELECT_BOX = "selectBox";
     public static final String WINDOW = "window";
+    public static final String TOOLTIP = "tooltip";
 
     public static final String ROLE_BACKGROUND = "background";
     public static final String ROLE_FILL = "fill";
@@ -89,6 +91,8 @@ public final class WidgetTypes {
     public static final String ROLE_CLOSE = "close";
     /** Stretched over the whole visible viewport, behind the window, while it is open. */
     public static final String ROLE_BACKDROP = "backdrop";
+    /** What points a tooltip at its target: drawn on one side of the box, turned to the other when needed. */
+    public static final String ROLE_POINTER = "pointer";
 
     public static final String PROPERTY_MIN = "min";
     public static final String PROPERTY_MAX = "max";
@@ -159,6 +163,18 @@ public final class WidgetTypes {
     public static final String PROPERTY_CLOSE_ON_BACKDROP_TAP = "closeOnBackdropTap";
     /** Whether the window starts open. */
     public static final String PROPERTY_OPEN = "open";
+
+    /** Where a tooltip opens by its target: above, below, or above unless only below has room. */
+    public static final String PROPERTY_PLACEMENT = "placement";
+    public static final String PLACEMENT_AUTO = "auto";
+    public static final String PLACEMENT_ABOVE = "above";
+    public static final String PLACEMENT_BELOW = "below";
+    /** Distance between a tooltip's box and its target, where the pointer goes. */
+    public static final String PROPERTY_GAP = "gap";
+    /** How far inside the viewport a tooltip keeps. */
+    public static final String PROPERTY_MARGIN = "margin";
+    /** Whether a press anywhere but on the tooltip and its target closes it. */
+    public static final String PROPERTY_CLOSE_ON_TOUCH_OUTSIDE = "closeOnTouchOutside";
 
     /**
      * Driven key of a part whose words belong to the widget: the label of a text field reads what
@@ -384,6 +400,22 @@ public final class WidgetTypes {
                         .tint(DEFAULT_BACKDROP).zIndex(0))
                 .defaultPart(defaultTitleBar())
                 .behaviour(WindowComponent.class));
+
+        // A box opened on an entity, over everything, that places itself above or below it and
+        // follows it; a press anywhere else closes it and still reaches what it landed on. The
+        // pointer is placed by the tooltip, so its position and its turn are never state overrides.
+        register(new WidgetType(TOOLTIP, STATE_NORMAL, STATE_CLOSED)
+                .part(ROLE_BACKGROUND, false)
+                .part(ROLE_POINTER, false, CoreStateOverrides.X, CoreStateOverrides.Y, CoreStateOverrides.SCALE_Y)
+                .property(PROPERTY_OPEN, WidgetType.PropertyKind.BOOLEAN, "false")
+                .choice(PROPERTY_PLACEMENT, PLACEMENT_AUTO,
+                        PLACEMENT_AUTO, PLACEMENT_ABOVE, PLACEMENT_BELOW)
+                .property(PROPERTY_GAP, WidgetType.PropertyKind.FLOAT, "4")
+                .property(PROPERTY_MARGIN, WidgetType.PropertyKind.FLOAT, "4")
+                .property(PROPERTY_KEEP_WITHIN_VIEWPORT, WidgetType.PropertyKind.BOOLEAN, "true")
+                .property(PROPERTY_CLOSE_ON_TOUCH_OUTSIDE, WidgetType.PropertyKind.BOOLEAN, "true")
+                .convertedItemPlays(ROLE_BACKGROUND)
+                .behaviour(TooltipComponent.class));
     }
 
     public static void register(WidgetType type) {
