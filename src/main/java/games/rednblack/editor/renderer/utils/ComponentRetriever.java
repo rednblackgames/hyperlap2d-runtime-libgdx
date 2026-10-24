@@ -41,6 +41,7 @@ import games.rednblack.editor.renderer.components.widget.ScrollPaneComponent;
 import games.rednblack.editor.renderer.components.widget.SelectBoxComponent;
 import games.rednblack.editor.renderer.components.widget.SliderComponent;
 import games.rednblack.editor.renderer.components.widget.TextFieldComponent;
+import games.rednblack.editor.renderer.components.widget.TooltipComponent;
 import games.rednblack.editor.renderer.components.widget.WidgetPartComponent;
 import games.rednblack.editor.renderer.components.widget.WindowComponent;
 import games.rednblack.editor.renderer.ecs.*;
@@ -132,6 +133,7 @@ public class ComponentRetriever {
         mappers.put(ScrollPaneComponent.class, ComponentMapper.getFor(ScrollPaneComponent.class, engine));
         mappers.put(SelectBoxComponent.class, ComponentMapper.getFor(SelectBoxComponent.class, engine));
         mappers.put(WindowComponent.class, ComponentMapper.getFor(WindowComponent.class, engine));
+        mappers.put(TooltipComponent.class, ComponentMapper.getFor(TooltipComponent.class, engine));
         mappers.put(InputTargetComponent.class, ComponentMapper.getFor(InputTargetComponent.class, engine));
         mappers.put(OverlayComponent.class, ComponentMapper.getFor(OverlayComponent.class, engine));
     }
