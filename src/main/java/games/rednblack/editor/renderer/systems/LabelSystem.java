@@ -38,6 +38,7 @@ public class LabelSystem extends IteratingSystem {
 		labelComponent.layout.setText(font, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, wrap, null);
 
 		float textHeight = labelComponent.layout.height;
+		if (labelComponent.fitHeight) fitHeight(dimensionsComponent, font, textHeight);
 		float textX = 0;
 		
 		/*if (labelComponent.wrap || labelComponent.text.indexOf("\n") != -1) {
@@ -69,6 +70,18 @@ public class LabelSystem extends IteratingSystem {
 		labelComponent.cache.setText(labelComponent.layout, textX, textY);
 		
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(oldScaleX, oldScaleY);
+	}
+
+	/**
+	 * The height of the text as laid out, given to the label and to its bounds: an auto layout reads
+	 * it from there. As scene2d's label measures it, a descent more at either end, so the vertical
+	 * alignment keeps the last line's descenders inside. The label keeps its bottom where it is.
+	 */
+	private void fitHeight(DimensionsComponent dimensionsComponent, BitmapFont font, float textHeight) {
+		float height = textHeight - font.getDescent() * 2;
+		if (dimensionsComponent.height == height) return;
+		dimensionsComponent.height = height;
+		if (dimensionsComponent.boundBox != null) dimensionsComponent.boundBox.height = height;
 	}
 
 	/** The width of the text unwrapped, given to the label and to its bounds: an auto layout reads it from there. */

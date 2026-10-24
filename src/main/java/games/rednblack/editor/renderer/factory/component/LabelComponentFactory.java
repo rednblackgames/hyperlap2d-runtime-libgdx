@@ -78,6 +78,7 @@ public class LabelComponentFactory extends ComponentFactory {
         labelComponent.setAlignment(vo.align);
         labelComponent.setWrap(vo.wrap);
         labelComponent.fitWidth = vo.fitWidth;
+        labelComponent.fitHeight = vo.fitHeight;
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();

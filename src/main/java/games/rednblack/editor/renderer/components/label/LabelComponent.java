@@ -20,6 +20,8 @@ public class LabelComponent extends PooledComponent {
 	public boolean wrap;
 	/** Makes the label as wide as its text, on one line: it never wraps then, whatever {@link #wrap} says. */
 	public boolean fitWidth;
+	/** Makes the label as tall as its text, laid out in the width it has: wrapped, as many lines as that takes. */
+	public boolean fitHeight;
 	public boolean mono;
 	public float fontScaleX = 1f;
 	public float fontScaleY = 1f;
@@ -145,6 +147,7 @@ public class LabelComponent extends PooledComponent {
 		lineAlign = Align.center;
 		wrap = false;
 		fitWidth = false;
+		fitHeight = false;
 		mono = false;
 		fontScaleX = 1f;
 		fontScaleY = 1f;
