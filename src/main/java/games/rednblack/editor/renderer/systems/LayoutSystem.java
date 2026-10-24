@@ -13,7 +13,9 @@ import games.rednblack.editor.renderer.ecs.utils.IntBag;
 
 /**
  * Processes layout constraints using topological ordering to ensure
- * dependencies are resolved before dependents.
+ * dependencies are resolved before dependents. A composite that is laid
+ * out counts as one for what it holds: constraints to its edges see the
+ * size it is given in the same frame.
  *
  * Circular dependencies are detected via Kahn's algorithm; affected
  * entities fall back to parent-only constraints for the cycle edges,
@@ -203,6 +205,7 @@ public class LayoutSystem extends BaseEntitySystem {
             collectTarget(layout.right);
             collectTarget(layout.top);
             collectTarget(layout.bottom);
+            collectParent(entity);
 
             inDegree.put(entity, depTargets.size);
 
@@ -256,6 +259,14 @@ public class LayoutSystem extends BaseEntitySystem {
     private void collectTarget(LayoutComponent.ConstraintData data) {
         if (data != null && data.targetEntity != -1 && activeSet.contains(data.targetEntity)) {
             depTargets.add(data.targetEntity);
+        }
+    }
+
+    /** Constraints only reach siblings and the parent, so this edge never closes a cycle. */
+    private void collectParent(int entity) {
+        ParentNodeComponent parentNode = parentNodeMapper.get(entity);
+        if (parentNode != null && activeSet.contains(parentNode.parentEntity)) {
+            depTargets.add(parentNode.parentEntity);
         }
     }
 
@@ -318,6 +329,7 @@ public class LayoutSystem extends BaseEntitySystem {
             float rightPos = rightAnchor - layout.right.margin;
             if (layout.matchConstraintWidth) {
                 dimensions.width = Math.max(0, rightPos - leftPos);
+                refreshAABB(transform, dimensions, bb);
                 transform.placeX(leftPos);
             } else {
                 float availableSpace = rightPos - leftPos - aabbWidth;
@@ -351,6 +363,7 @@ public class LayoutSystem extends BaseEntitySystem {
             float topPos = topAnchor - layout.top.margin;
             if (layout.matchConstraintHeight) {
                 dimensions.height = Math.max(0, topPos - bottomPos);
+                refreshAABB(transform, dimensions, bb);
                 transform.placeY(bottomPos);
             } else {
                 float availableSpace = topPos - bottomPos - aabbHeight;
@@ -361,6 +374,11 @@ public class LayoutSystem extends BaseEntitySystem {
         } else if (!Float.isNaN(topAnchor)) {
             transform.placeY(topAnchor - layout.top.margin - aabbTop);
         }
+    }
+
+    /** The box was measured before the size was given: siblings pinned to its edges read it in this same frame. */
+    private void refreshAABB(TransformComponent transform, DimensionsComponent dimensions, BoundingBoxComponent bb) {
+        if (bb != null) ParentLocalAABBSystem.computeParentLocalAABB(transform, dimensions.width, dimensions.height, bb);
     }
 
     // ----------------------------------------------------------------

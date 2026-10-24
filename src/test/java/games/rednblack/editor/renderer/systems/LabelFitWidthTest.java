@@ -31,7 +31,7 @@ public class LabelFitWidthTest {
 
     @Before
     public void setUp() {
-        scene = new InputTestScene(new LabelSystem());
+        scene = new InputTestScene(new LabelMeasureSystem(), new LabelSystem());
         label = scene.entity(scene.root, 0, 0, 200, 20);
         LabelComponent component = scene.engine.edit(label).create(LabelComponent.class);
         component.setStyle(new Label.LabelStyle(font(), null));

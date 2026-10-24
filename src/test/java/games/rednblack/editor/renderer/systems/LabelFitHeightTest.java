@@ -22,7 +22,7 @@ public class LabelFitHeightTest {
     private static final float CAP = 10, LINE = 12, DESCENT = 3;
 
     /** As GlyphLayout measures it, caps of the first line to the baseline of the last, a descent at either end. */
-    private static float textHeight(int lines) {
+    static float textHeight(int lines) {
         return CAP + (lines - 1) * LINE + 2 * DESCENT;
     }
 
@@ -31,7 +31,7 @@ public class LabelFitHeightTest {
 
     @Before
     public void setUp() {
-        scene = new InputTestScene(new LabelSystem());
+        scene = new InputTestScene(new LabelMeasureSystem(), new LabelSystem());
         label = scene.entity(scene.root, 0, 0, 50, 100);
         LabelComponent component = scene.engine.edit(label).create(LabelComponent.class);
         component.setStyle(new Label.LabelStyle(font(), null));
@@ -41,7 +41,7 @@ public class LabelFitHeightTest {
     }
 
     /** Glyphs added after the font is made: making it would ask their page for a texture. */
-    private static BitmapFont font() {
+    static BitmapFont font() {
         BitmapFont.BitmapFontData data = new BitmapFont.BitmapFontData();
         data.lineHeight = LINE;
         data.capHeight = CAP;

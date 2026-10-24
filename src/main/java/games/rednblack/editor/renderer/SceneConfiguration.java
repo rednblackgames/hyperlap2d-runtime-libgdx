@@ -63,6 +63,7 @@ public class SceneConfiguration {
         addSystem(new SpriteAnimationSystem());
         addSystem(new PhysicsSystem());
         addSystem(new LightSystem());
+        addSystem(new LabelMeasureSystem());
         addSystem(new CompositeSystem());
         addSystem(new ParentLocalAABBSystem());
         addSystem(new AutoLayoutMeasureSystem());
