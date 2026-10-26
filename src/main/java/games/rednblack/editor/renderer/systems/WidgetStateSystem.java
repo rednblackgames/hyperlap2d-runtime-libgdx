@@ -1,6 +1,7 @@
 package games.rednblack.editor.renderer.systems;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.Pool;
@@ -40,6 +41,8 @@ public class WidgetStateSystem extends IteratingSystem {
     private final Array<String> tmpKeys = new Array<>();
     private final Array<String> chain = new Array<>();
     private final ObjectMap<String, String> mergedPatch = new ObjectMap<>();
+    /** Parts whose look has been taken off by {@link #restoreBase(int)} and not put back yet. */
+    private final IntArray restored = new IntArray();
     /** How far up a state may build on others, well beyond anything sensible. */
     private static final int MAX_INHERITANCE = 8;
     private final Pool<StateTween> tweenPool = new Pool<StateTween>() {
@@ -80,6 +83,12 @@ public class WidgetStateSystem extends IteratingSystem {
     }
 
     @Override
+    protected void begin() {
+        // this pass puts every look taken off back on
+        restored.clear();
+    }
+
+    @Override
     protected void process(int entity) {
         process(entity, true);
     }
@@ -104,6 +113,7 @@ public class WidgetStateSystem extends IteratingSystem {
 
     @Override
     protected void removed(int entityId) {
+        restored.removeValue(entityId);
         WidgetPartComponent part = partCM.get(entityId);
         if (part == null) return;
         tweenPool.freeAll(part.tweens);
@@ -123,9 +133,13 @@ public class WidgetStateSystem extends IteratingSystem {
 
     /**
      * Puts every overridden property of the entity back to its base value, at once. To be called
-     * before the entity is serialized or its base look is edited, so that state overrides never
-     * leak into it. The state comes back on the next pass, at once too: the look was only taken off
-     * to be read, which is not something to animate.
+     * before the entity is serialized, so that state overrides never leak into it. The state comes
+     * back on the next pass, at once too: the look was only taken off to be read, which is not
+     * something to animate.
+     *
+     * Until then the base values are not remembered anywhere but in the entity itself, so whatever
+     * changes it in between would be taken for its base look: whoever reads should call
+     * {@link #applyAllNow()} as soon as the reading is done.
      */
     public void restoreBase(int entity) {
         WidgetPartComponent part = partCM.get(entity);
@@ -133,6 +147,18 @@ public class WidgetStateSystem extends IteratingSystem {
         applyState(entity, part, null, null, false);
         part.dirty = true;
         part.snapNext = true;
+        restored.add(entity);
+    }
+
+    /**
+     * Puts back right away the look of every part {@link #restoreBase(int)} has taken off, instead
+     * of waiting for the next pass.
+     */
+    public void applyAllNow() {
+        for (int i = 0; i < restored.size; i++) {
+            applyNow(restored.get(i));
+        }
+        restored.clear();
     }
 
     /**
