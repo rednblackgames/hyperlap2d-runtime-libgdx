@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.resources;
 
+import com.badlogic.gdx.graphics.Color;
 import java.io.File;
 import java.util.*;
 
@@ -419,6 +420,10 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = Math.round(pair.fontSize * resMultiplier);
         parameter.mono = pair.monoSpace;
+        if (pair.borderWidth > 0) {
+            parameter.borderWidth = pair.borderWidth * resMultiplier;
+            parameter.borderColor = new Color(pair.borderColor);
+        }
         BitmapFont font = generator.generateFont(parameter);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font.setUseIntegerPositions(false);
@@ -505,6 +510,11 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     @Override
     public BitmapFont getFont(String name, int size, boolean mono) {
         return fonts.get(new FontSizePair(name, size, mono));
+    }
+
+    @Override
+    public BitmapFont getFont(String name, int size, boolean mono, float borderWidth, int borderColor) {
+        return fonts.get(new FontSizePair(name, size, mono, borderWidth, borderColor));
     }
 
     @Override

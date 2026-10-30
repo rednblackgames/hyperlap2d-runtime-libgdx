@@ -1,5 +1,7 @@
 package games.rednblack.editor.renderer.data;
 
+import java.util.Arrays;
+import com.badlogic.gdx.graphics.Color;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.components.AutoLayoutOwnSizeComponent;
 import games.rednblack.editor.renderer.components.DimensionsComponent;
@@ -24,6 +26,9 @@ public class LabelVO extends MainItemVO {
     public boolean fitHeight = false;
     public boolean isTyping = false;
 	public boolean monoSpace = false;
+	/** See {@link LabelComponent#borderWidth}. */
+	public float borderWidth = 0;
+	public float[] borderColor = {0, 0, 0, 1};
 
 	public String bitmapFont = null;
 	
@@ -44,6 +49,8 @@ public class LabelVO extends MainItemVO {
         fitHeight = vo.fitHeight;
 		isTyping  = vo.isTyping;
 		monoSpace = vo.monoSpace;
+		borderWidth = vo.borderWidth;
+		borderColor = vo.borderColor == null ? null : Arrays.copyOf(vo.borderColor, vo.borderColor.length);
 		bitmapFont = vo.bitmapFont;
 	}
 
@@ -61,6 +68,9 @@ public class LabelVO extends MainItemVO {
 		fitWidth = labelComponent.fitWidth;
 		fitHeight = labelComponent.fitHeight;
 		monoSpace = labelComponent.mono;
+		borderWidth = labelComponent.borderWidth;
+		Color border = labelComponent.borderColor;
+		borderColor = new float[]{border.r, border.g, border.b, border.a};
 		bitmapFont = labelComponent.bitmapFont;
 
 		isTyping = labelComponent.typingEffect;

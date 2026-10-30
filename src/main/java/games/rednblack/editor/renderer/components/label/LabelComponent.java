@@ -1,5 +1,6 @@
 package games.rednblack.editor.renderer.components.label;
 
+import com.badlogic.gdx.graphics.Color;
 import games.rednblack.editor.renderer.ecs.PooledComponent;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -23,6 +24,10 @@ public class LabelComponent extends PooledComponent {
 	/** Makes the label as tall as its text, laid out in the width it has: wrapped, as many lines as that takes. */
 	public boolean fitHeight;
 	public boolean mono;
+	/** An outline around every glyph, in pixels at {@link #fontSize}, drawn by FreeType into the font: 0 for none.
+	 * The label's tint colours it as it colours the glyphs. */
+	public float borderWidth;
+	public final Color borderColor = new Color(Color.BLACK);
 	public float fontScaleX = 1f;
 	public float fontScaleY = 1f;
 
@@ -149,6 +154,8 @@ public class LabelComponent extends PooledComponent {
 		fitWidth = false;
 		fitHeight = false;
 		mono = false;
+		borderWidth = 0;
+		borderColor.set(Color.BLACK);
 		fontScaleX = 1f;
 		fontScaleY = 1f;
 
