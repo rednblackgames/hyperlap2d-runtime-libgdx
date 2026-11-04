@@ -111,11 +111,13 @@ public final class WidgetTypes {
     public static final String PROPERTY_FLICK_SCROLL = "flickScroll";
     /** How far the pointer may travel before a press becomes a scroll. */
     public static final String PROPERTY_FLICK_TAP_SQUARE = "flickTapSquare";
-    public static final String PROPERTY_FLING_TIME = "flingTime";
+    /** How quickly a fling slows down, per second: higher stops sooner, the distance is speed over it. */
+    public static final String PROPERTY_FLING_FRICTION = "flingFriction";
     public static final String PROPERTY_OVERSCROLL = "overscroll";
+    /** How far past its edges the content can be pulled or flung, which it nears but never reaches. */
     public static final String PROPERTY_OVERSCROLL_DISTANCE = "overscrollDistance";
-    public static final String PROPERTY_OVERSCROLL_SPEED_MIN = "overscrollSpeedMin";
-    public static final String PROPERTY_OVERSCROLL_SPEED_MAX = "overscrollSpeedMax";
+    /** How long, in seconds, the content takes to spring back to the edge once let go past it. */
+    public static final String PROPERTY_BOUNCE_DURATION = "bounceDuration";
     public static final String PROPERTY_SMOOTH_SCROLLING = "smoothScrolling";
     public static final String PROPERTY_FADE_SCROLL_BARS = "fadeScrollBars";
     public static final String PROPERTY_FADE_DELAY = "fadeDelay";
@@ -274,11 +276,10 @@ public final class WidgetTypes {
                 .property(PROPERTY_CLAMP, WidgetType.PropertyKind.BOOLEAN, "true")
                 .property(PROPERTY_FLICK_SCROLL, WidgetType.PropertyKind.BOOLEAN, "true")
                 .property(PROPERTY_FLICK_TAP_SQUARE, WidgetType.PropertyKind.FLOAT, "8")
-                .property(PROPERTY_FLING_TIME, WidgetType.PropertyKind.FLOAT, "1")
+                .property(PROPERTY_FLING_FRICTION, WidgetType.PropertyKind.FLOAT, "2")
                 .property(PROPERTY_OVERSCROLL, WidgetType.PropertyKind.BOOLEAN, "true")
-                .property(PROPERTY_OVERSCROLL_DISTANCE, WidgetType.PropertyKind.FLOAT, "50")
-                .property(PROPERTY_OVERSCROLL_SPEED_MIN, WidgetType.PropertyKind.FLOAT, "30")
-                .property(PROPERTY_OVERSCROLL_SPEED_MAX, WidgetType.PropertyKind.FLOAT, "200")
+                .property(PROPERTY_OVERSCROLL_DISTANCE, WidgetType.PropertyKind.FLOAT, "100")
+                .property(PROPERTY_BOUNCE_DURATION, WidgetType.PropertyKind.FLOAT, "0.5")
                 .property(PROPERTY_SMOOTH_SCROLLING, WidgetType.PropertyKind.BOOLEAN, "true")
                 .property(PROPERTY_FADE_SCROLL_BARS, WidgetType.PropertyKind.BOOLEAN, "true")
                 .property(PROPERTY_FADE_DELAY, WidgetType.PropertyKind.FLOAT, "1")

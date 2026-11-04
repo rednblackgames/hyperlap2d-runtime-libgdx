@@ -10,8 +10,9 @@ import games.rednblack.editor.renderer.ecs.annotations.Transient;
  *
  * {@link #scrollX} and {@link #scrollY} are where the pane is heading, counted from the left and
  * from the top of the content, while {@link #visualScrollX} and {@link #visualScrollY} are where it
- * is drawn right now: the two differ while the pane glides, flings or springs back from an
- * overscroll. The system keeps them in range and places the content and the knobs.
+ * is drawn right now: the two differ only while the pane glides after the wheel, a scrollbar or game
+ * code moved it. Dragging, flinging and springing back move both together, so the content stays
+ * under the finger. The system keeps them in range and places the content and the knobs.
  */
 @Transient
 public class ScrollPaneComponent extends PooledComponent {
@@ -24,9 +25,28 @@ public class ScrollPaneComponent extends PooledComponent {
     /** The visible rectangle, and the content measured as it is drawn. */
     public float areaWidth, areaHeight, contentWidth, contentHeight;
 
-    /** Speed of the finger when it let go, driving the fling until the timer runs out. */
+    /** How many finger movements are kept to tell how fast it was going when it let go. */
+    public static final int SAMPLES = 32;
+
+    /**
+     * How fast the scroll is moving, in units per second, while the pane flings or springs back
+     * from an overscroll: zero when it rests.
+     */
     public float velocityX, velocityY;
-    public float flingTimer;
+
+    /**
+     * Where the finger would have taken the scroll with nothing to hold it back. Past an edge the
+     * pane gives way less and less, and this is what that resistance is worked out from.
+     */
+    public float dragX, dragY;
+
+    /** The finger's movement since the last frame, not yet in the samples. */
+    public float pendingX, pendingY;
+    /** The finger's last movements, one per frame, with how long each frame was. */
+    public final float[] sampleTime = new float[SAMPLES];
+    public final float[] sampleX = new float[SAMPLES];
+    public final float[] sampleY = new float[SAMPLES];
+    public int sampleHead, sampleCount;
 
     public boolean isTouchEnabled = true;
     public boolean isHovered = false;
@@ -60,6 +80,16 @@ public class ScrollPaneComponent extends PooledComponent {
 
     public boolean isDragging() {
         return dragging || draggingKnobX || draggingKnobY;
+    }
+
+    /** True while the pane moves on its own, flinging or springing back from an overscroll. */
+    public boolean isFlinging() {
+        return velocityX != 0 || velocityY != 0;
+    }
+
+    public void clearSamples() {
+        pendingX = pendingY = 0;
+        sampleHead = sampleCount = 0;
     }
 
     public void setScroll(float x, float y) {
@@ -128,7 +158,8 @@ public class ScrollPaneComponent extends PooledComponent {
         maxX = maxY = 0;
         areaWidth = areaHeight = contentWidth = contentHeight = 0;
         velocityX = velocityY = 0;
-        flingTimer = 0;
+        dragX = dragY = 0;
+        clearSamples();
         isTouchEnabled = true;
         isHovered = false;
         touchPointer = -1;

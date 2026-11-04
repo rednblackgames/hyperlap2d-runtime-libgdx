@@ -43,6 +43,15 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
     private static final float FLING_SPEED = 150;
     /** A finger that has been still this long before letting go does not fling either. */
     private static final float FLING_IDLE = 0.1f;
+    /** How much of the finger's last movements tell its speed when it lets go, in seconds. */
+    private static final float VELOCITY_WINDOW = 0.1f;
+    /** Slower than this, and nearer than that to where it goes, the pane is at rest. */
+    private static final float REST_SPEED = 10;
+    private static final float REST_DISTANCE = 0.5f;
+    /** How much a pull past the edge gives way at first, as iOS does it. */
+    private static final float RUBBER = 0.55f;
+    /** Where (1 + t) e^-t falls under a hundredth: a critically damped spring has settled. */
+    private static final float SPRING_SETTLE = 6.64f;
     /** A knob never shrinks past this, or there would be nothing left to grab. */
     private static final float MIN_KNOB = 8;
 
@@ -165,42 +174,27 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
                 ? 0 : Math.max(0, pane.contentHeight - pane.areaHeight);
     }
 
-    /** A frame of movement: the fling carries on, an overscroll springs back, the look catches up. */
+    /**
+     * A frame of movement. A fling slows down the way a thrown thing does, by the same share of its
+     * speed every second; past an edge a spring takes over and brings the content back, carrying
+     * on with whatever speed took it out there. What is drawn follows the finger and the physics
+     * exactly, and only glides after the wheel, a scrollbar or game code moved the pane.
+     */
     private void advance(ScrollPaneComponent pane, WidgetComponent widget) {
         float delta = engine.getDelta();
 
         if (pane.isDragging()) pane.dragIdle += delta;
+        if (pane.dragging) recordSample(pane, delta);
 
-        boolean overscroll = flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true);
-        float distanceX = overscrollDistance(pane, widget, true);
-        float distanceY = overscrollDistance(pane, widget, false);
-
-        if (pane.flingTimer > 0) {
-            resetFade(pane, widget);
-            float flingTime = Math.max(0.0001f, number(widget, WidgetTypes.PROPERTY_FLING_TIME, 1));
-            float alpha = pane.flingTimer / flingTime;
-            pane.scrollX -= pane.velocityX * alpha * delta;
-            pane.scrollY += pane.velocityY * alpha * delta;
-            clamp(pane, widget);
-
-            //a fling that has run as far as the content goes stops there
-            if (pane.scrollX <= -distanceX || pane.scrollX >= pane.maxX + distanceX) pane.velocityX = 0;
-            if (pane.scrollY <= -distanceY || pane.scrollY >= pane.maxY + distanceY) pane.velocityY = 0;
-
-            pane.flingTimer -= delta;
-            if (pane.flingTimer <= 0 || (pane.velocityX == 0 && pane.velocityY == 0)) stopFling(pane);
-        }
-
-        if (overscroll && pane.touchPointer == -1) {
-            float speedMin = number(widget, WidgetTypes.PROPERTY_OVERSCROLL_SPEED_MIN, 30);
-            float speedMax = number(widget, WidgetTypes.PROPERTY_OVERSCROLL_SPEED_MAX, 200);
-
-            pane.scrollX = springBack(pane.scrollX, pane.maxX, Math.max(0.0001f, distanceX), speedMin, speedMax, delta);
-            pane.scrollY = springBack(pane.scrollY, pane.maxY, Math.max(0.0001f, distanceY), speedMin, speedMax, delta);
+        if (pane.touchPointer == -1) {
+            if (pane.isFlinging()) resetFade(pane, widget);
+            move(pane, widget, true, delta);
+            move(pane, widget, false, delta);
         }
         clamp(pane, widget);
 
-        if (!pane.started || !flag(widget, WidgetTypes.PROPERTY_SMOOTH_SCROLLING, true)) {
+        boolean physics = pane.dragging || pane.isFlinging();
+        if (!pane.started || physics || !flag(widget, WidgetTypes.PROPERTY_SMOOTH_SCROLLING, true)) {
             pane.started = true;
             pane.visualScrollX = pane.scrollX;
             pane.visualScrollY = pane.scrollY;
@@ -210,17 +204,67 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
         }
     }
 
-    /** Pushes a scroll that went past an edge back towards it, faster the further out it is. */
-    private static float springBack(float scroll, float max, float distance, float speedMin, float speedMax, float delta) {
-        if (scroll < 0) {
-            float speed = speedMin + (speedMax - speedMin) * Math.min(1, -scroll / distance);
-            return Math.min(0, scroll + speed * delta);
+    /** One axis of a pane nobody is holding: the fling slows, an overscroll springs back. */
+    private void move(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal, float delta) {
+        if (delta <= 0) return;
+
+        float scroll = horizontal ? pane.scrollX : pane.scrollY;
+        float velocity = horizontal ? pane.velocityX : pane.velocityY;
+        float max = horizontal ? pane.maxX : pane.maxY;
+        boolean overscroll = flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true);
+
+        if (overscroll && (scroll < 0 || scroll > max)) {
+            //a critically damped spring: back to the edge as fast as it can without bouncing past it
+            float edge = scroll < 0 ? 0 : max;
+            float omega = springStrength(widget);
+            float x = scroll - edge;
+            //thrown further out, it goes no harder than the fling that reaches the edge would
+            float limit = overscrollDistance(pane, widget, horizontal) * omega * (float) Math.E;
+            if (x * velocity > 0) velocity = MathUtils.clamp(velocity, -limit, limit);
+            float decay = (float) Math.exp(-omega * delta);
+            float push = velocity + omega * x;
+            x = (x + push * delta) * decay;
+            velocity = (velocity - omega * push * delta) * decay;
+            if (Math.abs(x) < REST_DISTANCE && Math.abs(velocity) < REST_SPEED) {
+                x = 0;
+                velocity = 0;
+            }
+            scroll = edge + x;
+        } else if (velocity != 0) {
+            float friction = Math.max(0.0001f, number(widget, WidgetTypes.PROPERTY_FLING_FRICTION, 2));
+            float decay = (float) Math.exp(-friction * delta);
+            scroll += velocity * (1 - decay) / friction;
+            velocity *= decay;
+            if (Math.abs(velocity) < REST_SPEED) velocity = 0;
+
+            if (scroll < 0 || scroll > max) {
+                float distance = overscrollDistance(pane, widget, horizontal);
+                if (overscroll && distance > 0) {
+                    //the fling runs on past the edge, but never harder than the room out there allows
+                    float limit = distance * springStrength(widget) * (float) Math.E;
+                    velocity = MathUtils.clamp(velocity, -limit, limit);
+                } else if (flag(widget, WidgetTypes.PROPERTY_CLAMP, true)) {
+                    scroll = MathUtils.clamp(scroll, 0, max);
+                    velocity = 0;
+                }
+            }
         }
-        if (scroll > max) {
-            float speed = speedMin + (speedMax - speedMin) * Math.min(1, (scroll - max) / distance);
-            return Math.max(max, scroll - speed * delta);
+
+        if (horizontal) {
+            pane.scrollX = scroll;
+            pane.velocityX = velocity;
+        } else {
+            pane.scrollY = scroll;
+            pane.velocityY = velocity;
         }
-        return scroll;
+    }
+
+    /**
+     * How hard the overscroll spring pulls. A critically damped spring is within a hundredth of
+     * where it started after {@link #SPRING_SETTLE} over its strength, so that is the bounce time.
+     */
+    private float springStrength(WidgetComponent widget) {
+        return SPRING_SETTLE / Math.max(0.0001f, number(widget, WidgetTypes.PROPERTY_BOUNCE_DURATION, 0.5f));
     }
 
     /** What is drawn moves towards where the pane is heading, never slower than a steady crawl. */
@@ -229,6 +273,53 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
 
         float step = Math.max(200 * delta, Math.abs(target - visual) * 7 * delta);
         return visual < target ? Math.min(target, visual + step) : Math.max(target, visual - step);
+    }
+
+    /**
+     * Where a drag that would take the scroll to {@code raw} actually leaves it. Inside the content
+     * that is the same place; past an edge the pane resists more the further it is pulled, nearing
+     * the overscroll distance without ever getting there, the way a phone's lists do.
+     */
+    private float stretch(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal, float raw) {
+        if (!flag(widget, WidgetTypes.PROPERTY_CLAMP, true)) return raw;
+
+        float max = horizontal ? pane.maxX : pane.maxY;
+        if (raw >= 0 && raw <= max) return raw;
+
+        float distance = overscrollDistance(pane, widget, horizontal);
+        if (distance <= 0) return MathUtils.clamp(raw, 0, max);
+
+        float over = raw < 0 ? -raw : raw - max;
+        float stretched = distance * (1 - 1 / (over * RUBBER / distance + 1));
+        return raw < 0 ? -stretched : max + stretched;
+    }
+
+    /** The other way round: how far the finger would have pulled to leave the scroll there. */
+    private float unstretch(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal, float scroll) {
+        if (!flag(widget, WidgetTypes.PROPERTY_CLAMP, true)) return scroll;
+
+        float max = horizontal ? pane.maxX : pane.maxY;
+        if (scroll >= 0 && scroll <= max) return scroll;
+
+        float distance = overscrollDistance(pane, widget, horizontal);
+        if (distance <= 0) return MathUtils.clamp(scroll, 0, max);
+
+        float over = Math.min(scroll < 0 ? -scroll : scroll - max, distance * 0.99f);
+        float raw = distance / RUBBER * over / (distance - over);
+        return scroll < 0 ? -raw : max + raw;
+    }
+
+    /** Files the finger's movement of the frame that just ended, with how long that frame was. */
+    private static void recordSample(ScrollPaneComponent pane, float delta) {
+        if (delta <= 0) return; //no time went by: the movement waits for a frame that has some
+
+        int i = pane.sampleHead;
+        pane.sampleTime[i] = delta;
+        pane.sampleX[i] = pane.pendingX;
+        pane.sampleY[i] = pane.pendingY;
+        pane.sampleHead = (i + 1) % ScrollPaneComponent.SAMPLES;
+        pane.sampleCount = Math.min(pane.sampleCount + 1, ScrollPaneComponent.SAMPLES);
+        pane.pendingX = pane.pendingY = 0;
     }
 
     private void clamp(ScrollPaneComponent pane, WidgetComponent widget) {
@@ -256,7 +347,7 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
     /** How far past its edges the pane may go that way: nothing along a way it does not scroll. */
     private float overscrollDistance(ScrollPaneComponent pane, WidgetComponent widget, boolean horizontal) {
         if (!flag(widget, WidgetTypes.PROPERTY_OVERSCROLL, true) || !scrolls(pane, widget, horizontal)) return 0;
-        return number(widget, WidgetTypes.PROPERTY_OVERSCROLL_DISTANCE, 50);
+        return Math.max(0, number(widget, WidgetTypes.PROPERTY_OVERSCROLL_DISTANCE, 100));
     }
 
     // -------------------------------------------------------------------- the look
@@ -623,6 +714,9 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
 
             //the press is a scroll now: whatever it started on is let go of, unpressed
             pane.dragging = true;
+            pane.dragX = unstretch(pane, widget, true, pane.scrollX);
+            pane.dragY = unstretch(pane, widget, false, pane.scrollY);
+            pane.clearSamples();
             if (inputSystem != null) inputSystem.cancelTouchFocus(event.pointer, entity);
         }
 
@@ -630,16 +724,20 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
         float dy = event.localY - pane.lastY;
         pane.lastX = event.localX;
         pane.lastY = event.localY;
-        pane.dragIdle = 0;
+        if (dx != 0 || dy != 0) pane.dragIdle = 0;
 
-        float invDelta = 1f / Math.max(engine.getDelta(), 0.0001f);
-        //the content follows the pointer, so the window moves the other way, along the ways it scrolls
-        boolean scrollsX = scrolls(pane, widget, true);
-        boolean scrollsY = scrolls(pane, widget, false);
-        pane.velocityX = scrollsX ? dx * invDelta : 0;
-        pane.velocityY = scrollsY ? dy * invDelta : 0;
-        if (scrollsX) pane.scrollX -= dx;
-        if (scrollsY) pane.scrollY += dy;
+        //the content stays under the pointer, so the window moves the other way, along the ways it
+        //scrolls, and past an edge it gives way less and less
+        if (scrolls(pane, widget, true)) {
+            pane.pendingX -= dx;
+            pane.dragX -= dx;
+            pane.scrollX = stretch(pane, widget, true, pane.dragX);
+        }
+        if (scrolls(pane, widget, false)) {
+            pane.pendingY += dy;
+            pane.dragY += dy;
+            pane.scrollY = stretch(pane, widget, false, pane.dragY);
+        }
         resetFade(pane, widget);
     }
 
@@ -649,13 +747,39 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
         WidgetComponent widget = widgetCM.get(entity);
         if (pane == null || widget == null || pane.touchPointer != event.pointer) return;
 
-        boolean flung = pane.dragging && !event.cancelled && pane.dragIdle < FLING_IDLE
-                && (Math.abs(pane.velocityX) > FLING_SPEED || Math.abs(pane.velocityY) > FLING_SPEED);
-        pane.flingTimer = flung ? Math.max(0, number(widget, WidgetTypes.PROPERTY_FLING_TIME, 1)) : 0;
-        if (!flung) stopFling(pane);
+        stopFling(pane);
+        if (pane.dragging && !event.cancelled && pane.dragIdle < FLING_IDLE) releaseSpeed(pane);
+        if (Math.abs(pane.velocityX) < FLING_SPEED && Math.abs(pane.velocityY) < FLING_SPEED) stopFling(pane);
 
         pane.touchPointer = -1;
         pane.dragging = false;
+        pane.clearSamples();
+    }
+
+    /**
+     * How fast the finger was going when it let go: its movement over the last fraction of a
+     * second, so that one uneven frame does not throw the pane somewhere it was never pushed.
+     * The movement since the last frame is counted as one more frame of the same length.
+     */
+    private void releaseSpeed(ScrollPaneComponent pane) {
+        float time = 0, x = 0, y = 0;
+        if (pane.pendingX != 0 || pane.pendingY != 0) {
+            time = engine.getDelta();
+            x = pane.pendingX;
+            y = pane.pendingY;
+        }
+
+        int i = pane.sampleHead;
+        for (int n = 0; n < pane.sampleCount && time < VELOCITY_WINDOW; n++) {
+            i = (i - 1 + ScrollPaneComponent.SAMPLES) % ScrollPaneComponent.SAMPLES;
+            time += pane.sampleTime[i];
+            x += pane.sampleX[i];
+            y += pane.sampleY[i];
+        }
+        if (time <= 0) return;
+
+        pane.velocityX = x / time;
+        pane.velocityY = y / time;
     }
 
     /**
@@ -670,7 +794,6 @@ public class ScrollPaneSystem extends BaseEntitySystem implements UIInputListene
     }
 
     private void stopFling(ScrollPaneComponent pane) {
-        pane.flingTimer = 0;
         pane.velocityX = 0;
         pane.velocityY = 0;
     }

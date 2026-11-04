@@ -284,7 +284,7 @@ public class ScrollPaneTest {
         scene.drag(50, 80);
         scene.release(50, 80);
 
-        assertTrue(state().flingTimer > 0);
+        assertTrue(state().isFlinging());
         float before = state().scrollY;
         frame(0.016f);
         assertTrue("the fling carries on", state().scrollY > before);
@@ -426,6 +426,139 @@ public class ScrollPaneTest {
         frame(0.016f);
         assertEquals(0, state().scrollX, 0.001f);
         scene.release(90, 40);
+    }
+
+    /** Drags the content up by {@code step} each 16ms frame, {@code frames} times, then lets go. */
+    private void flick(float step, int frames) {
+        scene.engine.setDelta(0.016f);
+        float y = 10;
+        scene.press(50, y);
+        for (int i = 0; i < frames; i++) {
+            y += step;
+            scene.drag(50, y);
+            frame(0.016f);
+        }
+        scene.release(50, y);
+    }
+
+    @Test
+    public void theContentStaysUnderTheFingerEvenWhenScrollingIsSmooth() {
+        setting(WidgetTypes.PROPERTY_SMOOTH_SCROLLING, "true");
+        scene.engine.setDelta(0.016f);
+        scene.press(50, 10);
+        scene.drag(50, 40);
+        frame(0.016f);
+        assertEquals(30, state().scrollY, 0.001f);
+        assertEquals("drawn where the finger is, not on its way", 30, state().visualScrollY, 0.001f);
+        scene.release(50, 40);
+    }
+
+    @Test
+    public void aPullPastTheEdgeGivesWayLessAndLess() {
+        scene.engine.setDelta(0.016f);
+        scene.press(50, 95);
+        scene.drag(50, 85);
+        frame(0.016f);
+        float first = -state().scrollY;
+        assertTrue("it moves, but less than the finger", first > 0 && first < 10);
+
+        scene.drag(50, 75);
+        frame(0.016f);
+        float second = -state().scrollY - first;
+        assertTrue("the next stretch gives way less", second > 0 && second < first);
+
+        scene.drag(50, -900);
+        frame(0.016f);
+        assertTrue("never past the overscroll distance", -state().scrollY < 100);
+        scene.release(50, -900);
+    }
+
+    @Test
+    public void theReleaseSpeedIsTheFingersRecentPaceNotItsLastFrame() {
+        // 10 per 16ms is 625 a second, and the pane carries on at that pace
+        flick(10, 8);
+        assertEquals(625, state().velocityY, 1);
+    }
+
+    @Test
+    public void aFlingSlowsDownSmoothlyAndComesToRest() {
+        scene.engine.getMapper(DimensionsComponent.class).get(content).height = 5000;
+        frame();
+        flick(10, 8);
+
+        float lastStep = Float.MAX_VALUE;
+        float before = state().scrollY;
+        for (int i = 0; i < 300 && state().isFlinging(); i++) {
+            frame(0.016f);
+            float step = state().scrollY - before;
+            before = state().scrollY;
+            assertTrue("each frame a little slower than the one before", step <= lastStep + 0.001f);
+            lastStep = step;
+        }
+        assertFalse("it stops on its own", state().isFlinging());
+    }
+
+    @Test
+    public void aHarderFlingGoesFurther() {
+        scene.engine.getMapper(DimensionsComponent.class).get(content).height = 50000;
+        frame();
+        flick(5, 8);
+        for (int i = 0; i < 600; i++) frame(0.016f);
+        float soft = state().scrollY;
+
+        state().setScroll(0, 0);
+        frame();
+        flick(20, 8);
+        for (int i = 0; i < 600; i++) frame(0.016f);
+        // four times the speed: the glide after letting go is several times longer
+        assertTrue(state().scrollY - 20 * 8 > 2 * (soft - 5 * 8));
+    }
+
+    @Test
+    public void moreFrictionStopsAFlingSooner() {
+        scene.engine.getMapper(DimensionsComponent.class).get(content).height = 50000;
+        frame();
+        flick(10, 8);
+        for (int i = 0; i < 600; i++) frame(0.016f);
+        float slippery = state().scrollY;
+
+        setting(WidgetTypes.PROPERTY_FLING_FRICTION, "8");
+        state().setScroll(0, 0);
+        frame();
+        flick(10, 8);
+        for (int i = 0; i < 600; i++) frame(0.016f);
+        assertTrue(state().scrollY < slippery);
+    }
+
+    @Test
+    public void aFlingIntoTheEdgeRunsPastItAndComesBack() {
+        // thrown hard towards the bottom of the content, from near it
+        state().setScroll(0, 180);
+        frame();
+        flick(30, 4);
+
+        float furthest = 0;
+        for (int i = 0; i < 120; i++) {
+            frame(0.016f);
+            furthest = Math.max(furthest, state().scrollY - 200);
+        }
+        assertTrue("it went past the edge", furthest > 0);
+        assertTrue("but not past the overscroll distance", furthest <= 100);
+        assertEquals("and came back to rest on it", 200, state().scrollY, 0.001f);
+        assertFalse(state().isFlinging());
+    }
+
+    @Test
+    public void withoutOverscrollAFlingStopsAtTheEdge() {
+        setting(WidgetTypes.PROPERTY_OVERSCROLL, "false");
+        state().setScroll(0, 180);
+        frame();
+        flick(30, 4);
+        for (int i = 0; i < 5; i++) {
+            frame(0.016f);
+            assertTrue(state().scrollY <= 200);
+        }
+        assertEquals(200, state().scrollY, 0.001f);
     }
 
     @Test
