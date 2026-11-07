@@ -1556,9 +1556,8 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
             // so we take caution and test it first, reducing the number of slots if needed.
             // Will try to find the maximum amount of texture units supported.
             while (maxTextureUnitsLocal > 0) {
-                ShaderCompiler.MAX_TEXTURE_UNIT = maxTextureUnitsLocal;
                 try {
-                    ShaderProgram tempProg = createDefaultShader();
+                    ShaderProgram tempProg = createDefaultShader(maxTextureUnitsLocal);
                     tempProg.dispose();
                     break;
                 } catch (Exception e) {
@@ -1567,7 +1566,6 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
                 }
             }
 
-            ShaderCompiler.MAX_TEXTURE_UNIT = maxTextureUnitsLocal;
             maxTextureUnits = maxTextureUnitsLocal;
         }
 
@@ -1575,7 +1573,12 @@ public class TextureArrayPolygonSpriteBatch extends com.badlogic.gdx.graphics.g2
     }
 
     public static ShaderProgram createDefaultShader() {
-        ShaderProgram shader = ShaderCompiler.compileShader(DefaultShaders.DEFAULT_ARRAY_VERTEX_SHADER, DefaultShaders.DEFAULT_ARRAY_FRAGMENT_SHADER);
+        return createDefaultShader(getMaxTextureUnits());
+    }
+
+    private static ShaderProgram createDefaultShader(int textureUnits) {
+        ShaderProgram shader = ShaderCompiler.compileUnrolledArrayTextureShader(
+                DefaultShaders.DEFAULT_ARRAY_VERTEX_SHADER, DefaultShaders.DEFAULT_ARRAY_FRAGMENT_SHADER, textureUnits);
 
         if (!shader.isCompiled()) {
             throw new IllegalArgumentException("Error compiling shader: " + shader.getLog());
