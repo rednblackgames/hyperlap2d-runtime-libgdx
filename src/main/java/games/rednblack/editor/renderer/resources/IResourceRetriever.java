@@ -23,8 +23,8 @@ public interface IResourceRetriever {
 
     BitmapFont getBitmapFont(String name);
     BitmapFont getFont(String name, int size, boolean mono);
-    /** The font with an outline drawn around every glyph: see {@link FontSizePair#borderWidth}. */
-    default BitmapFont getFont(String name, int size, boolean mono, float borderWidth, int borderColor) {
+    /** One layer of a font with an outline, the outline's or the text's: see {@link FontSizePair}. */
+    default BitmapFont getFont(String name, int size, boolean mono, float borderWidth, boolean outline) {
         return borderWidth > 0 ? null : getFont(name, size, mono);
     }
     ShaderProgram getShaderProgram(String shaderName);

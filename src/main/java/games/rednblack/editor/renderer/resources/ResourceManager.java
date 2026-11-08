@@ -420,10 +420,7 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = Math.round(pair.fontSize * resMultiplier);
         parameter.mono = pair.monoSpace;
-        if (pair.borderWidth > 0) {
-            parameter.borderWidth = pair.borderWidth * resMultiplier;
-            parameter.borderColor = new Color(pair.borderColor);
-        }
+        outline(parameter, pair.borderWidth * resMultiplier, pair.outline);
         BitmapFont font = generator.generateFont(parameter);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font.setUseIntegerPositions(false);
@@ -513,8 +510,19 @@ public class ResourceManager implements IResourceLoader, IResourceRetriever, Dis
     }
 
     @Override
-    public BitmapFont getFont(String name, int size, boolean mono, float borderWidth, int borderColor) {
-        return fonts.get(new FontSizePair(name, size, mono, borderWidth, borderColor));
+    public BitmapFont getFont(String name, int size, boolean mono, float borderWidth, boolean outline) {
+        return fonts.get(new FontSizePair(name, size, mono, borderWidth, outline));
+    }
+
+    /**
+     * One layer of a font with an outline: both are white, the outline layer with its outline and the
+     * text layer with it transparent, so they share their metrics and take their colours when drawn.
+     */
+    public static void outline(FreeTypeFontGenerator.FreeTypeFontParameter parameter, float borderWidth, boolean outline) {
+        if (borderWidth <= 0) return;
+        parameter.borderWidth = borderWidth;
+        parameter.color = new Color(Color.WHITE);
+        parameter.borderColor = outline ? new Color(Color.WHITE) : new Color(1, 1, 1, 0);
     }
 
     @Override

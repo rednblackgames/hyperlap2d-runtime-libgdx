@@ -150,8 +150,11 @@ public class CompositeItemVO extends MainItemVO {
 			for (MainItemVO elem : sLabels) {
 				LabelVO sLabel = (LabelVO) elem;
 				if (sLabel.bitmapFont != null) continue;
-				list.add(new FontSizePair(sLabel.style.isEmpty() ? "lsans" : sLabel.style, sLabel.size == 0 ? 12 : sLabel.size, sLabel.monoSpace,
-						sLabel.borderWidth, FontSizePair.rgba8888(sLabel.borderColor)));
+				String name = sLabel.style.isEmpty() ? "lsans" : sLabel.style;
+				int size = sLabel.size == 0 ? 12 : sLabel.size;
+				list.add(new FontSizePair(name, size, sLabel.monoSpace, sLabel.borderWidth, false));
+				// An outline is a layer of its own: see FontSizePair.
+				if (sLabel.borderWidth > 0) list.add(new FontSizePair(name, size, sLabel.monoSpace, sLabel.borderWidth, true));
 			}
 		}
 

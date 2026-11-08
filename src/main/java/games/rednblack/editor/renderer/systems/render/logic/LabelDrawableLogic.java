@@ -18,6 +18,7 @@ public class LabelDrawableLogic implements DrawableLogic {
 	protected ComponentMapper<TransformComponent> transformMapper;
 
 	private final Color tmpColor = new Color();
+	private final Color outlineColor = new Color();
 
 	@Override
 	public void draw(Batch batch, int entity, float parentAlpha, RenderingType renderingType) {
@@ -42,6 +43,13 @@ public class LabelDrawableLogic implements DrawableLogic {
 		TransformMathUtils.computeTransform(entityTransformComponent).mulLeft(batch.getTransformMatrix());
 		TransformMathUtils.applyTransform(batch, entityTransformComponent);
 
+		//The outline first, in its own colour and the label's transparency; the text over it, in the tint.
+		if (labelComponent.outlineCache != null) {
+			outlineColor.set(labelComponent.borderColor);
+			outlineColor.a *= tint.color.a * parentAlpha;
+			labelComponent.outlineCache.tint(outlineColor);
+			labelComponent.outlineCache.draw(batch);
+		}
 		labelComponent.cache.tint(tmpColor);
 		labelComponent.cache.draw(batch);
 

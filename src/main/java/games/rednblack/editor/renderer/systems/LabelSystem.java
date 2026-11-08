@@ -68,6 +68,18 @@ public class LabelSystem extends IteratingSystem {
 		labelComponent.cache.setText(labelComponent.layout, textX, textY);
 		
 		if (fontScaleX != 1 || fontScaleY != 1) font.getData().setScale(oldScaleX, oldScaleY);
+
+		//The outline layer is laid out on its own: a layout holds the glyphs of its font. Made with the
+		//same outline width, the two fonts have the same metrics, so it lands under the text exactly.
+		BitmapFont outline = labelComponent.outlineFont;
+		if (outline != null) {
+			float outlineScaleX = outline.getScaleX();
+			float outlineScaleY = outline.getScaleY();
+			if (fontScaleX != 1 || fontScaleY != 1) outline.getData().setScale(fontScaleX, fontScaleY);
+			labelComponent.outlineLayout.setText(outline, labelComponent.text, 0, labelComponent.text.length(), Color.WHITE, dimensionsComponent.width, labelComponent.lineAlign, wrap, null);
+			labelComponent.outlineCache.setText(labelComponent.outlineLayout, textX, textY);
+			if (fontScaleX != 1 || fontScaleY != 1) outline.getData().setScale(outlineScaleX, outlineScaleY);
+		}
 	}
 
 //	private void scaleAndComputePrefSize () {

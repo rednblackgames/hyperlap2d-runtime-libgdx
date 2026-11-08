@@ -2,6 +2,7 @@ package games.rednblack.editor.renderer.components.label;
 
 import com.badlogic.gdx.graphics.Color;
 import games.rednblack.editor.renderer.ecs.PooledComponent;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -12,6 +13,13 @@ public class LabelComponent extends PooledComponent {
 	public transient LabelStyle style;
 	public transient final GlyphLayout layout = new GlyphLayout();
 	public transient BitmapFontCache cache;
+	/**
+	 * The outline layer, drawn under the text in {@link #borderColor}: its font, its own layout and
+	 * cache, since a layout holds the glyphs of the font it was made with. Null without an outline.
+	 */
+	public transient BitmapFont outlineFont;
+	public transient final GlyphLayout outlineLayout = new GlyphLayout();
+	public transient BitmapFontCache outlineCache;
 
 	public CharArray text = new CharArray();
 	public String fontName;
@@ -24,8 +32,8 @@ public class LabelComponent extends PooledComponent {
 	/** Makes the label as tall as its text, laid out in the width it has: wrapped, as many lines as that takes. */
 	public boolean fitHeight;
 	public boolean mono;
-	/** An outline around every glyph, in pixels at {@link #fontSize}, drawn by FreeType into the font: 0 for none.
-	 * The label's tint colours it as it colours the glyphs. */
+	/** An outline around every glyph, in pixels at {@link #fontSize}, drawn by FreeType: 0 for none. It is a layer
+	 * of its own under the text, in {@link #borderColor}, so the tint colours the text and never the outline. */
 	public float borderWidth;
 	public final Color borderColor = new Color(Color.BLACK);
 	public float fontScaleX = 1f;
@@ -44,6 +52,13 @@ public class LabelComponent extends PooledComponent {
 		if (style.font == null) throw new IllegalArgumentException("Missing LabelStyle font.");
 		this.style = style;
 		cache = style.font.newFontCache();
+	}
+
+	/** The outline layer's font, made with the same outline width as the text's; null for none. */
+	public void setOutlineFont (BitmapFont font) {
+		outlineFont = font;
+		outlineLayout.reset();
+		outlineCache = font == null ? null : font.newFontCache();
 	}
 	
 	public LabelStyle getStyle () {
@@ -156,6 +171,9 @@ public class LabelComponent extends PooledComponent {
 		mono = false;
 		borderWidth = 0;
 		borderColor.set(Color.BLACK);
+		outlineFont = null;
+		outlineLayout.reset();
+		outlineCache = null;
 		fontScaleX = 1f;
 		fontScaleY = 1f;
 

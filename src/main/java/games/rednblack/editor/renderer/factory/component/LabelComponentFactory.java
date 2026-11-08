@@ -5,6 +5,7 @@ import games.rednblack.editor.renderer.ecs.ComponentMapper;
 import games.rednblack.editor.renderer.ecs.Engine;
 import games.rednblack.editor.renderer.ecs.EntityTransmuter;
 import games.rednblack.editor.renderer.ecs.EntityTransmuterFactory;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -72,7 +73,7 @@ public class LabelComponentFactory extends ComponentFactory {
         labelComponent.fontSize = vo.size;
         labelComponent.mono = vo.monoSpace;
         setBorder(labelComponent, vo);
-        labelComponent.setStyle(generateStyle(rm, labelComponent));
+        applyFonts(rm, labelComponent);
         labelComponent.setAlignment(vo.align);
         labelComponent.setWrap(vo.wrap);
         labelComponent.fitWidth = vo.fitWidth;
@@ -90,7 +91,7 @@ public class LabelComponentFactory extends ComponentFactory {
         super.initializeTransientComponents(entity);
 
         LabelComponent component = labelCM.get(entity);
-        component.setStyle(generateStyle(rm, component));
+        applyFonts(rm, component);
 
         ProjectInfoVO projectInfoVO = rm.getProjectVO();
         ResolutionEntryVO resolutionEntryVO = rm.getLoadedResolution();
@@ -100,22 +101,30 @@ public class LabelComponentFactory extends ComponentFactory {
     }
 
     public static Label.LabelStyle generateStyle(IResourceRetriever rManager, String fontName, int size, boolean mono) {
-        return generateStyle(rManager, fontName, size, mono, 0, 0);
-    }
-
-    public static Label.LabelStyle generateStyle(IResourceRetriever rManager, String fontName, int size, boolean mono,
-                                                 float borderWidth, int borderColor) {
         if (size == 0) {
             size = labelDefaultSize;
         }
-        return new Label.LabelStyle(rManager.getFont(fontName, size, mono, borderWidth, borderColor), null);
+        return new Label.LabelStyle(rManager.getFont(fontName, size, mono), null);
     }
 
-    /** The style a label's own settings ask for: its bitmap font, or its FreeType font with its outline. */
+    /** The style a label's own settings ask for: its bitmap font, or its FreeType font (the text layer, with an outline). */
     public static Label.LabelStyle generateStyle(IResourceRetriever rManager, LabelComponent component) {
         if (component.bitmapFont != null) return generateStyle(rManager, component.bitmapFont);
-        return generateStyle(rManager, component.fontName, component.fontSize, component.mono,
-                component.borderWidth, Color.rgba8888(component.borderColor));
+        int size = component.fontSize == 0 ? labelDefaultSize : component.fontSize;
+        return new Label.LabelStyle(rManager.getFont(component.fontName, size, component.mono, component.borderWidth, false), null);
+    }
+
+    /** The font of a label's outline layer. Null without an outline, or with a bitmap font. */
+    public static BitmapFont outlineFont(IResourceRetriever rManager, LabelComponent component) {
+        if (component.bitmapFont != null || component.borderWidth <= 0) return null;
+        int size = component.fontSize == 0 ? labelDefaultSize : component.fontSize;
+        return rManager.getFont(component.fontName, size, component.mono, component.borderWidth, true);
+    }
+
+    /** Gives a label the fonts its settings ask for: its text's, and its outline's when it has one. */
+    public static void applyFonts(IResourceRetriever rManager, LabelComponent component) {
+        component.setStyle(generateStyle(rManager, component));
+        component.setOutlineFont(outlineFont(rManager, component));
     }
 
     public static void setBorder(LabelComponent component, LabelVO vo) {
