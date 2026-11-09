@@ -29,6 +29,9 @@ public class Actions {
         initialized = false;
         actionLogicMap.clear();
         actionDataLogicMap.clear();
+        //The pools stay registered, being static and final: a new scene loader in the same process
+        //(an Android activity made afresh) finds them in place and only refills them.
+        ACTION_POOLS.clear();
     }
 
     private static void initialize() throws ReflectionException {
@@ -60,7 +63,7 @@ public class Actions {
         if (!actionLogicMap.containsKey(type.getName())) {
             actionLogicMap.put(type.getName(), ClassReflection.newInstance(type));
             actionDataLogicMap.put(typeData.getName(), type.getName());
-            ACTION_POOLS.addPool(typeData, supplierData);
+            if (!ACTION_POOLS.hasPool(typeData)) ACTION_POOLS.addPool(typeData, supplierData);
         }
     }
 
